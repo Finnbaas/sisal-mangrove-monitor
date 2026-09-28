@@ -1,0 +1,89 @@
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #F5F1E7;
+  color: #1E2A26;
+}
+
+header {
+  padding: 24px 32px;
+  border-bottom: 1px solid #D8D1BE;
+  background: #FFFFFF;
+}
+
+h1 {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+}
+
+#status {
+  margin: 0;
+  color: #52605B;
+  font-size: 14px;
+}
+
+main {
+  padding: 24px 32px;
+}
+
+#point-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#point-list li {
+  background: #FFFFFF;
+  border: 1px solid #D8D1BE;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+}
+
+#point-select {
+  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #D8D1BE;
+  margin-bottom: 16px;
+}
+
+#chart-wrap {
+  background: #FFFFFF;
+  border: 1px solid #D8D1BE;
+  border-radius: 10px;
+  padding: 16px;
+  max-width: 700px;
+}
+
+#slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 700px;
+  margin-top: 16px;
+  background: #FFFFFF;
+  border: 1px solid #D8D1BE;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+#slider-wrap input[type="range"] {
+  flex-grow: 1;
+}
+
+#year-readout {
+  font-family: monospace;
+  font-weight: 600;
+  min-width: 140px;
+  text-align: right;
+}
+
+#slider-wrap button {
+  border: 1px solid #D8D1BE;
+  background: transparent;
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
