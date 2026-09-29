@@ -5,128 +5,175 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sisal Mangrove Monitor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
-  <div id="topbar">
-    <div id="brand">Sisal Mangrove Monitor</div>
-    <div id="tabs" role="tablist">
-      <button id="tab-research" class="tab active" role="tab" data-tab="research">Research</button>
-      <button id="tab-method" class="tab" role="tab" data-tab="method">Method</button>
-    </div>
-    <div id="coords" class="mono"></div>
-    <div id="sample-badge">Sample data for prototype testing</div>
-  </div>
+  <div id="page">
 
-  <!-- RESEARCH TAB -->
-  <section id="research">
-    <div id="left">
-      <div id="legend"></div>
-      <div id="map" style="background-image:url('img/survey-map.jpg')"></div>
-      <p class="hint" id="map-note"></p>
-
-      <div class="card" id="slider-wrap">
-        <button id="year-back" class="step" aria-label="Previous year">&larr;</button>
-        <input type="range" id="year-slider" min="1984" max="2026" step="1" value="2026" aria-label="Year">
-        <button id="year-forward" class="step" aria-label="Next year">&rarr;</button>
-        <div id="year-readout" class="mono"></div>
+    <!-- TOP BAR -->
+    <div id="topbar">
+      <div id="brand">
+        <div id="brand-mark">S</div>
+        <div id="brand-name">Sisal Mangrove Monitor</div>
       </div>
+      <div id="tabs" role="tablist">
+        <button class="tab active" role="tab" aria-selected="true" data-tab="research">Research</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="method">Method</button>
+      </div>
+      <div id="topbar-right">
+        <div id="coords" class="mono"></div>
+        <div id="badge">Prototype</div>
+      </div>
+    </div>
 
-      <div id="custom-wrap">
-        <button id="custom-toggle" class="outline">Custom point</button>
-        <div id="custom-panel" hidden>
-          <div id="custom-pending" hidden>Analyzing imagery for this location&hellip;</div>
-          <div id="custom-ready" hidden>Mock result ready. In the live tool this calls a backend job against Earth Engine and returns when it resolves, up to about a minute.</div>
-          <div id="custom-idle">
-            <span>Click a location on the map, or</span>
-            <button id="custom-run" class="outline small">simulate a request</button>
+    <!-- RESEARCH TAB -->
+    <section id="research">
+      <div class="col" id="left">
+
+        <div class="card">
+          <div class="card-title-row"><div class="card-title">Site map</div><div class="expand">&#8599;</div></div>
+          <div id="map">
+            <div id="map-ring" hidden></div>
+            <div id="legend">
+              <div id="legend-title">Sample points</div>
+              <div id="legend-items"></div>
+            </div>
+          </div>
+          <div class="fine" id="map-note"></div>
+        </div>
+
+        <div class="card" id="slider-card">
+          <div id="slider-row">
+            <div id="year-block">
+              <div class="label-xs">Year</div>
+              <div id="year-big"></div>
+            </div>
+            <button id="year-back" class="step" aria-label="Previous year">&larr;</button>
+            <input type="range" id="year-slider" min="1984" max="2026" step="1" value="2026" aria-label="Year">
+            <button id="year-forward" class="step" aria-label="Next year">&rarr;</button>
+            <div class="label-xs" id="year-range">1984&ndash;2026</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title-row"><div class="card-title">Tipping status</div><div class="expand">&#8599;</div></div>
+          <div id="status-row">
+            <svg viewBox="0 0 100 100" id="ring">
+              <circle cx="50" cy="50" r="44" fill="none" stroke="#EEF4EC" stroke-width="10"></circle>
+              <circle id="ring-arc" cx="50" cy="50" r="44" fill="none" stroke="#1C3B2E" stroke-width="10" stroke-linecap="round" stroke-dasharray="0 276.5" transform="rotate(-90 50 50)"></circle>
+              <text id="ring-text" x="50" y="55" text-anchor="middle" font-size="20" font-weight="700" fill="#1E2620"></text>
+            </svg>
+            <div>
+              <div id="status-label"></div>
+              <div id="status-desc"></div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div id="right">
-      <h1 id="point-name"></h1>
-      <div id="point-sub"></div>
+      <div class="col" id="right">
 
-      <div id="status-banner">
-        <div id="status-head"><span id="status-dot"></span><span id="status-label"></span></div>
-        <div id="status-desc"></div>
-        <div id="status-tau" class="mono"></div>
-      </div>
-
-      <div class="card no-pad" id="clim">
-        <div class="card-head">Climatology</div>
-        <div id="clim-rows"></div>
-      </div>
-
-      <div class="card" id="chart-card">
-        <div id="chart-head">
-          <div id="chart-range"></div>
-          <div id="chart-summary"></div>
+        <div class="card">
+          <div class="card-title-row top">
+            <div>
+              <div class="card-title" id="point-name"></div>
+              <div class="faint" id="point-class"></div>
+            </div>
+            <div class="expand">&#8599;</div>
+          </div>
+          <div id="chips"></div>
+          <svg id="chart" viewBox="0 0 600 170">
+            <line x1="0" y1="150" x2="600" y2="150" stroke="#EEF4EC" stroke-width="1"></line>
+            <line x1="0" y1="85" x2="600" y2="85" stroke="#EEF4EC" stroke-width="1"></line>
+            <line x1="0" y1="20" x2="600" y2="20" stroke="#EEF4EC" stroke-width="1"></line>
+            <text id="chart-max" x="4" y="16" font-size="9" fill="#9AA69C"></text>
+            <text id="chart-min" x="4" y="160" font-size="9" fill="#9AA69C"></text>
+            <line id="year-marker" x1="0" y1="8" x2="0" y2="162" stroke="#9AA69C" stroke-width="1" stroke-dasharray="3,3"></line>
+            <line id="breakpoint-line" x1="0" y1="10" x2="0" y2="160" stroke="#C1652F" stroke-width="1.5" stroke-dasharray="4,4" style="display:none"></line>
+            <g id="lines"></g>
+          </svg>
+          <div id="chart-foot">
+            <div class="faint xs" id="chart-summary"></div>
+            <div id="exports">
+              <button id="export-png" class="ghost">Export PNG</button>
+              <button id="export-csv" class="ghost">Export CSV</button>
+            </div>
+          </div>
+          <div id="breakpoint-note" hidden></div>
+          <p id="status" class="fine"></p>
         </div>
-        <div id="chart-wrap"><canvas id="ndvi-chart"></canvas></div>
-        <div id="breakpoint-note" hidden></div>
-        <div id="exports">
-          <button id="export-png" class="outline small">Export chart (PNG)</button>
-          <button id="export-csv" class="outline small">Export data (CSV)</button>
+
+        <div class="card">
+          <div class="card-title-row"><div class="card-title" id="values-title"></div><div class="expand">&#8599;</div></div>
+          <div id="values"></div>
+        </div>
+
+        <div id="small-row">
+          <div class="card">
+            <div class="card-title-row"><div class="card-title">Point info</div><div class="expand">&#8599;</div></div>
+            <div id="info">
+              <div><div class="label-xs">Change class</div><div class="info-val" id="info-class"></div></div>
+              <div><div class="label-xs">Longitude</div><div class="info-val mono" id="info-lon"></div></div>
+              <div><div class="label-xs">Latitude</div><div class="info-val mono" id="info-lat"></div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title-row"><div class="card-title">Trend signals</div><div class="expand">&#8599;</div></div>
+            <div class="trend-row head"><div>Metric</div><div class="r">Value</div><div class="r">&tau;</div></div>
+            <div id="metrics"></div>
+          </div>
         </div>
       </div>
-      <p id="status" class="hint"></p>
-    </div>
-  </section>
+    </section>
 
-  <!-- METHOD TAB -->
-  <section id="method" hidden>
-    <h1>Method</h1>
-
-    <div class="m-block">
-      <h2>1. Site and pixel selection</h2>
-      <p>Points are drawn from a classified mangrove map of the Sisal AOI, combining the Global Mangrove Watch product with ESA land cover data. Random point coordinates are fixed in a CSV so repeat runs use the same points. Points are split between anthropogenic and unmodified areas, and between water-associated and land locations, for direct comparison.</p>
-    </div>
-    <div class="m-block">
-      <h2>2. Data extraction</h2>
-      <p>Landsat imagery is filtered by a cloud cover threshold and the study time range. Maximum NDVI per interval is extracted for each coordinate. ERA5 climatology (temperature, precipitation, salinity where applicable, evapotranspiration/evaporation) is extracted for the same coordinates.</p>
-    </div>
-    <div class="m-block">
-      <h2>3. Processing and analysis</h2>
-      <p>Five metrics are computed on the NDVI series: standard deviation, AR1, return rate, kurtosis, and skewness. Kendall's tau is computed on the trend of each metric, and separately on the trend of NDVI itself. Breakpoint detection (LandTrendr) is cross-checked against visual inspection of the NDVI curve.</p>
-    </div>
-    <div class="m-block">
-      <h2>4. Land versus water points</h2>
-      <p>Salinity applies only to water-associated points. Land points show evapotranspiration rather than evaporation, since they are vegetated rather than open water or wet soil. The scenario classification below applies to water-associated wetland points; land points are treated as converted or reference locations rather than fitted to the tipping-point framework.</p>
-    </div>
-
-    <div class="m-block">
-      <h2>5. How we classify tipping-point status</h2>
-      <p>Each water-associated point is classified by crossing the trend of NDVI itself against the trend of NDVI's standard deviation, both tested with Kendall's tau. A rising standard deviation paired with falling NDVI is the classic early-warning signature: variance rises before a system crosses a threshold. LandTrendr's breakpoint detection and a visual check of the curve confirm or refine which scenario applies.</p>
-      <div id="scenario-table">
-        <div class="sc-h"></div>
-        <div class="sc-h">SD trend &tau; &gt; 0</div>
-        <div class="sc-h">SD trend &tau; &lt; 0</div>
-
-        <div class="sc-r">NDVI trend &tau; &lt; 0</div>
-        <div class="sc" style="background:#F5E3D8;color:#C1652F">Scenario 1 &mdash; Approaching tipping point (potential EWS)</div>
-        <div class="sc" style="background:#EFE0D6;color:#9C5B3E">Scenario 2 &mdash; Past tipping point (no active EWS)</div>
-
-        <div class="sc-r">NDVI trend &tau; &gt; 0</div>
-        <div class="sc" style="background:#E4EAD8;color:#5C7A3A">Scenario 3 &mdash; Recovering</div>
-        <div class="sc" style="background:#DCEBE2;color:#2F6B4F">Scenario 4 &mdash; Stable</div>
+    <!-- METHOD TAB -->
+    <section id="method" hidden>
+      <div class="card m-card">
+        <h1>Method</h1>
+        <p class="lead">How the findings on the Research tab were produced, and how to run the same analysis yourself in Google Earth Engine.</p>
       </div>
-    </div>
 
-    <div class="m-block">
-      <h2>6. Full workflow diagram</h2>
-      <img src="img/workflow.png" alt="Full analysis workflow diagram" id="workflow-img">
-    </div>
+      <div class="card m-card">
+        <h2>1. Site and pixel selection</h2>
+        <p>Points are sampled from three change masks derived from the classified mangrove map of the Sisal AOI: a gain mask, a loss mask, and a loss-then-recovery mask, combining the Global Mangrove Watch product with ESA land cover data. Random point coordinates are fixed in a CSV so repeat runs use the same points.</p>
+      </div>
+      <div class="card m-card">
+        <h2>2. Data extraction</h2>
+        <p>Landsat imagery is filtered by a cloud cover threshold and the study time range. Maximum NDVI per interval is extracted for each coordinate. ERA5 climatology (temperature, precipitation, salinity, evapotranspiration) is extracted for the same coordinates.</p>
+      </div>
+      <div class="card m-card">
+        <h2>3. Processing and analysis</h2>
+        <p>Five metrics are computed on the NDVI series: standard deviation, AR1, return rate, kurtosis, and skewness. Kendall's tau is computed on the trend of each metric, and separately on the trend of NDVI itself. Breakpoint detection (LandTrendr) is cross-checked against visual inspection of the NDVI curve.</p>
+      </div>
 
-    <div class="m-block">
-      <h2>7. Do it yourself in Google Earth Engine</h2>
-      <p>Run this same analysis on your own coordinate. The steps below match the pipeline above; the script covers steps 1&ndash;4.</p>
-      <div id="gee-steps"></div>
-      <pre id="gee-script">// Sisal mangrove NDVI extraction — starter script
+      <div class="card m-card">
+        <h2>4. How we classify tipping-point status</h2>
+        <p>Each point is classified by crossing the trend of NDVI itself against the trend of NDVI's standard deviation, both tested with Kendall's tau. LandTrendr's breakpoint detection and a visual check of the curve confirm or refine which scenario applies. This is independent of the gain/loss/recovery class, which instead reflects which change mask the point was originally sampled from.</p>
+        <div id="scenario-table">
+          <div class="sc-h"></div>
+          <div class="sc-h">SD trend &tau; &gt; 0</div>
+          <div class="sc-h">SD trend &tau; &lt; 0</div>
+          <div class="sc-r">NDVI trend &tau; &lt; 0</div>
+          <div class="sc" style="background:#F5E3D8;color:#C1652F">Scenario 1 &mdash; Approaching tipping point</div>
+          <div class="sc" style="background:#EFE0D6;color:#9C5B3E">Scenario 2 &mdash; Past tipping point</div>
+          <div class="sc-r">NDVI trend &tau; &gt; 0</div>
+          <div class="sc" style="background:#E4EAD8;color:#5C7A3A">Scenario 3 &mdash; Recovering</div>
+          <div class="sc" style="background:#DCEBE2;color:#2F6B4F">Scenario 4 &mdash; Stable</div>
+        </div>
+      </div>
+
+      <div class="card m-card">
+        <h2>5. Full workflow diagram</h2>
+        <img src="img/workflow.png" alt="Full analysis workflow diagram" id="workflow-img">
+      </div>
+
+      <div class="card m-card">
+        <h2>6. Do it yourself in Google Earth Engine</h2>
+        <p>Run this same analysis on your own coordinate. The steps below match the pipeline above; the script covers steps 1&ndash;3.</p>
+        <div id="gee-steps"></div>
+        <pre id="gee-script">// Sisal mangrove NDVI extraction — starter script
 // 1. Define your point (swap in your own coordinates)
 var point = ee.Geometry.Point([-90.033, 21.161]);
 
@@ -165,12 +212,13 @@ Export.table.toDrive({
   fileFormat: 'CSV'
 });
 
-// Pull the CSV into Python or R for steps 5-7: standard deviation,
-// AR1, return rate, kurtosis, and skewness, and Kendall's tau.</pre>
-    </div>
+// Pull the CSV into Python or R for the remaining steps: standard
+// deviation, AR1, return rate, kurtosis, skewness, and Kendall's tau.</pre>
+      </div>
 
-    <div id="disclaimer">This dashboard is a research prototype for internal testing. Data shown here is illustrative and does not represent final published results. The Landsat record is treated as starting around 1984&ndash;1985, not earlier, due to sensor limitations.</div>
-  </section>
+      <div id="disclaimer">This dashboard is a research prototype for internal testing. Data shown here is illustrative and does not represent final published results. The Landsat record is treated as starting around 1984&ndash;1985, not earlier, due to sensor limitations.</div>
+    </section>
+  </div>
 
   <script src="app.js"></script>
 </body>
