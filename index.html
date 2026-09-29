@@ -4,32 +4,174 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sisal Mangrove Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
-  <header>
-    <h1>Sisal Mangrove Monitor</h1>
-    <p id="status">Loading point data&hellip;</p>
-  </header>
+  <div id="topbar">
+    <div id="brand">Sisal Mangrove Monitor</div>
+    <div id="tabs" role="tablist">
+      <button id="tab-research" class="tab active" role="tab" data-tab="research">Research</button>
+      <button id="tab-method" class="tab" role="tab" data-tab="method">Method</button>
+    </div>
+    <div id="coords" class="mono"></div>
+    <div id="sample-badge">Sample data for prototype testing</div>
+  </div>
 
-  <main>
-    <label for="point-select">Point</label>
-    <select id="point-select"></select>
+  <!-- RESEARCH TAB -->
+  <section id="research">
+    <div id="left">
+      <div id="legend"></div>
+      <div id="map" style="background-image:url('img/survey-map.jpg')"></div>
+      <p class="hint" id="map-note"></p>
 
-    <div id="chart-wrap">
-      <canvas id="ndvi-chart"></canvas>
+      <div class="card" id="slider-wrap">
+        <button id="year-back" class="step" aria-label="Previous year">&larr;</button>
+        <input type="range" id="year-slider" min="1984" max="2026" step="1" value="2026" aria-label="Year">
+        <button id="year-forward" class="step" aria-label="Next year">&rarr;</button>
+        <div id="year-readout" class="mono"></div>
+      </div>
+
+      <div id="custom-wrap">
+        <button id="custom-toggle" class="outline">Custom point</button>
+        <div id="custom-panel" hidden>
+          <div id="custom-pending" hidden>Analyzing imagery for this location&hellip;</div>
+          <div id="custom-ready" hidden>Mock result ready. In the live tool this calls a backend job against Earth Engine and returns when it resolves, up to about a minute.</div>
+          <div id="custom-idle">
+            <span>Click a location on the map, or</span>
+            <button id="custom-run" class="outline small">simulate a request</button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div id="slider-wrap">
-      <button id="year-back">&larr;</button>
-      <input type="range" id="year-slider" min="1984" max="2026" step="1" value="2026">
-      <button id="year-forward">&rarr;</button>
-      <span id="year-readout"></span>
+    <div id="right">
+      <h1 id="point-name"></h1>
+      <div id="point-sub"></div>
+
+      <div id="status-banner">
+        <div id="status-head"><span id="status-dot"></span><span id="status-label"></span></div>
+        <div id="status-desc"></div>
+        <div id="status-tau" class="mono"></div>
+      </div>
+
+      <div class="card no-pad" id="clim">
+        <div class="card-head">Climatology</div>
+        <div id="clim-rows"></div>
+      </div>
+
+      <div class="card" id="chart-card">
+        <div id="chart-head">
+          <div id="chart-range"></div>
+          <div id="chart-summary"></div>
+        </div>
+        <div id="chart-wrap"><canvas id="ndvi-chart"></canvas></div>
+        <div id="breakpoint-note" hidden></div>
+        <div id="exports">
+          <button id="export-png" class="outline small">Export chart (PNG)</button>
+          <button id="export-csv" class="outline small">Export data (CSV)</button>
+        </div>
+      </div>
+      <p id="status" class="hint"></p>
     </div>
-  </main>
+  </section>
+
+  <!-- METHOD TAB -->
+  <section id="method" hidden>
+    <h1>Method</h1>
+
+    <div class="m-block">
+      <h2>1. Site and pixel selection</h2>
+      <p>Points are drawn from a classified mangrove map of the Sisal AOI, combining the Global Mangrove Watch product with ESA land cover data. Random point coordinates are fixed in a CSV so repeat runs use the same points. Points are split between anthropogenic and unmodified areas, and between water-associated and land locations, for direct comparison.</p>
+    </div>
+    <div class="m-block">
+      <h2>2. Data extraction</h2>
+      <p>Landsat imagery is filtered by a cloud cover threshold and the study time range. Maximum NDVI per interval is extracted for each coordinate. ERA5 climatology (temperature, precipitation, salinity where applicable, evapotranspiration/evaporation) is extracted for the same coordinates.</p>
+    </div>
+    <div class="m-block">
+      <h2>3. Processing and analysis</h2>
+      <p>Five metrics are computed on the NDVI series: standard deviation, AR1, return rate, kurtosis, and skewness. Kendall's tau is computed on the trend of each metric, and separately on the trend of NDVI itself. Breakpoint detection (LandTrendr) is cross-checked against visual inspection of the NDVI curve.</p>
+    </div>
+    <div class="m-block">
+      <h2>4. Land versus water points</h2>
+      <p>Salinity applies only to water-associated points. Land points show evapotranspiration rather than evaporation, since they are vegetated rather than open water or wet soil. The scenario classification below applies to water-associated wetland points; land points are treated as converted or reference locations rather than fitted to the tipping-point framework.</p>
+    </div>
+
+    <div class="m-block">
+      <h2>5. How we classify tipping-point status</h2>
+      <p>Each water-associated point is classified by crossing the trend of NDVI itself against the trend of NDVI's standard deviation, both tested with Kendall's tau. A rising standard deviation paired with falling NDVI is the classic early-warning signature: variance rises before a system crosses a threshold. LandTrendr's breakpoint detection and a visual check of the curve confirm or refine which scenario applies.</p>
+      <div id="scenario-table">
+        <div class="sc-h"></div>
+        <div class="sc-h">SD trend &tau; &gt; 0</div>
+        <div class="sc-h">SD trend &tau; &lt; 0</div>
+
+        <div class="sc-r">NDVI trend &tau; &lt; 0</div>
+        <div class="sc" style="background:#F5E3D8;color:#C1652F">Scenario 1 &mdash; Approaching tipping point (potential EWS)</div>
+        <div class="sc" style="background:#EFE0D6;color:#9C5B3E">Scenario 2 &mdash; Past tipping point (no active EWS)</div>
+
+        <div class="sc-r">NDVI trend &tau; &gt; 0</div>
+        <div class="sc" style="background:#E4EAD8;color:#5C7A3A">Scenario 3 &mdash; Recovering</div>
+        <div class="sc" style="background:#DCEBE2;color:#2F6B4F">Scenario 4 &mdash; Stable</div>
+      </div>
+    </div>
+
+    <div class="m-block">
+      <h2>6. Full workflow diagram</h2>
+      <img src="img/workflow.png" alt="Full analysis workflow diagram" id="workflow-img">
+    </div>
+
+    <div class="m-block">
+      <h2>7. Do it yourself in Google Earth Engine</h2>
+      <p>Run this same analysis on your own coordinate. The steps below match the pipeline above; the script covers steps 1&ndash;4.</p>
+      <div id="gee-steps"></div>
+      <pre id="gee-script">// Sisal mangrove NDVI extraction — starter script
+// 1. Define your point (swap in your own coordinates)
+var point = ee.Geometry.Point([-90.033, 21.161]);
+
+// 2. Build a cloud-masked Landsat surface reflectance collection, 1984-present
+function maskClouds(img) {
+  var qa = img.select('QA_PIXEL');
+  var cloud = qa.bitwiseAnd(1 &lt;&lt; 3).eq(0).and(qa.bitwiseAnd(1 &lt;&lt; 4).eq(0));
+  return img.updateMask(cloud);
+}
+
+var landsat = ee.ImageCollection('LANDSAT/LC08/C02/T1_L2')
+  .merge(ee.ImageCollection('LANDSAT/LE07/C02/T1_L2'))
+  .merge(ee.ImageCollection('LANDSAT/LT05/C02/T1_L2'))
+  .filterBounds(point)
+  .filterDate('1984-01-01', '2026-12-31')
+  .map(maskClouds);
+
+// 3. Compute NDVI per image (band names vary slightly by sensor)
+function addNDVI(img) {
+  var ndvi = img.normalizedDifference(['SR_B5', 'SR_B4']).rename('NDVI');
+  return img.addBands(ndvi);
+}
+var withNDVI = landsat.map(addNDVI);
+
+// 4. Extract the NDVI time series at the point and export to CSV
+var series = withNDVI.select('NDVI').getRegion(point, 30);
+
+Export.table.toDrive({
+  collection: ee.FeatureCollection(
+    ee.List(series).slice(1).map(function (row) {
+      row = ee.List(row);
+      return ee.Feature(null, { date: row.get(3), ndvi: row.get(4) });
+    })
+  ),
+  description: 'sisal_point_ndvi',
+  fileFormat: 'CSV'
+});
+
+// Pull the CSV into Python or R for steps 5-7: standard deviation,
+// AR1, return rate, kurtosis, and skewness, and Kendall's tau.</pre>
+    </div>
+
+    <div id="disclaimer">This dashboard is a research prototype for internal testing. Data shown here is illustrative and does not represent final published results. The Landsat record is treated as starting around 1984&ndash;1985, not earlier, due to sensor limitations.</div>
+  </section>
 
   <script src="app.js"></script>
 </body>
 </html>
-<!-- hello -->
