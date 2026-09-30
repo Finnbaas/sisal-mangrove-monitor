@@ -9,6 +9,10 @@
   --body: #3A4640;
   --line: #DCE6D8;
   --line-soft: #E4EBE1;
+
+  /* footer (from the Figma variables Color/footer-bg and Color/footer-text) */
+  --color-footer-bg: #0f3d3e;
+  --color-footer-text: #ffffff;
 }
 
 * { box-sizing: border-box; }
@@ -295,4 +299,24 @@ button { font-family: inherit; cursor: pointer; }
   #small-row { grid-template-columns: 1fr; }
   #scenario-table { grid-template-columns: 90px 1fr 1fr; }
   #slider-row { flex-wrap: wrap; }
+}
+
+/* footer */
+#footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 112px;
+  padding: 16px 80px;
+  background: var(--color-footer-bg);
+  color: var(--color-footer-text);
+  font-size: 14px;
+}
+#footer p { margin: 0; }
+.footer-link {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
 }

@@ -397,6 +397,15 @@ function setupTabs() {
   });
 }
 
+// Footer link "Read the method": opens the Method tab and scrolls to the top.
+// It clicks the real Method tab button, so the tab switching code above does the work.
+function setupFooterLink() {
+  $('footer-method-link').addEventListener('click', () => {
+    document.querySelector('.tab[data-tab="method"]').click();
+    window.scrollTo(0, 0);
+  });
+}
+
 function renderGeeSteps() {
   $('gee-steps').innerHTML = GEE_STEPS.map((s, i) =>
     '<div class="gee-step"><div class="gee-n">' + (i + 1) + '</div><div class="gee-body">' +
@@ -406,6 +415,7 @@ function renderGeeSteps() {
 
 renderGeeSteps();
 setupTabs();
+setupFooterLink();
 setupSlider();
 setupExports();
 setYear(YEAR_MAX);
