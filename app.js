@@ -1,6 +1,5 @@
 const YEAR_MIN = 1984;
 const YEAR_MAX = 2026;
-const CIRCUMFERENCE = 2 * Math.PI * 44;
 
 const CLASSES = {
   loss: { label: 'Loss', color: '#D93A2B' },
@@ -16,11 +15,11 @@ const SCENARIOS = {
 };
 
 const VARS = [
-  { id: 'ndvi', label: 'NDVI', unit: 'index, 0–1', color: '#1C3B2E', min: 0.3, max: 0.8, digits: 3 },
-  { id: 'temperature', label: 'Temp', unit: '°C', color: '#C1652F', min: 24, max: 32, digits: 1 },
-  { id: 'salinity', label: 'Salinity', unit: 'PSU', color: '#3A6EA5', min: 15, max: 36, digits: 1 },
-  { id: 'precipitation', label: 'Precip', unit: 'mm/mo', color: '#7B5EA7', min: 0, max: 220, digits: 0 },
-  { id: 'evapo', label: 'Evap./ET', unit: 'mm/day', color: '#5C7A3A', min: 2, max: 7, digits: 1 }
+  { id: 'ndvi', label: 'NDVI', unit: 'index, 0–1', color: '#1C3B2E' },
+  { id: 'temperature', label: 'Temp', unit: '°C', color: '#C1652F' },
+  { id: 'salinity', label: 'Salinity', unit: 'PSU', color: '#3A6EA5' },
+  { id: 'precipitation', label: 'Precip', unit: 'mm/mo', color: '#7B5EA7' },
+  { id: 'evapo', label: 'Evap./ET', unit: 'mm/day', color: '#5C7A3A' }
 ];
 
 const METRICS = [
@@ -46,6 +45,11 @@ let allPoints = [];
 let selectedId = null;
 const checked = { ndvi: true, temperature: false, salinity: false, precipitation: false, evapo: false };
 
+// Text shown wherever a value is missing (null or absent in points.json)
+const NO_DATA = 'No data';
+// Used for a point whose change class or scenario is missing from points.json
+const UNKNOWN = { label: NO_DATA, color: '#9AA69C', desc: '' };
+
 const $ = (id) => document.getElementById(id);
 
 // ---------- data loading ----------
@@ -58,7 +62,8 @@ async function loadPoints() {
     allPoints = await response.json();
 
     selectedId = allPoints[0].id;
-    $('map-note').textContent = '6 of 50 points shown · illustrative marker placement, not pixel-matched to exact coordinates';
+    const count = allPoints.length;
+    $('map-note').textContent = count + (count === 1 ? ' point' : ' points') + ' shown · illustrative marker placement, not pixel-matched to exact coordinates';
     renderMap();
     renderChips();
     renderAll();
@@ -99,7 +104,7 @@ function renderMap() {
     btn.setAttribute('aria-label', p.name);
     btn.style.left = p.leftPct + '%';
     btn.style.top = p.topPct + '%';
-    btn.style.background = CLASSES[p.changeClass].color;
+    btn.style.background = (CLASSES[p.changeClass] || UNKNOWN).color;
     btn.addEventListener('click', () => { selectedId = p.id; renderAll(); });
     map.appendChild(btn);
   });
@@ -126,16 +131,58 @@ function renderChips() {
 
 // ---------- render ----------
 
+// Returns the list of values for one variable, or an empty list if the point has none.
 function seriesFor(point, v) {
-  return point[v.id];
+  return Array.isArray(point[v.id]) ? point[v.id] : [];
+}
+
+function isNumber(value) {
+  return typeof value === 'number' && isFinite(value);
+}
+
+// Only the real numbers of a series (missing values are left out).
+function knownValues(series) {
+  return series.filter(isNumber);
+}
+
+// Counts how many decimals the data itself uses (the most found in the list of numbers),
+// so values are shown exactly as precisely as they are stored, never rounded or padded further.
+function decimalsIn(numbers) {
+  return Math.max(0, ...knownValues(numbers).map((n) => {
+    const parts = String(n).split('.');
+    return parts[1] ? parts[1].length : 0;
+  }));
+}
+
+// Formats a value with the same number of decimals as the series it belongs to.
+function formatLike(value, series) {
+  if (!isNumber(value)) return NO_DATA;
+  return value.toFixed(decimalsIn(series));
+}
+
+// A value with its unit, or "No data" (without unit) when the value is missing.
+function valueWithUnit(value, series, unit) {
+  return isNumber(value) ? formatLike(value, series) + ' ' + unit : NO_DATA;
+}
+
+// Coordinates as text, or "No data" when missing.
+function lonText(point) {
+  return isNumber(point.lon) ? formatLike(Math.abs(point.lon), [point.lon]) + '° W' : NO_DATA;
+}
+
+function latText(point) {
+  return isNumber(point.lat) ? formatLike(point.lat, [point.lat]) + '° N' : NO_DATA;
 }
 
 function renderAll() {
   const point = getSelectedPoint();
-  const cls = CLASSES[point.changeClass];
-  const scen = SCENARIOS[point.scenario];
-  const year = currentYear();
-  const idx = nearestIndexForYear(point.years, year);
+  const cls = CLASSES[point.changeClass] || UNKNOWN;
+  const scen = SCENARIOS[point.scenario] || UNKNOWN;
+  // The slider can be dragged to any year, but data only exists for the survey years of this point.
+  // So we show the nearest survey year and move the slider onto it: the year on screen is always the year of the data shown.
+  const idx = nearestIndexForYear(point.years, currentYear());
+  const year = point.years[idx];
+  $('year-slider').value = year;
 
   // map selection ring
   const ring = $('map-ring');
@@ -145,18 +192,10 @@ function renderAll() {
   ring.style.boxShadow = '0 0 0 2px ' + cls.color;
 
   // top bar + slider
-  $('coords').textContent = Math.abs(point.lon).toFixed(2) + '° W, ' + point.lat.toFixed(2) + '° N';
+  $('coords').textContent = lonText(point) + ', ' + latText(point);
   $('year-big').textContent = year;
 
-  // status ring
-  const ndviTau = parseFloat(point.metricTaus.ndvi) || 0;
-  const sdTau = parseFloat(point.metricTaus.stdDev) || 0;
-  const strength = Math.min(1, (Math.abs(ndviTau) + Math.abs(sdTau)) / 2 / 0.6);
-  const percent = Math.round(strength * 100);
-  const arc = $('ring-arc');
-  arc.setAttribute('stroke', scen.color);
-  arc.setAttribute('stroke-dasharray', (CIRCUMFERENCE * percent / 100).toFixed(1) + ' ' + CIRCUMFERENCE.toFixed(1));
-  $('ring-text').textContent = percent + '%';
+  // tipping status (scenario label and description)
   $('status-label').textContent = scen.label;
   $('status-label').style.color = scen.color;
   $('status-desc').textContent = scen.desc;
@@ -176,46 +215,85 @@ function renderAll() {
   $('values-title').textContent = 'Values for ' + year;
   $('values').innerHTML = VARS.map((v) =>
     '<div class="value-row"><div class="value-name"><span class="value-dot" style="background:' + v.color + '"></span><span>' + v.label +
-    '</span></div><div class="mono value-num">' + seriesFor(point, v)[idx].toFixed(v.digits) + ' ' + v.unit + '</div></div>'
+    '</span></div><div class="mono value-num">' + valueWithUnit(seriesFor(point, v)[idx], seriesFor(point, v), v.unit) + '</div></div>'
   ).join('');
 
   // point info
   $('info-class').textContent = cls.label;
-  $('info-lon').textContent = Math.abs(point.lon).toFixed(2) + '° W';
-  $('info-lat').textContent = point.lat.toFixed(2) + '° N';
+  $('info-lon').textContent = lonText(point);
+  $('info-lat').textContent = latText(point);
 
   // trend signals
   $('metrics').innerHTML = METRICS.map((m) =>
-    '<div class="trend-row"><div>' + m[0] + '</div><div class="mono r">' + (m[1] ? point.metricVals[m[1]] : '—') +
-    '</div><div class="mono r tau">' + point.metricTaus[m[2]] + '</div></div>'
+    '<div class="trend-row"><div>' + m[0] + '</div><div class="mono r">' + (m[1] ? textOrNoData(point.metricVals, m[1]) : '—') +
+    '</div><div class="mono r tau">' + textOrNoData(point.metricTaus, m[2]) + '</div></div>'
   ).join('');
+}
+
+// Reads one entry of metricVals / metricTaus, or "No data" when it is missing.
+function textOrNoData(group, key) {
+  const value = group ? group[key] : null;
+  return value === null || value === undefined || value === '' ? NO_DATA : value;
 }
 
 // ---------- chart ----------
 
-function polyline(values, min, max) {
+// The axis range of a series is simply its own lowest and highest value,
+// so nothing is cut off or changed. A flat series gets a range of 1 to avoid dividing by zero.
+// Returns null when the series has no values at all.
+function axisRange(values) {
+  const known = knownValues(values);
+  if (!known.length) return null;
+  const min = Math.min(...known);
+  const max = Math.max(...known);
+  return { min: min, max: max === min ? min + 1 : max };
+}
+
+// Draws one variable. Missing values are not drawn: the line stops at a gap and
+// starts again after it. A single value with gaps on both sides is drawn as a dot.
+function drawSeries(values, range, color) {
   const n = values.length;
-  return values.map((val, i) => {
-    const x = 20 + i * (560 / (n - 1));
-    const c = Math.max(min, Math.min(max, val));
-    const y = 150 - ((c - min) / (max - min)) * 130;
-    return x.toFixed(1) + ',' + y.toFixed(1);
-  }).join(' ');
+  const segments = [];
+  let current = [];
+  values.forEach((val, i) => {
+    if (isNumber(val)) {
+      const x = 20 + i * (560 / (n - 1));
+      const y = 150 - ((val - range.min) / (range.max - range.min)) * 130;
+      current.push([x, y]);
+    } else if (current.length) {
+      segments.push(current);
+      current = [];
+    }
+  });
+  if (current.length) segments.push(current);
+
+  return segments.map((seg) => {
+    if (seg.length === 1) {
+      return '<circle cx="' + seg[0][0].toFixed(1) + '" cy="' + seg[0][1].toFixed(1) + '" r="2.5" fill="' + color + '"></circle>';
+    }
+    const points = seg.map((p) => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+    return '<polyline points="' + points + '" fill="none" stroke="' + color + '" stroke-width="2.5"></polyline>';
+  }).join('');
 }
 
 function renderChart(point, idx) {
   const n = point.years.length;
   const active = VARS.filter((v) => checked[v.id]);
 
-  $('lines').innerHTML = active.map((v) =>
-    '<polyline points="' + polyline(seriesFor(point, v), v.min, v.max) + '" fill="none" stroke="' + v.color + '" stroke-width="2.5"></polyline>'
-  ).join('');
+  // every selected variable is scaled to its own data range for this point
+  $('lines').innerHTML = active.map((v) => {
+    const range = axisRange(seriesFor(point, v));
+    return range ? drawSeries(seriesFor(point, v), range, v.color) : '';
+  }).join('');
 
+  // the axis labels show the range of the first selected variable
   const primary = active[0];
-  $('chart-max').textContent = primary ? primary.max : '';
-  $('chart-min').textContent = primary ? primary.min : '';
+  const primarySeries = primary ? seriesFor(point, primary) : [];
+  const primaryRange = primary ? axisRange(primarySeries) : null;
+  $('chart-max').textContent = primaryRange ? formatLike(Math.max(...knownValues(primarySeries)), primarySeries) : (primary ? NO_DATA : '');
+  $('chart-min').textContent = primaryRange ? formatLike(Math.min(...knownValues(primarySeries)), primarySeries) : '';
   $('chart-summary').textContent = active.length
-    ? active.map((v) => v.label + ' (' + v.unit + ')').join(' · ')
+    ? active.map((v) => v.label + (axisRange(seriesFor(point, v)) ? ' (' + v.unit + ')' : ' (' + NO_DATA + ')')).join(' · ')
     : 'no variables selected';
 
   const mx = (20 + idx * (560 / (n - 1))).toFixed(1);
@@ -244,11 +322,19 @@ function setYear(year) {
   else $('year-big').textContent = $('year-slider').value;
 }
 
+// The arrow buttons jump to the previous / next survey year of the selected point.
+function stepYear(direction) {
+  if (!allPoints.length) return;
+  const years = getSelectedPoint().years;
+  const next = years[nearestIndexForYear(years, currentYear()) + direction];
+  if (next !== undefined) setYear(next);
+}
+
 function setupSlider() {
   const slider = $('year-slider');
   slider.addEventListener('input', () => setYear(parseInt(slider.value, 10)));
-  $('year-back').addEventListener('click', () => setYear(currentYear() - 1));
-  $('year-forward').addEventListener('click', () => setYear(currentYear() + 1));
+  $('year-back').addEventListener('click', () => stepYear(-1));
+  $('year-forward').addEventListener('click', () => stepYear(1));
 }
 
 // ---------- exports ----------
@@ -285,7 +371,7 @@ function setupExports() {
     if (!allPoints.length) return;
     const p = getSelectedPoint();
     const cols = VARS.map((v) => v.id);
-    const rows = p.years.map((y, i) => [y].concat(VARS.map((v) => seriesFor(p, v)[i])).join(','));
+    const rows = p.years.map((y, i) => [y].concat(VARS.map((v) => isNumber(seriesFor(p, v)[i]) ? seriesFor(p, v)[i] : '')).join(','));
     const csv = 'year,' + cols.join(',') + '\n' + rows.join('\n') + '\n';
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
     download(p.id + '_data.csv', url);
