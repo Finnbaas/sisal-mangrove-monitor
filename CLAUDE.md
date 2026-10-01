@@ -52,7 +52,7 @@ Labels are pending a team decision. Do not change them in either direction until
 - Figma variables become CSS variables at the top of style.css. Reuse existing variables before adding new ones.
 - Figma components become reusable CSS classes (and small JavaScript functions where they need behavior).
 - Annotations in Figma describe behavior. Follow them.
-- Design size is 1440 x 900. The layout must also work at 1366 x 768 without the main dashboard (map, filters, legend) needing to scroll.
+- Design size is 1440 x 900. The layout must also work at 1366 x 768. Vertical scrolling is fine.
 - If the design and the existing code conflict, or something in the design is unclear, ask instead of guessing.
 
 ## How to work
