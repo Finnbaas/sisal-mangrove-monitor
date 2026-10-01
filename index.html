@@ -23,15 +23,43 @@
       </div>
       <div id="topbar-right">
         <div id="coords" class="mono"></div>
-        <div id="badge">Prototype</div>
       </div>
     </div>
 
-    <!-- RESEARCH TAB -->
-    <section id="research">
-      <div class="col" id="left">
+    <!-- RESEARCH SUB-NAVIGATION: one link per research section. The part after "#" is the section's address. -->
+    <nav id="subnav" aria-label="Research sections">
+      <a class="subtab" href="#overview"><span>Overview</span></a>
+      <a class="subtab" href="#satellite"><span>Satellite data</span></a>
+      <a class="subtab" href="#climatology"><span>Climatology data</span></a>
+      <a class="subtab" href="#stakeholders"><span>Stakeholder data</span></a>
+    </nav>
 
-        <div class="card">
+    <!-- Every screen below has data-screen="...". JavaScript shows only the one that matches the address (#...).
+         A research section only lists empty slots (data-slot="..."). When the section is shown, JavaScript
+         moves the card with the same name (data-card="...", see CARD LIBRARY below) into each slot. -->
+
+    <!-- RESEARCH SECTION: OVERVIEW -->
+    <section class="research-grid" data-screen="overview">
+      <div class="col">
+        <div data-slot="map"></div>
+        <div data-slot="year"></div>
+        <div data-slot="tipping"></div>
+      </div>
+      <div class="col">
+        <div data-slot="chart"></div>
+        <div data-slot="values"></div>
+        <div class="small-row">
+          <div data-slot="point-info"></div>
+          <div data-slot="trends"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CARD LIBRARY: every research card exists only once, here. It is hidden until JavaScript
+         moves a card into a slot of the section that is shown. -->
+    <div id="card-library" hidden>
+
+        <div class="card" data-card="map">
           <div class="card-title-row"><div class="card-title">Site map</div><div class="expand">&#8599;</div></div>
           <div id="map">
             <div id="map-ring" hidden></div>
@@ -43,7 +71,7 @@
           <div class="fine" id="map-note"></div>
         </div>
 
-        <div class="card" id="slider-card">
+        <div class="card" id="slider-card" data-card="year">
           <div id="slider-row">
             <div id="year-block">
               <div class="label-xs">Year</div>
@@ -56,7 +84,7 @@
           </div>
         </div>
 
-        <div class="card">
+        <div class="card" data-card="tipping">
           <div class="card-title-row"><div class="card-title">Tipping status</div><div class="expand">&#8599;</div></div>
           <div id="status-row">
             <div>
@@ -65,11 +93,8 @@
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="col" id="right">
-
-        <div class="card">
+        <div class="card" data-card="chart">
           <div class="card-title-row top">
             <div>
               <div class="card-title" id="point-name"></div>
@@ -79,13 +104,14 @@
           </div>
           <div id="chips"></div>
           <svg id="chart" viewBox="0 0 600 170">
-            <line x1="0" y1="150" x2="600" y2="150" stroke="#EEF4EC" stroke-width="1"></line>
-            <line x1="0" y1="85" x2="600" y2="85" stroke="#EEF4EC" stroke-width="1"></line>
-            <line x1="0" y1="20" x2="600" y2="20" stroke="#EEF4EC" stroke-width="1"></line>
-            <text id="chart-max" x="4" y="16" font-size="9" fill="#9AA69C"></text>
-            <text id="chart-min" x="4" y="160" font-size="9" fill="#9AA69C"></text>
-            <line id="year-marker" x1="0" y1="8" x2="0" y2="162" stroke="#9AA69C" stroke-width="1" stroke-dasharray="3,3"></line>
-            <line id="breakpoint-line" x1="0" y1="10" x2="0" y2="160" stroke="#C1652F" stroke-width="1.5" stroke-dasharray="4,4" style="display:none"></line>
+            <!-- colors of these lines and labels are set in style.css -->
+            <line class="gridline" x1="0" y1="150" x2="600" y2="150" stroke-width="1"></line>
+            <line class="gridline" x1="0" y1="85" x2="600" y2="85" stroke-width="1"></line>
+            <line class="gridline" x1="0" y1="20" x2="600" y2="20" stroke-width="1"></line>
+            <text class="axis-label" id="chart-max" x="4" y="16" font-size="9"></text>
+            <text class="axis-label" id="chart-min" x="4" y="160" font-size="9"></text>
+            <line id="year-marker" x1="0" y1="8" x2="0" y2="162" stroke-width="1" stroke-dasharray="3,3"></line>
+            <line id="breakpoint-line" x1="0" y1="10" x2="0" y2="160" stroke-width="1.5" stroke-dasharray="4,4" style="display:none"></line>
             <g id="lines"></g>
           </svg>
           <div id="chart-foot">
@@ -99,32 +125,76 @@
           <p id="status" class="fine"></p>
         </div>
 
-        <div class="card">
+        <div class="card" data-card="values">
           <div class="card-title-row"><div class="card-title" id="values-title"></div><div class="expand">&#8599;</div></div>
           <div id="values"></div>
         </div>
 
-        <div id="small-row">
-          <div class="card">
-            <div class="card-title-row"><div class="card-title">Point info</div><div class="expand">&#8599;</div></div>
-            <div id="info">
-              <div><div class="label-xs">Change class</div><div class="info-val" id="info-class"></div></div>
-              <div><div class="label-xs">Longitude</div><div class="info-val mono" id="info-lon"></div></div>
-              <div><div class="label-xs">Latitude</div><div class="info-val mono" id="info-lat"></div></div>
-            </div>
+        <div class="card" data-card="point-info">
+          <div class="card-title-row"><div class="card-title">Point info</div><div class="expand">&#8599;</div></div>
+          <div id="info">
+            <div><div class="label-xs">Change class</div><div class="info-val" id="info-class"></div></div>
+            <div><div class="label-xs">Longitude</div><div class="info-val mono" id="info-lon"></div></div>
+            <div><div class="label-xs">Latitude</div><div class="info-val mono" id="info-lat"></div></div>
           </div>
+        </div>
 
-          <div class="card">
-            <div class="card-title-row"><div class="card-title">Trend signals</div><div class="expand">&#8599;</div></div>
-            <div class="trend-row head"><div>Metric</div><div class="r">Value</div><div class="r">&tau;</div></div>
-            <div id="metrics"></div>
-          </div>
+        <div class="card" data-card="trends">
+          <div class="card-title-row"><div class="card-title">Trend signals</div><div class="expand">&#8599;</div></div>
+          <div class="trend-row head"><div>Metric</div><div class="r">Value</div><div class="r">&tau;</div></div>
+          <div id="metrics"></div>
+        </div>
+    </div>
+
+    <!-- RESEARCH SECTION: SATELLITE (like Overview, without the Values card) -->
+    <section class="research-grid" data-screen="satellite" hidden>
+      <div class="col">
+        <div data-slot="map"></div>
+        <div data-slot="year"></div>
+        <div data-slot="tipping"></div>
+      </div>
+      <div class="col">
+        <div data-slot="chart"></div>
+        <div class="small-row">
+          <div data-slot="point-info"></div>
+          <div data-slot="trends"></div>
         </div>
       </div>
     </section>
 
-    <!-- METHOD TAB -->
-    <section id="method" hidden>
+    <!-- RESEARCH SECTION: CLIMATOLOGY -->
+    <section class="research-grid" data-screen="climatology" hidden>
+      <div class="col">
+        <div data-slot="map"></div>
+        <div data-slot="year"></div>
+        <!-- placeholder: the content of this card has not been decided yet -->
+        <div class="card"><p class="placeholder-text">Not yet available</p></div>
+      </div>
+      <div class="col">
+        <div data-slot="chart"></div>
+        <div data-slot="values"></div>
+        <div class="small-row">
+          <div data-slot="point-info"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESEARCH SECTION: STAKEHOLDERS -->
+    <section class="research-grid" data-screen="stakeholders" hidden>
+      <div class="col">
+        <div data-slot="map"></div>
+        <div data-slot="year"></div>
+        <!-- placeholder: the content of this card has not been decided yet -->
+        <div class="card"><p class="placeholder-text">Not yet available</p></div>
+      </div>
+      <div class="col">
+        <!-- placeholder: the stakeholder diagram is not available yet -->
+        <div class="card"><p class="placeholder-text">Not yet available</p></div>
+      </div>
+    </section>
+
+    <!-- METHOD PAGE -->
+    <section id="method" data-screen="method" hidden>
       <div class="card m-card">
         <h1>Method</h1>
         <p class="lead">How the findings on the Research tab were produced, and how to run the same analysis yourself in Google Earth Engine.</p>
@@ -151,11 +221,11 @@
           <div class="sc-h">SD trend &tau; &gt; 0</div>
           <div class="sc-h">SD trend &tau; &lt; 0</div>
           <div class="sc-r">NDVI trend &tau; &lt; 0</div>
-          <div class="sc" style="background:#F5E3D8;color:#C1652F">Scenario 1 &mdash; Approaching tipping point</div>
-          <div class="sc" style="background:#EFE0D6;color:#9C5B3E">Scenario 2 &mdash; Past tipping point</div>
+          <div class="sc sc-1">Scenario 1 &mdash; Approaching tipping point</div>
+          <div class="sc sc-2">Scenario 2 &mdash; Past tipping point</div>
           <div class="sc-r">NDVI trend &tau; &gt; 0</div>
-          <div class="sc" style="background:#E4EAD8;color:#5C7A3A">Scenario 3 &mdash; Recovering</div>
-          <div class="sc" style="background:#DCEBE2;color:#2F6B4F">Scenario 4 &mdash; Stable</div>
+          <div class="sc sc-3">Scenario 3 &mdash; Recovering</div>
+          <div class="sc sc-4">Scenario 4 &mdash; Stable</div>
         </div>
       </div>
 
@@ -215,7 +285,7 @@ Export.table.toDrive({
     </section>
   </div>
 
-  <!-- FOOTER (outside the tab sections, so it shows on both tabs) -->
+  <!-- FOOTER (outside the screens, so it shows on every screen) -->
   <footer id="footer">
     <p>Sisal Mangrove Monitor &middot; TU Delft &times; UNAM Sisal &middot; 2026</p>
     <button id="footer-method-link" class="footer-link" type="button">Read the method</button>
