@@ -52,8 +52,21 @@ Labels are pending a team decision. Do not change them in either direction until
 - Figma variables become CSS variables at the top of style.css. Reuse existing variables before adding new ones.
 - Figma components become reusable CSS classes (and small JavaScript functions where they need behavior).
 - Annotations in Figma describe behavior. Follow them.
-- Design size is 1440 x 900. The layout must also work at 1366 x 768. Vertical scrolling is fine.
+- Design size is 1440 x 900. The layout must also work at 1366 x 768 (no sideways scrolling, nothing cut off). Pages scroll vertically: content never has to fit in one screen height, so do not ask about it.
 - If the design and the existing code conflict, or something in the design is unclear, ask instead of guessing.
+
+## Figma and code
+- Figma (Screens page + variables) is the source of truth for
+  how the site looks. The code is the source of truth for
+  how it works.
+- Never change colors, fonts, spacing or layout in the code
+  without a matching change in Figma. If the user accepts a
+  visual change made in code, update Figma in the same session.
+- When asked to make big design changes in Figma, work on the
+  Playground page as copies of the screens, never directly on
+  the Screens page.
+- Sync sessions: compare Figma with the code first, list all
+  differences per screen, then plan before building.
 
 ## How to work
 - Make one change at a time and keep existing features working.
