@@ -4,34 +4,28 @@
 // Data:   data/events.json (one object per event, see CLAUDE.md "Structure of data/events.json")
 // Shows:  - a timeline: events above a time track (with the same year handle as the other screens)
 //         - a list of the events
-//         - for the selected event: six anomaly charts with one shared date axis, and a
-//           dotted comparison line that follows the mouse and shows every chart's value at that day
+//         - for the selected event: one anomaly chart per variable in content/variables.json
+//           ("eventVariables"), one shared date axis, and a dotted comparison line that follows
+//           the mouse and shows every chart's value at that day
 //
 // This file only defines functions. app.js starts it (setupClimatology) and uses these helpers
-// from app.js: $, color, isNumber, knownValues, formatLike, NO_DATA, setYear, YEAR_MIN, YEAR_MAX.
+// from app.js: $, color, colorVarOf, isNumber, knownValues, formatLike, NO_DATA, setYear, YEAR_MIN,
+// YEAR_MAX; and from content.js: CONTENT, t.
 // =====================================================================================
 
-// ---------- config: labels, units and colors (no data here) ----------
+// ---------- content (set from content/variables.json and content/texts.json, see readClimatologyContent) ----------
 
-// The six charts, top to bottom. "id" is the field name in events.json.
-const CLIMATE_VARS = [
-  { id: 'airTemperature', label: 'Mean air temperature', unit: '°C', colorVar: '--color-data-climate-air-temperature' },
-  { id: 'windSpeed', label: '10 m wind speed', unit: 'm/s', colorVar: '--color-data-climate-wind-speed' },
-  { id: 'waveHeight', label: 'Max wave height', unit: 'm', colorVar: '--color-data-climate-wave-height' },
-  { id: 'precipitation', label: 'Precipitation', unit: 'mm/day', colorVar: '--color-data-climate-precipitation' },
-  { id: 'salinity', label: 'Surface salinity', unit: 'PSU', colorVar: '--color-data-climate-salinity' },
-  { id: 'seaSurfaceTemperature', label: 'Sea surface temperature', unit: '°C', colorVar: '--color-data-climate-sea-surface-temperature' }
-];
+let CLIMATE_VARS = [];   // one chart per entry, top to bottom (variables.json "eventVariables"; "id" = field in events.json)
+let SOURCES = {};        // where a variable's data comes from (variables.json "sources")
+let MONTHS = [];         // month names for the date labels (texts.json "months")
 
-// Where a variable's data comes from: the three cells on the Climatology map.
-const SOURCES = {
-  'era5-land': { label: 'ERA5-Land land cell', colorVar: '--color-data-source-era5-land' },
-  'era5-sea': { label: 'ERA5 sea cell', colorVar: '--color-data-source-era5-sea' },
-  'hycom': { label: 'HYCOM cell', colorVar: '--color-data-source-hycom' }
-};
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const ANOMALY_TEXT = 'Anomaly: difference from the 30-year mean for the same calendar day';
+function readClimatologyContent() {
+  const v = CONTENT.variables;
+  CLIMATE_VARS = v.eventVariables.map((x) => ({ id: x.id, label: x.label, unit: x.unit || '', colorVar: colorVarOf(x.color) }));
+  SOURCES = {};
+  Object.entries(v.sources).forEach(([id, s]) => { SOURCES[id] = { label: s.label, colorVar: colorVarOf(s.color) }; });
+  MONTHS = Array.isArray(CONTENT.texts.months) && CONTENT.texts.months.length === 12 ? CONTENT.texts.months : ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+}
 
 // Size of one chart in SVG units (the same as the Figma anomaly-plot component).
 // The plot area runs from x 38 to 549 and from y 6 to 122; tick values sit left of x 38.
@@ -55,7 +49,7 @@ async function loadEvents() {
     if (!response.ok) throw new Error('HTTP ' + response.status);
     events = await response.json();
   } catch (err) {
-    $('events-status').textContent = 'Could not load event data: ' + err.message;
+    $('events-status').textContent = t('messages.couldNotLoadEvents', { error: err.message });
     console.error(err);
   }
   renderEventList();
@@ -64,6 +58,7 @@ async function loadEvents() {
 }
 
 function setupClimatology() {
+  readClimatologyContent();
   const slider = $('timeline-slider');
   slider.min = YEAR_MIN;
   slider.max = YEAR_MAX;
@@ -271,13 +266,20 @@ function renderEventCharts() {
   if (!ev) return;
 
   $('event-title').textContent = (ev.name || NO_DATA) + ' (' + monthLabel(ev) + ')';
-  $('event-subtitle').textContent = ANOMALY_TEXT + ' (' + (ev.baseline || NO_DATA) + ')';
+  $('event-subtitle').textContent = t('labels.anomalyExplanation') + ' (' + (ev.baseline || NO_DATA) + ')';
 
   const dates = Array.isArray(ev.dates) ? ev.dates : [];
   const n = dates.length;
   const weeks = weeklyDays(dates);
   const box = $('event-charts');
   box.innerHTML = '';
+
+  // no event variables listed in content/variables.json yet: say so instead of drawing empty charts
+  if (!CLIMATE_VARS.length) {
+    box.innerHTML = '<p class="placeholder-text"></p>';
+    box.firstChild.textContent = t('messages.notYetAvailable');
+    return;
+  }
 
   CLIMATE_VARS.forEach((v) => {
     const series = seriesOf(ev, v);
@@ -306,7 +308,8 @@ function renderEventCharts() {
       svg += '<rect class="plot-axis" x="' + (x - 0.5).toFixed(1) + '" y="0" width="1" height="4"></rect>' +
         '<text class="plot-tick-label" x="' + x.toFixed(1) + '" y="17" text-anchor="middle">' + w.d + '</text>';
     });
-    axis.innerHTML = '<div></div>' + svg + '</svg><div class="date-axis-title">Date</div>';
+    axis.innerHTML = '<div></div>' + svg + '</svg><div class="date-axis-title"></div>';
+    axis.querySelector('.date-axis-title').textContent = t('labels.date');
     box.appendChild(axis);
   }
 

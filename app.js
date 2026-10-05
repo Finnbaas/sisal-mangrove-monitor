@@ -1,62 +1,57 @@
-const YEAR_MIN = 1984;
-const YEAR_MAX = 2026;
+// ---------- content (set from content/variables.json and content/texts.json, see readPointContent) ----------
+// No research content is written in this file: variables, labels, units, classes, scenarios and
+// metrics all come from the content/ folder. "colorVar" is the name of a color variable in style.css.
 
-// Colors are not written here. "colorVar" is the name of a color variable at the top of style.css.
-
-const CLASSES = {
-  loss: { label: 'Loss', colorVar: '--color-class-loss' },
-  gain: { label: 'Gain', colorVar: '--color-class-gain' },
-  recovery: { label: 'Loss then recovery', colorVar: '--color-class-recovery' }
-};
-
-const SCENARIOS = {
-  1: { label: 'Approaching tipping point', colorVar: '--color-scenario-1', desc: 'NDVI declining while its variance rises — the classic early-warning signature (Scenario 1).' },
-  2: { label: 'Past tipping point', colorVar: '--color-scenario-2', desc: 'NDVI is already declining without a preceding rise in variance — no active early-warning signal (Scenario 2).' },
-  3: { label: 'Recovering', colorVar: '--color-scenario-3', desc: 'NDVI is rising while its variance also rises — an unsettled recovery trend (Scenario 3).' },
-  4: { label: 'Stable', colorVar: '--color-scenario-4', desc: 'NDVI is stable or rising while its variance falls — no tipping-point concern (Scenario 4).' }
-};
-
-const VARS = [
-  { id: 'ndvi', label: 'NDVI', unit: 'index, 0–1', colorVar: '--color-data-ndvi' },
-  { id: 'temperature', label: 'Temp', unit: '°C', colorVar: '--color-data-temperature' },
-  { id: 'salinity', label: 'Salinity', unit: 'PSU', colorVar: '--color-data-salinity' },
-  { id: 'precipitation', label: 'Precip', unit: 'mm/mo', colorVar: '--color-data-precipitation' },
-  { id: 'evapo', label: 'Evap./ET', unit: 'mm/day', colorVar: '--color-data-evapotranspiration' }
-];
-
-const METRICS = [
-  ['NDVI trend', null, 'ndvi'],
-  ['Std. deviation', 'stdDev', 'stdDev'],
-  ['AR1', 'ar1', 'ar1'],
-  ['Return rate', 'returnRate', 'returnRate'],
-  ['Kurtosis', 'kurtosis', 'kurtosis'],
-  ['Skewness', 'skewness', 'skewness']
-];
-
-const GEE_STEPS = [
-  ['Open the Code Editor', 'Go to code.earthengine.google.com and start a new script under your Earth Engine project.'],
-  ['Paste the starter script', 'Copy the script below and replace the point coordinates with the location you want to analyze.'],
-  ['Run and export', 'Run the script, then open the Tasks tab and run the export to get your NDVI time series as a CSV.'],
-  ['Compute the five metrics', 'Pull the CSV into Python or R and compute standard deviation, AR1, return rate, kurtosis, and skewness on rolling windows of the NDVI series.'],
-  ['Run Kendall’s tau', 'Test the trend of each metric, and separately the trend of NDVI itself, with Kendall’s tau.'],
-  ['Classify the point', 'Cross the NDVI trend τ against the standard deviation trend τ using the scenario table below.'],
-  ['Confirm with breakpoint detection', 'Run LandTrendr and visually inspect the NDVI curve to confirm or refine the classification.']
-];
+let YEAR_MIN, YEAR_MAX;   // the year range (variables.json "yearRange")
+let CLASSES = {};         // change classes of the points (variables.json "changeClasses")
+let SCENARIOS = {};       // tipping-point scenarios (variables.json "scenarios")
+let VARS = [];            // variables of the point charts (variables.json "pointVariables")
+let METRICS = [];         // rows of the trend signals card (variables.json "trendMetrics")
+let NO_DATA = 'No data';  // text shown wherever a value is missing (texts.json "messages.noData")
+let UNKNOWN = { label: NO_DATA, colorVar: '--color-text-faint', desc: '' };   // a missing class or scenario
+const checked = {};       // which variables are switched on in the point chart
 
 let allPoints = [];
 let selectedId = null;
-const checked = { ndvi: true, temperature: false, salinity: false, precipitation: false, evapo: false };
-
-// Text shown wherever a value is missing (null or absent in points.json)
-const NO_DATA = 'No data';
-// Used for a point whose change class or scenario is missing from points.json
-const UNKNOWN = { label: NO_DATA, colorVar: '--color-text-faint', desc: '' };
 
 const $ = (id) => document.getElementById(id);
 
 // Reads a color from the variables at the top of style.css, e.g. color('--color-data-ndvi') gives '#1C3B2E'.
+// A color name that does not exist (a typo in content/variables.json) shows as grey.
+const warnedColors = new Set();
 function color(varName) {
-  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  const value = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  if (value) return value;
+  if (!warnedColors.has(varName)) { warnedColors.add(varName); console.warn('Unknown color ' + varName + ' (check "color" in content/variables.json)'); }
+  return getComputedStyle(document.documentElement).getPropertyValue('--color-text-faint').trim();
+}
+
+// Turns a color name from content/variables.json (e.g. "data-ndvi") into a CSS variable name.
+function colorVarOf(name) {
+  return '--color-' + (name || 'text-faint');
+}
+
+// Copies the point content from content/variables.json into the lists above.
+function readPointContent() {
+  const v = CONTENT.variables;
+  YEAR_MIN = v.yearRange.first;
+  YEAR_MAX = v.yearRange.last;
+  NO_DATA = t('messages.noData');
+  UNKNOWN = { label: NO_DATA, colorVar: '--color-text-faint', desc: '' };
+  CLASSES = {};
+  Object.entries(v.changeClasses).forEach(([id, c]) => { CLASSES[id] = { label: c.label, colorVar: colorVarOf(c.color) }; });
+  SCENARIOS = {};
+  Object.entries(v.scenarios).forEach(([id, s]) => { SCENARIOS[id] = { label: s.label, colorVar: colorVarOf(s.color), desc: s.description || '' }; });
+  VARS = v.pointVariables.map((x) => ({ id: x.id, label: x.label, unit: x.unit || '', colorVar: colorVarOf(x.color) }));
+  VARS.forEach((x, i) => { checked[x.id] = !!v.pointVariables[i].shownAtStart; });
+  METRICS = v.trendMetrics.map((m) => [m.label, m.value, m.tau]);
+
+  // the year slider and its range label
+  const slider = $('year-slider');
+  slider.min = YEAR_MIN;
+  slider.max = YEAR_MAX;
+  slider.value = YEAR_MAX;
+  $('year-range').textContent = YEAR_MIN + '–' + YEAR_MAX;
 }
 
 // ---------- data loading ----------
@@ -70,12 +65,12 @@ async function loadPoints() {
 
     // No point is selected at the start: the cards show "No data" until a marker is clicked.
     const count = allPoints.length;
-    $('map-note').textContent = count + (count === 1 ? ' point' : ' points') + ' shown · illustrative marker placement, not pixel-matched to exact coordinates';
+    $('map-note').textContent = count === 1 ? t('labels.mapNoteOnePoint') : t('labels.mapNote', { count: count });
     renderMap();
     renderChips();
     renderAll();
   } catch (err) {
-    statusEl.textContent = 'Could not load point data: ' + err.message;
+    statusEl.textContent = t('messages.couldNotLoadPoints', { error: err.message });
     console.error(err);
   }
 }
@@ -238,11 +233,13 @@ function renderAll() {
   renderChart(point, idx);
 
   // values for year
-  $('values-title').textContent = 'Values for ' + year;
+  $('values-title').textContent = t('labels.valuesFor', { year: year });
   $('values').innerHTML = VARS.map((v) =>
     '<div class="value-row"><div class="value-name"><span class="value-dot" style="background:' + color(v.colorVar) + '"></span><span>' + v.label +
     '</span></div><div class="mono value-num">' + valueWithUnit(seriesFor(point, v)[idx], seriesFor(point, v), v.unit) + '</div></div>'
   ).join('');
+  // no variables listed in content/variables.json: say so instead of an empty card
+  if (VARS.length === 0) $('values').innerHTML = '<p class="placeholder-text">' + t('messages.notYetAvailable') + '</p>';
 
   // point info
   $('info-class').textContent = cls.label;
@@ -325,7 +322,7 @@ function renderChart(point, idx) {
   $('chart-min').textContent = primaryRange ? formatLike(Math.min(...knownValues(primarySeries)), primarySeries) : '';
   $('chart-summary').textContent = active.length
     ? active.map((v) => v.label + (axisRange(seriesFor(point, v)) ? ' (' + v.unit + ')' : ' (' + NO_DATA + ')')).join(' · ')
-    : 'no variables selected';
+    : (VARS.length ? t('labels.noVariablesSelected') : t('messages.notYetAvailable'));
 
   // dashed line at the shown year (only with a selected point)
   const marker = $('year-marker');
@@ -344,7 +341,7 @@ function renderChart(point, idx) {
     bpLine.setAttribute('x1', bx);
     bpLine.setAttribute('x2', bx);
     bpLine.style.display = '';
-    $('breakpoint-note').textContent = 'Detected breakpoint: ' + bp.label;
+    $('breakpoint-note').textContent = t('labels.breakpoint', { year: bp.label });
   } else {
     bpLine.style.display = 'none';
   }
@@ -444,13 +441,16 @@ function setupExports() {
 
 // ---------- navigation: screens and the address (#...) ----------
 //
-// Every screen has its own address: #overview, #satellite, #climatology, #stakeholders and #method.
+// Every page in content/pages.json has its own address (#overview, #satellite, ...), plus #method.
 // Links and buttons only change the address; showScreen() then shows the matching screen.
 // Because every switch changes the address, the browser's back and forward buttons work too.
 
-const RESEARCH_SECTIONS = ['overview', 'satellite', 'climatology', 'stakeholders'];
-const DEFAULT_SECTION = 'overview';
-let lastResearchSection = DEFAULT_SECTION;   // where the "Research" tab takes you back to
+let RESEARCH_SECTIONS = [];      // page ids from content/pages.json, in menu order
+let DEFAULT_SECTION = null;      // the first page in content/pages.json
+let lastResearchSection = null;  // where the "Research" tab takes you back to
+
+// The Overview theme colors are the default; pages without their own theme in style.css use them.
+const THEME_DEFAULT = 'overview';
 
 // The screen named in the address, or null if the address is empty or unknown.
 function screenFromAddress() {
@@ -499,14 +499,16 @@ function showScreen() {
     btn.classList.toggle('active', active);
     btn.setAttribute('aria-selected', active);
   });
-  // the coordinates belong to a selected point; Climatology and Method have no points
-  $('coords').hidden = isMethod || screen === 'climatology';
+  // the coordinates belong to a selected point: only shown on pages with the point map
+  const cards = isMethod ? [] : cardsOnPage(screen);
+  $('coords').hidden = !cards.includes('point-map');
 
   // the timeline places its markers by its width, which is only known once it is visible
-  if (screen === 'climatology') renderTimeline();
+  if (cards.includes('event-timeline')) renderTimeline();
 
-  // section colors (see the SECTION THEMES in style.css); the Method page uses the Overview colors
-  document.body.dataset.section = isMethod ? DEFAULT_SECTION : screen;
+  // section colors (see the SECTION THEMES in style.css): a page without its own theme, and the
+  // Method page, use the Overview colors
+  document.body.dataset.section = isMethod ? THEME_DEFAULT : screen;
 }
 
 function setupNavigation() {
@@ -532,17 +534,31 @@ function setupNavigation() {
   showScreen();
 }
 
-function renderGeeSteps() {
-  $('gee-steps').innerHTML = GEE_STEPS.map((s, i) =>
-    '<div class="gee-step"><div class="gee-n">' + (i + 1) + '</div><div class="gee-body">' +
-    '<div class="gee-title">' + s[0] + '</div><div class="gee-desc">' + s[1] + '</div></div></div>'
-  ).join('');
+// ---------- start ----------
+// First the content (content.js), then everything else. If a content file has a problem,
+// the page shows a message naming the file instead of a blank page.
+
+async function start() {
+  try {
+    await loadContent();
+  } catch (err) {
+    showContentError(err);
+    return;
+  }
+  fillTexts();             // content.js: all data-text="..." texts
+  buildPages();            // content.js: menu, pages and simple cards from content/pages.json
+  buildMethodPage();       // content.js: the Method page from content/method.md
+  readPointContent();
+  RESEARCH_SECTIONS = pageSections().map((s) => s.id);
+  DEFAULT_SECTION = RESEARCH_SECTIONS[0];
+  lastResearchSection = DEFAULT_SECTION;
+
+  setupClimatology();      // climatology.js: events, timeline and charts of the Climatology screen
+  setupNavigation();
+  setupSlider();
+  setupExports();
+  setYear(YEAR_MAX);
+  loadPoints();
 }
 
-renderGeeSteps();
-setupClimatology();      // climatology.js: events, timeline and charts of the Climatology screen
-setupNavigation();
-setupSlider();
-setupExports();
-setYear(YEAR_MAX);
-loadPoints();
+start();

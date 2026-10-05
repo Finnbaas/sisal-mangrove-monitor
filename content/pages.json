@@ -1,0 +1,53 @@
+{
+  "sections": [
+    {
+      "id": "overview",
+      "label": "Overview",
+      "columns": [
+        ["point-map", "year-slider", "tipping-status"],
+        ["point-chart", "point-values", ["point-info", "trend-signals"]]
+      ]
+    },
+    {
+      "id": "satellite",
+      "label": "Satellite data",
+      "columns": [
+        ["point-map", "year-slider", "tipping-status"],
+        ["point-chart", ["point-info", "trend-signals"]]
+      ]
+    },
+    {
+      "id": "climatology",
+      "label": "Climatology data",
+      "columns": [
+        [
+          {
+            "type": "image",
+            "title": "Site map",
+            "src": "img/climatology-data-cells.png",
+            "alt": "Map of the grid cells the climate data comes from: the ERA5-Land land cell (green), the ERA5 sea cell (blue) and the HYCOM cell (magenta) near Sisal",
+            "height": 380,
+            "keepVisible": "left"
+          },
+          "event-timeline",
+          "event-list"
+        ],
+        ["event-charts"]
+      ]
+    },
+    {
+      "id": "stakeholders",
+      "label": "Stakeholder data",
+      "columns": [
+        ["point-map", "year-slider", { "type": "placeholder" }],
+        [
+          {
+            "type": "image",
+            "src": "img/stakeholder-dynamics.png",
+            "alt": "Diagram 'Mangrove Stakeholder Dynamics': the mangrove ecosystem in the middle, surrounded by five stakeholder groups: Academic/Institutional Actors, Conservation Agencies, Development Agencies, Ecotourism Cooperatives and Palaperos/Investors"
+          }
+        ]
+      ]
+    }
+  ]
+}

@@ -9,83 +9,63 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Texts: every element with data-text="..." gets its text from content/texts.json (see content.js).
+       Which pages and cards are shown is set in content/pages.json. -->
   <div id="page">
 
     <!-- TOP BAR -->
     <div id="topbar">
       <div id="brand">
         <div id="brand-mark">S</div>
-        <div id="brand-name">Sisal Mangrove Monitor</div>
+        <div id="brand-name" data-text="siteName"></div>
       </div>
       <div id="tabs" role="tablist">
-        <button class="tab active" role="tab" aria-selected="true" data-tab="research">Research</button>
-        <button class="tab" role="tab" aria-selected="false" data-tab="method">Method</button>
+        <button class="tab active" role="tab" aria-selected="true" data-tab="research" data-text="tabs.research"></button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="method" data-text="tabs.method"></button>
       </div>
       <div id="topbar-right">
         <div id="coords" class="mono"></div>
       </div>
     </div>
 
-    <!-- RESEARCH SUB-NAVIGATION: one link per research section. The part after "#" is the section's address. -->
-    <nav id="subnav" aria-label="Research sections">
-      <a class="subtab" href="#overview"><span>Overview</span></a>
-      <a class="subtab" href="#satellite"><span>Satellite data</span></a>
-      <a class="subtab" href="#climatology"><span>Climatology data</span></a>
-      <a class="subtab" href="#stakeholders"><span>Stakeholder data</span></a>
-    </nav>
+    <!-- RESEARCH SUB-NAVIGATION: one link per page in content/pages.json (built by content.js) -->
+    <nav id="subnav" aria-label="Research sections"></nav>
 
-    <!-- Every screen below has data-screen="...". JavaScript shows only the one that matches the address (#...).
-         A research section only lists empty slots (data-slot="..."). When the section is shown, JavaScript
-         moves the card with the same name (data-card="...", see CARD LIBRARY below) into each slot. -->
+    <!-- The research sections (one per page in content/pages.json) are built by content.js and placed
+         here, before the card library. Each section has empty slots (data-slot="..."); when the section
+         is shown, app.js moves the ready-made card with the same name (data-card="...") into each slot. -->
 
-    <!-- RESEARCH SECTION: OVERVIEW -->
-    <section class="research-grid" data-screen="overview">
-      <div class="col">
-        <div data-slot="map"></div>
-        <div data-slot="year"></div>
-        <div data-slot="tipping"></div>
-      </div>
-      <div class="col">
-        <div data-slot="chart"></div>
-        <div data-slot="values"></div>
-        <div class="small-row">
-          <div data-slot="point-info"></div>
-          <div data-slot="trends"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- CARD LIBRARY: every research card exists only once, here. It is hidden until JavaScript
-         moves a card into a slot of the section that is shown. -->
+    <!-- CARD LIBRARY: every ready-made card exists only once, here. The names (data-card) are the
+         names used in content/pages.json. -->
     <div id="card-library" hidden>
 
-        <div class="card" data-card="map">
-          <div class="card-title-row"><div class="card-title">Site map</div><div class="expand">&#8599;</div></div>
+        <div class="card" data-card="point-map">
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.point-map"></div><div class="expand">&#8599;</div></div>
           <div id="map">
             <div id="map-ring" hidden></div>
             <div id="legend">
-              <div id="legend-title">Sample points</div>
+              <div id="legend-title" data-text="labels.mapLegend"></div>
               <div id="legend-items"></div>
             </div>
           </div>
           <div class="fine" id="map-note"></div>
         </div>
 
-        <div class="card" id="slider-card" data-card="year">
+        <div class="card" id="slider-card" data-card="year-slider">
           <div id="slider-row">
             <div id="year-block">
-              <div class="label-xs">Year</div>
+              <div class="label-xs" data-text="labels.year"></div>
               <div id="year-big"></div>
             </div>
             <button id="year-back" class="step" aria-label="Previous year">&larr;</button>
-            <input type="range" id="year-slider" min="1984" max="2026" step="1" value="2026" aria-label="Year">
+            <input type="range" id="year-slider" step="1" aria-label="Year">
             <button id="year-forward" class="step" aria-label="Next year">&rarr;</button>
-            <div class="label-xs" id="year-range">1984&ndash;2026</div>
+            <div class="label-xs" id="year-range"></div>
           </div>
         </div>
 
-        <div class="card" data-card="tipping">
-          <div class="card-title-row"><div class="card-title">Tipping status</div><div class="expand">&#8599;</div></div>
+        <div class="card" data-card="tipping-status">
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.tipping-status"></div><div class="expand">&#8599;</div></div>
           <div id="status-row">
             <div>
               <div id="status-label"></div>
@@ -94,7 +74,7 @@
           </div>
         </div>
 
-        <div class="card" data-card="chart">
+        <div class="card" data-card="point-chart">
           <div class="card-title-row top">
             <div>
               <div class="card-title" id="point-name"></div>
@@ -117,51 +97,44 @@
           <div id="chart-foot">
             <div class="faint xs" id="chart-summary"></div>
             <div id="exports">
-              <button id="export-png" class="ghost">Export PNG</button>
-              <button id="export-csv" class="ghost">Export CSV</button>
+              <button id="export-png" class="ghost" data-text="labels.exportPng"></button>
+              <button id="export-csv" class="ghost" data-text="labels.exportCsv"></button>
             </div>
           </div>
           <div id="breakpoint-note" hidden></div>
           <p id="status" class="fine"></p>
         </div>
 
-        <div class="card" data-card="values">
+        <div class="card" data-card="point-values">
           <div class="card-title-row"><div class="card-title" id="values-title"></div><div class="expand">&#8599;</div></div>
           <div id="values"></div>
         </div>
 
         <div class="card" data-card="point-info">
-          <div class="card-title-row"><div class="card-title">Point info</div><div class="expand">&#8599;</div></div>
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.point-info"></div><div class="expand">&#8599;</div></div>
           <div id="info">
-            <div><div class="label-xs">Change class</div><div class="info-val" id="info-class"></div></div>
-            <div><div class="label-xs">Longitude</div><div class="info-val mono" id="info-lon"></div></div>
-            <div><div class="label-xs">Latitude</div><div class="info-val mono" id="info-lat"></div></div>
+            <div><div class="label-xs" data-text="labels.changeClass"></div><div class="info-val" id="info-class"></div></div>
+            <div><div class="label-xs" data-text="labels.longitude"></div><div class="info-val mono" id="info-lon"></div></div>
+            <div><div class="label-xs" data-text="labels.latitude"></div><div class="info-val mono" id="info-lat"></div></div>
           </div>
         </div>
 
-        <div class="card" data-card="trends">
-          <div class="card-title-row"><div class="card-title">Trend signals</div><div class="expand">&#8599;</div></div>
-          <div class="trend-row head"><div>Metric</div><div class="r">Value</div><div class="r">&tau;</div></div>
+        <div class="card" data-card="trend-signals">
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.trend-signals"></div><div class="expand">&#8599;</div></div>
+          <div class="trend-row head"><div data-text="labels.metric"></div><div class="r" data-text="labels.value"></div><div class="r" data-text="labels.tau"></div></div>
           <div id="metrics"></div>
         </div>
 
         <!-- CLIMATOLOGY CARDS (filled by climatology.js from data/events.json) -->
 
-        <div class="card" data-card="climate-map">
-          <div class="card-title-row"><div class="card-title">Site map</div><div class="expand">&#8599;</div></div>
-          <div id="climate-map">
-            <img src="img/climatology-data-cells.png" alt="Map of the grid cells the climate data comes from: the ERA5-Land land cell (green), the ERA5 sea cell (blue) and the HYCOM cell (magenta) near Sisal">
-          </div>
-        </div>
-
-        <div class="card" data-card="timeline">
+        <div class="card" data-card="event-timeline">
           <div id="timeline-header">
             <div>
-              <div class="label-xs">Year</div>
+              <div class="label-xs" data-text="labels.year"></div>
               <div id="timeline-year"></div>
             </div>
             <div id="timeline-selected" hidden>
-              <span class="label-xs">Selected:</span>
+              <span class="label-xs" data-text="labels.selected"></span>
               <span class="selected-dot"></span>
               <span id="timeline-selected-name"></span>
               <span class="label-xs" id="timeline-selected-date"></span>
@@ -177,13 +150,13 @@
         </div>
 
         <div class="card" data-card="event-list">
-          <div class="card-title-row"><div class="card-title">Storms and extreme events</div><div class="expand">&#8599;</div></div>
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.event-list"></div><div class="expand">&#8599;</div></div>
           <div id="event-list"></div>
           <p class="fine" id="events-status"></p>
         </div>
 
         <div class="card" data-card="event-charts">
-          <div id="event-charts-empty">Select a storm on the timeline or in the list</div>
+          <div id="event-charts-empty" data-text="messages.selectEvent"></div>
           <div id="event-charts-content" hidden>
             <div class="card-title-row top">
               <div>
@@ -192,153 +165,26 @@
               </div>
               <div class="expand">&#8599;</div>
             </div>
-            <!-- six charts, the shared date axis and the comparison line (all drawn by climatology.js) -->
+            <!-- one chart per event variable, the shared date axis and the comparison line (drawn by climatology.js) -->
             <div id="event-charts"></div>
           </div>
         </div>
     </div>
 
-    <!-- RESEARCH SECTION: SATELLITE (like Overview, without the Values card) -->
-    <section class="research-grid" data-screen="satellite" hidden>
-      <div class="col">
-        <div data-slot="map"></div>
-        <div data-slot="year"></div>
-        <div data-slot="tipping"></div>
-      </div>
-      <div class="col">
-        <div data-slot="chart"></div>
-        <div class="small-row">
-          <div data-slot="point-info"></div>
-          <div data-slot="trends"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- RESEARCH SECTION: CLIMATOLOGY (storm events; behavior in climatology.js) -->
-    <section class="research-grid" data-screen="climatology" hidden>
-      <div class="col">
-        <div data-slot="climate-map"></div>
-        <div data-slot="timeline"></div>
-        <div data-slot="event-list"></div>
-      </div>
-      <div class="col">
-        <div data-slot="event-charts"></div>
-      </div>
-    </section>
-
-    <!-- RESEARCH SECTION: STAKEHOLDERS -->
-    <section class="research-grid" data-screen="stakeholders" hidden>
-      <div class="col">
-        <div data-slot="map"></div>
-        <div data-slot="year"></div>
-        <!-- placeholder: the content of this card has not been decided yet -->
-        <div class="card"><p class="placeholder-text">Not yet available</p></div>
-      </div>
-      <div class="col">
-        <!-- placeholder: the stakeholder diagram is not available yet -->
-        <div class="card"><p class="placeholder-text">Not yet available</p></div>
-      </div>
-    </section>
-
-    <!-- METHOD PAGE -->
-    <section id="method" data-screen="method" hidden>
-      <div class="card m-card">
-        <h1>Method</h1>
-        <p class="lead">How the findings on the Research tab were produced, and how to run the same analysis yourself in Google Earth Engine.</p>
-      </div>
-
-      <div class="card m-card">
-        <h2>1. Site and pixel selection</h2>
-        <p>Points are sampled from three change masks derived from the classified mangrove map of the Sisal AOI: a gain mask, a loss mask, and a loss-then-recovery mask, combining the Global Mangrove Watch product with ESA land cover data. Random point coordinates are fixed in a CSV so repeat runs use the same points.</p>
-      </div>
-      <div class="card m-card">
-        <h2>2. Data extraction</h2>
-        <p>Landsat imagery is filtered by a cloud cover threshold and the study time range. Maximum NDVI per interval is extracted for each coordinate. ERA5 climatology (temperature, precipitation, salinity, evapotranspiration) is extracted for the same coordinates.</p>
-      </div>
-      <div class="card m-card">
-        <h2>3. Processing and analysis</h2>
-        <p>Five metrics are computed on the NDVI series: standard deviation, AR1, return rate, kurtosis, and skewness. Kendall's tau is computed on the trend of each metric, and separately on the trend of NDVI itself. Breakpoint detection (LandTrendr) is cross-checked against visual inspection of the NDVI curve.</p>
-      </div>
-
-      <div class="card m-card">
-        <h2>4. How we classify tipping-point status</h2>
-        <p>Each point is classified by crossing the trend of NDVI itself against the trend of NDVI's standard deviation, both tested with Kendall's tau. LandTrendr's breakpoint detection and a visual check of the curve confirm or refine which scenario applies. This is independent of the gain/loss/recovery class, which instead reflects which change mask the point was originally sampled from.</p>
-        <div id="scenario-table">
-          <div class="sc-h"></div>
-          <div class="sc-h">SD trend &tau; &gt; 0</div>
-          <div class="sc-h">SD trend &tau; &lt; 0</div>
-          <div class="sc-r">NDVI trend &tau; &lt; 0</div>
-          <div class="sc sc-1">Scenario 1 &mdash; Approaching tipping point</div>
-          <div class="sc sc-2">Scenario 2 &mdash; Past tipping point</div>
-          <div class="sc-r">NDVI trend &tau; &gt; 0</div>
-          <div class="sc sc-3">Scenario 3 &mdash; Recovering</div>
-          <div class="sc sc-4">Scenario 4 &mdash; Stable</div>
-        </div>
-      </div>
-
-      <div class="card m-card">
-        <h2>5. Full workflow diagram</h2>
-        <img src="img/workflow.png" alt="Full analysis workflow diagram" id="workflow-img">
-      </div>
-
-      <div class="card m-card">
-        <h2>6. Do it yourself in Google Earth Engine</h2>
-        <p>Run this same analysis on your own coordinate. The steps below match the pipeline above; the script covers steps 1&ndash;3.</p>
-        <div id="gee-steps"></div>
-        <pre id="gee-script">// Sisal mangrove NDVI extraction — starter script
-// 1. Define your point (swap in your own coordinates)
-var point = ee.Geometry.Point([-90.033, 21.161]);
-
-// 2. Build a cloud-masked Landsat surface reflectance collection, 1984-present
-function maskClouds(img) {
-  var qa = img.select('QA_PIXEL');
-  var cloud = qa.bitwiseAnd(1 &lt;&lt; 3).eq(0).and(qa.bitwiseAnd(1 &lt;&lt; 4).eq(0));
-  return img.updateMask(cloud);
-}
-
-var landsat = ee.ImageCollection('LANDSAT/LC08/C02/T1_L2')
-  .merge(ee.ImageCollection('LANDSAT/LE07/C02/T1_L2'))
-  .merge(ee.ImageCollection('LANDSAT/LT05/C02/T1_L2'))
-  .filterBounds(point)
-  .filterDate('1984-01-01', '2026-12-31')
-  .map(maskClouds);
-
-// 3. Compute NDVI per image (band names vary slightly by sensor)
-function addNDVI(img) {
-  var ndvi = img.normalizedDifference(['SR_B5', 'SR_B4']).rename('NDVI');
-  return img.addBands(ndvi);
-}
-var withNDVI = landsat.map(addNDVI);
-
-// 4. Extract the NDVI time series at the point and export to CSV
-var series = withNDVI.select('NDVI').getRegion(point, 30);
-
-Export.table.toDrive({
-  collection: ee.FeatureCollection(
-    ee.List(series).slice(1).map(function (row) {
-      row = ee.List(row);
-      return ee.Feature(null, { date: row.get(3), ndvi: row.get(4) });
-    })
-  ),
-  description: 'sisal_point_ndvi',
-  fileFormat: 'CSV'
-});
-
-// Pull the CSV into Python or R for the remaining steps: standard
-// deviation, AR1, return rate, kurtosis, skewness, and Kendall's tau.</pre>
-      </div>
-
-      <div id="disclaimer">This dashboard is a research prototype for internal testing. Data shown here is illustrative and does not represent final published results. The Landsat record is treated as starting around 1984&ndash;1985, not earlier, due to sensor limitations.</div>
-    </section>
+    <!-- METHOD PAGE: built from content/method.md by content.js -->
+    <section id="method" data-screen="method" hidden></section>
   </div>
 
   <!-- FOOTER (outside the screens, so it shows on every screen) -->
   <footer id="footer">
-    <p>Sisal Mangrove Monitor &middot; TU Delft &times; UNAM Sisal &middot; 2026</p>
-    <button id="footer-method-link" class="footer-link" type="button">Read the method</button>
+    <p data-text="footer.text"></p>
+    <button id="footer-method-link" class="footer-link" type="button" data-text="footer.methodLink"></button>
   </footer>
 
-  <!-- climatology.js first: it only defines functions; app.js starts everything -->
+  <!-- Markdown library (only used for the Method page, content/method.md) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <!-- content.js and climatology.js only define functions; app.js starts everything -->
+  <script src="content.js"></script>
   <script src="climatology.js"></script>
   <script src="app.js"></script>
 </body>

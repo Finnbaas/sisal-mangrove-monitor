@@ -1,0 +1,48 @@
+{
+  "yearRange": { "first": 1984, "last": 2026 },
+
+  "pointVariables": [
+    { "id": "ndvi", "label": "NDVI", "unit": "index, 0–1", "color": "data-ndvi", "shownAtStart": true },
+    { "id": "temperature", "label": "Temp", "unit": "°C", "color": "data-temperature", "shownAtStart": false },
+    { "id": "salinity", "label": "Salinity", "unit": "PSU", "color": "data-salinity", "shownAtStart": false },
+    { "id": "precipitation", "label": "Precip", "unit": "mm/mo", "color": "data-precipitation", "shownAtStart": false },
+    { "id": "evapo", "label": "Evap./ET", "unit": "mm/day", "color": "data-evapotranspiration", "shownAtStart": false }
+  ],
+
+  "trendMetrics": [
+    { "label": "NDVI trend", "value": null, "tau": "ndvi" },
+    { "label": "Std. deviation", "value": "stdDev", "tau": "stdDev" },
+    { "label": "AR1", "value": "ar1", "tau": "ar1" },
+    { "label": "Return rate", "value": "returnRate", "tau": "returnRate" },
+    { "label": "Kurtosis", "value": "kurtosis", "tau": "kurtosis" },
+    { "label": "Skewness", "value": "skewness", "tau": "skewness" }
+  ],
+
+  "changeClasses": {
+    "loss": { "label": "Loss", "color": "class-loss" },
+    "gain": { "label": "Gain", "color": "class-gain" },
+    "recovery": { "label": "Loss then recovery", "color": "class-recovery" }
+  },
+
+  "scenarios": {
+    "1": { "label": "Approaching tipping point", "color": "scenario-1", "description": "NDVI declining while its variance rises — the classic early-warning signature (Scenario 1)." },
+    "2": { "label": "Past tipping point", "color": "scenario-2", "description": "NDVI is already declining without a preceding rise in variance — no active early-warning signal (Scenario 2)." },
+    "3": { "label": "Recovering", "color": "scenario-3", "description": "NDVI is rising while its variance also rises — an unsettled recovery trend (Scenario 3)." },
+    "4": { "label": "Stable", "color": "scenario-4", "description": "NDVI is stable or rising while its variance falls — no tipping-point concern (Scenario 4)." }
+  },
+
+  "eventVariables": [
+    { "id": "airTemperature", "label": "Mean air temperature", "unit": "°C", "color": "data-climate-air-temperature" },
+    { "id": "windSpeed", "label": "10 m wind speed", "unit": "m/s", "color": "data-climate-wind-speed" },
+    { "id": "waveHeight", "label": "Max wave height", "unit": "m", "color": "data-climate-wave-height" },
+    { "id": "precipitation", "label": "Precipitation", "unit": "mm/day", "color": "data-climate-precipitation" },
+    { "id": "salinity", "label": "Surface salinity", "unit": "PSU", "color": "data-climate-salinity" },
+    { "id": "seaSurfaceTemperature", "label": "Sea surface temperature", "unit": "°C", "color": "data-climate-sea-surface-temperature" }
+  ],
+
+  "sources": {
+    "era5-land": { "label": "ERA5-Land land cell", "color": "data-source-era5-land" },
+    "era5-sea": { "label": "ERA5 sea cell", "color": "data-source-era5-sea" },
+    "hycom": { "label": "HYCOM cell", "color": "data-source-hycom" }
+  }
+}

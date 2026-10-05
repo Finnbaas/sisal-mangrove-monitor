@@ -23,6 +23,7 @@
   --color-map-bg: #CFD8CC;           /* shown while the map image loads */
   --color-code-bg: #1E2620;          /* code block on the Method page */
   --color-code-text: #DCE6D8;
+  --color-error: #D93A2B;            /* border of the content error message; not yet a Figma variable */
 
   /* DATA colors: never change between sections */
   --color-data-slider: #1C3B2E;      /* year slider and year number */
@@ -227,8 +228,26 @@ button { font-family: inherit; cursor: pointer; }
 .subtab.active { color: var(--color-accent); }
 .subtab.active span { border-bottom-color: var(--color-accent); }
 
+/* image card (content/pages.json { "type": "image" }): the image fills the card width.
+   With a fixed "height" the image is cropped (object-position = the "keepVisible" side). */
+.image-card > img { width: 100%; height: auto; display: block; }
+.image-frame { border-radius: 16px; overflow: hidden; background: var(--color-map-bg); }
+.image-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* text card (content/pages.json { "type": "text" }) */
+.text-card p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--color-text-body); }
+
 /* text on a screen whose content is not there yet */
-.placeholder-text { margin: 0; font-size: 13px; color: var(--color-text-faint); }
+/* placeholders (Figma: placeholder-card and page-placeholder) */
+.placeholder-text { margin: 0; font-size: 14px; color: var(--color-text-faint); }
+.placeholder-title { margin-bottom: 8px; }
+/* a page without cards: one card over the full width, message in the middle */
+.page-placeholder { grid-column: 1 / -1; min-height: 360px; display: flex; align-items: center; justify-content: center; text-align: center; }
+.page-placeholder .placeholder-text { color: var(--color-text-muted); }
+
+/* shown instead of the site when a content/ file has a mistake (see content.js) */
+.content-error { margin-bottom: 22px; padding: 18px 22px; border-radius: 16px; border: 2px solid var(--color-error); background: var(--color-surface); color: var(--color-text); font-size: 14px; line-height: 1.5; }
+.content-error p { margin: 6px 0 0 0; color: var(--color-text-body); }
 
 /* research layout */
 .research-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 20px; align-items: start; }
@@ -384,7 +403,8 @@ button { font-family: inherit; cursor: pointer; }
 .sc-3 { background: var(--color-scenario-3-bg); color: var(--color-scenario-3); }
 .sc-4 { background: var(--color-scenario-4-bg); color: var(--color-scenario-4); }
 
-#workflow-img { width: 100%; height: auto; border-radius: 14px; display: block; }
+/* images on the Method page (from content/method.md) */
+.m-card img { width: 100%; height: auto; border-radius: 14px; display: block; }
 
 .gee-step { display: flex; gap: 14px; margin-bottom: 14px; }
 .gee-n {
@@ -441,9 +461,6 @@ button { font-family: inherit; cursor: pointer; }
 /* ---------- Climatology screen (Figma components: event-timeline, event-marker, event-row,
    event-list, anomaly-chart, source-tag, date-axis, date-guide, hover-value) ---------- */
 
-#climate-map { height: 380px; border-radius: 16px; overflow: hidden; background: var(--color-map-bg); }
-/* the image is cropped on the right, so the grid legend on its left side stays readable */
-#climate-map img { width: 100%; height: 100%; object-fit: cover; object-position: left center; display: block; }
 
 /* timeline card */
 #timeline-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 6px; }

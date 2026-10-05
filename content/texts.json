@@ -1,0 +1,54 @@
+{
+  "siteName": "Sisal Mangrove Monitor",
+  "tabs": { "research": "Research", "method": "Method" },
+
+  "cardTitles": {
+    "point-map": "Site map",
+    "tipping-status": "Tipping status",
+    "point-info": "Point info",
+    "trend-signals": "Trend signals",
+    "event-list": "Storms and extreme events"
+  },
+
+  "labels": {
+    "year": "Year",
+    "mapLegend": "Sample points",
+    "mapNote": "{count} points shown · illustrative marker placement, not pixel-matched to exact coordinates",
+    "mapNoteOnePoint": "1 point shown · illustrative marker placement, not pixel-matched to exact coordinates",
+    "valuesFor": "Values for {year}",
+    "breakpoint": "Detected breakpoint: {year}",
+    "noVariablesSelected": "no variables selected",
+    "exportPng": "Export PNG",
+    "exportCsv": "Export CSV",
+    "changeClass": "Change class",
+    "longitude": "Longitude",
+    "latitude": "Latitude",
+    "metric": "Metric",
+    "value": "Value",
+    "tau": "τ",
+    "selected": "Selected:",
+    "date": "Date",
+    "anomalyExplanation": "Anomaly: difference from the 30-year mean for the same calendar day",
+    "scenario": "Scenario",
+    "scenarioTableSdUp": "SD trend τ > 0",
+    "scenarioTableSdDown": "SD trend τ < 0",
+    "scenarioTableNdviDown": "NDVI trend τ < 0",
+    "scenarioTableNdviUp": "NDVI trend τ > 0"
+  },
+
+  "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+
+  "messages": {
+    "noData": "No data",
+    "notYetAvailable": "Not yet available",
+    "pageNotYetAvailable": "This page has no content yet.",
+    "selectEvent": "Select a storm on the timeline or in the list",
+    "couldNotLoadPoints": "Could not load point data: {error}",
+    "couldNotLoadEvents": "Could not load event data: {error}"
+  },
+
+  "footer": {
+    "text": "Sisal Mangrove Monitor · TU Delft × UNAM Sisal · 2026",
+    "methodLink": "Read the method"
+  }
+}

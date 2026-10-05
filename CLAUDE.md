@@ -20,9 +20,21 @@ A web dashboard that shows the results of a mangrove monitoring study in Sisal, 
 - index.html: page structure
 - style.css: all styling. Design tokens (colors, fonts, spacing) are CSS variables at the top of this file.
 - app.js: shared behavior (loading point data, map, point charts, navigation between screens)
-- climatology.js: the Climatology screen (storm events: timeline, event list, the six anomaly charts)
+- climatology.js: the Climatology screen (storm events: timeline, event list, the anomaly charts)
+- content.js: loads and checks the content/ files, builds the pages and the simple cards from content/pages.json, shows placeholder states
 - data/points.json: data of the monitoring points
 - data/events.json: data of the storm and extreme-weather events (Climatology screen)
+- content/: everything the team writes and edits (see content/README.md):
+  - content/pages.json: which pages exist and which cards each page shows
+  - content/variables.json: variables (point and event), trend metrics, change classes, scenarios, data sources, year range
+  - content/texts.json: short labels and texts (card titles, messages, footer)
+  - content/method.md: the Method page (Markdown)
+  - content/gee-starter-script.txt: the Earth Engine script on the Method page
+  - content/README.md: how to edit these files
+
+**data/ versus content/ (always follow this):** data/ is pipeline output only and is never edited by hand.
+content/ is everything the team writes and edits. Research content (which variables, charts, events,
+labels, units, sources and texts) belongs in content/ or data/, never in the code.
 - img/: images used by the site (site map, climatology data-cells map, workflow diagram)
 - design/: reference images for design work (not used by the site)
 - Google Fonts are loaded from the internet with a link tag in index.html (the only external resource besides CDN libraries)
@@ -37,7 +49,8 @@ Do not create new files or folders without explaining why first. If app.js becom
 
 ## Data rules
 - All data comes from data/points.json (monitoring points) and data/events.json (storm events). Results and data values must never be hardcoded in HTML or JavaScript. This includes point and event names, numbers and counts (for example the number of points).
-- Labels, units and the year range may live in one config section at the top of app.js (and of climatology.js for the Climatology screen).
+- Labels, units, the year range, variable lists, sources and texts live in content/ (variables.json, texts.json, method.md), not in the code. Cards and charts are generic: they show whatever content/ lists, for any number of variables.
+- If a JSON file in content/ or data/ cannot be read, the page shows a clear message naming the file instead of a blank page.
 - Never invent, round off or "fill in" data. If data is missing, show that clearly in the UI (for example "No data").
 - Do not change the structure of points.json or events.json without asking. They are produced by the team's Python pipeline, so a change there also means a change in the pipeline.
 - Some variables do not apply to every point (for example salinity does not apply to land points). Show these as unavailable, do not hide the fact.
