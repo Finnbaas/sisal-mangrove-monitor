@@ -74,7 +74,7 @@ Labels are pending a team decision. Do not change them in either direction until
 - Figma variables become CSS variables at the top of style.css. Reuse existing variables before adding new ones.
 - Figma components become reusable CSS classes (and small JavaScript functions where they need behavior).
 - Annotations in Figma describe behavior. Follow them.
-- Design size is 1440 x 900. The layout must also work at 1366 x 768 (no sideways scrolling, nothing cut off). Pages scroll vertically: content never has to fit in one screen height, so do not ask about it.
+- Design size is 1440 x 900. The layout must also work at 1366 x 768 (no sideways scrolling, nothing cut off). Pages may scroll. On screens with a map and a year slider, the slider sits directly under the map, so both are visible together at 1366 x 768.
 - If the design and the existing code conflict, or something in the design is unclear, ask instead of guessing.
 
 ## Figma and code
