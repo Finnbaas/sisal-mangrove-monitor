@@ -19,18 +19,27 @@ A web dashboard that shows the results of a mangrove monitoring study in Sisal, 
 ## File structure (keep it this way)
 - index.html: page structure
 - style.css: all styling. Design tokens (colors, fonts, spacing) are CSS variables at the top of this file.
-- app.js: all behavior (loading data, map, charts, interactions)
-- data/points.json: all data shown on the site
-- img/: images used by the site (site map, workflow diagram)
+- app.js: shared behavior (loading point data, map, point charts, navigation between screens)
+- climatology.js: the Climatology screen (storm events: timeline, event list, the six anomaly charts)
+- data/points.json: data of the monitoring points
+- data/events.json: data of the storm and extreme-weather events (Climatology screen)
+- img/: images used by the site (site map, climatology data-cells map, workflow diagram)
+- design/: reference images for design work (not used by the site)
 - Google Fonts are loaded from the internet with a link tag in index.html (the only external resource besides CDN libraries)
+
+The site is one page (index.html). The Research tab has four sections, each with its own address:
+#overview, #satellite, #climatology, #stakeholders, plus #method for the Method tab. Every research
+card exists once in index.html (the "card library") and is moved into the slots (data-slot) of the
+section that is shown. Each section has its own theme colors ([data-section] blocks in style.css);
+only the theme colors differ between sections, data colors never change.
 
 Do not create new files or folders without explaining why first. If app.js becomes very long, suggest how to split it before doing it.
 
 ## Data rules
-- All data comes from data/points.json. Results and data values must never be hardcoded in HTML or JavaScript. This includes point names, numbers and counts (for example the number of points).
-- Labels, units and the year range may live in one config section at the top of app.js.
+- All data comes from data/points.json (monitoring points) and data/events.json (storm events). Results and data values must never be hardcoded in HTML or JavaScript. This includes point and event names, numbers and counts (for example the number of points).
+- Labels, units and the year range may live in one config section at the top of app.js (and of climatology.js for the Climatology screen).
 - Never invent, round off or "fill in" data. If data is missing, show that clearly in the UI (for example "No data").
-- Do not change the structure of points.json without asking. It is produced by the team's Python pipeline, so a change there also means a change in the pipeline.
+- Do not change the structure of points.json or events.json without asking. They are produced by the team's Python pipeline, so a change there also means a change in the pipeline.
 - Some variables do not apply to every point (for example salinity does not apply to land points). Show these as unavailable, do not hide the fact.
 
 ## Research content (use these terms exactly)
@@ -87,3 +96,13 @@ The file is one JSON array with one object per monitoring point (currently 6 poi
 - `breakpoint`: `{ "index": position in years, "label": "2010" }`, or `null` if no breakpoint was detected.
 - `metricVals`: EWS values as strings: `stdDev`, `ar1`, `returnRate`, `kurtosis`, `skewness`.
 - `metricTaus`: Kendall's tau per metric as signed strings (e.g. "+0.51"): `ndvi`, `stdDev`, `ar1`, `returnRate`, `kurtosis`, `skewness`.
+
+## Structure of data/events.json
+The file is one JSON array with one object per storm or extreme-weather event (Climatology screen). Each object has:
+- `id`, `name`, `type`: event code (e.g. "opal-1995"), display name, and type (e.g. "Hurricane", "Tropical storm", "Cold front").
+- `month`: "YYYY-MM", the month of the event (used for the date label, e.g. "Sep 1995", and the position on the timeline).
+- `illustrative`: true when the values are placeholders and not real results (Hurricane Opal's values are digitized from design/hurricane-opal.png).
+- `baseline`: text describing the baseline period of the anomalies (shown in the chart header).
+- `sources`: per variable the data source: "era5-land" (ERA5-Land land cell), "era5-sea" (ERA5 sea cell) or "hycom" (HYCOM cell).
+- `dates`: array of days ("YYYY-MM-DD") around the event.
+- `airTemperature` (°C), `windSpeed` (m/s), `waveHeight` (m), `precipitation` (mm/day), `salinity` (PSU), `seaSurfaceTemperature` (°C): daily anomalies (difference from the 30-year mean for the same calendar day), one value per entry in `dates`, in the same order. A missing value is `null`; an event without data has empty arrays.

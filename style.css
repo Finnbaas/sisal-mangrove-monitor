@@ -50,6 +50,19 @@
   --color-data-salinity: #3A6EA5;
   --color-data-precipitation: #7B5EA7;
   --color-data-evapotranspiration: #5C7A3A;
+
+  /* Climatology screen: one color per anomaly chart (Figma data/climate/...) */
+  --color-data-climate-air-temperature: #8A5CB8;
+  --color-data-climate-wind-speed: #1F77B4;
+  --color-data-climate-wave-height: #2A9A35;
+  --color-data-climate-precipitation: #E06D0A;
+  --color-data-climate-salinity: #D62728;
+  --color-data-climate-sea-surface-temperature: #A0522D;
+
+  /* Climatology screen: data source tags, same colors as the cells on the map (Figma data/source/...) */
+  --color-data-source-era5-land: #498738;
+  --color-data-source-era5-sea: #3C50F2;
+  --color-data-source-hycom: #CF70F3;
 }
 
 /* SECTION THEMES (Figma Tokens modes).
@@ -123,17 +136,19 @@ button { font-family: inherit; cursor: pointer; }
   flex-shrink: 0;
 }
 .faint { color: var(--color-text-faint); font-size: 11px; }
-.faint.xs { font-size: 10.5px; }
-.label-xs { font-size: 10.5px; color: var(--color-text-muted); }
+.faint.xs { font-size: 11px; }
+.label-xs { font-size: 11px; color: var(--color-text-muted); }
 .fine { font-size: 11px; color: var(--color-text-muted); margin: 10px 0 0 0; }
 .fine:empty { display: none; }
 
 /* top bar */
 #topbar {
+  position: relative;          /* the Research/Method pill is centered on this bar */
   display: flex;
   align-items: center;
   gap: 18px;
   flex-wrap: wrap;
+  min-height: 42px;
   margin-bottom: 22px;
   padding: 5px 11px;
   border-radius: 10px;
@@ -161,7 +176,11 @@ button { font-family: inherit; cursor: pointer; }
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 12px;
-  margin: 0 auto;
+  /* always in the exact middle of the bar, whether or not the coordinates are shown */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 .tab {
   border: none;
@@ -173,7 +192,7 @@ button { font-family: inherit; cursor: pointer; }
   color: var(--color-text-muted);
 }
 .tab.active { background: var(--color-accent); color: var(--color-text-on-accent); }
-#topbar-right { display: flex; align-items: center; gap: 10px; }
+#topbar-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
 #coords {
   font-size: 12px;
   color: var(--color-text-muted);
@@ -256,7 +275,7 @@ button { font-family: inherit; cursor: pointer; }
   border-radius: 12px;
   padding: 9px 14px;
 }
-#legend-title { font-size: 10px; font-weight: 600; color: var(--color-text-muted); margin-bottom: 6px; }
+#legend-title { font-size: 11px; font-weight: 600; color: var(--color-text-muted); margin-bottom: 6px; }
 .lg { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--color-text-body); margin-bottom: 3px; }
 .lg-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 
@@ -278,7 +297,8 @@ button { font-family: inherit; cursor: pointer; }
 
 #status-row { display: flex; align-items: center; gap: 16px; }
 #status-label { font-weight: 700; font-size: 15px; line-height: 1.3; }
-#status-desc { font-size: 11.5px; color: var(--color-text-muted); margin-top: 5px; line-height: 1.5; }
+#status-desc { font-size: 12px; color: var(--color-text-muted); margin-top: 5px; line-height: 1.5; }
+#status-desc:empty { display: none; }
 
 /* chart card */
 #chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
@@ -288,7 +308,7 @@ button { font-family: inherit; cursor: pointer; }
   gap: 6px;
   border-radius: 999px;
   padding: 6px 12px;
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 500;
   border: 1.5px solid var(--color-border);
   background: transparent;
@@ -319,10 +339,11 @@ button { font-family: inherit; cursor: pointer; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
+  height: 36px;              /* as in Figma (ValueRow) */
+  padding: 0;
   border-top: 1px solid var(--color-divider);
 }
-.value-name { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--color-text-body); }
+.value-name { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--color-text-body); }
 .value-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .value-num { font-size: 13px; font-weight: 700; }
 
@@ -331,8 +352,8 @@ button { font-family: inherit; cursor: pointer; }
 #info { display: flex; flex-direction: column; gap: 12px; }
 .info-val { font-size: 13px; font-weight: 600; }
 .info-val.mono { font-weight: 700; }
-.trend-row { display: grid; grid-template-columns: 1fr 68px 68px; font-size: 11.5px; align-items: center; padding: 6px 0; border-top: 1px solid var(--color-divider); }
-.trend-row.head { font-size: 10px; font-weight: 600; color: var(--color-text-faint); padding: 0 0 4px 0; border-top: none; }
+.trend-row { display: grid; grid-template-columns: 1fr 68px 68px; font-size: 12px; align-items: center; min-height: 32px; padding: 6px 0; border-top: 1px solid var(--color-divider); }
+.trend-row.head { font-size: 11px; font-weight: 600; color: var(--color-text-faint); min-height: 0; padding: 0 0 4px 0; border-top: none; }
 .trend-row .r { text-align: right; white-space: nowrap; }
 .trend-row .tau { font-weight: 700; }
 
@@ -341,7 +362,7 @@ button { font-family: inherit; cursor: pointer; }
 .m-card { padding: 22px 26px; }
 .m-card h1 { font-family: 'Newsreader', serif; font-weight: 600; font-size: 24px; margin: 0 0 8px 0; }
 .m-card h2 { font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 14px; margin: 0 0 6px 0; }
-.m-card p { color: var(--color-text-body); font-size: 13.5px; line-height: 1.6; margin: 0 0 14px 0; }
+.m-card p { color: var(--color-text-body); font-size: 14px; line-height: 1.6; margin: 0 0 14px 0; }
 .m-card p:last-child { margin-bottom: 0; }
 .m-card p.lead { color: var(--color-text-muted); margin: 0; }
 
@@ -352,7 +373,7 @@ button { font-family: inherit; cursor: pointer; }
   border-radius: 14px;
   overflow: hidden;
 }
-#scenario-table > div { padding: 10px 12px; font-size: 12.5px; }
+#scenario-table > div { padding: 10px 12px; font-size: 12px; }
 .sc-h, .sc-r { font-size: 11.5px !important; font-weight: 600; color: var(--color-text-muted); }
 .sc-h { background: var(--color-surface-subtle); border-left: 1px solid var(--color-line-soft); }
 .sc-h:first-child { border-left: none; }
@@ -380,8 +401,8 @@ button { font-family: inherit; cursor: pointer; }
   flex-shrink: 0;
 }
 .gee-body { padding-top: 3px; }
-.gee-title { font-weight: 600; font-size: 13.5px; margin-bottom: 2px; }
-.gee-desc { color: var(--color-text-body); font-size: 12.5px; line-height: 1.5; }
+.gee-title { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+.gee-desc { color: var(--color-text-body); font-size: 12px; line-height: 1.5; }
 
 #gee-script {
   background: var(--color-code-bg);
@@ -406,7 +427,8 @@ button { font-family: inherit; cursor: pointer; }
 
 @media (max-width: 960px) {
   .research-grid { grid-template-columns: 1fr; }
-  #tabs { margin: 0; }
+  /* narrow screens: the pill takes its normal place in the bar so it never covers the name */
+  #tabs { position: static; transform: none; margin: 0; }
 }
 @media (max-width: 640px) {
   #page { padding: 18px 16px; }
@@ -416,11 +438,142 @@ button { font-family: inherit; cursor: pointer; }
   #slider-row { flex-wrap: wrap; }
 }
 
+/* ---------- Climatology screen (Figma components: event-timeline, event-marker, event-row,
+   event-list, anomaly-chart, source-tag, date-axis, date-guide, hover-value) ---------- */
+
+#climate-map { height: 380px; border-radius: 16px; overflow: hidden; background: var(--color-map-bg); }
+/* the image is cropped on the right, so the grid legend on its left side stays readable */
+#climate-map img { width: 100%; height: 100%; object-fit: cover; object-position: left center; display: block; }
+
+/* timeline card */
+#timeline-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 6px; }
+#timeline-year { font-family: 'Newsreader', serif; font-weight: 600; font-size: 24px; line-height: 1.1; color: var(--color-data-slider); }
+#timeline-selected { display: flex; align-items: center; gap: 6px; padding-bottom: 2px; }
+.selected-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--color-accent); }
+#timeline-selected-name { font-size: 13px; font-weight: 600; color: var(--color-accent); }
+/* positions inside #timeline (px from the top): event lane centered at 50, track at 76-80, year labels at 88 */
+#timeline { position: relative; height: 104px; }
+#timeline-track { position: absolute; left: 8px; right: 8px; top: 76px; height: 4px; border-radius: 999px; }
+#timeline-track::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: var(--color-text-faint); opacity: 0.35; }
+#timeline-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: inherit; background: var(--color-data-slider); }
+/* the handle: a native slider with only its round thumb visible (same look as the year slider elsewhere) */
+#timeline-slider { position: absolute; left: 0; width: 100%; top: 70px; height: 16px; margin: 0; background: transparent; -webkit-appearance: none; appearance: none; }
+#timeline-slider::-webkit-slider-runnable-track { height: 16px; background: transparent; }
+#timeline-slider::-moz-range-track { height: 16px; background: transparent; }
+#timeline-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; border: none; background: var(--color-data-slider); cursor: pointer; }
+#timeline-slider::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; border: none; background: var(--color-data-slider); cursor: pointer; }
+.timeline-tick { position: absolute; top: 84px; width: 1px; height: 4px; background: var(--color-text-faint); }
+.timeline-year-label { position: absolute; top: 88px; transform: translateX(-50%); font-size: 11px; color: var(--color-text-muted); }
+.timeline-stem { position: absolute; width: 1.5px; margin-left: -0.75px; background: var(--color-text-faint); }
+.event-date-tick { position: absolute; top: 74px; width: 2px; height: 8px; margin-left: -1px; border-radius: 1px; background: var(--color-text); }
+
+/* event marker (Figma event-marker): 22 px, clearly bigger than the 16 px handle */
+.event-marker {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--color-text);
+  background: var(--color-surface);
+  z-index: 2;
+}
+.event-marker:hover, .event-marker:focus-visible { background: var(--color-surface-subtle); border-width: 2.5px; z-index: 3; }
+.event-marker.selected { background: var(--color-accent); border: 2.5px solid var(--color-text-on-accent); box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-accent); }
+.event-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  gap: 6px;
+  white-space: nowrap;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: var(--color-text);
+  color: var(--color-surface);
+  font-size: 11px;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(28, 59, 46, 0.12);
+}
+.event-tooltip .date { font-weight: 400; color: var(--color-text-on-accent); }
+.event-marker:hover .event-tooltip, .event-marker:focus-visible .event-tooltip { display: flex; }
+
+/* event list (Figma event-list / event-row) */
+#event-list { display: flex; flex-direction: column; gap: 2px; }
+.event-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+.event-row:hover { background: var(--color-surface-subtle); }
+.event-row.selected { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
+.event-row-dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--color-text); background: var(--color-surface); flex-shrink: 0; }
+.event-row.selected .event-row-dot { background: var(--color-accent); border-color: var(--color-accent); }
+.event-row-text { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+.event-row-name { font-size: 13px; font-weight: 600; color: var(--color-text); }
+.event-row.selected .event-row-name { color: var(--color-accent); }
+.event-row-date { font-size: 11px; color: var(--color-text-muted); }
+.event-type { font-size: 11px; color: var(--color-text-body); background: var(--color-surface-subtle); border-radius: 999px; padding: 3px 8px; white-space: nowrap; }
+.event-row.selected .event-type { background: var(--color-surface); }
+
+/* event charts card */
+#event-charts-empty { min-height: 320px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 14px; color: var(--color-text-muted); }
+#event-charts { position: relative; display: flex; flex-direction: column; gap: 4px; }
+/* one anomaly chart (Figma anomaly-chart): 40 px label column + plot */
+.anomaly-chart { position: relative; display: grid; grid-template-columns: 40px 1fr; align-items: center; }
+/* the two-line label is turned 90 degrees and reads from bottom to top */
+.anomaly-label { writing-mode: vertical-rl; transform: rotate(180deg); justify-self: center; text-align: center; line-height: 1.25; }
+.anomaly-name { display: block; font-size: 11px; font-weight: 600; color: var(--color-text-body); }
+.anomaly-unit { display: block; font-size: 11px; color: var(--color-text-muted); }
+.anomaly-chart svg, .date-axis svg { width: 100%; height: auto; display: block; overflow: visible; }
+.plot-grid { fill: var(--color-divider); }
+.plot-axis { fill: var(--color-text-faint); }
+.plot-tick-label { font-family: 'Archivo', sans-serif; font-size: 11px; fill: var(--color-text-muted); }
+.plot-extreme { font-family: 'Space Mono', monospace; font-size: 11px; fill: var(--color-text-body); }
+.plot-nodata { font-family: 'Archivo', sans-serif; font-size: 13px; fill: var(--color-text-faint); }
+/* source tag (Figma source-tag): top right of each chart */
+.source-tag {
+  position: absolute;
+  top: 0;
+  right: 2px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 7px;
+  border-radius: 6px;
+  border: 1px solid var(--color-divider);
+  background: var(--color-surface);
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+.source-square { width: 8px; height: 8px; border-radius: 2px; }
+/* shared date axis (Figma date-axis) */
+.date-axis { display: grid; grid-template-columns: 40px 1fr; }
+.date-axis-title { grid-column: 2; margin: 2px 0 0 calc(38 / 549 * 100%); text-align: center; font-size: 11px; font-weight: 600; color: var(--color-text-body); }
+/* comparison line that follows the mouse (Figma date-guide and hover-value); its layer lies on top of the charts */
+#comparison { position: absolute; inset: 0; pointer-events: none; }
+.guide-line { position: absolute; width: 0; border-left: 1.5px dotted var(--color-text-body); pointer-events: none; }
+.guide-date { position: absolute; transform: translateX(-50%); padding: 3px 7px; border-radius: 6px; background: var(--color-text); color: var(--color-surface); font-size: 11px; font-weight: 600; white-space: nowrap; pointer-events: none; }
+.hover-value { position: absolute; display: flex; align-items: center; gap: 5px; transform: translate(-4.5px, -50%); pointer-events: none; }
+.hover-value.flip { flex-direction: row-reverse; transform: translate(calc(-100% + 4.5px), -50%); }
+.hover-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--color-surface); border: 2px solid; flex-shrink: 0; }
+.hover-chip { padding: 2px 6px; border-radius: 6px; border: 1px solid var(--color-divider); background: var(--color-surface); font-family: 'Space Mono', monospace; font-size: 11px; color: var(--color-text); white-space: nowrap; box-shadow: 0 6px 18px rgba(28, 59, 46, 0.08); }
+
 /* footer */
 #footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  min-height: 57px;
   padding: 16px 80px;
   background: var(--color-footer-bg);
   color: var(--color-footer-text);

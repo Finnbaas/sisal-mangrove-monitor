@@ -256,6 +256,9 @@ function renderAll() {
     '<div class="trend-row"><div>' + m[0] + '</div><div class="mono r">' + (m[1] ? textOrNoData(vals, m[1]) : '—') +
     '</div><div class="mono r tau">' + textOrNoData(taus, m[2]) + '</div></div>'
   ).join('');
+
+  // the Climatology timeline shows the same year (see climatology.js)
+  updateTimelineYear(year);
 }
 
 // Reads one entry of metricVals / metricTaus, or "No data" when it is missing.
@@ -353,7 +356,10 @@ function renderChart(point, idx) {
 function setYear(year) {
   $('year-slider').value = Math.min(YEAR_MAX, Math.max(YEAR_MIN, year));
   if (allPoints.length) renderAll();
-  else $('year-big').textContent = $('year-slider').value;
+  else {
+    $('year-big').textContent = $('year-slider').value;
+    updateTimelineYear(currentYear());
+  }
 }
 
 // The survey years the arrow buttons step through: those of the selected point,
@@ -493,7 +499,11 @@ function showScreen() {
     btn.classList.toggle('active', active);
     btn.setAttribute('aria-selected', active);
   });
-  $('coords').hidden = isMethod;
+  // the coordinates belong to a selected point; Climatology and Method have no points
+  $('coords').hidden = isMethod || screen === 'climatology';
+
+  // the timeline places its markers by its width, which is only known once it is visible
+  if (screen === 'climatology') renderTimeline();
 
   // section colors (see the SECTION THEMES in style.css); the Method page uses the Overview colors
   document.body.dataset.section = isMethod ? DEFAULT_SECTION : screen;
@@ -530,6 +540,7 @@ function renderGeeSteps() {
 }
 
 renderGeeSteps();
+setupClimatology();      // climatology.js: events, timeline and charts of the Climatology screen
 setupNavigation();
 setupSlider();
 setupExports();
