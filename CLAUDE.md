@@ -21,8 +21,9 @@ A web dashboard that shows the results of a mangrove monitoring study in Sisal, 
 - style.css: all styling. Design tokens (colors, fonts, spacing) are CSS variables at the top of this file.
 - app.js: shared behavior (loading point data, map, point charts, navigation between screens)
 - climatology.js: the Climatology screen (storm events: timeline, event list, the anomaly charts)
+- method.js: the Method page (analyses, code files to download, the "do it yourself" examples) and the small "Do this analysis yourself" links on the research cards
 - stakeholders.js: the Stakeholder screen (areas on the map, the Time card with the observation bars, the area panel)
-- content.js: loads and checks the content/ files, builds the pages and the simple cards from content/pages.json, shows placeholder states
+- content.js: loads and checks content/pages.json, variables.json and texts.json, builds the pages and the simple cards from content/pages.json, shows placeholder states
 - data/points.json: data of the monitoring points
 - data/events.json: data of the storm and extreme-weather events (Climatology screen)
 - data/stakeholder-imagery/: one satellite snapshot per year for the Stakeholder map (1984.jpg ... 2026.jpg, all with exactly the same extent and crop)
@@ -31,19 +32,19 @@ A web dashboard that shows the results of a mangrove monitoring study in Sisal, 
   - content/variables.json: variables (point and event), trend metrics, change classes, scenarios, data sources, year range
   - content/texts.json: short labels and texts (card titles, messages, footer)
   - content/stakeholders.json: the Stakeholder screen: areas on the map and the stakeholder observations
-  - content/method.md: the Method page (Markdown)
-  - content/gee-starter-script.txt: the Earth Engine script on the Method page
+  - content/method.json: the Method page: analyses, code files, use cases, and which research cards link to which use case
   - content/README.md: how to edit these files
 
 **data/ versus content/ (always follow this):** data/ is pipeline output only and is never edited by hand.
 content/ is everything the team writes and edits. Research content (which variables, charts, events,
 labels, units, sources and texts) belongs in content/ or data/, never in the code.
-- img/: images used by the site (site map, climatology data-cells map, workflow diagram, placeholder map of the Stakeholder screen)
+- img/: images used by the site (site map, climatology data-cells map, workflow diagram, placeholder map of the Stakeholder screen; img/method/: pictures of the examples on the Method page)
 - design/: reference images for design work (not used by the site)
 - Google Fonts are loaded from the internet with a link tag in index.html (the only external resource besides CDN libraries)
 
 The site is one page (index.html). The Research tab has four sections, each with its own address:
-#overview, #satellite, #climatology, #stakeholders, plus #method for the Method tab. Every research
+#overview, #satellite, #climatology, #stakeholders, plus #method for the Method tab
+(#method/<use case id> opens the Method page at one use case). Every research
 card exists once in index.html (the "card library") and is moved into the slots (data-slot) of the
 section that is shown. Each section has its own theme colors ([data-section] blocks in style.css);
 only the theme colors differ between sections, data colors never change.
@@ -52,7 +53,7 @@ Do not create new files or folders without explaining why first. If app.js becom
 
 ## Data rules
 - All data comes from data/points.json (monitoring points) and data/events.json (storm events). Results and data values must never be hardcoded in HTML or JavaScript. This includes point and event names, numbers and counts (for example the number of points).
-- Labels, units, the year range, variable lists, sources and texts live in content/ (variables.json, texts.json, method.md), not in the code. Cards and charts are generic: they show whatever content/ lists, for any number of variables.
+- Labels, units, the year range, variable lists, sources and texts live in content/ (variables.json, texts.json, method.json), not in the code. Cards and charts are generic: they show whatever content/ lists, for any number of variables.
 - If a JSON file in content/ or data/ cannot be read, the page shows a clear message naming the file instead of a blank page.
 - Never invent, round off or "fill in" data. If data is missing, show that clearly in the UI (for example "No data").
 - Do not change the structure of points.json or events.json without asking. They are produced by the team's Python pipeline, so a change there also means a change in the pipeline.
@@ -129,3 +130,11 @@ The file is one JSON object, written by the team (Stakeholder screen). It is loa
 - `areas`: one object per area on the map: `number`, `zone` (name, may be empty), `class` ("loss", "recovery" or "gain", a key of changeClasses in content/variables.json) and `shape` (`type` "ellipse" with `leftPct`, `topPct`, `widthPct`, `heightPct`, in percent of the map image).
 - `observations`: one object per stakeholder observation: `area` (the area number), `change`, `period`, `cause`, `stakeholderType` (texts, may be empty), `startYear`, `endYear` (`null` if ongoing), `ongoing` (true/false), `certainty` ("exact", "approximate" or "expected") and `quotes` (list of `{ "text", "name" }`).
 - An area is shown in a year when that year falls within at least one of its observations. Ongoing observations count up to the last year of yearRange. An empty text shows "Not yet available".
+
+## Structure of content/method.json
+The file is one JSON object, written by the team (Method page). It is loaded by method.js; an error in it shows a message on the Method page only.
+- `title`, `intro`, `exampleContent` (true shows the "Example content" tag), `repository` and `branch` (GitHub address, for the "View on GitHub" links), `license`, `citation`, `doi`.
+- `sections`: one object per analysis: `id` (a page id from content/pages.json gives the section that page's theme colors), `title`, `description`, `sources` (list of `{ "label", "url" }`), `keyChoices` (list of texts), `requirements`, `folder` (folder in the repository), `zip` (path of a zip with all files; the button only shows when filled), `files` and `useCases`.
+- `files`: one object per code file: `name`, `description`, `format` (tag text) and `path` (path in the repository; an empty path shows the file as "Not yet available" and not downloadable).
+- `useCases`: one object per "do it yourself" example: `id` (short name, lowercase letters, numbers and dashes, used in the address #method/<id>), `title`, `image`, `steps` (list of one-line instructions), `files` (names of files of the same section) and `cards` (names of ready-made cards that get the "Do this analysis yourself" link to this use case).
+- Any number of sections, files and use cases is possible. Empty texts show "Not yet available".

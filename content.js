@@ -2,17 +2,16 @@
 // CONTENT: everything the team writes lives in the content/ folder (see content/README.md).
 //
 // This file
-//   - loads content/pages.json, variables.json, texts.json, method.md and gee-starter-script.txt
+//   - loads content/pages.json, variables.json and texts.json
 //   - checks them, and shows a clear message naming the file when one cannot be read
 //   - fills every text on the page that has data-text="..." (from texts.json)
 //   - builds the sub-navigation, the research sections and the simple cards from pages.json
 //   - shows a placeholder when a page or card has no content yet
-//   - builds the Method page from method.md (with the "marked" Markdown library)
 //
 // app.js calls loadContent() first and only starts the rest when the content is ready.
 // =====================================================================================
 
-let CONTENT = null;   // { pages, variables, texts, method, script } once loaded
+let CONTENT = null;   // { pages, variables, texts } once loaded
 
 // The ready-made cards that exist in index.html (data-card="..."). pages.json may use these names.
 function readyCardNames() {
@@ -33,9 +32,7 @@ class ContentError extends Error {
 const CONTENT_FILES = [
   { key: 'pages', path: 'content/pages.json', json: true },
   { key: 'variables', path: 'content/variables.json', json: true },
-  { key: 'texts', path: 'content/texts.json', json: true },
-  { key: 'method', path: 'content/method.md', json: false },
-  { key: 'script', path: 'content/gee-starter-script.txt', json: false }
+  { key: 'texts', path: 'content/texts.json', json: true }
 ];
 
 async function loadContent() {
@@ -289,103 +286,4 @@ function textCard(item) {
 function unknownCard(what, pageId) {
   console.warn('content/pages.json, page "' + pageId + '": unknown ' + what);
   return placeholderCard({ message: t('messages.notYetAvailable') + ' (content/pages.json: unknown ' + what + ')' });
-}
-
-// ---------- Method page (content/method.md) ----------
-
-// Turns method.md into cards: "# " and every "## " start a card; a "> " line becomes the note box;
-// a numbered list becomes the numbered steps; {{scenario-table}} and {{gee-starter-script}} are filled in.
-function buildMethodPage() {
-  const section = $('method');
-  section.innerHTML = '';
-  if (!window.marked) {
-    section.appendChild(placeholderCard({ message: t('messages.notYetAvailable') + ' (the Markdown library could not be loaded)' }));
-    return;
-  }
-  const holder = document.createElement('div');
-  holder.innerHTML = window.marked.parse(CONTENT.method);
-  let card = null;
-  const newCard = () => {
-    card = document.createElement('div');
-    card.className = 'card m-card';
-    section.appendChild(card);
-    return card;
-  };
-  [...holder.children].forEach((el) => {
-    const text = el.textContent.trim();
-    if (el.tagName === 'H1' || el.tagName === 'H2') {
-      newCard().appendChild(el);
-    } else if (el.tagName === 'BLOCKQUOTE') {
-      const note = document.createElement('div');
-      note.id = 'disclaimer';
-      note.textContent = text;
-      section.appendChild(note);
-      card = null;
-    } else {
-      if (!card) newCard();
-      if (el.tagName === 'P' && text === '{{scenario-table}}') card.appendChild(scenarioTable());
-      else if (el.tagName === 'P' && text === '{{gee-starter-script}}') {
-        const pre = document.createElement('pre');
-        pre.id = 'gee-script';
-        pre.textContent = CONTENT.script.replace(/\r/g, '').trim();
-        card.appendChild(pre);
-      } else if (el.tagName === 'OL') card.appendChild(numberedSteps(el));
-      else {
-        // the paragraph right under the page title is the intro ("lead")
-        if (el.tagName === 'P' && card.lastElementChild && card.lastElementChild.tagName === 'H1') el.className = 'lead';
-        card.appendChild(el);
-      }
-    }
-  });
-}
-
-// A numbered Markdown list ("1. **Title** text") as the numbered steps of the Method page.
-function numberedSteps(list) {
-  const box = document.createElement('div');
-  box.className = 'gee-steps';
-  [...list.children].forEach((li, i) => {
-    const strong = li.querySelector('strong');
-    const title = strong ? strong.textContent.trim() : '';
-    const desc = li.textContent.replace(title, '').trim();
-    const step = document.createElement('div');
-    step.className = 'gee-step';
-    step.innerHTML = '<div class="gee-n"></div><div class="gee-body"><div class="gee-title"></div><div class="gee-desc"></div></div>';
-    step.querySelector('.gee-n').textContent = i + 1;
-    step.querySelector('.gee-title').textContent = title;
-    step.querySelector('.gee-desc').textContent = desc;
-    box.appendChild(step);
-  });
-  return box;
-}
-
-// The colored scenario table: rows are the NDVI trend, columns the standard deviation trend
-// (the scenario definitions in CLAUDE.md). Labels and colors come from variables.json.
-function scenarioTable() {
-  const sc = CONTENT.variables.scenarios;
-  const table = document.createElement('div');
-  table.id = 'scenario-table';
-  const cell = (cls, text, scenario) => {
-    const d = document.createElement('div');
-    d.className = cls;
-    d.textContent = text;
-    if (scenario) {
-      d.style.background = 'var(--color-' + scenario.color + '-bg)';
-      d.style.color = 'var(--color-' + scenario.color + ')';
-    }
-    table.appendChild(d);
-  };
-  const scenarioCell = (n) => {
-    const s = sc[n];
-    cell('sc', s ? t('labels.scenario') + ' ' + n + ' — ' + s.label : t('messages.noData'), s);
-  };
-  cell('sc-h', '');
-  cell('sc-h', t('labels.scenarioTableSdUp'));
-  cell('sc-h', t('labels.scenarioTableSdDown'));
-  cell('sc-r', t('labels.scenarioTableNdviDown'));
-  scenarioCell('1');
-  scenarioCell('2');
-  cell('sc-r', t('labels.scenarioTableNdviUp'));
-  scenarioCell('3');
-  scenarioCell('4');
-  return table;
 }

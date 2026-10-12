@@ -1,0 +1,102 @@
+{
+  "exampleContent": true,
+  "title": "Method and code",
+  "intro": "This page describes the methods behind the research pages and provides the code we used, so you can repeat the analyses with your own data. All files are in our GitHub repository.",
+
+  "repository": "https://github.com/Finnbaas/sisal-mangrove-monitor",
+  "branch": "main",
+
+  "license": "Code under MIT",
+  "citation": "",
+  "doi": "",
+
+  "sections": [
+    {
+      "id": "satellite",
+      "title": "Satellite analysis",
+      "description": "",
+      "sources": [],
+      "keyChoices": [],
+      "requirements": "",
+      "folder": "",
+      "zip": "",
+      "files": [
+        { "name": "ndvi_timeseries.js", "description": "Extracts the NDVI time series for your coordinates.", "format": "Earth Engine", "path": "" },
+        { "name": "early_warning_signals.ipynb", "description": "Calculates the early warning signals and Kendall's tau.", "format": "Notebook", "path": "" },
+        { "name": "scenario_classification.py", "description": "Classifies the tipping point scenario.", "format": "Python", "path": "" }
+      ],
+      "useCases": [
+        {
+          "id": "ndvi-time-series",
+          "title": "NDVI time series for your location",
+          "image": "img/method/ndvi-time-series.png",
+          "steps": [],
+          "files": ["ndvi_timeseries.js"],
+          "cards": ["point-chart"]
+        },
+        {
+          "id": "tipping-point-custom-location",
+          "title": "Tipping point analysis for your own location",
+          "image": "img/method/tipping-point.png",
+          "steps": [
+            "Download the Earth Engine script and open it in the Earth Engine Code Editor.",
+            "Change the coordinates at the top of the script to your location, run it, and export the NDVI time series as CSV.",
+            "Download the early warning signals notebook, open it in VS Code, and set the path to your CSV.",
+            "Run all cells: you get the early warning signals, Kendall's tau and the tipping point scenario for your location."
+          ],
+          "files": ["ndvi_timeseries.js", "early_warning_signals.ipynb", "scenario_classification.py"],
+          "cards": ["trend-signals"]
+        },
+        {
+          "id": "change-map",
+          "title": "Change map of your area: loss, gain and recovery",
+          "image": "img/site-map.png",
+          "steps": [],
+          "files": [],
+          "cards": []
+        }
+      ]
+    },
+    {
+      "id": "climatology",
+      "title": "Climatology analysis",
+      "description": "",
+      "sources": [],
+      "keyChoices": [],
+      "requirements": "",
+      "folder": "",
+      "zip": "",
+      "files": [],
+      "useCases": [
+        {
+          "id": "storm-anomaly-chart",
+          "title": "Anomaly chart of the weather around one storm",
+          "image": "img/method/storm-anomalies.png",
+          "steps": [],
+          "files": [],
+          "cards": ["event-charts"]
+        },
+        {
+          "id": "climate-data-cells-map",
+          "title": "Map of the climate data cells for your site",
+          "image": "img/climatology-data-cells.png",
+          "steps": [],
+          "files": [],
+          "cards": []
+        }
+      ]
+    },
+    {
+      "id": "stakeholders",
+      "title": "Stakeholder mapping",
+      "description": "",
+      "sources": [],
+      "keyChoices": [],
+      "requirements": "",
+      "folder": "",
+      "zip": "",
+      "files": [],
+      "useCases": []
+    }
+  ]
+}

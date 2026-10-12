@@ -1,7 +1,7 @@
 # Editing the content of the site
 
 Everything the site **says and shows** is set in this folder. You can change it without
-touching the code (`app.js`, `climatology.js`, `content.js`).
+touching the code (`app.js`, `climatology.js`, `stakeholders.js`, `method.js`, `content.js`).
 
 ## The rule: `data/` versus `content/`
 
@@ -18,8 +18,7 @@ touching the code (`app.js`, `climatology.js`, `content.js`).
 | `variables.json` | Which variables are shown (point charts and storm charts), their labels, units and colors; trend metrics; change classes; scenarios; data sources; the year range |
 | `texts.json` | Short texts: card titles, labels, messages, footer |
 | `stakeholders.json` | The Stakeholder page: the areas on the map and what stakeholders said about them |
-| `method.md` | The whole Method page (Markdown) |
-| `gee-starter-script.txt` | The Earth Engine script shown on the Method page |
+| `method.json` | The Method page: the analyses, their code files, and the "do it yourself" examples that the research cards link to |
 
 Images go in `img/` (outside this folder) and are referred to as `img/name.png`.
 
@@ -157,17 +156,73 @@ pipeline: see `data/stakeholder-imagery/README.txt`.
 Change the text between the quotes. Words in curly brackets, like `{year}` or `{count}`, are
 filled in by the site; keep them.
 
-## method.md: the Method page
+## method.json: the Method page
 
-Written in Markdown:
-- `# Title` and the paragraph under it form the first card.
-- Every `## Heading` starts a new card.
-- `![Description](img/workflow.png)` shows an image.
-- A numbered list with a **bold** title per step becomes the numbered steps:
-  `1. **Open the Code Editor** Go to code.earthengine.google.com …`
-- A line starting with `>` becomes the grey note box at the bottom.
-- `{{scenario-table}}` inserts the colored scenario table (made from `scenarios` in `variables.json`).
-- `{{gee-starter-script}}` inserts the script from `gee-starter-script.txt`.
+The Method page is short, like a data repository page: per analysis a brief description and the
+code files to download. Everything on it comes from this file.
+
+**At the top of the file**
+
+- `title`, `intro`: the heading and the two sentences at the top of the page.
+- `exampleContent`: `true` shows the small "Example content" tag next to the title. Set it to
+  `false` when the content is final.
+- `repository`, `branch`: the address of the GitHub repository and its main branch. The
+  "View on GitHub" links are made from these.
+- `license`, `citation`, `doi`: the block at the bottom of the page.
+
+**`sections`**: one entry per analysis. Any number is possible.
+
+```json
+{ "id": "satellite", "title": "Satellite analysis", "description": "",
+  "sources": [ { "label": "Landsat Collection 2", "url": "https://..." } ],
+  "keyChoices": [ "Yearly maximum NDVI" ],
+  "requirements": "", "folder": "analysis/satellite", "zip": "",
+  "files": [ ... ], "useCases": [ ... ] }
+```
+
+- `id`: a short name. If it is the same as a page id in `pages.json` (`satellite`,
+  `climatology`, `stakeholders`), the section gets the colors of that page.
+- `description`, `requirements`: short texts. `sources`: a list of links (`url` may be empty).
+  `keyChoices`: a short list. Keep it brief: the details live in the code files and their comments.
+- `folder`: the folder of this analysis in the repository; the link "View this folder on GitHub"
+  opens it. Leave it empty while the folder does not exist yet.
+- `zip`: the path of a zip file with all files of this section. The button "Download all (.zip)"
+  only appears when this is filled in.
+
+**`files`**: the code files of a section. One entry per file; adding a file is adding one line:
+
+```json
+{ "name": "ndvi_timeseries.js", "description": "Extracts the NDVI time series for your coordinates.",
+  "format": "Earth Engine", "path": "analysis/satellite/ndvi_timeseries.js" }
+```
+
+- `format`: the small tag (for example Python, Notebook, Earth Engine, CSV, PDF).
+- `path`: where the file is in the repository. **While `path` is empty, the file is listed in
+  grey as "Not yet available" and cannot be downloaded.** Put the file in the repository first,
+  then fill in its path.
+- A section without files shows "Files will be added here".
+
+**`useCases`**: the "Do it yourself" examples of a section. Each one is a card in the gallery
+(a picture of what you can make) that opens its steps and files when clicked:
+
+```json
+{ "id": "tipping-point-custom-location",
+  "title": "Tipping point analysis for your own location",
+  "image": "img/method/tipping-point.png",
+  "steps": [ "Download the Earth Engine script ...", "Change the coordinates ..." ],
+  "files": [ "ndvi_timeseries.js", "early_warning_signals.ipynb" ],
+  "cards": [ "trend-signals" ] }
+```
+
+- `id`: the short name used in the link to this example: the Method page address plus
+  `#method/` and the id. Lowercase letters, numbers and dashes only; each id may occur once.
+- `image`: a picture of the result, in `img/method/`. Without it the card shows a grey tile.
+- `steps`: three or four short instructions, one line each. Without steps the example shows
+  "Steps will be added here".
+- `files`: the **names** of the files this example needs, from the `files` of the same section.
+- `cards`: the ready-made cards (see the table under pages.json) that get the small link
+  **"Do this analysis yourself"**. The link opens the Method page at this example. A card can link
+  to one example only.
 
 ## Placeholder states on the site
 
@@ -176,3 +231,5 @@ Written in Markdown:
 | "This page has no content yet." | The page has no cards in `pages.json` |
 | "Not yet available" | A `placeholder` card: the content is not decided yet |
 | "No data" | The content is defined, but the data is missing from `data/` |
+| "Files will be added here" / "Steps will be added here" | A Method section or example without files or steps yet |
+| A file listed in grey, "Not yet available" | The file is named in `method.json` but has no `path` yet |

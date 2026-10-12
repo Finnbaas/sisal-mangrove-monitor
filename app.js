@@ -406,6 +406,15 @@ function copyChartColors(original, copy) {
 }
 
 function setupExports() {
+  // the download icon opens a small menu with the two exports; a click anywhere else closes it
+  const toggle = $('download-toggle');
+  const menu = $('download-menu');
+  const setMenu = (open) => { menu.hidden = !open; toggle.setAttribute('aria-expanded', open); };
+  toggle.setAttribute('aria-label', t('labels.downloadData'));
+  toggle.title = t('labels.downloadData');
+  toggle.addEventListener('click', (e) => { e.stopPropagation(); setMenu(menu.hidden); });
+  document.addEventListener('click', () => setMenu(false));
+
   $('export-png').addEventListener('click', () => {
     if (!getSelectedPoint()) return;
     const svg = $('chart').cloneNode(true);
@@ -454,7 +463,8 @@ const THEME_DEFAULT = 'overview';
 
 // The screen named in the address, or null if the address is empty or unknown.
 function screenFromAddress() {
-  const name = location.hash.slice(1);
+  // the part before a slash is the screen: #method/<use case> is still the Method screen (see method.js)
+  const name = location.hash.slice(1).split('/')[0];
   return name === 'method' || RESEARCH_SECTIONS.includes(name) ? name : null;
 }
 
@@ -526,9 +536,10 @@ function setupNavigation() {
   });
 
   // the address changed (a link, a tab, or the back/forward button): show that screen from the top
+  // (a link to one use case on the Method page scrolls to that use case instead: method.js)
   window.addEventListener('hashchange', () => {
     showScreen();
-    window.scrollTo(0, 0);
+    if (!openMethodTarget()) window.scrollTo(0, 0);
   });
 
   showScreen();
@@ -547,7 +558,6 @@ async function start() {
   }
   fillTexts();             // content.js: all data-text="..." texts
   buildPages();            // content.js: menu, pages and simple cards from content/pages.json
-  buildMethodPage();       // content.js: the Method page from content/method.md
   readPointContent();
   RESEARCH_SECTIONS = pageSections().map((s) => s.id);
   DEFAULT_SECTION = RESEARCH_SECTIONS[0];
@@ -555,6 +565,7 @@ async function start() {
 
   setupClimatology();      // climatology.js: events, timeline and charts of the Climatology screen
   setupStakeholders();     // stakeholders.js: areas, time card and panel of the Stakeholder screen
+  setupMethod();           // method.js: the Method page and the "Do this analysis yourself" links
   setupNavigation();
   setupSlider();
   setupExports();

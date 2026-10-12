@@ -96,9 +96,18 @@
           </svg>
           <div id="chart-foot">
             <div class="faint xs" id="chart-summary"></div>
-            <div id="exports">
-              <button id="export-png" class="ghost" data-text="labels.exportPng"></button>
-              <button id="export-csv" class="ghost" data-text="labels.exportCsv"></button>
+            <!-- card actions: the download icon opens a small menu; method.js adds the "Do this analysis
+                 yourself" link here when a use case in content/method.json names this card -->
+            <div id="exports" class="card-actions">
+              <div class="download-wrap">
+                <button id="download-toggle" class="icon-button" type="button" aria-haspopup="true" aria-expanded="false">
+                  <svg class="icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2V10.5M4.5 7.25L8 10.75L11.5 7.25M3 13.5H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div id="download-menu" class="download-menu" hidden>
+                  <button id="export-csv" class="menu-item" type="button" data-text="labels.exportCsv"></button>
+                  <button id="export-png" class="menu-item" type="button" data-text="labels.exportPng"></button>
+                </div>
+              </div>
             </div>
           </div>
           <div id="breakpoint-note" hidden></div>
@@ -218,7 +227,7 @@
         </div>
     </div>
 
-    <!-- METHOD PAGE: built from content/method.md by content.js -->
+    <!-- METHOD PAGE: built from content/method.json by method.js -->
     <section id="method" data-screen="method" hidden></section>
   </div>
 
@@ -228,12 +237,11 @@
     <button id="footer-method-link" class="footer-link" type="button" data-text="footer.methodLink"></button>
   </footer>
 
-  <!-- Markdown library (only used for the Method page, content/method.md) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
-  <!-- content.js, climatology.js and stakeholders.js only define functions; app.js starts everything -->
+  <!-- content.js, climatology.js, stakeholders.js and method.js only define functions; app.js starts everything -->
   <script src="content.js"></script>
   <script src="climatology.js"></script>
   <script src="stakeholders.js"></script>
+  <script src="method.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
