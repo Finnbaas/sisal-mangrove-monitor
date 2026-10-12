@@ -21,13 +21,16 @@ A web dashboard that shows the results of a mangrove monitoring study in Sisal, 
 - style.css: all styling. Design tokens (colors, fonts, spacing) are CSS variables at the top of this file.
 - app.js: shared behavior (loading point data, map, point charts, navigation between screens)
 - climatology.js: the Climatology screen (storm events: timeline, event list, the anomaly charts)
+- stakeholders.js: the Stakeholder screen (areas on the map, the Time card with the observation bars, the area panel)
 - content.js: loads and checks the content/ files, builds the pages and the simple cards from content/pages.json, shows placeholder states
 - data/points.json: data of the monitoring points
 - data/events.json: data of the storm and extreme-weather events (Climatology screen)
+- data/stakeholder-imagery/: one satellite snapshot per year for the Stakeholder map (1984.jpg ... 2026.jpg, all with exactly the same extent and crop)
 - content/: everything the team writes and edits (see content/README.md):
   - content/pages.json: which pages exist and which cards each page shows
   - content/variables.json: variables (point and event), trend metrics, change classes, scenarios, data sources, year range
   - content/texts.json: short labels and texts (card titles, messages, footer)
+  - content/stakeholders.json: the Stakeholder screen: areas on the map and the stakeholder observations
   - content/method.md: the Method page (Markdown)
   - content/gee-starter-script.txt: the Earth Engine script on the Method page
   - content/README.md: how to edit these files
@@ -35,7 +38,7 @@ A web dashboard that shows the results of a mangrove monitoring study in Sisal, 
 **data/ versus content/ (always follow this):** data/ is pipeline output only and is never edited by hand.
 content/ is everything the team writes and edits. Research content (which variables, charts, events,
 labels, units, sources and texts) belongs in content/ or data/, never in the code.
-- img/: images used by the site (site map, climatology data-cells map, workflow diagram)
+- img/: images used by the site (site map, climatology data-cells map, workflow diagram, placeholder map of the Stakeholder screen)
 - design/: reference images for design work (not used by the site)
 - Google Fonts are loaded from the internet with a link tag in index.html (the only external resource besides CDN libraries)
 
@@ -119,3 +122,10 @@ The file is one JSON array with one object per storm or extreme-weather event (C
 - `sources`: per variable the data source: "era5-land" (ERA5-Land land cell), "era5-sea" (ERA5 sea cell) or "hycom" (HYCOM cell).
 - `dates`: array of days ("YYYY-MM-DD") around the event.
 - `airTemperature` (°C), `windSpeed` (m/s), `waveHeight` (m), `precipitation` (mm/day), `salinity` (PSU), `seaSurfaceTemperature` (°C): daily anomalies (difference from the 30-year mean for the same calendar day), one value per entry in `dates`, in the same order. A missing value is `null`; an event without data has empty arrays.
+
+## Structure of content/stakeholders.json
+The file is one JSON object, written by the team (Stakeholder screen). It is loaded by stakeholders.js; an error in it shows a message on the Stakeholder page only.
+- `imagery`: `folder` and `extension` of the yearly map images (data/stakeholder-imagery/, one file per year named by the year) and the `placeholder` image shown when a year has no image.
+- `areas`: one object per area on the map: `number`, `zone` (name, may be empty), `class` ("loss", "recovery" or "gain", a key of changeClasses in content/variables.json) and `shape` (`type` "ellipse" with `leftPct`, `topPct`, `widthPct`, `heightPct`, in percent of the map image).
+- `observations`: one object per stakeholder observation: `area` (the area number), `change`, `period`, `cause`, `stakeholderType` (texts, may be empty), `startYear`, `endYear` (`null` if ongoing), `ongoing` (true/false), `certainty` ("exact", "approximate" or "expected") and `quotes` (list of `{ "text", "name" }`).
+- An area is shown in a year when that year falls within at least one of its observations. Ongoing observations count up to the last year of yearRange. An empty text shows "Not yet available".
