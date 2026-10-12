@@ -1,0 +1,106 @@
+{
+  "imagery": {
+    "folder": "data/stakeholder-imagery/",
+    "extension": "jpg",
+    "placeholder": "img/stakeholder-map-placeholder.jpg"
+  },
+
+  "areas": [
+    {
+      "number": 1,
+      "zone": "",
+      "class": "loss",
+      "shape": { "type": "ellipse", "leftPct": 17.3, "topPct": 55.8, "widthPct": 22.0, "heightPct": 14.2 }
+    },
+    {
+      "number": 2,
+      "zone": "",
+      "class": "recovery",
+      "shape": { "type": "ellipse", "leftPct": 61.7, "topPct": 44.2, "widthPct": 20.0, "heightPct": 15.3 }
+    },
+    {
+      "number": 3,
+      "zone": "",
+      "class": "gain",
+      "shape": { "type": "ellipse", "leftPct": 44.1, "topPct": 68.9, "widthPct": 17.0, "heightPct": 18.4 }
+    }
+  ],
+
+  "observations": [
+    {
+      "area": 1,
+      "change": "",
+      "period": "",
+      "startYear": 1988,
+      "endYear": 1990,
+      "ongoing": false,
+      "certainty": "exact",
+      "cause": "",
+      "stakeholderType": "",
+      "quotes": [
+        { "text": "", "name": "" },
+        { "text": "", "name": "" }
+      ]
+    },
+    {
+      "area": 1,
+      "change": "",
+      "period": "",
+      "startYear": 1988,
+      "endYear": 1988,
+      "ongoing": false,
+      "certainty": "exact",
+      "cause": "",
+      "stakeholderType": "",
+      "quotes": [
+        { "text": "", "name": "" },
+        { "text": "", "name": "" }
+      ]
+    },
+    {
+      "area": 2,
+      "change": "",
+      "period": "",
+      "startYear": 1996,
+      "endYear": 2001,
+      "ongoing": false,
+      "certainty": "approximate",
+      "cause": "",
+      "stakeholderType": "",
+      "quotes": [
+        { "text": "", "name": "" },
+        { "text": "", "name": "" }
+      ]
+    },
+    {
+      "area": 3,
+      "change": "",
+      "period": "",
+      "startYear": 2005,
+      "endYear": null,
+      "ongoing": true,
+      "certainty": "exact",
+      "cause": "",
+      "stakeholderType": "",
+      "quotes": [
+        { "text": "", "name": "" },
+        { "text": "", "name": "" }
+      ]
+    },
+    {
+      "area": 2,
+      "change": "",
+      "period": "",
+      "startYear": 2025,
+      "endYear": 2026,
+      "ongoing": false,
+      "certainty": "expected",
+      "cause": "",
+      "stakeholderType": "",
+      "quotes": [
+        { "text": "", "name": "" },
+        { "text": "", "name": "" }
+      ]
+    }
+  ]
+}

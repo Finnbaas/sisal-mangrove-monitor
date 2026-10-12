@@ -7,7 +7,7 @@ touching the code (`app.js`, `climatology.js`, `content.js`).
 
 | Folder | What is in it | Who changes it |
 |---|---|---|
-| `data/` | Results: `points.json`, `events.json` | **Only the Python pipeline.** Never edit these files by hand. |
+| `data/` | Results: `points.json`, `events.json`, the yearly map images in `stakeholder-imagery/` | **Only the Python pipeline.** Never edit these files by hand. |
 | `content/` | Everything the team writes: which pages show what, variables, labels, units, sources, texts, the Method page | **The team, by hand.** |
 
 ## The files
@@ -17,6 +17,7 @@ touching the code (`app.js`, `climatology.js`, `content.js`).
 | `pages.json` | Which pages (sections) exist and which cards each page shows, in which order |
 | `variables.json` | Which variables are shown (point charts and storm charts), their labels, units and colors; trend metrics; change classes; scenarios; data sources; the year range |
 | `texts.json` | Short texts: card titles, labels, messages, footer |
+| `stakeholders.json` | The Stakeholder page: the areas on the map and what stakeholders said about them |
 | `method.md` | The whole Method page (Markdown) |
 | `gee-starter-script.txt` | The Earth Engine script shown on the Method page |
 
@@ -56,7 +57,7 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 | Name | What it shows |
 |---|---|
 | `point-map` | Site map with the sample points (click to select a point) |
-| `year-slider` | Year slider (shared by all pages) |
+| `year-slider` | Year slider of the sample-point pages |
 | `tipping-status` | Tipping-point scenario of the selected point |
 | `point-chart` | Time-series chart of the selected point, one chip per point variable |
 | `point-values` | Values of the selected point for the chosen year |
@@ -65,6 +66,9 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 | `event-timeline` | Timeline of storms and extreme events |
 | `event-list` | List of storms and extreme events |
 | `event-charts` | The anomaly charts of the selected event, one per event variable |
+| `stakeholder-map` | Map with the areas stakeholders pointed out (click to select an area) |
+| `stakeholder-time` | Year slider that is also the time axis of the observation bars (goes directly under `stakeholder-map`) |
+| `stakeholder-panel` | What stakeholders said about the selected area |
 
 ### Simple cards (write them as an object)
 
@@ -105,6 +109,48 @@ Each one becomes one chart; any number is possible. `sources` names the data sou
 
 `scenarios`: the scenario labels are **pending a team decision**; change them only when the team
 has decided (see CLAUDE.md).
+
+## stakeholders.json: the Stakeholder page
+
+The file has three parts.
+
+**`areas`**: the zones on the map. One entry per area:
+
+```json
+{ "number": 1, "zone": "Zone name", "class": "loss",
+  "shape": { "type": "ellipse", "leftPct": 17.3, "topPct": 55.8, "widthPct": 22.0, "heightPct": 14.2 } }
+```
+
+- `number`: the number shown on the map and next to the bars. Each area has its own number.
+- `zone`: the name of the zone. Leave it empty (`""`) if it is not known yet.
+- `class`: `"loss"`, `"recovery"` or `"gain"` (the names and colors come from `changeClasses` in
+  `variables.json`, the same ones the Satellite page uses).
+- `shape`: where the area sits on the map image, in **percent of the image** (so it stays in
+  place when the image changes): `leftPct` and `topPct` are the top-left corner of the ellipse,
+  `widthPct` and `heightPct` its size.
+
+**`observations`**: what stakeholders said. One entry per observation (one row of the interview table):
+
+```json
+{ "area": 1, "change": "", "period": "", "startYear": 1988, "endYear": 1990,
+  "ongoing": false, "certainty": "exact", "cause": "", "stakeholderType": "",
+  "quotes": [ { "text": "", "name": "" } ] }
+```
+
+- `area`: the `number` of the area it belongs to. An area can have several observations.
+- `startYear`, `endYear`: numbers, no quotes. They place the bar on the timeline. For one single
+  year, write the same year twice.
+- `ongoing`: `true` if it is still happening; then write `"endYear": null`.
+- `certainty`: `"exact"`, `"approximate"` (period estimated from vague answers) or `"expected"`
+  (a change people expect but that has not happened yet).
+- `change`, `period`, `cause`, `stakeholderType`: texts shown in the panel. An empty text (`""`)
+  shows "Not yet available".
+- `quotes`: what people said in their own words (paraphrased), each with a `name` label.
+  Any number of quotes is possible.
+
+**`imagery`**: where the yearly map images are (`folder`), their file type (`extension`) and the
+image shown when a year has no image yet (`placeholder`). The images themselves are made by the
+pipeline: see `data/stakeholder-imagery/README.txt`.
 
 ## texts.json: short texts
 

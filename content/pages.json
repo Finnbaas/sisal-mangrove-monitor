@@ -39,14 +39,8 @@
       "id": "stakeholders",
       "label": "Stakeholder data",
       "columns": [
-        ["point-map", "year-slider", { "type": "placeholder" }],
-        [
-          {
-            "type": "image",
-            "src": "img/stakeholder-dynamics.png",
-            "alt": "Diagram 'Mangrove Stakeholder Dynamics': the mangrove ecosystem in the middle, surrounded by five stakeholder groups: Academic/Institutional Actors, Conservation Agencies, Development Agencies, Ecotourism Cooperatives and Palaperos/Investors"
-          }
-        ]
+        ["stakeholder-map", "stakeholder-time"],
+        ["stakeholder-panel"]
       ]
     }
   ]
