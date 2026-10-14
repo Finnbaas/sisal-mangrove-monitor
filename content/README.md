@@ -49,8 +49,18 @@ Tip: paste the file into https://jsonlint.com to find the mistake.
 - `columns`: a left and a right column, each a list of cards from top to bottom.
   A list inside a list (`["point-info", "trend-signals"]`) puts two cards next to each other.
 - `wide` (optional): a list of cards that span the **full page width**, placed under the two
-  columns. A list inside it puts two cards next to each other, each half the width:
-  `"wide": ["climate-header", ["climate-typical-year", "climate-change"], "climate-detail"]`.
+  columns. A list inside it puts two cards next to each other, each half the width.
+- `parts` (optional, instead of `columns` and `wide`): a long page in parts, like Climatology
+  ("Storms at Sisal", "Climate at Sisal"). At the top of the page comes a section navigation with one
+  link per part, which stays in view while scrolling. Each part has:
+
+  ```json
+  { "id": "climate", "title": "Climate at Sisal", "intro": "One sentence under the title.",
+    "aside": "climate-sources", "columns": [ ... ], "wide": [ ... ] }
+  ```
+
+  `title` and `intro` are the heading of the part; `aside` (optional) is a small card shown next to
+  the heading; `columns` and `wide` work as above.
 
 **A new page**: add a section with a new `id` and `label`. It gets the Overview colors.
 A page with `"columns": []` (or no cards) shows "This page has no content yet."
@@ -69,7 +79,7 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 | `event-timeline` | Timeline of storms and extreme events |
 | `event-list` | List of storms and extreme events |
 | `event-charts` | The anomaly charts of the selected event, one per event variable |
-| `climate-header` | "Climate at Sisal": heading, intro and the small "Where the data comes from" card |
+| `climate-sources` | Small "Where the data comes from" card with the map of the data cells (used as `aside` of "Climate at Sisal") |
 | `climate-typical-year` | "A typical year": one chart per climate variable, monthly mean with 10th–90th percentile band |
 | `climate-change` | "Change since 1950": one chart per climate variable, with the trend and its badge |
 | `climate-detail` | "In detail": one tab per climate variable, with record period, chart places and the trend |
@@ -91,6 +101,19 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
   Always write an `alt` text: it describes the image for people who cannot see it.
 - `placeholder`: a card whose content is not decided yet. Shows "Not yet available" or your `message`.
 - `text`: a card with a title and a paragraph.
+
+```json
+{ "type": "planned", "title": "When storms come", "expand": false,
+  "graphs": [ { "title": "Storms per year", "label": "Bar chart, 1950 to 2025", "height": 150 },
+              { "title": "Storms per month", "label": "Bar chart, J to D", "height": 150, "width": 224 } ] }
+{ "type": "group", "title": "Climate overview", "cards": ["climate-typical-year", "climate-change"] }
+```
+
+- `planned`: a card whose graphs are designed but not built yet. Each graph is a light box with its
+  `title` and a `label` saying what it will show. `height` and `width` are in pixels (optional; a graph
+  without `width` shares the free width). `"expand": true` adds the round expand button.
+- `group`: one card with a small title that holds ready-made cards side by side, as parts of one card.
+  Their rows line up (title, charts, axis).
 
 ## variables.json: what is measured
 

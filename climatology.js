@@ -113,10 +113,27 @@ function selectEvent(id) {
 
 // ---------- event list ----------
 
+// The list shows the first EVENT_LIST_ROWS events; the link under it shows all of them.
+const EVENT_LIST_ROWS = 5;
+let showAllEvents = false;
+
 function renderEventList() {
   const list = $('event-list');
   list.innerHTML = '';
-  events.forEach((ev) => {
+  // the selected event always stays in the list
+  const selectedIndex = events.findIndex((e) => e.id === selectedEventId);
+  const shortList = !showAllEvents && events.length > EVENT_LIST_ROWS && selectedIndex < EVENT_LIST_ROWS;
+  const shown = shortList ? events.slice(0, EVENT_LIST_ROWS) : events;
+
+  // under the list: the number of events since the first one, and the "Show all" link
+  const years = events.map((e) => parseMonth(e.month)).filter(Boolean).map((m) => m.year);
+  $('event-list-note').textContent = years.length ? t('labels.eventListNote', { count: events.length, year: Math.min(...years) }) : '';
+  const more = $('event-list-more');
+  more.hidden = !shortList;
+  more.textContent = t('labels.showAllEvents', { count: events.length });
+  more.onclick = () => { showAllEvents = true; renderEventList(); };
+
+  shown.forEach((ev) => {
     const row = document.createElement('button');
     row.className = 'event-row' + (ev.id === selectedEventId ? ' selected' : '');
     row.setAttribute('aria-pressed', ev.id === selectedEventId);

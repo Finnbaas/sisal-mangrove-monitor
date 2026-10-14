@@ -161,6 +161,11 @@
         <div class="card" data-card="event-list">
           <div class="card-title-row"><div class="card-title" data-text="cardTitles.event-list"></div><div class="expand">&#8599;</div></div>
           <div id="event-list"></div>
+          <!-- how many events there are, and the link that shows the whole list (climatology.js) -->
+          <div id="event-list-foot">
+            <span id="event-list-note"></span>
+            <button type="button" id="event-list-more" hidden></button>
+          </div>
           <p class="fine" id="events-status"></p>
         </div>
 
@@ -182,16 +187,10 @@
         <!-- CLIMATE AT SISAL (filled by climate.js). The charts are drawn like the storm charts above, from
              data/climate/typical-year.json (made by analysis/climatology/export_typical_year.py) -->
 
-        <!-- the heading of "Climate at Sisal", with the small card that shows where the data comes from -->
-        <div class="climate-section-header" data-card="climate-header">
-          <div class="climate-heading">
-            <h2 data-text="cardTitles.climate-table"></h2>
-            <p data-text="labels.climateIntro"></p>
-          </div>
-          <div class="card climate-sources-card">
-            <div class="card-title" data-text="labels.dataSourcesTitle"></div>
-            <img src="img/climatology-data-cells.png" alt="">
-          </div>
+        <!-- the small card next to the heading of "Climate at Sisal": where the data comes from -->
+        <div class="card climate-sources-card" data-card="climate-sources">
+          <div class="card-title" data-text="labels.dataSourcesTitle"></div>
+          <img src="img/climatology-data-cells.png" alt="">
         </div>
 
         <div class="card" data-card="climate-typical-year">
@@ -222,7 +221,7 @@
 
         <!-- "In detail": one tab per variable; the charts in it are not filled yet (climate.js) -->
         <div class="card" data-card="climate-detail">
-          <div class="card-title-row"><div class="card-title" data-text="cardTitles.climate-detail"></div><div class="expand">&#8599;</div></div>
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.climate-detail"></div></div>
           <div id="climate-detail-tabs" class="detail-tabs"></div>
           <div id="climate-detail-body"></div>
         </div>

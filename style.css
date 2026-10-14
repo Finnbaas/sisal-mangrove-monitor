@@ -262,6 +262,58 @@ button { font-family: inherit; cursor: pointer; }
 /* a slot is only a place holder for a card: it has no box of its own, so the card sits in the layout directly */
 [data-slot] { display: contents; }
 
+/* a long page in parts (content/pages.json "parts"), e.g. Climatology: "Storms at Sisal", "Climate at Sisal" */
+.research-parts { display: flex; flex-direction: column; gap: 28px; }
+/* the section navigation stays at the top while scrolling (Figma section-nav, section-nav-item) */
+.section-nav {
+  position: sticky;
+  top: 12px;
+  z-index: 20;
+  align-self: flex-start;
+  display: flex;
+  gap: 4px;
+  padding: 5px;
+  border-radius: 999px;
+  border: 1px solid var(--color-divider);
+  background: var(--color-surface);
+  box-shadow: 0 6px 18px rgba(28, 59, 46, 0.06);
+}
+.section-nav-item { padding: 7px 14px; border: none; border-radius: 999px; background: transparent; font-size: 13px; font-weight: 600; color: var(--color-text-muted); }
+.section-nav-item:hover { color: var(--color-text); }
+.section-nav-item.current { background: var(--color-accent); color: var(--color-text-on-accent); }
+/* when a part is scrolled to, its heading lands under the section navigation */
+.research-part { scroll-margin-top: 68px; display: flex; flex-direction: column; gap: 16px; }
+/* the heading of a part, with an optional small card on the right */
+.part-header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 32px; }
+.part-header h2 { margin: 0; font-family: 'Newsreader', serif; font-weight: 600; font-size: 24px; line-height: normal; color: var(--color-text); }
+.part-header p { margin: 4px 0 0 0; font-size: 14px; line-height: 1.6; color: var(--color-text-body); }
+
+/* a card with graphs that are not built yet (content/pages.json { "type": "planned" }; Figma graph-placeholder) */
+.planned-card { display: flex; flex-direction: column; gap: 12px; }
+.planned-card.no-expand .card-title-row { margin-bottom: 0; }
+.planned-row { display: flex; gap: 12px; }
+.graph-placeholder { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; padding: 10px 12px 12px 12px; border-radius: 12px; border: 1px solid var(--color-map-bg); background: var(--color-surface-subtle); }
+.graph-placeholder-title { font-size: 13px; font-weight: 600; color: var(--color-text-body); }
+.graph-placeholder-label { flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; line-height: 1.5; color: var(--color-text-faint); }
+
+/* one card holding ready-made cards side by side (content/pages.json { "type": "group" }), e.g. "Climate overview".
+   The inner cards get a light border instead of a shadow. Each inner card shares the rows of the group
+   (title row, charts, note), so the first chart and the axis at the bottom line up in both. */
+.group-card { padding: 24px; }
+.group-card > .card-title-row { margin-bottom: 14px; }
+.group-row { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto auto; column-gap: 16px; }
+.group-row > [data-slot] > .card {
+  grid-row: span 3;
+  display: grid;
+  grid-template-rows: subgrid;
+  row-gap: 0;
+  align-content: start;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--color-map-bg);
+  box-shadow: none;
+}
+
 #map {
   position: relative;
   width: 100%;
@@ -477,6 +529,12 @@ button { font-family: inherit; cursor: pointer; }
 .event-row-date { font-size: 11px; color: var(--color-text-muted); }
 .event-type { font-size: 11px; color: var(--color-text-body); background: var(--color-surface-subtle); border-radius: 999px; padding: 3px 8px; white-space: nowrap; }
 .event-row.selected .event-type { background: var(--color-surface); }
+/* under the list: "18 storms since 1950" and the "Show all" link (Figma list-note-wrap) */
+#event-list-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px 0 12px; }
+#event-list-note { font-size: 11px; color: var(--color-text-muted); }
+#event-list-note:empty { display: none; }
+#event-list-more { margin-left: auto; padding: 0; border: none; background: none; font-size: 13px; font-weight: 600; color: var(--color-accent); }
+#event-list-more:hover { text-decoration: underline; }
 
 /* event charts card */
 #event-charts-empty { min-height: 320px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 14px; color: var(--color-text-muted); }
@@ -678,22 +736,23 @@ button { font-family: inherit; cursor: pointer; }
 .trend-tag { position: absolute; top: 0; right: 2px; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; padding: 4px 7px; border-radius: 6px; border: 1px solid var(--color-divider); background: var(--color-surface); }
 .trend-tag-value { font-size: 11px; color: var(--color-text); white-space: nowrap; }
 .trend-tag .trend-badge { margin-top: 2px; }
-/* heading of the section, with the small data source card on the right */
-.climate-section-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 32px; }
-.climate-heading h2 { margin: 0; font-family: 'Newsreader', serif; font-weight: 600; font-size: 24px; line-height: 1.2; color: var(--color-text); }
-.climate-heading p { margin: 4px 0 0 0; font-size: 14px; color: var(--color-text-body); }
+/* the small "Where the data comes from" card next to the heading (Figma card-data-sources) */
 .climate-sources-card { flex: 0 0 340px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
-.climate-sources-card img { width: 100%; height: 130px; object-fit: cover; object-position: left center; border-radius: 12px; display: block; }
+.climate-sources-card img { width: 100%; height: 130px; object-fit: cover; object-position: left center; border-radius: 12px; border: 1px solid var(--color-map-bg); display: block; }
 /* "In detail": tabs (Figma detail-tab), a header line, two chart places and the trend */
+[data-card="climate-detail"] { padding: 24px; }
+[data-card="climate-detail"] > .card-title-row { margin-bottom: 14px; }
 .detail-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
 .detail-tab { display: flex; align-items: center; gap: 7px; padding: 7px 13px 7px 11px; border-radius: 999px; border: 1.5px solid var(--color-divider); background: transparent; font-size: 12px; color: var(--color-text-muted); }
 .detail-tab:hover { background: var(--color-surface-subtle); color: var(--color-text); }
 .detail-tab.selected { background: var(--color-surface-subtle); border-color: var(--color-text-body); color: var(--color-text); font-weight: 600; }
 .detail-swatch { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
-.detail-header { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.detail-header { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
 .detail-name { font-size: 15px; font-weight: 700; color: var(--color-text); }
 .detail-facts { font-size: 14px; color: var(--color-text-muted); }
-.detail-chart { min-height: 200px; display: flex; flex-direction: column; padding: 10px 12px; border-radius: 12px; border: 1px dashed var(--color-map-bg); margin-bottom: 10px; }
+.detail-chart { min-height: 200px; display: flex; flex-direction: column; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--color-map-bg); background: var(--color-surface-subtle); margin-bottom: 10px; }
+/* chart (a) is as wide as chart (b), which has the trend next to it */
+#climate-detail-body > .detail-chart { margin-right: 340px; }
 .detail-chart-title { font-size: 13px; font-weight: 600; color: var(--color-text-body); }
 .detail-chart .placeholder-text { margin: auto; }
 .detail-row { display: flex; gap: 20px; align-items: stretch; }

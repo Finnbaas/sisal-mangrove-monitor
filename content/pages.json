@@ -19,22 +19,54 @@
     {
       "id": "climatology",
       "label": "Climatology data",
-      "columns": [
-        [
-          {
-            "type": "image",
-            "title": "Site map",
-            "src": "img/climatology-data-cells.png",
-            "alt": "Map of the grid cells the climate data comes from: the ERA5-Land land cell (green), the ERA5 sea cell (blue) and the HYCOM cell (magenta) near Sisal",
-            "height": 380,
-            "keepVisible": "left"
-          },
-          "event-timeline",
-          "event-list"
-        ],
-        ["event-charts"]
-      ],
-      "wide": ["climate-header", ["climate-typical-year", "climate-change"], "climate-detail"]
+      "parts": [
+        {
+          "id": "storms",
+          "title": "Storms at Sisal",
+          "intro": "The tropical cyclones that passed within 100 km of Sisal since 1950, when they come, and how the weather and the sea deviated from normal around each one.",
+          "columns": [
+            [
+              {
+                "type": "planned",
+                "title": "Tropical cyclones near Sisal",
+                "expand": true,
+                "graphs": [
+                  { "title": "Storm tracks", "label": "Map: storm tracks within 100 km of Sisal, 1950 to 2025", "height": 380 }
+                ]
+              },
+              {
+                "type": "planned",
+                "title": "When storms come",
+                "graphs": [
+                  { "title": "Storms per year", "label": "Storms per year, 1950 to 2025, clickable", "height": 150 },
+                  { "title": "Storms per month", "label": "Bar chart, J to D", "height": 150, "width": 224 }
+                ]
+              },
+              "event-list"
+            ],
+            [
+              "event-charts",
+              {
+                "type": "planned",
+                "title": "Wave direction",
+                "graphs": [
+                  { "title": "Wave direction", "label": "Rose diagram: all days and storm-wave days", "height": 160 }
+                ]
+              }
+            ]
+          ]
+        },
+        {
+          "id": "climate",
+          "title": "Climate at Sisal",
+          "intro": "For each variable: what a typical year looks like, and how it has changed since 1950.",
+          "aside": "climate-sources",
+          "wide": [
+            { "type": "group", "title": "Climate overview", "cards": ["climate-typical-year", "climate-change"] },
+            "climate-detail"
+          ]
+        }
+      ]
     },
     {
       "id": "stakeholders",

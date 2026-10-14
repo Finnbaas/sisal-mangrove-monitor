@@ -84,6 +84,16 @@ function checkContent(c) {
     if (typeof s.label !== 'string') throw new ContentError(pagesFile, n + ' ("' + s.id + '") needs a "label".');
     if (s.columns !== undefined && !Array.isArray(s.columns)) throw new ContentError(pagesFile, n + ' ("' + s.id + '"): "columns" must be a list.');
     if (s.wide !== undefined && !Array.isArray(s.wide)) throw new ContentError(pagesFile, n + ' ("' + s.id + '"): "wide" must be a list.');
+    if (s.parts !== undefined) {
+      if (!Array.isArray(s.parts)) throw new ContentError(pagesFile, n + ' ("' + s.id + '"): "parts" must be a list.');
+      s.parts.forEach((p, j) => {
+        const pn = n + ' ("' + s.id + '"), part ' + (j + 1);
+        if (!p || typeof p !== 'object' || Array.isArray(p)) throw new ContentError(pagesFile, pn + ' must be an object ({ ... }).');
+        if (typeof p.title !== 'string') throw new ContentError(pagesFile, pn + ' needs a "title".');
+        if (p.columns !== undefined && !Array.isArray(p.columns)) throw new ContentError(pagesFile, pn + ': "columns" must be a list.');
+        if (p.wide !== undefined && !Array.isArray(p.wide)) throw new ContentError(pagesFile, pn + ': "wide" must be a list.');
+      });
+    }
   });
   if (!c.pages.sections.length) throw new ContentError(pagesFile, 'the list "sections" is empty: the site needs at least one page.');
   const v = c.variables || {};
@@ -154,9 +164,14 @@ function cardsOnPage(id) {
   const walk = (item) => {
     if (typeof item === 'string') names.push(item);
     else if (Array.isArray(item)) item.forEach(walk);
+    else if (item && item.type === 'group') (item.cards || []).forEach(walk);
   };
-  if (section) (section.columns || []).forEach(walk);
-  if (section) (section.wide || []).forEach(walk);
+  // a page with "parts" lists its cards per part
+  (section ? (section.parts || [section]) : []).forEach((part) => {
+    (part.columns || []).forEach(walk);
+    (part.wide || []).forEach(walk);
+    if (part.aside) walk(part.aside);
+  });
   return names;
 }
 
@@ -178,31 +193,111 @@ function buildPages() {
   const library = $('card-library');
   pageSections().forEach((s) => {
     const section = document.createElement('section');
-    section.className = 'research-grid';
     section.dataset.screen = s.id;
     section.hidden = true;
-    const columns = (s.columns || []).filter((col) => Array.isArray(col) && col.length);
-    // "wide": cards that span the full page width, under the two columns (for example a wide table)
-    const wide = s.wide || [];
-    if (!columns.length && !wide.length) {
-      // the page has no cards: one wide placeholder card
-      section.appendChild(placeholderCard({ message: t('messages.pageNotYetAvailable') }, 'page-placeholder'));
+    if (Array.isArray(s.parts) && s.parts.length) {
+      // a long page in parts: the section navigation, then per part a heading and its cards
+      section.className = 'research-parts';
+      buildParts(section, s, ready);
     } else {
-      columns.forEach((col) => {
-        const colEl = document.createElement('div');
-        colEl.className = 'col';
-        col.forEach((item) => colEl.appendChild(buildItem(item, ready, s.id)));
-        section.appendChild(colEl);
-      });
-      if (wide.length) {
-        const wideEl = document.createElement('div');
-        wideEl.className = 'col wide';
-        wide.forEach((item) => wideEl.appendChild(buildItem(item, ready, s.id)));
-        section.appendChild(wideEl);
-      }
+      section.className = 'research-grid';
+      fillGrid(section, s, ready, s.id);
     }
     library.parentNode.insertBefore(section, library);
   });
+}
+
+// The two columns and the "wide" cards of a page (or of one part of a page) in a grid.
+function fillGrid(grid, s, ready, pageId) {
+  const columns = (s.columns || []).filter((col) => Array.isArray(col) && col.length);
+  // "wide": cards that span the full page width, under the two columns (for example a wide table)
+  const wide = s.wide || [];
+  if (!columns.length && !wide.length) {
+    // the page has no cards: one wide placeholder card
+    grid.appendChild(placeholderCard({ message: t('messages.pageNotYetAvailable') }, 'page-placeholder'));
+    return;
+  }
+  columns.forEach((col) => {
+    const colEl = document.createElement('div');
+    colEl.className = 'col';
+    col.forEach((item) => colEl.appendChild(buildItem(item, ready, pageId)));
+    grid.appendChild(colEl);
+  });
+  if (wide.length) {
+    const wideEl = document.createElement('div');
+    wideEl.className = 'col wide';
+    wide.forEach((item) => wideEl.appendChild(buildItem(item, ready, pageId)));
+    grid.appendChild(wideEl);
+  }
+}
+
+// A page with "parts" (for example Climatology: "Storms at Sisal" and "Climate at Sisal").
+// At the top a section navigation that stays in view while scrolling (Figma: section-nav); each
+// part has a heading (title + intro), an optional small card next to it ("aside"), and its cards.
+function buildParts(section, s, ready) {
+  const nav = document.createElement('nav');
+  nav.className = 'section-nav';
+  nav.setAttribute('aria-label', s.label);
+  section.appendChild(nav);
+  const partEls = [];
+  s.parts.forEach((p, i) => {
+    const part = document.createElement('div');
+    part.className = 'research-part';
+    part.id = s.id + '-' + (p.id || 'part-' + (i + 1));
+
+    const headerRow = document.createElement('div');
+    headerRow.className = 'part-header-row';
+    const header = document.createElement('div');
+    header.className = 'part-header';
+    const title = document.createElement('h2');
+    title.textContent = p.title;
+    header.appendChild(title);
+    if (p.intro) {
+      const intro = document.createElement('p');
+      intro.textContent = p.intro;
+      header.appendChild(intro);
+    }
+    headerRow.appendChild(header);
+    if (p.aside) headerRow.appendChild(buildItem(p.aside, ready, s.id));
+    part.appendChild(headerRow);
+
+    const grid = document.createElement('div');
+    grid.className = 'research-grid';
+    fillGrid(grid, p, ready, s.id);
+    part.appendChild(grid);
+    section.appendChild(part);
+    partEls.push(part);
+
+    // one link per part in the section navigation
+    const link = document.createElement('button');
+    link.type = 'button';
+    link.className = 'section-nav-item';
+    link.textContent = p.title;
+    link.addEventListener('click', () => part.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    nav.appendChild(link);
+  });
+
+  // the part in view is marked in the navigation: the last part whose top has passed the navigation
+  const links = [...nav.children];
+  // at the start (top of the page) the first part is the one in view
+  links[0].classList.add('current');
+  links[0].setAttribute('aria-current', 'true');
+  const markCurrent = () => {
+    if (section.hidden) return;
+    const line = nav.getBoundingClientRect().bottom + 40;
+    let current = 0;
+    partEls.forEach((el, i) => { if (el.getBoundingClientRect().top <= line) current = i; });
+    // at the very bottom of the page the last part counts as the one in view
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) current = partEls.length - 1;
+    links.forEach((l, i) => {
+      l.classList.toggle('current', i === current);
+      if (i === current) l.setAttribute('aria-current', 'true');
+      else l.removeAttribute('aria-current');
+    });
+  };
+  window.addEventListener('scroll', markCurrent, { passive: true });
+  window.addEventListener('resize', markCurrent);
+  window.addEventListener('hashchange', () => setTimeout(markCurrent, 0));
 }
 
 // One item of a column: a ready-made card name, a pair of cards side by side, or a simple card.
@@ -222,11 +317,14 @@ function buildItem(item, ready, pageId) {
   if (item && item.type === 'image') return imageCard(item);
   if (item && item.type === 'placeholder') return placeholderCard(item);
   if (item && item.type === 'text') return textCard(item);
+  if (item && item.type === 'planned') return plannedCard(item);
+  if (item && item.type === 'group') return groupCard(item, ready, pageId);
   return unknownCard('card type "' + (item && item.type) + '"', pageId);
 }
 
 // A card with an optional title row (title + the round expand button, as on the other cards).
-function simpleCard(className, title) {
+// withExpand = false leaves out the expand button.
+function simpleCard(className, title, withExpand) {
   const card = document.createElement('div');
   card.className = 'card ' + className;
   if (title) {
@@ -235,13 +333,55 @@ function simpleCard(className, title) {
     const titleEl = document.createElement('div');
     titleEl.className = 'card-title';
     titleEl.textContent = title;
-    const expand = document.createElement('div');
-    expand.className = 'expand';
-    expand.textContent = '↗';
     row.appendChild(titleEl);
-    row.appendChild(expand);
+    if (withExpand !== false) {
+      const expand = document.createElement('div');
+      expand.className = 'expand';
+      expand.textContent = '↗';
+      row.appendChild(expand);
+    }
     card.appendChild(row);
   }
+  return card;
+}
+
+// { "type": "planned", "title": ..., "expand": true, "graphs": [ { "title", "label", "height", "width" } ] }
+// A card whose graphs are designed but not built yet (Figma: graph-placeholder): per graph a light
+// box with its title and a line saying what it will show. Graphs sit side by side; a graph with a
+// "width" (px) keeps that width, the others share the rest.
+function plannedCard(item) {
+  const card = simpleCard('planned-card', item.title, item.expand === true);
+  if (!item.expand) card.classList.add('no-expand');
+  const row = document.createElement('div');
+  row.className = 'planned-row';
+  (Array.isArray(item.graphs) ? item.graphs : []).forEach((g) => {
+    const box = document.createElement('div');
+    box.className = 'graph-placeholder';
+    if (g.height) box.style.height = g.height + 'px';
+    if (g.width) box.style.flex = '0 0 ' + g.width + 'px';
+    const head = document.createElement('div');
+    head.className = 'graph-placeholder-title';
+    head.textContent = g.title || '';
+    const label = document.createElement('div');
+    label.className = 'graph-placeholder-label';
+    label.textContent = g.label || t('messages.notYetAvailable');
+    box.appendChild(head);
+    box.appendChild(label);
+    row.appendChild(box);
+  });
+  card.appendChild(row);
+  return card;
+}
+
+// { "type": "group", "title": ..., "cards": ["card-a", "card-b"] }
+// One card with a small title that holds ready-made cards side by side, each with a light border
+// instead of its own shadow, so they read as parts of one card. Their rows line up (style.css).
+function groupCard(item, ready, pageId) {
+  const card = simpleCard('group-card', item.title, false);
+  const row = document.createElement('div');
+  row.className = 'group-row';
+  (Array.isArray(item.cards) ? item.cards : []).forEach((name) => row.appendChild(buildItem(name, ready, pageId)));
+  card.appendChild(row);
   return card;
 }
 

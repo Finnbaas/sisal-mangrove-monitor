@@ -10,7 +10,6 @@
     "event-list": "Storms and extreme events",
     "stakeholder-map": "Stakeholder observations",
     "stakeholder-panel": "Area details",
-    "climate-table": "Climate at Sisal",
     "climate-typical-year": "A typical year",
     "climate-change": "Change since 1950",
     "climate-detail": "In detail"
@@ -62,7 +61,8 @@
     "certaintyOngoing": "Ongoing",
     "certaintyExpected": "Expected",
 
-    "climateIntro": "For each variable: what a typical year looks like, and how it has changed since 1950.",
+    "eventListNote": "{count} storms since {year}",
+    "showAllEvents": "Show all {count} storms →",
     "typicalYearSubtitle": "Monthly mean; shaded band: 10th to 90th percentile of the daily values",
     "changeSubtitle": "Annual means and trend since the start of each record",
     "month": "Month",
@@ -100,7 +100,7 @@
     "noData": "No data",
     "notYetAvailable": "Not yet available",
     "pageNotYetAvailable": "This page has no content yet.",
-    "selectEvent": "Select a storm on the timeline or in the list",
+    "selectEvent": "Select a storm in the list",
     "couldNotLoadPoints": "Could not load point data: {error}",
     "couldNotLoadEvents": "Could not load event data: {error}",
     "filesWillBeAdded": "Files will be added here",
