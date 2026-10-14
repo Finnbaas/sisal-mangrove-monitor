@@ -1,0 +1,91 @@
+{
+  "chartFolder": "data/charts/",
+
+  "badges": {
+    "significant": "Significant",
+    "borderline": "Borderline",
+    "not-robust": "Not robust",
+    "no-trend": "No trend",
+    "to-confirm": "To confirm"
+  },
+
+  "rows": [
+    {
+      "id": "air-temperature",
+      "name": "Air temperature",
+      "detail": "daily max and min",
+      "note": "Record from 1950",
+      "color": "data-climate-air-temperature",
+      "typicalYear": "typical-year-air-temperature.svg",
+      "change": "",
+      "trend": ["Max +0.09 ± 0.04 °C/decade", "Min +0.13 ± 0.03 °C/decade"],
+      "badge": "significant"
+    },
+    {
+      "id": "rainfall",
+      "name": "Rainfall",
+      "detail": "",
+      "note": "Record from 1950",
+      "color": "data-climate-precipitation",
+      "typicalYear": "typical-year-rainfall.svg",
+      "change": "",
+      "trend": ["−0.023 mm/day per decade"],
+      "badge": "to-confirm"
+    },
+    {
+      "id": "sea-surface-temperature",
+      "name": "Sea surface temperature",
+      "detail": "",
+      "note": "Record from 1979",
+      "color": "data-climate-sea-surface-temperature",
+      "typicalYear": "typical-year-sst.svg",
+      "change": "",
+      "trend": ["+0.09 ± 0.07 °C/decade"],
+      "badge": "borderline"
+    },
+    {
+      "id": "wind-speed",
+      "name": "Wind speed",
+      "detail": "",
+      "note": "Record from 1979",
+      "color": "data-climate-wind-speed",
+      "typicalYear": "typical-year-wind-speed.svg",
+      "change": "",
+      "trend": ["−0.04 m/s/decade"],
+      "badge": "not-robust"
+    },
+    {
+      "id": "wave-height",
+      "name": "Wave height (mean)",
+      "detail": "",
+      "note": "Record from 1979",
+      "color": "data-climate-wave-height",
+      "typicalYear": "typical-year-wave-height.svg",
+      "change": "",
+      "trend": ["No trend"],
+      "badge": "no-trend"
+    },
+    {
+      "id": "sea-level",
+      "name": "Sea level",
+      "detail": "",
+      "note": "Record from 1993",
+      "color": "data-climate-sea-level",
+      "typicalYear": "typical-year-sea-level.svg",
+      "change": "",
+      "trend": ["+5.3 ± 0.8 mm/yr"],
+      "badge": "significant"
+    },
+    {
+      "id": "salinity",
+      "name": "Salinity",
+      "detail": "",
+      "note": "Record 1993 to 2012",
+      "color": "data-climate-salinity",
+      "typicalYear": "typical-year-salinity.svg",
+      "change": "",
+      "trend": ["+0.042 PSU/decade"],
+      "badge": "to-confirm"
+    }
+  ]
+}

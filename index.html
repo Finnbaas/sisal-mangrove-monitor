@@ -179,6 +179,24 @@
           </div>
         </div>
 
+        <!-- CLIMATE TABLE (filled by climate.js from content/climate.json). The charts in it are SVG
+             files from data/charts/, made by analysis/climatology/export_typical_year.py -->
+
+        <div class="card" data-card="climate-table">
+          <div class="climate-header">
+            <h2 data-text="cardTitles.climate-table"></h2>
+            <p data-text="labels.climateIntro"></p>
+          </div>
+          <div class="climate-row climate-head">
+            <div></div>
+            <div data-text="labels.colTypicalYear"></div>
+            <div data-text="labels.colChange"></div>
+            <div data-text="labels.colTrend"></div>
+          </div>
+          <div id="climate-rows"></div>
+          <p class="fine" id="climate-status"></p>
+        </div>
+
         <!-- STAKEHOLDER CARDS (filled by stakeholders.js from content/stakeholders.json) -->
 
         <div class="card" data-card="stakeholder-map">
@@ -237,9 +255,10 @@
     <button id="footer-method-link" class="footer-link" type="button" data-text="footer.methodLink"></button>
   </footer>
 
-  <!-- content.js, climatology.js, stakeholders.js and method.js only define functions; app.js starts everything -->
+  <!-- content.js, climatology.js, climate.js, stakeholders.js and method.js only define functions; app.js starts everything -->
   <script src="content.js"></script>
   <script src="climatology.js"></script>
+  <script src="climate.js"></script>
   <script src="stakeholders.js"></script>
   <script src="method.js"></script>
   <script src="app.js"></script>

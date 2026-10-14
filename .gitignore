@@ -1,0 +1,9 @@
+# Large data files of the analyses: they stay on the team's computers and do not go to GitHub
+# or Netlify. Only the finished charts in data/charts/ are published.
+analysis/climatology/Sisal_ERA5Land_daily_all.csv
+analysis/climatology/Sisal_ERA5_daily_all.csv
+analysis/climatology/Sisal_HYCOM_daily_all.csv
+
+# Python leftovers
+__pycache__/
+.ipynb_checkpoints/
