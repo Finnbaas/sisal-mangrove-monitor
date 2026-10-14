@@ -1,30 +1,24 @@
-// "Climate at Sisal" on the Climatology page.
-//
-// Card "climate-typical-year": one chart per climate variable, stacked, with one shared month axis
-// and the dotted comparison line. The charts are made exactly like the storm anomaly charts: they use
-// the same drawing parts and the same comparison line from climatology.js (chartRow, chartHead,
-// chartYAxis, chartNoData, sharedAxis, ticksFor, segmentsOf, attachComparisonLine).
-//
-// The numbers come from data/climate/typical-year.json, made by the Python script
-// analysis/climatology/export_typical_year.py from the team's notebook. This file only draws them;
-// it never calculates numbers.
-// Which charts are shown, in which order, with which label and color, is set in
-// content/variables.json ("climateVariables"), like the storm charts ("eventVariables").
-//
-// This file uses helpers from app.js ($, color, colorVarOf, isNumber, formatLike, NO_DATA),
-// content.js (CONTENT, t, parseJsonFile) and climatology.js (PLOT and the chart parts above).
+// climatology-climate.js: "Climate at Sisal" on the Climatology page.
+//   "A typical year": one chart per climate variable with a shared month axis and the comparison line,
+//   drawn with the same parts as the storm charts (charts.js). "Change since 1950": annual means with
+//   the trend line, the trend value and its badge. "In detail": one tab per variable with its trend.
+//   This file only draws: the numbers are calculated in Python (analysis/climatology/export_typical_year.py).
+// Reads: data/climate/typical-year.json, data/climate/change.json and content/climate.json (the badges); which charts, in which order and with
+//   which label: content/variables.json "climateVariables".
+// Uses: helpers.js, content.js, charts.js. Used by: main.js (setupClimate).
 
 const TYPICAL_YEAR_FILE = 'data/climate/typical-year.json';
 
 let CLIMATE_PANELS = [];        // one chart per entry, top to bottom (variables.json "climateVariables")
 let typicalYear = null;         // contents of data/climate/typical-year.json
-let typicalYearCharts = null;   // the charts, as a set for the comparison line (see climatology.js)
+let typicalYearCharts = null;   // the charts, as a set for the comparison line (see charts.js)
 
 function setupClimate() {
   CLIMATE_PANELS = (CONTENT.variables.climateVariables || []).map((x) => ({
     id: x.id, label: x.label, colorVar: colorVarOf(x.color), seriesLabels: x.seriesLabels || {}
   }));
   attachComparisonLine($('typical-year-charts'), () => typicalYearCharts);
+  attachComparisonLine($('climate-change-charts'), () => climateChangeCharts);
   // the description of the data source map, for people who cannot see it
   const map = document.querySelector('.climate-sources-card img');
   if (map) map.alt = t('labels.dataSourcesAlt');
@@ -44,7 +38,7 @@ async function loadTypicalYear() {
     console.error(err);
   }
   renderTypicalYear();
-  loadClimateChange();   // uses the units of the typical-year file
+  loadClimateChange();
 }
 
 // ---------- the month scale ----------
@@ -153,12 +147,17 @@ function monthChartSvg(p, data) {
 }
 
 // =============================================================================================
-// Card "climate-change": the same panels as "A typical year", on a shared year axis, with the trend
-// value(s) and badge in each panel's top right corner. The trend values and badges are content
-// (content/climate.json, "trends"); the charts themselves are not filled yet (empty frames).
+// Card "climate-change": the same panels as "A typical year", on a shared year axis. Per panel the
+// annual means as a line with small markers and the trend as a dashed grey line. The trend value and
+// badge are shown in "In detail". The numbers come from data/climate/change.json (Python);
+// the badge (the team's verdict) comes from content/climate.json.
 // =============================================================================================
 
 const CLIMATE_CONTENT_FILE = 'content/climate.json';
+const CLIMATE_CHANGE_FILE = 'data/climate/change.json';
+
+let climateChange = null;         // contents of data/climate/change.json
+let climateChangeCharts = null;   // the charts, as a set for the comparison line (see charts.js)
 
 async function loadClimateChange() {
   let content = null;
@@ -169,56 +168,120 @@ async function loadClimateChange() {
   } catch (err) {
     console.error(err);
   }
+  climateChange = null;
+  try {
+    const response = await fetch(CLIMATE_CHANGE_FILE);
+    if (!response.ok) throw new Error('the file could not be loaded (HTTP ' + response.status + ')');
+    const data = parseJsonFile(await response.text(), CLIMATE_CHANGE_FILE);
+    if (!data || typeof data.variables !== 'object') throw new Error('"variables" is missing');
+    climateChange = data;
+  } catch (err) {
+    // a problem with this file only affects these charts: the message names the file
+    $('climate-change-status').textContent = t('messages.couldNotLoadClimateData', { error: CLIMATE_CHANGE_FILE + ': ' + err.message });
+    console.error(err);
+  }
   renderClimateChange(content);
   renderClimateDetail(content);
+}
+
+// the trend of one series as text, for example "+0.09 ± 0.04 °C/decade" (decimals follow the ± value)
+function trendText(s, trendUnit) {
+  const decimals = s.ci95 > 0 ? Math.max(0, 1 - Math.floor(Math.log10(s.ci95))) : 2;
+  return (s.slope < 0 ? '−' : '+') + Math.abs(s.slope).toFixed(decimals) + ' ± ' + Math.abs(s.ci95).toFixed(decimals) + ' ' + trendUnit;
+}
+
+// the trend lines of one variable ("Max +0.09 ± 0.04 °C/decade"); a series with a name in
+// content/variables.json "seriesLabels" starts with that name
+function trendLines(p) {
+  const data = climateChange && climateChange.variables[p.id];
+  if (!data || !Array.isArray(data.series)) return [];
+  return data.series.filter((s) => isNumber(s.slope) && isNumber(s.ci95)).map((s) => {
+    const name = p.seriesLabels[s.id];
+    return (name ? name.charAt(0).toUpperCase() + name.slice(1) + ' ' : '') + trendText(s, data.trendUnit);
+  });
 }
 
 function renderClimateChange(content) {
   const box = $('climate-change-charts');
   box.innerHTML = '';
+  climateChangeCharts = null;
   if (!CLIMATE_PANELS.length) {
     box.innerHTML = '<p class="placeholder-text"></p>';
     box.firstChild.textContent = t('messages.notYetAvailable');
     return;
   }
   const years = (content && content.years) || { first: 1950, last: 2025 };
-  const trends = (content && content.trends) || {};
-  const badges = (content && content.badges) || {};
+  const count = years.last - years.first + 1;
   // x position (SVG units) of a year, with half a year of room at both ends
-  const yearX = (y) => PLOT.left + (y - years.first + 0.5) / (years.last - years.first + 1) * (PLOT.right - PLOT.left);
+  const yearX = (y) => PLOT.left + (y - years.first + 0.5) / count * (PLOT.right - PLOT.left);
   const decades = [];
   for (let y = Math.ceil(years.first / 10) * 10; y <= years.last; y += 10) decades.push(y);
-  const variables = (typicalYear && typicalYear.variables) || {};
+  const variables = (climateChange && climateChange.variables) || {};
 
-  CLIMATE_PANELS.forEach((p) => {
+  const panels = CLIMATE_PANELS.map((p) => {
     const data = variables[p.id];
     const unit = data ? data.unit + (data.note ? ', ' + data.note : '') : NO_DATA;
-    // an empty chart for now: the frame, the decade gridlines and the y-axis line
-    const svg = chartNoData(chartHead(p, decades.map(yearX), 'change since ' + years.first), t('messages.notYetAvailable'));
-    const row = chartRow({ label: p.label, unit: unit }, null, svg);
-    // the trend in the top right corner, where the typical-year charts show their source
-    const trend = trends[p.id];
-    const tag = row.querySelector('.source-tag');
-    tag.className = 'trend-tag';
-    tag.innerHTML = '';
-    if (trend) {
-      (Array.isArray(trend.lines) ? trend.lines : [trend.lines]).filter(Boolean).forEach((line) => {
-        const v = document.createElement('span');
-        v.className = 'trend-tag-value mono';
-        v.textContent = line;
-        tag.appendChild(v);
-      });
-      if (badges[trend.badge]) {
-        const b = document.createElement('span');
-        b.className = 'trend-badge badge-' + trend.badge;
-        b.textContent = badges[trend.badge];
-        tag.appendChild(b);
-      }
-    } else tag.textContent = t('messages.notYetAvailable');
+    const drawn = yearChartSvg(p, data, years, yearX, decades);
+    const row = chartRow({ label: p.label, unit: unit }, null, drawn.svg);
+    // no trend box on top of the chart: the trend and its badge are shown in "In detail"
+    row.querySelector('.source-tag').remove();
     box.appendChild(row);
+    return drawn.panel;
   });
   // one shared year axis under all charts
   box.appendChild(sharedAxis(decades.map((y) => ({ x: yearX(y), text: String(y) })), t('labels.year')));
+  box.insertAdjacentHTML('beforeend', '<div class="comparison" hidden></div>');
+
+  // the comparison line snaps to years
+  climateChangeCharts = {
+    count: count, xOf: (i) => yearX(years.first + i), label: (i) => String(years.first + i), panels: panels,
+    indexAt: (plotX) => (plotX < PLOT.left ? -1 : Math.min(count - 1, Math.max(0, Math.floor((plotX - PLOT.left) / ((PLOT.right - PLOT.left) / count)))))
+  };
+}
+
+// One chart: for every series the annual means as a line with small markers (from the first year with
+// data, so a series that starts later starts at its real year) and the trend as a dashed grey line.
+// Returns the SVG text and what the comparison line needs ({ yOf, points }).
+function yearChartSvg(p, data, years, yearX, decades) {
+  const head = chartHead(p, decades.map(yearX), 'change since ' + years.first);
+  const series = data && Array.isArray(data.series) ? data.series : [];
+  const known = [];
+  series.forEach((s) => ['means', 'fit'].forEach((k) => (s[k] || []).forEach((v) => { if (isNumber(v)) known.push(v); })));
+  if (!known.length) return { svg: chartNoData(head), panel: null };
+
+  const t = ticksFor(Math.min(...known), Math.max(...known), false);
+  const lo = Math.min(Math.min(...known), t.ticks[0]), hi = Math.max(Math.max(...known), t.ticks[t.ticks.length - 1]);
+  const span = PLOT.bottom - PLOT.top;
+  const pad = 4 * ((hi - lo) || 1) / (span - 8);                // 4 SVG units of room above and below
+  const yOf = (val) => PLOT.top + (hi + pad - val) / ((hi - lo) + 2 * pad) * span;
+  const c = color(p.colorVar);
+
+  let svg = head + chartYAxis(t, yOf);
+  const byYear = [];   // per series: the annual means with one place per year of the axis (null = no value)
+  series.forEach((s, k) => {
+    const row = new Array(years.last - years.first + 1).fill(null);
+    (s.years || []).forEach((y, i) => { if (y >= years.first && y <= years.last && isNumber(s.means[i])) row[y - years.first] = s.means[i]; });
+    byYear.push(row);
+    // the trend: a dashed grey line from the first to the last year of the series
+    if (s.fit && s.years && s.years.length) {
+      svg += '<line x1="' + yearX(s.years[0]).toFixed(1) + '" y1="' + yOf(s.fit[0]).toFixed(1) + '" x2="' + yearX(s.years[s.years.length - 1]).toFixed(1) +
+        '" y2="' + yOf(s.fit[1]).toFixed(1) + '" stroke="' + color('--color-text-faint') + '" stroke-width="1" stroke-dasharray="4 3"></line>';
+    }
+    // the annual means as a line with small markers; a second series (daily min) is dashed
+    segmentsOf(row).forEach((seg) => {
+      if (seg.length > 1) svg += '<polyline points="' + seg.map((pt) => yearX(years.first + pt.i).toFixed(1) + ',' + yOf(pt.val).toFixed(1)).join(' ') + '" fill="none" stroke="' + c +
+        '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"' + (k > 0 ? ' stroke-dasharray="4 3"' : '') + '></polyline>';
+      seg.forEach((pt) => { svg += '<circle cx="' + yearX(years.first + pt.i).toFixed(1) + '" cy="' + yOf(pt.val).toFixed(1) + '" r="1.8" fill="' + c + '"></circle>'; });
+    });
+  });
+
+  // what the comparison line shows at year i: the annual mean of every series
+  const points = (i) => series.map((s, k) => {
+    const v = byYear[k][i];
+    const name = p.seriesLabels[s.id];
+    return { value: v, color: c, text: (name ? name + ' ' : '') + formatLike(v, s.means) + ' ' + data.unit };
+  });
+  return { svg: svg + '</svg>', panel: { yOf: yOf, points: points } };
 }
 
 // =============================================================================================
@@ -293,7 +356,7 @@ function renderClimateDetailTab() {
   summary.firstChild.textContent = t('labels.colTrend');
   if (trend) {
     // air temperature: only the line of the selected series ("Max ..." or "Min ...")
-    let lines = (Array.isArray(trend.lines) ? trend.lines : [trend.lines]).filter(Boolean);
+    let lines = trendLines(tab.panel);
     if (tab.series) {
       const own = lines.filter((l) => l.toLowerCase().startsWith(String(tab.panel.seriesLabels[tab.series]).toLowerCase()));
       if (own.length) lines = own;

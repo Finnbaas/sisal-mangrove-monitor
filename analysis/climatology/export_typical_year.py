@@ -1,5 +1,5 @@
 """
-Makes the numbers for the "A typical year" charts on the Climatology page of the website.
+Makes the numbers for the "A typical year" and "Change since 1950" charts on the Climatology page.
 
 For every climate variable it calculates the mean seasonal cycle: the mean of each calendar month,
 and the 10th and 90th percentile of the daily values in that month. It writes them to one file,
@@ -11,11 +11,17 @@ load_series() and monthly_band() are copied from that notebook without changes, 
 the figures in the report show the same numbers. If you change them in the notebook, change them
 here too.
 
+"Change since 1950" (data/climate/change.json): for every variable the annual means (years at least 90%
+complete) and the linear trend on them (scipy linregress, with the 95% range = 1.96 x standard error and
+the p-value). annual() and trend() are the notebook's calculations (see reference/annual_trends.py and
+reference/sea_level.py). The verdict per variable (Significant, Borderline, ...) is NOT made here: the team
+sets it in content/climate.json.
+
 Run it from the project folder:
 
     python analysis/climatology/export_typical_year.py
 
-Needs: pandas, numpy  (pip install pandas numpy)
+Needs: pandas, numpy, scipy  (pip install pandas numpy scipy)
 """
 
 import json
@@ -23,6 +29,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy import stats
 
 # ---------------------------------------------------------------------------------------------
 # SETTINGS
@@ -35,6 +42,7 @@ INPUT_DIR = HERE
 
 # where the result goes (data/climate/ in the project folder)
 OUTPUT_FILE = HERE.parent.parent / 'data' / 'climate' / 'typical-year.json'
+CHANGE_FILE = HERE.parent.parent / 'data' / 'climate' / 'change.json'
 
 # salinity: only one HYCOM model version is used (see the notebook)
 SALINITY_PERIOD = ('1993', '2012')
@@ -113,6 +121,48 @@ def monthly_band(s):
     return g.mean(), g.quantile(0.1), g.quantile(0.9)
 
 
+# "Change since 1950": annual means and trends
+
+def annual(s):
+    g = s.resample('YE')
+    a = g.mean()[g.count() >= 329]            # years at least 90% complete
+    a.index = a.index.year
+    return a
+
+
+def annual_sea_level(sea):
+    """annual means of the sea level (complete years only), as in the notebook"""
+    g = sea.resample('YE')
+    ann = g.mean()[g.count() == 12]
+    ann.index = ann.index.year
+    return ann
+
+
+def trend(ann, per=10):
+    """Linear trend of annual means (stats.linregress): slope and 95% range (1.96 x stderr) per 'per'
+    years, the p-value, and the trend line's value in the first and last year."""
+    r = stats.linregress(ann.index, ann.values)
+    y0, y1 = int(ann.index[0]), int(ann.index[-1])
+    return {'slope': round(float(r.slope) * per, 4), 'ci95': round(1.96 * float(r.stderr) * per, 4),
+            'p': float(f'{r.pvalue:.3g}'),
+            'fit': [round(float(r.intercept + r.slope * y), 4) for y in (y0, y1)]}
+
+
+def change_series(id, ann, label=None, per=10):
+    """One line of a change chart: the years, the annual means and the trend."""
+    out = {'id': id}
+    if label:
+        out['label'] = label
+    out.update(years=[int(y) for y in ann.index], means=[round(float(v), 3) for v in ann.values], **trend(ann, per))
+    return out
+
+
+def change_record(*series):
+    """First and last year with an annual mean."""
+    used = [a for a in series if len(a)]
+    return {'start': int(min(a.index[0] for a in used)), 'end': int(max(a.index[-1] for a in used))}
+
+
 # ---------------------------------------------------------------------------------------------
 # WRITING THE FILE
 # ---------------------------------------------------------------------------------------------
@@ -171,6 +221,30 @@ def main():
         'salinity': {'unit': 'PSU', 'source': 'hycom', 'record': record(sal), 'series': [
             dict(id='mean', **band(sal))]},
     }
+
+    # ---- Change since 1950 (data/climate/change.json) ----
+    a_tmax, a_tmin, a_rain, a_sst, a_wind, a_hs, a_sal = (annual(x) for x in (tmax, tmin, rain, sst, wind, hs, sal))
+    a_sea = annual_sea_level(sea)
+    sea_periods = [{'start': y0, 'end': y1, **trend(a_sea.loc[y0:y1], per=1)} for y0, y1 in [(1993, 2011), (2012, 2025)]]
+    # "trendUnit" is the unit of slope and ci95; sea level is per year, the others per decade
+    change = {
+        'airTemperature': {'unit': '°C', 'trendUnit': '°C/decade', 'record': change_record(a_tmax, a_tmin), 'series': [
+            change_series('max', a_tmax, 'daily max'), change_series('min', a_tmin, 'daily min')]},
+        'precipitation': {'unit': 'mm/day', 'trendUnit': 'mm/day/decade', 'record': change_record(a_rain), 'series': [
+            change_series('mean', a_rain)]},
+        'seaSurfaceTemperature': {'unit': '°C', 'trendUnit': '°C/decade', 'record': change_record(a_sst), 'series': [
+            change_series('mean', a_sst)]},
+        'windSpeed': {'unit': 'm/s', 'trendUnit': 'm/s/decade', 'record': change_record(a_wind), 'series': [
+            change_series('mean', a_wind)]},
+        'waveHeight': {'unit': 'm', 'trendUnit': 'm/decade', 'record': change_record(a_hs), 'series': [
+            change_series('mean', a_hs)]},
+        'seaLevel': {'unit': 'mm', 'trendUnit': 'mm/yr', 'record': change_record(a_sea), 'periods': sea_periods, 'series': [
+            change_series('mean', a_sea, per=1)]},
+        'salinity': {'unit': 'PSU', 'trendUnit': 'PSU/decade', 'record': change_record(a_sal), 'series': [
+            change_series('mean', a_sal)]},
+    }
+    CHANGE_FILE.write_text(json.dumps({'variables': change}, ensure_ascii=False, indent=1), encoding='utf-8', newline='\n')
+    print(f'Saved {CHANGE_FILE}')
 
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_FILE.write_text(json.dumps({'months': [int(x) for x in m], 'variables': variables}, ensure_ascii=False, indent=1),

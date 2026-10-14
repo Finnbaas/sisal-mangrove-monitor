@@ -1,14 +1,8 @@
-// The Method page (Figma: method-section, download-row, github-link, example-card, use-case,
-// cite-block, content-tag) and the small "Do this analysis yourself" links on the research cards
-// (Figma: card-actions).
-//
-// The Method page is short, like a data repository page: per analysis a brief description and
-// the code files to download. Under each analysis a gallery shows what a researcher can make
-// themselves; clicking an example opens its steps and files (a "use case").
-//
-// All content comes from content/method.json (written by the team). Nothing is written in this file.
-// This file uses helpers from app.js ($, lastResearchSection) and content.js (t, parseJsonFile,
-// ContentError, pageSections).
+// method.js: the Method page and the "Do this analysis yourself" links on the research cards.
+//   Per analysis a short description, the code files to download, and a gallery of examples ("use
+//   cases") with their steps. The address #method/<use case id> opens the page at that use case.
+// Reads: content/method.json (written by the team).
+// Uses: helpers.js, content.js, navigation.js (lastResearchSection). Used by: main.js, navigation.js.
 
 const METHOD_FILE = 'content/method.json';
 
@@ -41,7 +35,7 @@ async function loadMethod() {
     method = content;
   } catch (err) {
     // a problem in this file only affects the Method page: the message names the file
-    $('method').innerHTML = '<div class="content-error"><strong>' + mText(t('messages.couldNotLoadMethod')) + '</strong><p>' + mText(err.message) + '</p></div>';
+    $('method').innerHTML = '<div class="content-error"><strong>' + escapeHtml(t('messages.couldNotLoadMethod')) + '</strong><p>' + escapeHtml(err.message) + '</p></div>';
     console.error(err);
     return;
   }
@@ -86,31 +80,17 @@ function setupMethod() {
 // ---------- small helpers ----------
 
 // Makes a text from the content file safe to place in the page.
-function mText(value) {
-  return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-function mFilled(value) {
-  return value !== undefined && value !== null && String(value).trim() !== '';
-}
-
-// A text from the content file, or "Not yet available" (in a lighter color) when it is empty.
-function mTextOrPlaceholder(value, placeholderText) {
-  if (mFilled(value)) return mText(value);
-  return '<span class="method-placeholder">' + mText(placeholderText || t('messages.notYetAvailable')) + '</span>';
-}
-
 // The address of a folder (or of the whole repository) on GitHub.
 function githubAddress(folder) {
   const repo = String(method.repository || '').replace(/\/$/, '');
-  return mFilled(folder) ? repo + '/tree/' + (method.branch || 'main') + '/' + folder : repo;
+  return isFilled(folder) ? repo + '/tree/' + (method.branch || 'main') + '/' + folder : repo;
 }
 
 // A link to GitHub with the GitHub icon (Figma github-link): "large" is the button in the page
 // header, "small" the text link inside a section.
 function githubLink(size, label, folder) {
-  if (!mFilled(method.repository)) return '';
-  return '<a class="github-link ' + size + '" href="' + mText(githubAddress(folder)) + '" target="_blank" rel="noopener">' + METHOD_ICONS.github + '<span>' + mText(label) + '</span></a>';
+  if (!isFilled(method.repository)) return '';
+  return '<a class="github-link ' + size + '" href="' + escapeHtml(githubAddress(folder)) + '" target="_blank" rel="noopener">' + METHOD_ICONS.github + '<span>' + escapeHtml(label) + '</span></a>';
 }
 
 function sectionById(id) {
@@ -131,17 +111,17 @@ function findUseCase(id) {
 function buildMethodPage() {
   const header =
     '<div class="card method-header">' +
-      '<div class="method-title-row"><h1>' + mTextOrPlaceholder(method.title) + '</h1>' +
-      (method.exampleContent ? '<span class="content-tag">' + mText(t('labels.exampleContent')) + '</span>' : '') + '</div>' +
-      (mFilled(method.intro) ? '<p class="method-intro">' + mText(method.intro) + '</p>' : '') +
+      '<div class="method-title-row"><h1>' + textOrPlaceholder('method-placeholder', method.title) + '</h1>' +
+      (method.exampleContent ? '<span class="content-tag">' + escapeHtml(t('labels.exampleContent')) + '</span>' : '') + '</div>' +
+      (isFilled(method.intro) ? '<p class="method-intro">' + escapeHtml(method.intro) + '</p>' : '') +
       githubLink('large', t('labels.viewRepositoryOnGithub'), '') +
     '</div>';
 
   const cite =
     '<div class="cite-block">' +
-      '<div class="cite-license"><div class="method-label">' + mText(t('labels.license')) + '</div><div class="method-text">' + mTextOrPlaceholder(method.license) + '</div></div>' +
-      '<div class="cite-citation"><div class="method-label">' + mText(t('labels.citeThisMethod')) + '</div><div class="method-text">' + mTextOrPlaceholder(method.citation) + '</div>' +
-      '<div class="cite-doi mono">' + mText(t('labels.doi')) + ' ' + mTextOrPlaceholder(method.doi) + '</div></div>' +
+      '<div class="cite-license"><div class="method-label">' + escapeHtml(t('labels.license')) + '</div><div class="method-text">' + textOrPlaceholder('method-placeholder', method.license) + '</div></div>' +
+      '<div class="cite-citation"><div class="method-label">' + escapeHtml(t('labels.citeThisMethod')) + '</div><div class="method-text">' + textOrPlaceholder('method-placeholder', method.citation) + '</div>' +
+      '<div class="cite-doi mono">' + escapeHtml(t('labels.doi')) + ' ' + textOrPlaceholder('method-placeholder', method.doi) + '</div></div>' +
     '</div>';
 
   $('method').innerHTML = header + method.sections.map(methodSectionHtml).join('') + cite;
@@ -151,42 +131,42 @@ function buildMethodPage() {
 // One analysis (Figma method-section): description on the left, "Code and files" on the right,
 // and under them the gallery of things a researcher can make themselves.
 function methodSectionHtml(section) {
-  const block = (label, body) => '<div class="method-block"><div class="method-label">' + mText(t(label)) + '</div>' + body + '</div>';
-  const placeholder = '<div class="method-text">' + mTextOrPlaceholder('') + '</div>';
+  const block = (label, body) => '<div class="method-block"><div class="method-label">' + escapeHtml(t(label)) + '</div>' + body + '</div>';
+  const placeholder = '<div class="method-text">' + textOrPlaceholder('method-placeholder', '') + '</div>';
 
-  const sources = (section.sources || []).filter((s) => s && mFilled(s.label));
+  const sources = (section.sources || []).filter((s) => s && isFilled(s.label));
   const sourcesHtml = sources.length ? sources.map((s) =>
-    mFilled(s.url) ? '<a class="method-source" href="' + mText(s.url) + '" target="_blank" rel="noopener">' + mText(s.label) + ' &rarr;</a>'
-      : '<span class="method-source">' + mText(s.label) + '</span>').join('') : placeholder;
+    isFilled(s.url) ? '<a class="method-source" href="' + escapeHtml(s.url) + '" target="_blank" rel="noopener">' + escapeHtml(s.label) + ' &rarr;</a>'
+      : '<span class="method-source">' + escapeHtml(s.label) + '</span>').join('') : placeholder;
 
-  const choices = (section.keyChoices || []).filter(mFilled);
-  const choicesHtml = choices.length ? '<ul class="method-choices">' + choices.map((c) => '<li>' + mText(c) + '</li>').join('') + '</ul>' : placeholder;
+  const choices = (section.keyChoices || []).filter(isFilled);
+  const choicesHtml = choices.length ? '<ul class="method-choices">' + choices.map((c) => '<li>' + escapeHtml(c) + '</li>').join('') + '</ul>' : placeholder;
 
-  // the theme colors of a section follow the research page with the same id (data-section, see style.css)
-  return '<div class="card method-section" id="method-' + mText(section.id) + '" data-section="' + mText(section.id) + '">' +
+  // the theme colors of a section follow the research page with the same id (data-section, see css/base.css)
+  return '<div class="card method-section" id="method-' + escapeHtml(section.id) + '" data-section="' + escapeHtml(section.id) + '">' +
     '<div class="method-columns">' +
       '<div class="method-description">' +
-        '<div class="method-head"><h2>' + mText(section.title) + '</h2><p class="method-text">' + mTextOrPlaceholder(section.description) + '</p></div>' +
+        '<div class="method-head"><h2>' + escapeHtml(section.title) + '</h2><p class="method-text">' + textOrPlaceholder('method-placeholder', section.description) + '</p></div>' +
         block('labels.dataSources', sourcesHtml) +
         block('labels.keyChoices', choicesHtml) +
-        block('labels.requirements', '<div class="method-text">' + mTextOrPlaceholder(section.requirements) + '</div>') +
+        block('labels.requirements', '<div class="method-text">' + textOrPlaceholder('method-placeholder', section.requirements) + '</div>') +
       '</div>' +
       '<div class="method-files">' +
-        '<div class="method-files-label">' + mText(t('labels.codeAndFiles')) + '</div>' +
+        '<div class="method-files-label">' + escapeHtml(t('labels.codeAndFiles')) + '</div>' +
         (section.files.length ? '<div class="download-list">' + section.files.map(downloadRow).join('') + '</div>'
-          : '<div class="method-files-empty">' + mText(t('messages.filesWillBeAdded')) + '</div>') +
+          : '<div class="method-files-empty">' + escapeHtml(t('messages.filesWillBeAdded')) + '</div>') +
         '<div class="method-files-actions">' +
-          githubLink('small', t(mFilled(section.folder) ? 'labels.viewFolderOnGithub' : 'labels.viewOnGithub'), section.folder) +
-          (mFilled(section.zip) ? '<a class="ghost download-all" href="' + mText(section.zip) + '" download>' + mText(t('labels.downloadAll')) + '</a>' : '') +
+          githubLink('small', t(isFilled(section.folder) ? 'labels.viewFolderOnGithub' : 'labels.viewOnGithub'), section.folder) +
+          (isFilled(section.zip) ? '<a class="ghost download-all" href="' + escapeHtml(section.zip) + '" download>' + escapeHtml(t('labels.downloadAll')) + '</a>' : '') +
         '</div>' +
       '</div>' +
     '</div>' +
     (section.useCases.length ?
       '<div class="use-cases">' +
-        '<div class="use-cases-heading">' + mText(t('labels.doItYourselfHeading')) + '</div>' +
-        '<div class="use-cases-hint">' + mText(t('labels.galleryHint')) + '</div>' +
-        '<div class="example-gallery" id="gallery-' + mText(section.id) + '"></div>' +
-        '<div id="use-case-slot-' + mText(section.id) + '"></div>' +
+        '<div class="use-cases-heading">' + escapeHtml(t('labels.doItYourselfHeading')) + '</div>' +
+        '<div class="use-cases-hint">' + escapeHtml(t('labels.galleryHint')) + '</div>' +
+        '<div class="example-gallery" id="gallery-' + escapeHtml(section.id) + '"></div>' +
+        '<div id="use-case-slot-' + escapeHtml(section.id) + '"></div>' +
       '</div>' : '') +
   '</div>';
 }
@@ -194,14 +174,14 @@ function methodSectionHtml(section) {
 // One downloadable file (Figma download-row). The whole row is the download link. A file that has
 // no "path" yet is listed, greyed out, and cannot be clicked.
 function downloadRow(file) {
-  const available = mFilled(file.path);
+  const available = isFilled(file.path);
   const inside =
     METHOD_ICONS.file +
-    '<span class="download-body"><span class="download-name mono">' + mText(file.name) + '</span>' +
-    '<span class="download-description">' + mTextOrPlaceholder(file.description) + '</span>' +
-    (available ? '' : '<span class="download-soon">' + mText(t('messages.notYetAvailable')) + '</span>') + '</span>' +
-    (mFilled(file.format) ? '<span class="format-tag">' + mText(file.format) + '</span>' : '');
-  if (available) return '<a class="download-row" href="' + mText(file.path) + '" download>' + inside + METHOD_ICONS.download + '</a>';
+    '<span class="download-body"><span class="download-name mono">' + escapeHtml(file.name) + '</span>' +
+    '<span class="download-description">' + textOrPlaceholder('method-placeholder', file.description) + '</span>' +
+    (available ? '' : '<span class="download-soon">' + escapeHtml(t('messages.notYetAvailable')) + '</span>') + '</span>' +
+    (isFilled(file.format) ? '<span class="format-tag">' + escapeHtml(file.format) + '</span>' : '');
+  if (available) return '<a class="download-row" href="' + escapeHtml(file.path) + '" download>' + inside + METHOD_ICONS.download + '</a>';
   return '<div class="download-row unavailable">' + inside + '</div>';
 }
 
@@ -214,9 +194,9 @@ function renderUseCases(sectionId) {
 
   gallery.innerHTML = section.useCases.map((u) => {
     const open = u.id === openId;
-    return '<button type="button" class="example-card' + (open ? ' selected' : '') + '" data-section="' + mText(sectionId) + '" data-use-case="' + mText(u.id) + '" aria-expanded="' + open + '">' +
-      '<span class="example-thumb">' + (mFilled(u.image) ? '<img src="' + mText(u.image) + '" alt="">' : '') + '</span>' +
-      '<span class="example-title">' + mTextOrPlaceholder(u.title) + '</span></button>';
+    return '<button type="button" class="example-card' + (open ? ' selected' : '') + '" data-section="' + escapeHtml(sectionId) + '" data-use-case="' + escapeHtml(u.id) + '" aria-expanded="' + open + '">' +
+      '<span class="example-thumb">' + (isFilled(u.image) ? '<img src="' + escapeHtml(u.image) + '" alt="">' : '') + '</span>' +
+      '<span class="example-title">' + textOrPlaceholder('method-placeholder', u.title) + '</span></button>';
   }).join('');
 
   const useCase = section.useCases.find((u) => u.id === openId);
@@ -229,25 +209,25 @@ function useCaseHtml(section, useCase) {
   const arrived = methodArrival && methodArrival.useCase === useCase.id;
   const fromPage = arrived && methodArrival.from ? pageSections().find((p) => p.id === methodArrival.from) : null;
   const bar = fromPage ?
-    '<div class="use-case-bar"><span>' + mText(t('labels.cameFrom', { page: fromPage.label })) + '</span>' +
-    '<a href="#' + mText(fromPage.id) + '">&larr; ' + mText(t('labels.backTo', { page: fromPage.label })) + '</a></div>' : '';
+    '<div class="use-case-bar"><span>' + escapeHtml(t('labels.cameFrom', { page: fromPage.label })) + '</span>' +
+    '<a href="#' + escapeHtml(fromPage.id) + '">&larr; ' + escapeHtml(t('labels.backTo', { page: fromPage.label })) + '</a></div>' : '';
 
-  const steps = (useCase.steps || []).filter(mFilled);
+  const steps = (useCase.steps || []).filter(isFilled);
   const stepsHtml = steps.length ? '<ol class="use-case-steps">' + steps.map((s, i) =>
-    '<li><span class="use-case-number">' + (i + 1) + '</span><span>' + mText(s) + '</span></li>').join('') + '</ol>'
-    : '<div class="method-text">' + mTextOrPlaceholder('', t('messages.stepsWillBeAdded')) + '</div>';
+    '<li><span class="use-case-number">' + (i + 1) + '</span><span>' + escapeHtml(s) + '</span></li>').join('') + '</ol>'
+    : '<div class="method-text">' + textOrPlaceholder('method-placeholder', '', t('messages.stepsWillBeAdded')) + '</div>';
 
   // only the files this use case needs, looked up by name in the files of its section
   const files = (useCase.files || []).map((name) => section.files.find((f) => f.name === name)).filter(Boolean);
   const filesHtml = files.length ? '<div class="download-list">' + files.map(downloadRow).join('') + '</div>'
-    : '<div class="method-files-empty small">' + mText(t('messages.filesWillBeAdded')) + '</div>';
+    : '<div class="method-files-empty small">' + escapeHtml(t('messages.filesWillBeAdded')) + '</div>';
 
-  return '<div class="use-case' + (arrived ? ' highlighted' : '') + '" id="use-case-' + mText(useCase.id) + '">' + bar +
+  return '<div class="use-case' + (arrived ? ' highlighted' : '') + '" id="use-case-' + escapeHtml(useCase.id) + '">' + bar +
     '<div class="use-case-body">' +
-      '<div class="use-case-instructions"><div><div class="use-case-title">' + mTextOrPlaceholder(useCase.title) + '</div>' +
-      '<div class="use-case-name mono">#method/' + mText(useCase.id) + '</div></div>' + stepsHtml + '</div>' +
+      '<div class="use-case-instructions"><div><div class="use-case-title">' + textOrPlaceholder('method-placeholder', useCase.title) + '</div>' +
+      '<div class="use-case-name mono">#method/' + escapeHtml(useCase.id) + '</div></div>' + stepsHtml + '</div>' +
       '<div class="use-case-files">' + filesHtml +
-      '<div class="use-case-folder">' + githubLink('small', t(mFilled(section.folder) ? 'labels.viewFolderOnGithub' : 'labels.viewOnGithub'), section.folder) + '</div></div>' +
+      '<div class="use-case-folder">' + githubLink('small', t(isFilled(section.folder) ? 'labels.viewFolderOnGithub' : 'labels.viewOnGithub'), section.folder) + '</div></div>' +
     '</div></div>';
 }
 
@@ -255,7 +235,7 @@ function useCaseHtml(section, useCase) {
 
 // The address #method/<use case id> opens the Method page at that use case: its example is
 // selected, its steps are shown and highlighted, and the page scrolls to it.
-// Returns true when a use case was opened (app.js then does not scroll to the top).
+// Returns true when a use case was opened (navigation.js then does not scroll to the top).
 function openMethodTarget() {
   if (!method) return false;
   const parts = location.hash.slice(1).split('/');
@@ -297,7 +277,7 @@ function placeCardLinks() {
     const link = document.createElement('a');
     link.className = 'diy-link';
     link.href = '#method/' + useCase.id;
-    link.innerHTML = '<span>' + mText(t('labels.doItYourself')) + '</span>' + METHOD_ICONS.arrow;
+    link.innerHTML = '<span>' + escapeHtml(t('labels.doItYourself')) + '</span>' + METHOD_ICONS.arrow;
     // remember which research page the visitor is on, for the "You came from ..." bar
     link.addEventListener('click', () => { methodCameFrom = lastResearchSection; });
     actions.appendChild(link);

@@ -11,48 +11,12 @@
     "to-confirm": "To confirm"
   },
   "trends": {
-    "airTemperature": {
-      "lines": [
-        "Max +0.09 ± 0.04 °C/decade",
-        "Min +0.13 ± 0.03 °C/decade"
-      ],
-      "badge": "significant"
-    },
-    "precipitation": {
-      "lines": [
-        "−0.023 mm/day per decade"
-      ],
-      "badge": "to-confirm"
-    },
-    "seaSurfaceTemperature": {
-      "lines": [
-        "+0.09 ± 0.07 °C/decade"
-      ],
-      "badge": "borderline"
-    },
-    "windSpeed": {
-      "lines": [
-        "−0.04 m/s/decade"
-      ],
-      "badge": "not-robust"
-    },
-    "waveHeight": {
-      "lines": [
-        "No trend"
-      ],
-      "badge": "no-trend"
-    },
-    "seaLevel": {
-      "lines": [
-        "+5.3 ± 0.8 mm/yr"
-      ],
-      "badge": "significant"
-    },
-    "salinity": {
-      "lines": [
-        "+0.042 PSU/decade"
-      ],
-      "badge": "to-confirm"
-    }
+    "airTemperature": { "badge": "significant" },
+    "precipitation": { "badge": "to-confirm" },
+    "seaSurfaceTemperature": { "badge": "borderline" },
+    "windSpeed": { "badge": "not-robust" },
+    "waveHeight": { "badge": "no-trend" },
+    "seaLevel": { "badge": "significant" },
+    "salinity": { "badge": "to-confirm" }
   }
 }

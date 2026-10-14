@@ -1,0 +1,54 @@
+/* charts.css: the stacked charts, shared by the storm charts and the climate charts (js/charts.js):
+   one chart per row, the label on the left, the source tag or trend tag in the top right, the shared
+   axis, the comparison line that follows the mouse, and the trend badges. */
+
+#event-charts, .chart-stack { position: relative; display: flex; flex-direction: column; gap: 4px; }
+/* one anomaly chart (Figma anomaly-chart): 40 px label column + plot */
+.anomaly-chart { position: relative; display: grid; grid-template-columns: 40px 1fr; align-items: center; }
+/* the two-line label is turned 90 degrees and reads from bottom to top */
+.anomaly-label { writing-mode: vertical-rl; transform: rotate(180deg); justify-self: center; text-align: center; line-height: 1.25; }
+.anomaly-name { display: block; font-size: 11px; font-weight: 600; color: var(--color-text-body); }
+.anomaly-unit { display: block; font-size: 11px; color: var(--color-text-muted); }
+.anomaly-chart svg, .date-axis svg { width: 100%; height: auto; display: block; overflow: visible; }
+.plot-grid { fill: var(--color-divider); }
+.plot-axis { fill: var(--color-text-faint); }
+.plot-tick-label { font-family: 'Archivo', sans-serif; font-size: 11px; fill: var(--color-text-muted); }
+.plot-extreme { font-family: 'Space Mono', monospace; font-size: 11px; fill: var(--color-text-body); }
+.plot-nodata { font-family: 'Archivo', sans-serif; font-size: 13px; fill: var(--color-text-faint); }
+/* source tag (Figma source-tag): top right of each chart */
+.source-tag {
+  position: absolute;
+  top: 0;
+  right: 2px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 7px;
+  border-radius: 6px;
+  border: 1px solid var(--color-divider);
+  background: var(--color-surface);
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+.source-square { width: 8px; height: 8px; border-radius: 2px; }
+/* shared date axis (Figma date-axis) */
+.date-axis { display: grid; grid-template-columns: 40px 1fr; }
+.date-axis-title { grid-column: 2; margin: 2px 0 0 calc(38 / 549 * 100%); text-align: center; font-size: 11px; font-weight: 600; color: var(--color-text-body); }
+/* comparison line that follows the mouse (Figma date-guide and hover-value); its layer lies on top of the charts */
+#comparison, .comparison { position: absolute; inset: 0; pointer-events: none; }
+.guide-line { position: absolute; width: 0; border-left: 1.5px dotted var(--color-text-body); pointer-events: none; }
+.guide-date { position: absolute; transform: translateX(-50%); padding: 3px 7px; border-radius: 6px; background: var(--color-text); color: var(--color-surface); font-size: 11px; font-weight: 600; white-space: nowrap; pointer-events: none; }
+.hover-value { position: absolute; display: flex; align-items: center; gap: 5px; transform: translate(-4.5px, -50%); pointer-events: none; }
+.hover-value.flip { flex-direction: row-reverse; transform: translate(calc(-100% + 4.5px), -50%); }
+.hover-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--color-surface); border: 2px solid; flex-shrink: 0; }
+.hover-chip { padding: 2px 6px; border-radius: 6px; border: 1px solid var(--color-divider); background: var(--color-surface); font-family: 'Space Mono', monospace; font-size: 11px; color: var(--color-text); white-space: nowrap; box-shadow: 0 6px 18px rgba(28, 59, 46, 0.08); }
+
+/* the trend in the top right corner of a "Change since 1950" chart (where the other charts show their source) */
+.trend-tag { position: absolute; top: 0; right: 2px; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; padding: 4px 7px; border-radius: 6px; border: 1px solid var(--color-divider); background: var(--color-surface); }
+.trend-tag-value { font-size: 11px; color: var(--color-text); white-space: nowrap; }
+.trend-tag .trend-badge { margin-top: 2px; }
+/* how sure a trend is (Figma trend-badge) */
+.trend-badge { margin-top: 4px; padding: 3px 8px; border-radius: 999px; background: var(--color-surface-subtle); font-size: 11px; font-weight: 600; color: var(--color-text-muted); }
+.trend-badge.badge-significant { background: var(--color-text-body); color: var(--color-surface); }
+.trend-badge.badge-borderline { background: var(--color-surface); box-shadow: inset 0 0 0 1px var(--color-text-body); color: var(--color-text-body); }
+.trend-badge.badge-to-confirm { background: transparent; border: 1px dashed var(--color-text-faint); padding: 2px 7px; }
