@@ -179,22 +179,52 @@
           </div>
         </div>
 
-        <!-- CLIMATE TABLE (filled by climate.js from content/climate.json). The charts in it are SVG
-             files from data/charts/, made by analysis/climatology/export_typical_year.py -->
+        <!-- CLIMATE AT SISAL (filled by climate.js). The charts are drawn like the storm charts above, from
+             data/climate/typical-year.json (made by analysis/climatology/export_typical_year.py) -->
 
-        <div class="card" data-card="climate-table">
-          <div class="climate-header">
+        <!-- the heading of "Climate at Sisal", with the small card that shows where the data comes from -->
+        <div class="climate-section-header" data-card="climate-header">
+          <div class="climate-heading">
             <h2 data-text="cardTitles.climate-table"></h2>
             <p data-text="labels.climateIntro"></p>
           </div>
-          <div class="climate-row climate-head">
-            <div></div>
-            <div data-text="labels.colTypicalYear"></div>
-            <div data-text="labels.colChange"></div>
-            <div data-text="labels.colTrend"></div>
+          <div class="card climate-sources-card">
+            <div class="card-title" data-text="labels.dataSourcesTitle"></div>
+            <img src="img/climatology-data-cells.png" alt="">
           </div>
-          <div id="climate-rows"></div>
-          <p class="fine" id="climate-status"></p>
+        </div>
+
+        <div class="card" data-card="climate-typical-year">
+          <div class="card-title-row top">
+            <div>
+              <div class="card-title" data-text="cardTitles.climate-typical-year"></div>
+              <div class="faint" data-text="labels.typicalYearSubtitle"></div>
+            </div>
+            <div class="expand">&#8599;</div>
+          </div>
+          <!-- one chart per variable, one shared month axis and the comparison line (drawn by climate.js) -->
+          <div id="typical-year-charts" class="chart-stack"></div>
+          <p class="fine" id="typical-year-status"></p>
+        </div>
+
+        <div class="card" data-card="climate-change">
+          <div class="card-title-row top">
+            <div>
+              <div class="card-title" data-text="cardTitles.climate-change"></div>
+              <div class="faint" data-text="labels.changeSubtitle"></div>
+            </div>
+            <div class="expand">&#8599;</div>
+          </div>
+          <div id="climate-change-charts" class="chart-stack">
+            <p class="placeholder-text" data-text="messages.notYetAvailable"></p>
+          </div>
+        </div>
+
+        <!-- "In detail": one tab per variable; the charts in it are not filled yet (climate.js) -->
+        <div class="card" data-card="climate-detail">
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.climate-detail"></div><div class="expand">&#8599;</div></div>
+          <div id="climate-detail-tabs" class="detail-tabs"></div>
+          <div id="climate-detail-body"></div>
         </div>
 
         <!-- STAKEHOLDER CARDS (filled by stakeholders.js from content/stakeholders.json) -->

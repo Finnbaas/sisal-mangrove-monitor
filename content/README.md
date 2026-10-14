@@ -1,13 +1,13 @@
 # Editing the content of the site
 
 Everything the site **says and shows** is set in this folder. You can change it without
-touching the code (`app.js`, `climatology.js`, `stakeholders.js`, `method.js`, `content.js`).
+touching the code (`app.js`, `climatology.js`, `climate.js`, `stakeholders.js`, `method.js`, `content.js`).
 
 ## The rule: `data/` versus `content/`
 
 | Folder | What is in it | Who changes it |
 |---|---|---|
-| `data/` | Results: `points.json`, `events.json`, the yearly map images in `stakeholder-imagery/` | **Only the Python pipeline.** Never edit these files by hand. |
+| `data/` | Results: `points.json`, `events.json`, `climate/typical-year.json`, the yearly map images in `stakeholder-imagery/` | **Only the Python pipeline.** Never edit these files by hand. |
 | `content/` | Everything the team writes: which pages show what, variables, labels, units, sources, texts, the Method page | **The team, by hand.** |
 
 ## The files
@@ -19,6 +19,7 @@ touching the code (`app.js`, `climatology.js`, `stakeholders.js`, `method.js`, `
 | `texts.json` | Short texts: card titles, labels, messages, footer |
 | `stakeholders.json` | The Stakeholder page: the areas on the map and what stakeholders said about them |
 | `method.json` | The Method page: the analyses, their code files, and the "do it yourself" examples that the research cards link to |
+| `climate.json` | "Climate at Sisal" on the Climatology page: the year range of "Change since 1950", the trends and their badges |
 
 Images go in `img/` (outside this folder) and are referred to as `img/name.png`.
 
@@ -48,7 +49,8 @@ Tip: paste the file into https://jsonlint.com to find the mistake.
 - `columns`: a left and a right column, each a list of cards from top to bottom.
   A list inside a list (`["point-info", "trend-signals"]`) puts two cards next to each other.
 - `wide` (optional): a list of cards that span the **full page width**, placed under the two
-  columns. Use it for wide cards such as a table: `"wide": ["climate-table"]`.
+  columns. A list inside it puts two cards next to each other, each half the width:
+  `"wide": ["climate-header", ["climate-typical-year", "climate-change"], "climate-detail"]`.
 
 **A new page**: add a section with a new `id` and `label`. It gets the Overview colors.
 A page with `"columns": []` (or no cards) shows "This page has no content yet."
@@ -67,6 +69,10 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 | `event-timeline` | Timeline of storms and extreme events |
 | `event-list` | List of storms and extreme events |
 | `event-charts` | The anomaly charts of the selected event, one per event variable |
+| `climate-header` | "Climate at Sisal": heading, intro and the small "Where the data comes from" card |
+| `climate-typical-year` | "A typical year": one chart per climate variable, monthly mean with 10th–90th percentile band |
+| `climate-change` | "Change since 1950": one chart per climate variable, with the trend and its badge |
+| `climate-detail` | "In detail": one tab per climate variable, with record period, chart places and the trend |
 | `stakeholder-map` | Map with the areas stakeholders pointed out (click to select an area) |
 | `stakeholder-time` | Year slider that is also the time axis of the observation bars (goes directly under `stakeholder-map`) |
 | `stakeholder-panel` | What stakeholders said about the selected area |
@@ -104,6 +110,13 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 `eventVariables` works the same way for the storm charts (`id` = field name in `data/events.json`).
 Each one becomes one chart; any number is possible. `sources` names the data sources that
 `data/events.json` refers to.
+
+`climateVariables` works the same way for "Climate at Sisal" (the cards `climate-typical-year`,
+`climate-change` and `climate-detail`). `id` is the variable name in
+`data/climate/typical-year.json` and in `trends` of `climate.json`; the list order is the order
+of the charts and tabs. The unit and data source come from the data file. Optional
+`seriesLabels` names the lines of a variable with more than one line, for example
+`{ "max": "max", "min": "min" }` for air temperature; such a variable gets one "In detail" tab per line.
 
 `trendMetrics`: `value` and `tau` are field names in `metricVals` and `metricTaus` of
 `data/points.json` (`null` = no value, shown as "—").
@@ -152,6 +165,27 @@ The file has three parts.
 **`imagery`**: where the yearly map images are (`folder`), their file type (`extension`) and the
 image shown when a year has no image yet (`placeholder`). The images themselves are made by the
 pipeline: see `data/stakeholder-imagery/README.txt`.
+
+## climate.json: "Climate at Sisal"
+
+The trends shown in "Change since 1950" and "In detail". The charts themselves come from `data/`.
+
+```json
+{ "years": { "first": 1950, "last": 2025 },
+  "badges": { "significant": "Significant", "borderline": "Borderline", ... },
+  "trends": {
+    "airTemperature": { "lines": [ "Max +0.09 ± 0.04 °C/decade", "Min +0.13 ± 0.03 °C/decade" ], "badge": "significant" },
+    ... } }
+```
+
+- `years`: the year axis of "Change since 1950".
+- `badges`: the text of each badge. The key (`significant`, `borderline`, `not-robust`,
+  `no-trend`, `to-confirm`) also sets its color.
+- `trends`: one entry per variable (`id` from `climateVariables`). `lines` are the trend texts
+  exactly as shown, copied from the notebook; `badge` is one key of `badges`. For a variable
+  with `seriesLabels`, start each line with that name ("Max ...", "Min ..."): its "In detail" tab
+  then shows only its own line. A variable without an entry shows no trend in "Change since 1950"
+  and "Not yet available" in "In detail".
 
 ## texts.json: short texts
 

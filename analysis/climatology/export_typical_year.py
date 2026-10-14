@@ -1,32 +1,28 @@
 """
-Makes the "A typical year" charts for the Climatology page of the website.
+Makes the numbers for the "A typical year" charts on the Climatology page of the website.
 
-For every climate variable it draws the mean seasonal cycle (monthly mean, with a shaded band
-from the 10th to the 90th percentile of the daily values) and saves it as an SVG file in
-data/charts/. The website places these files into the climate table; it does not draw them.
+For every climate variable it calculates the mean seasonal cycle: the mean of each calendar month,
+and the 10th and 90th percentile of the daily values in that month. It writes them to one file,
+data/climate/typical-year.json. The website draws the charts from that file (the same way as the
+storm charts); it never calculates numbers itself.
 
 The calculations are the ones from Clima_Baseline.ipynb (the "A year at Sisal" figure).
-load_series() and monthly_band() are copied from that notebook without changes, so the charts
-on the website and the figures in the report show the same numbers. If you change them in the
-notebook, change them here too.
+load_series() and monthly_band() are copied from that notebook without changes, so the website and
+the figures in the report show the same numbers. If you change them in the notebook, change them
+here too.
 
 Run it from the project folder:
 
     python analysis/climatology/export_typical_year.py
 
-Needs: pandas, numpy, matplotlib  (pip install pandas numpy matplotlib)
+Needs: pandas, numpy  (pip install pandas numpy)
 """
 
-import logging
-import re
+import json
 from pathlib import Path
 
-import matplotlib
-matplotlib.use('Agg')            # draw to files, never open a window
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.ticker import MaxNLocator
 
 # ---------------------------------------------------------------------------------------------
 # SETTINGS
@@ -37,34 +33,15 @@ HERE = Path(__file__).resolve().parent
 # where the data files are (the same folder as this script)
 INPUT_DIR = HERE
 
-# where the charts go (data/charts/ in the project folder)
-OUTPUT_DIR = HERE.parent.parent / 'data' / 'charts'
-
-# the font of the website. The SVG only names the font; the browser draws the text with it.
-FONT = 'Archivo'
-FONT_SIZE = 10
-
-# size of every chart, in pixels. All charts have the same size and the same month axis,
-# so they line up in the table on the website.
-WIDTH, HEIGHT = 380, 130
-
-# colors: the Figma variables data/climate/... (the same values as in style.css)
-COLORS = {
-    'air_temperature_max': '#68458A',   # darker version of data/climate/air-temperature (#8A5CB8)
-    'air_temperature_min': '#B394D1',   # lighter version of data/climate/air-temperature
-    'rainfall':            '#E06D0A',   # data/climate/precipitation
-    'sst':                 '#A0522D',   # data/climate/sea-surface-temperature
-    'wind_speed':          '#1F77B4',   # data/climate/wind-speed
-    'wave_height':         '#2A9A35',   # data/climate/wave-height
-    'sea_level':           '#234A8C',   # data/climate/sea-level
-    'salinity':            '#D62728',   # data/climate/salinity
-}
-TEXT_COLOR = '#6E7C71'   # Figma text-muted: numbers and month letters
-AXIS_COLOR = '#9AA69C'   # Figma text-faint: the axis lines
-GRID_COLOR = '#DCE6D8'   # Figma border: the light horizontal lines
+# where the result goes (data/climate/ in the project folder)
+OUTPUT_FILE = HERE.parent.parent / 'data' / 'climate' / 'typical-year.json'
 
 # salinity: only one HYCOM model version is used (see the notebook)
 SALINITY_PERIOD = ('1993', '2012')
+
+# number of decimals in the file
+DECIMALS = 2
+
 
 # ---------------------------------------------------------------------------------------------
 # FROM THE NOTEBOOK (Clima_Baseline.ipynb, first code cell). Only the file paths are different:
@@ -137,70 +114,27 @@ def monthly_band(s):
 
 
 # ---------------------------------------------------------------------------------------------
-# DRAWING (the look of the website; the numbers come from the functions above)
+# WRITING THE FILE
 # ---------------------------------------------------------------------------------------------
 
-def new_chart(unit):
-    """An empty chart: always the same size and the same place for the month axis."""
-    fig = plt.figure(figsize=(WIDTH / 72, HEIGHT / 72))        # 72 points per inch: 1 point = 1 pixel
-    ax = fig.add_axes([40 / WIDTH, 20 / HEIGHT, (WIDTH - 48) / WIDTH, (HEIGHT - 38) / HEIGHT])
-    ax.set_facecolor('none')
-    ax.grid(True, axis='y', color=GRID_COLOR, lw=0.6, zorder=0)    # light horizontal lines only
-    ax.set_axisbelow(True)                                         # grid behind lines and bars
-    ax.spines[['top', 'right']].set_visible(False)
-    ax.spines[['left', 'bottom']].set_color(AXIS_COLOR)
-    ax.spines[['left', 'bottom']].set_linewidth(0.8)
-    ax.tick_params(colors=TEXT_COLOR, labelsize=FONT_SIZE, length=3, width=0.8, color=AXIS_COLOR)
-    ax.set_xticks(m, MONTHS)
-    ax.set_xlim(0.4, 12.6)
-    ax.yaxis.set_major_locator(MaxNLocator(nbins=4))
-    # the unit, small, in the top left corner above the y-axis
-    fig.text(4 / WIDTH, (HEIGHT - 8) / HEIGHT, unit, ha='left', va='center', fontsize=FONT_SIZE - 1, color=TEXT_COLOR)
-    return fig, ax
+def numbers(values):
+    """12 numbers for the file, rounded; a missing month becomes null."""
+    return [None if pd.isna(v) else round(float(v), DECIMALS) for v in values.reindex(m)]
 
 
-def band(ax, s, color, label=None):
-    """Monthly mean as a line with dots, and the 10th to 90th percentile as a shaded band."""
+def band(s):
+    """The seasonal cycle of a daily series: monthly mean, 10th and 90th percentile."""
     mu, lo, hi = monthly_band(s)
-    ax.fill_between(m, lo, hi, color=color, alpha=0.18, lw=0)
-    ax.plot(m, mu, color=color, lw=2, marker='o', ms=3.5, label=label)
+    return {'mean': numbers(mu), 'p10': numbers(lo), 'p90': numbers(hi)}
 
 
-def save(fig, filename):
-    """Saves the chart as a clean SVG: real text, no metadata, and no fixed size (so it scales)."""
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    path = OUTPUT_DIR / filename
-    plt.rcParams['svg.hashsalt'] = filename       # the same ids inside the file every time it is made
-    fig.savefig(path, format='svg', transparent=True, metadata={'Date': None, 'Creator': None, 'Format': None, 'Type': None})
-    plt.close(fig)
-    svg = path.read_text(encoding='utf-8')
-    svg = svg[svg.index('<svg'):]                                              # no XML header
-    svg = re.sub(r'<metadata>.*?</metadata>\s*', '', svg, flags=re.S)           # no matplotlib metadata
-    # matplotlib adds a style rule for line ends that would apply to the WHOLE web page once the chart
-    # is placed in it. Remove it, and set the same two things on this chart only.
-    svg = re.sub(r'\s*<defs>\s*<style[^>]*>.*?</style>\s*</defs>', '', svg, count=1, flags=re.S)
-    svg = svg.replace('<svg ', '<svg style="stroke-linejoin: round; stroke-linecap: butt" ', 1)
-    svg = re.sub(r'<g id="[^"]*">', '<g>', svg)                                  # no repeated names when several charts are on one page
-    svg = re.sub(r'(<svg[^>]*?)\s+width="[^"]*"\s+height="[^"]*"', r'\1', svg, count=1)   # scales to its slot
-    path.write_text(svg, encoding='utf-8', newline='\n')
-    print(f'  saved {filename}')
+def record(s):
+    """First and last day with data."""
+    used = s.dropna()
+    return {'start': str(used.index[0].date()), 'end': str(used.index[-1].date())}
 
 
 def main():
-    plt.rcParams.update({
-        'svg.fonttype': 'none',                        # keep text as real text in the SVG
-        'font.family': [FONT, 'sans-serif'],
-        'font.size': FONT_SIZE,
-    })
-    # the font does not have to be installed on this computer: the browser draws the text
-    logging.getLogger('matplotlib.font_manager').setLevel(logging.ERROR)
-
-    records = []   # (chart, first date, last date) for the check at the end
-
-    def record(name, s):
-        used = s.dropna()
-        records.append((name, used.index[0].date(), used.index[-1].date()))
-
     print('Loading the data')
     tmax, _ = load_series('t2m_max_c', 'c1')
     tmin, _ = load_series('t2m_min_c', 'c1')
@@ -212,54 +146,40 @@ def main():
     sal = sal[SALINITY_PERIOD[0]:SALINITY_PERIOD[1]]            # one HYCOM model version only
     sea = pd.read_csv(SEA_LEVEL_FILE, parse_dates=['date'], index_col='date')['coast']
 
-    print(f'\nMaking the charts in {OUTPUT_DIR}')
-
-    # air temperature: daily max and daily min, each with its band
-    fig, ax = new_chart('°C')
-    band(ax, tmax, COLORS['air_temperature_max'], 'daily max')
-    band(ax, tmin, COLORS['air_temperature_min'], 'daily min')
-    # the legend goes above the chart, on the right, so it never covers the lines
-    ax.legend(loc='lower right', bbox_to_anchor=(1, 1), ncol=2, frameon=False, fontsize=FONT_SIZE - 1,
-              labelcolor=TEXT_COLOR, handlelength=1.4, columnspacing=1.2, borderaxespad=0.1, borderpad=0)
-    save(fig, 'typical-year-air-temperature.svg')
-    record('Air temperature (max and min)', tmax)
-
-    # rainfall: mean total per month (mm per month)
+    # as in the notebook
     rain_month = rain.resample('MS').sum()
     rain_month = rain_month.groupby(rain_month.index.month).mean()          # mm per month
-    fig, ax = new_chart('mm/month')
-    ax.bar(m, rain_month.values, color=COLORS['rainfall'], width=0.7)
-    save(fig, 'typical-year-rainfall.svg')
-    record('Rainfall', rain)
-
-    for name, s, color, unit, filename in [
-        ('Sea surface temperature', sst, COLORS['sst'], '°C', 'typical-year-sst.svg'),
-        ('Wind speed', wind, COLORS['wind_speed'], 'm/s', 'typical-year-wind-speed.svg'),
-        ('Wave height (mean)', hs, COLORS['wave_height'], 'm', 'typical-year-wave-height.svg'),
-    ]:
-        fig, ax = new_chart(unit)
-        band(ax, s, color)
-        save(fig, filename)
-        record(name, s)
-
-    # sea level: monthly cycle relative to the annual mean, no band
     sea_cycle = sea.groupby(sea.index.month).mean()
     sea_cycle = sea_cycle - sea_cycle.mean()                                # mm relative to annual mean
-    fig, ax = new_chart('mm')
-    ax.axhline(0, color=AXIS_COLOR, lw=0.8)
-    ax.plot(m, sea_cycle.values, color=COLORS['sea_level'], lw=2, marker='o', ms=3.5)
-    save(fig, 'typical-year-sea-level.svg')
-    record('Sea level', sea)
 
-    # salinity (HYCOM, 1993 to 2012)
-    fig, ax = new_chart('PSU')
-    band(ax, sal, COLORS['salinity'])
-    save(fig, 'typical-year-salinity.svg')
-    record('Salinity', sal)
+    # One entry per variable. The ids are the same as in data/events.json and content/variables.json,
+    # "source" is a key of "sources" in content/variables.json. A series without p10 and p90 has no band.
+    variables = {
+        'airTemperature': {'unit': '°C', 'source': 'era5-land', 'record': record(tmax), 'series': [
+            dict(id='max', label='daily max', **band(tmax)),
+            dict(id='min', label='daily min', **band(tmin))]},
+        'precipitation': {'unit': 'mm/month', 'source': 'era5-land', 'record': record(rain), 'kind': 'bars', 'series': [
+            dict(id='total', label='mean monthly total', mean=numbers(rain_month))]},
+        'seaSurfaceTemperature': {'unit': '°C', 'source': 'era5-sea', 'record': record(sst), 'series': [
+            dict(id='mean', **band(sst))]},
+        'windSpeed': {'unit': 'm/s', 'source': 'era5-sea', 'record': record(wind), 'series': [
+            dict(id='mean', **band(wind))]},
+        'waveHeight': {'unit': 'm', 'source': 'era5-sea', 'record': record(hs), 'series': [
+            dict(id='mean', **band(hs))]},
+        'seaLevel': {'unit': 'mm', 'source': 'altimetry', 'record': record(sea), 'note': 'vs. annual mean', 'series': [
+            dict(id='cycle', mean=numbers(sea_cycle))]},
+        'salinity': {'unit': 'PSU', 'source': 'hycom', 'record': record(sal), 'series': [
+            dict(id='mean', **band(sal))]},
+    }
 
-    print('\nRecord period used for each chart (check against the notes in the climate table):')
-    for name, first, last in records:
-        print(f'  {name:32s} {first} to {last}')
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    OUTPUT_FILE.write_text(json.dumps({'months': [int(x) for x in m], 'variables': variables}, ensure_ascii=False, indent=1),
+                           encoding='utf-8', newline='\n')
+    print(f'\nSaved {OUTPUT_FILE}')
+
+    print('\nRecord period of each variable (check against the notes on the website):')
+    for vid, v in variables.items():
+        print(f"  {vid:24s} {v['record']['start']} to {v['record']['end']}")
 
 
 if __name__ == '__main__':

@@ -21,18 +21,21 @@ A web dashboard that shows the results of a mangrove monitoring study in Sisal, 
 - style.css: all styling. Design tokens (colors, fonts, spacing) are CSS variables at the top of this file.
 - app.js: shared behavior (loading point data, map, point charts, navigation between screens)
 - climatology.js: the Climatology screen (storm events: timeline, event list, the anomaly charts)
+- climate.js: "Climate at Sisal" on the Climatology screen (A typical year, Change since 1950, In detail); reuses the chart functions of climatology.js
 - method.js: the Method page (analyses, code files to download, the "do it yourself" examples) and the small "Do this analysis yourself" links on the research cards
 - stakeholders.js: the Stakeholder screen (areas on the map, the Time card with the observation bars, the area panel)
 - content.js: loads and checks content/pages.json, variables.json and texts.json, builds the pages and the simple cards from content/pages.json, shows placeholder states
 - data/points.json: data of the monitoring points
 - data/events.json: data of the storm and extreme-weather events (Climatology screen)
+- data/climate/typical-year.json: the mean seasonal cycle per climate variable ("A typical year"), made by analysis/climatology/export_typical_year.py
 - data/stakeholder-imagery/: one satellite snapshot per year for the Stakeholder map (1984.jpg ... 2026.jpg, all with exactly the same extent and crop)
 - content/: everything the team writes and edits (see content/README.md):
   - content/pages.json: which pages exist and which cards each page shows
-  - content/variables.json: variables (point and event), trend metrics, change classes, scenarios, data sources, year range
+  - content/variables.json: variables (point, event and climate), trend metrics, change classes, scenarios, data sources, year range
   - content/texts.json: short labels and texts (card titles, messages, footer)
   - content/stakeholders.json: the Stakeholder screen: areas on the map and the stakeholder observations
   - content/method.json: the Method page: analyses, code files, use cases, and which research cards link to which use case
+  - content/climate.json: "Climate at Sisal": the year range of Change since 1950, the trend texts and their badges
   - content/README.md: how to edit these files
 
 **data/ versus content/ (always follow this):** data/ is pipeline output only and is never edited by hand.
@@ -58,6 +61,7 @@ Do not create new files or folders without explaining why first. If app.js becom
 - Never invent, round off or "fill in" data. If data is missing, show that clearly in the UI (for example "No data").
 - Do not change the structure of points.json or events.json without asking. They are produced by the team's Python pipeline, so a change there also means a change in the pipeline.
 - Some variables do not apply to every point (for example salinity does not apply to land points). Show these as unavailable, do not hide the fact.
+- Climate charts: the numbers are calculated in Python (analysis/climatology/, with the same functions as the team's notebook) and written as JSON to data/climate/. The charts are drawn in JavaScript as SVG from that JSON, with the same chart functions as the storm charts. Never calculate numbers in JavaScript and never save finished chart images in data/.
 
 ## Research content (use these terms exactly)
 EWS metrics: standard deviation, AR1 (lag-1 autocorrelation), return rate, kurtosis, skewness. Trends are tested with Kendall's tau. Breakpoints are detected with LandTrendr.
@@ -123,6 +127,20 @@ The file is one JSON array with one object per storm or extreme-weather event (C
 - `sources`: per variable the data source: "era5-land" (ERA5-Land land cell), "era5-sea" (ERA5 sea cell) or "hycom" (HYCOM cell).
 - `dates`: array of days ("YYYY-MM-DD") around the event.
 - `airTemperature` (°C), `windSpeed` (m/s), `waveHeight` (m), `precipitation` (mm/day), `salinity` (PSU), `seaSurfaceTemperature` (°C): daily anomalies (difference from the 30-year mean for the same calendar day), one value per entry in `dates`, in the same order. A missing value is `null`; an event without data has empty arrays.
+
+## Structure of data/climate/typical-year.json
+The file is one JSON object, made by analysis/climatology/export_typical_year.py (never edit it by hand). It has:
+- `months`: [1, ..., 12].
+- `variables`: one object per climate variable, keyed by the `id` from climateVariables in content/variables.json (`airTemperature`, `precipitation`, `seaSurfaceTemperature`, `windSpeed`, `waveHeight`, `seaLevel`, `salinity`). Each has:
+  - `unit`, `source` (a key of sources in content/variables.json: "era5-land", "era5-sea", "hycom" or "altimetry"), optional `note` (shown after the unit, e.g. "vs. annual mean"), optional `kind` ("bars" for rainfall).
+  - `record`: `{ "start", "end" }`, the dates of the data period used.
+  - `series`: list of lines, each `{ "id", "label" (optional), "mean", "p10", "p90" }` with 12 values per array (January to December). `p10` and `p90` (the shaded band) are left out when there is no band (rainfall, sea level). Air temperature has two series, `max` and `min`.
+
+## Structure of content/climate.json
+The file is one JSON object, written by the team. It has:
+- `years`: `{ "first", "last" }`, the year axis of "Change since 1950".
+- `badges`: the text per badge key (`significant`, `borderline`, `not-robust`, `no-trend`, `to-confirm`); the key also sets the badge color.
+- `trends`: per climate variable id `{ "lines": [trend texts as shown], "badge": a badge key }`. For a variable with seriesLabels each line starts with the series name ("Max ...", "Min ...").
 
 ## Structure of content/stakeholders.json
 The file is one JSON object, written by the team (Stakeholder screen). It is loaded by stakeholders.js; an error in it shows a message on the Stakeholder page only.

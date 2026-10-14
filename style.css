@@ -480,7 +480,7 @@ button { font-family: inherit; cursor: pointer; }
 
 /* event charts card */
 #event-charts-empty { min-height: 320px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 14px; color: var(--color-text-muted); }
-#event-charts { position: relative; display: flex; flex-direction: column; gap: 4px; }
+#event-charts, .chart-stack { position: relative; display: flex; flex-direction: column; gap: 4px; }
 /* one anomaly chart (Figma anomaly-chart): 40 px label column + plot */
 .anomaly-chart { position: relative; display: grid; grid-template-columns: 40px 1fr; align-items: center; }
 /* the two-line label is turned 90 degrees and reads from bottom to top */
@@ -513,7 +513,7 @@ button { font-family: inherit; cursor: pointer; }
 .date-axis { display: grid; grid-template-columns: 40px 1fr; }
 .date-axis-title { grid-column: 2; margin: 2px 0 0 calc(38 / 549 * 100%); text-align: center; font-size: 11px; font-weight: 600; color: var(--color-text-body); }
 /* comparison line that follows the mouse (Figma date-guide and hover-value); its layer lies on top of the charts */
-#comparison { position: absolute; inset: 0; pointer-events: none; }
+#comparison, .comparison { position: absolute; inset: 0; pointer-events: none; }
 .guide-line { position: absolute; width: 0; border-left: 1.5px dotted var(--color-text-body); pointer-events: none; }
 .guide-date { position: absolute; transform: translateX(-50%); padding: 3px 7px; border-radius: 6px; background: var(--color-text); color: var(--color-surface); font-size: 11px; font-weight: 600; white-space: nowrap; pointer-events: none; }
 .hover-value { position: absolute; display: flex; align-items: center; gap: 5px; transform: translate(-4.5px, -50%); pointer-events: none; }
@@ -672,24 +672,33 @@ button { font-family: inherit; cursor: pointer; }
 .sh-quote { display: flex; flex-direction: column; gap: 2px; padding-left: 10px; border-left: 2px solid var(--color-divider); }
 .sh-quote-name { font-size: 11px; color: var(--color-text-muted); }
 
-/* ---------- Climate table on the Climatology page (Figma: the "Climate at Sisal" table, trend-badge) ----------
-   One row per variable: name | a typical year | change since 1950 | trend.
-   The charts are SVG files from data/charts/ that climate.js places into the .climate-chart boxes. */
-.climate-header { margin-bottom: 14px; }
-.climate-header h2 { margin: 0; font-family: 'Newsreader', serif; font-weight: 600; font-size: 24px; line-height: 1.2; color: var(--color-text); }
-.climate-header p { margin: 4px 0 0 0; font-size: 14px; color: var(--color-text-body); }
-/* the same four columns in the header and in every row, so the charts line up */
-.climate-row { display: grid; grid-template-columns: 170px minmax(0, 1fr) minmax(0, 1fr) 210px; column-gap: 28px; align-items: center; padding: 12px 0; border-top: 1px solid var(--color-divider); }
-.climate-head { padding: 0 0 10px 0; border-top: none; font-size: 11px; font-weight: 600; color: var(--color-text-faint); }
-.climate-name { display: flex; align-items: baseline; gap: 8px; font-size: 13px; font-weight: 600; color: var(--color-text); }
-.climate-swatch { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
-.climate-note { margin: 3px 0 0 18px; font-size: 11px; color: var(--color-text-muted); }
-/* the box a chart goes into: always the same shape (380 x 130), whatever the screen width */
-.climate-chart { aspect-ratio: 380 / 130; min-width: 0; }
-.climate-chart svg { width: 100%; height: 100%; display: block; }
-.climate-chart.empty { display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 12px; border: 1px dashed var(--color-map-bg); font-size: 12px; color: var(--color-text-faint); }
-.climate-trend { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; }
-.climate-trend-value { font-size: 12px; color: var(--color-text); }
+/* ---------- Climate at Sisal on the Climatology page ----------
+   The charts use the storm chart styles above (.anomaly-chart, .date-axis, .comparison). */
+/* the trend in the top right corner of a "Change since 1950" chart (where the other charts show their source) */
+.trend-tag { position: absolute; top: 0; right: 2px; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; padding: 4px 7px; border-radius: 6px; border: 1px solid var(--color-divider); background: var(--color-surface); }
+.trend-tag-value { font-size: 11px; color: var(--color-text); white-space: nowrap; }
+.trend-tag .trend-badge { margin-top: 2px; }
+/* heading of the section, with the small data source card on the right */
+.climate-section-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 32px; }
+.climate-heading h2 { margin: 0; font-family: 'Newsreader', serif; font-weight: 600; font-size: 24px; line-height: 1.2; color: var(--color-text); }
+.climate-heading p { margin: 4px 0 0 0; font-size: 14px; color: var(--color-text-body); }
+.climate-sources-card { flex: 0 0 340px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.climate-sources-card img { width: 100%; height: 130px; object-fit: cover; object-position: left center; border-radius: 12px; display: block; }
+/* "In detail": tabs (Figma detail-tab), a header line, two chart places and the trend */
+.detail-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.detail-tab { display: flex; align-items: center; gap: 7px; padding: 7px 13px 7px 11px; border-radius: 999px; border: 1.5px solid var(--color-divider); background: transparent; font-size: 12px; color: var(--color-text-muted); }
+.detail-tab:hover { background: var(--color-surface-subtle); color: var(--color-text); }
+.detail-tab.selected { background: var(--color-surface-subtle); border-color: var(--color-text-body); color: var(--color-text); font-weight: 600; }
+.detail-swatch { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+.detail-header { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.detail-name { font-size: 15px; font-weight: 700; color: var(--color-text); }
+.detail-facts { font-size: 14px; color: var(--color-text-muted); }
+.detail-chart { min-height: 200px; display: flex; flex-direction: column; padding: 10px 12px; border-radius: 12px; border: 1px dashed var(--color-map-bg); margin-bottom: 10px; }
+.detail-chart-title { font-size: 13px; font-weight: 600; color: var(--color-text-body); }
+.detail-chart .placeholder-text { margin: auto; }
+.detail-row { display: flex; gap: 20px; align-items: stretch; }
+.detail-row .detail-chart { flex: 1; margin-bottom: 0; }
+.detail-trend { flex: 0 0 320px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px 16px; border-radius: 12px; background: var(--color-surface-subtle); }
 /* how sure a trend is (Figma trend-badge) */
 .trend-badge { margin-top: 4px; padding: 3px 8px; border-radius: 999px; background: var(--color-surface-subtle); font-size: 11px; font-weight: 600; color: var(--color-text-muted); }
 .trend-badge.badge-significant { background: var(--color-text-body); color: var(--color-surface); }

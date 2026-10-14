@@ -34,7 +34,7 @@
         ],
         ["event-charts"]
       ],
-      "wide": ["climate-table"]
+      "wide": ["climate-header", ["climate-typical-year", "climate-change"], "climate-detail"]
     },
     {
       "id": "stakeholders",

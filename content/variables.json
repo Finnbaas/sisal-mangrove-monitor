@@ -40,9 +40,20 @@
     { "id": "seaSurfaceTemperature", "label": "Sea surface temperature", "unit": "°C", "color": "data-climate-sea-surface-temperature" }
   ],
 
+  "climateVariables": [
+    { "id": "airTemperature", "label": "Air temperature", "color": "data-climate-air-temperature", "seriesLabels": { "max": "max", "min": "min" } },
+    { "id": "precipitation", "label": "Rainfall", "color": "data-climate-precipitation" },
+    { "id": "seaSurfaceTemperature", "label": "Sea surface temperature", "color": "data-climate-sea-surface-temperature" },
+    { "id": "windSpeed", "label": "Wind speed", "color": "data-climate-wind-speed" },
+    { "id": "waveHeight", "label": "Wave height (mean)", "color": "data-climate-wave-height" },
+    { "id": "seaLevel", "label": "Sea level", "color": "data-climate-sea-level" },
+    { "id": "salinity", "label": "Surface salinity", "color": "data-climate-salinity" }
+  ],
+
   "sources": {
     "era5-land": { "label": "ERA5-Land land cell", "color": "data-source-era5-land" },
     "era5-sea": { "label": "ERA5 sea cell", "color": "data-source-era5-sea" },
-    "hycom": { "label": "HYCOM cell", "color": "data-source-hycom" }
+    "hycom": { "label": "HYCOM cell", "color": "data-source-hycom" },
+    "altimetry": { "label": "Satellite altimetry", "color": "data-climate-sea-level" }
   }
 }

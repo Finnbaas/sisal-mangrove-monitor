@@ -10,7 +10,10 @@
     "event-list": "Storms and extreme events",
     "stakeholder-map": "Stakeholder observations",
     "stakeholder-panel": "Area details",
-    "climate-table": "Climate at Sisal"
+    "climate-table": "Climate at Sisal",
+    "climate-typical-year": "A typical year",
+    "climate-change": "Change since 1950",
+    "climate-detail": "In detail"
   },
 
   "labels": {
@@ -60,6 +63,15 @@
     "certaintyExpected": "Expected",
 
     "climateIntro": "For each variable: what a typical year looks like, and how it has changed since 1950.",
+    "typicalYearSubtitle": "Monthly mean; shaded band: 10th to 90th percentile of the daily values",
+    "changeSubtitle": "Annual means and trend since the start of each record",
+    "month": "Month",
+    "dataSourcesTitle": "Where the data comes from",
+    "dataSourcesAlt": "Map of the grid cells the climate data comes from: the ERA5-Land land cell, the ERA5 sea cell and the HYCOM cell near Sisal",
+    "detailDaily": "(a) Daily values with 365-day running mean",
+    "detailMonthly": "(a) Monthly anomaly with 12-month running mean",
+    "detailAnnual": "(b) Annual means with trend line",
+    "monthsLong": "January,February,March,April,May,June,July,August,September,October,November,December",
     "colTypicalYear": "A typical year",
     "colChange": "Change since 1950",
     "colTrend": "Trend",
@@ -94,6 +106,7 @@
     "filesWillBeAdded": "Files will be added here",
     "stepsWillBeAdded": "Steps will be added here",
     "chartNotAvailable": "Chart not available",
+    "couldNotLoadClimateData": "Could not load the climate charts: {error}",
     "couldNotLoadClimate": "Could not load the climate table: {error}",
     "couldNotLoadMethod": "The Method page could not be loaded",
     "selectArea": "Select an area on the map or a bar in the timeline to see what stakeholders reported",
