@@ -63,6 +63,7 @@
   --color-data-climate-precipitation: #E06D0A;
   --color-data-climate-salinity: #D62728;
   --color-data-climate-sea-surface-temperature: #A0522D;
+  --color-data-climate-sea-level: #234A8C;
 
   /* Climatology screen: data source tags, same colors as the cells on the map (Figma data/source/...) */
   --color-data-source-era5-land: #498738;
@@ -256,6 +257,8 @@ button { font-family: inherit; cursor: pointer; }
 /* research layout */
 .research-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 20px; align-items: start; }
 .col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+/* cards listed under "wide" in content/pages.json: over the full page width, under the two columns */
+.col.wide { grid-column: 1 / -1; }
 /* a slot is only a place holder for a card: it has no box of its own, so the card sits in the layout directly */
 [data-slot] { display: contents; }
 
@@ -668,6 +671,30 @@ button { font-family: inherit; cursor: pointer; }
 .observation-text { font-size: 14px; line-height: 1.4; color: var(--color-text-body); }
 .sh-quote { display: flex; flex-direction: column; gap: 2px; padding-left: 10px; border-left: 2px solid var(--color-divider); }
 .sh-quote-name { font-size: 11px; color: var(--color-text-muted); }
+
+/* ---------- Climate table on the Climatology page (Figma: the "Climate at Sisal" table, trend-badge) ----------
+   One row per variable: name | a typical year | change since 1950 | trend.
+   The charts are SVG files from data/charts/ that climate.js places into the .climate-chart boxes. */
+.climate-header { margin-bottom: 14px; }
+.climate-header h2 { margin: 0; font-family: 'Newsreader', serif; font-weight: 600; font-size: 24px; line-height: 1.2; color: var(--color-text); }
+.climate-header p { margin: 4px 0 0 0; font-size: 14px; color: var(--color-text-body); }
+/* the same four columns in the header and in every row, so the charts line up */
+.climate-row { display: grid; grid-template-columns: 170px minmax(0, 1fr) minmax(0, 1fr) 210px; column-gap: 28px; align-items: center; padding: 12px 0; border-top: 1px solid var(--color-divider); }
+.climate-head { padding: 0 0 10px 0; border-top: none; font-size: 11px; font-weight: 600; color: var(--color-text-faint); }
+.climate-name { display: flex; align-items: baseline; gap: 8px; font-size: 13px; font-weight: 600; color: var(--color-text); }
+.climate-swatch { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.climate-note { margin: 3px 0 0 18px; font-size: 11px; color: var(--color-text-muted); }
+/* the box a chart goes into: always the same shape (380 x 130), whatever the screen width */
+.climate-chart { aspect-ratio: 380 / 130; min-width: 0; }
+.climate-chart svg { width: 100%; height: 100%; display: block; }
+.climate-chart.empty { display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 12px; border: 1px dashed var(--color-map-bg); font-size: 12px; color: var(--color-text-faint); }
+.climate-trend { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; }
+.climate-trend-value { font-size: 12px; color: var(--color-text); }
+/* how sure a trend is (Figma trend-badge) */
+.trend-badge { margin-top: 4px; padding: 3px 8px; border-radius: 999px; background: var(--color-surface-subtle); font-size: 11px; font-weight: 600; color: var(--color-text-muted); }
+.trend-badge.badge-significant { background: var(--color-text-body); color: var(--color-surface); }
+.trend-badge.badge-borderline { background: var(--color-surface); box-shadow: inset 0 0 0 1px var(--color-text-body); color: var(--color-text-body); }
+.trend-badge.badge-to-confirm { background: transparent; border: 1px dashed var(--color-text-faint); padding: 2px 7px; }
 
 /* ---------- Card actions on the research cards (Figma card-actions) ----------
    Small and quiet, because every chart card can have them: an icon button that opens the download

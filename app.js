@@ -564,6 +564,7 @@ async function start() {
   lastResearchSection = DEFAULT_SECTION;
 
   setupClimatology();      // climatology.js: events, timeline and charts of the Climatology screen
+  setupClimate();          // climate.js: the climate table on the Climatology screen
   setupStakeholders();     // stakeholders.js: areas, time card and panel of the Stakeholder screen
   setupMethod();           // method.js: the Method page and the "Do this analysis yourself" links
   setupNavigation();

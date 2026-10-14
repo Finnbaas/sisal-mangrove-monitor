@@ -83,6 +83,7 @@ function checkContent(c) {
     ids.add(s.id);
     if (typeof s.label !== 'string') throw new ContentError(pagesFile, n + ' ("' + s.id + '") needs a "label".');
     if (s.columns !== undefined && !Array.isArray(s.columns)) throw new ContentError(pagesFile, n + ' ("' + s.id + '"): "columns" must be a list.');
+    if (s.wide !== undefined && !Array.isArray(s.wide)) throw new ContentError(pagesFile, n + ' ("' + s.id + '"): "wide" must be a list.');
   });
   if (!c.pages.sections.length) throw new ContentError(pagesFile, 'the list "sections" is empty: the site needs at least one page.');
   const v = c.variables || {};
@@ -155,6 +156,7 @@ function cardsOnPage(id) {
     else if (Array.isArray(item)) item.forEach(walk);
   };
   if (section) (section.columns || []).forEach(walk);
+  if (section) (section.wide || []).forEach(walk);
   return names;
 }
 
@@ -180,7 +182,9 @@ function buildPages() {
     section.dataset.screen = s.id;
     section.hidden = true;
     const columns = (s.columns || []).filter((col) => Array.isArray(col) && col.length);
-    if (!columns.length) {
+    // "wide": cards that span the full page width, under the two columns (for example a wide table)
+    const wide = s.wide || [];
+    if (!columns.length && !wide.length) {
       // the page has no cards: one wide placeholder card
       section.appendChild(placeholderCard({ message: t('messages.pageNotYetAvailable') }, 'page-placeholder'));
     } else {
@@ -190,6 +194,12 @@ function buildPages() {
         col.forEach((item) => colEl.appendChild(buildItem(item, ready, s.id)));
         section.appendChild(colEl);
       });
+      if (wide.length) {
+        const wideEl = document.createElement('div');
+        wideEl.className = 'col wide';
+        wide.forEach((item) => wideEl.appendChild(buildItem(item, ready, s.id)));
+        section.appendChild(wideEl);
+      }
     }
     library.parentNode.insertBefore(section, library);
   });

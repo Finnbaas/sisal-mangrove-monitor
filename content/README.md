@@ -47,6 +47,8 @@ Tip: paste the file into https://jsonlint.com to find the mistake.
 - `label`: the name in the menu under the top bar.
 - `columns`: a left and a right column, each a list of cards from top to bottom.
   A list inside a list (`["point-info", "trend-signals"]`) puts two cards next to each other.
+- `wide` (optional): a list of cards that span the **full page width**, placed under the two
+  columns. Use it for wide cards such as a table: `"wide": ["climate-table"]`.
 
 **A new page**: add a section with a new `id` and `label`. It gets the Overview colors.
 A page with `"columns": []` (or no cards) shows "This page has no content yet."

@@ -9,7 +9,8 @@
     "trend-signals": "Trend signals",
     "event-list": "Storms and extreme events",
     "stakeholder-map": "Stakeholder observations",
-    "stakeholder-panel": "Area details"
+    "stakeholder-panel": "Area details",
+    "climate-table": "Climate at Sisal"
   },
 
   "labels": {
@@ -58,6 +59,11 @@
     "certaintyOngoing": "Ongoing",
     "certaintyExpected": "Expected",
 
+    "climateIntro": "For each variable: what a typical year looks like, and how it has changed since 1950.",
+    "colTypicalYear": "A typical year",
+    "colChange": "Change since 1950",
+    "colTrend": "Trend",
+
     "exampleContent": "Example content",
     "viewRepositoryOnGithub": "View the full repository on GitHub",
     "viewFolderOnGithub": "View this folder on GitHub",
@@ -87,6 +93,8 @@
     "couldNotLoadEvents": "Could not load event data: {error}",
     "filesWillBeAdded": "Files will be added here",
     "stepsWillBeAdded": "Steps will be added here",
+    "chartNotAvailable": "Chart not available",
+    "couldNotLoadClimate": "Could not load the climate table: {error}",
     "couldNotLoadMethod": "The Method page could not be loaded",
     "selectArea": "Select an area on the map or a bar in the timeline to see what stakeholders reported",
     "noObservationsInYear": "No observations in {year}",
