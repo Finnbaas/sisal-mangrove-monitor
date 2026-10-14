@@ -81,7 +81,7 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 | `climate-sources` | Small "Where the data comes from" card with the map of the data cells (used as `aside` of "Climate at Sisal") |
 | `climate-typical-year` | "A typical year": one chart per climate variable, monthly mean with 10th–90th percentile band |
 | `climate-change` | "Change since 1950": one chart per climate variable, with the trend and its badge |
-| `climate-detail` | "In detail": one tab per climate variable, with record period, chart places and the trend |
+| `climate-detail` | "In detail": one tab per climate variable, with record period, the daily values and the annual means with the trend |
 | `stakeholder-map` | Map with the areas stakeholders pointed out (click to select an area) |
 | `stakeholder-time` | Year slider that is also the time axis of the observation bars (goes directly under `stakeholder-map`) |
 | `stakeholder-panel` | What stakeholders said about the selected area |
@@ -105,7 +105,7 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 { "type": "planned", "title": "When storms come", "expand": false,
   "graphs": [ { "title": "Storms per year", "label": "Bar chart, 1950 to 2025", "height": 150 },
               { "title": "Storms per month", "label": "Bar chart, J to D", "height": 150, "width": 224 } ] }
-{ "type": "group", "title": "Climate overview", "cards": ["climate-typical-year", "climate-change"] }
+{ "type": "group", "title": "Climate overview", "cards": ["climate-typical-year", "climate-change"], "note": "optional small grey line under the cards" }
 ```
 
 - `planned`: a card whose graphs are designed but not built yet. Each graph is a light box with its

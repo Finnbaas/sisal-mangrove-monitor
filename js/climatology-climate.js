@@ -3,7 +3,8 @@
 //   drawn with the same parts as the storm charts (charts.js). "Change since 1950": annual means with
 //   the trend line, the trend value and its badge. "In detail": one tab per variable with its trend.
 //   This file only draws: the numbers are calculated in Python (analysis/climatology/export_typical_year.py).
-// Reads: data/climate/typical-year.json, data/climate/change.json and content/climate.json (the badges); which charts, in which order and with
+// Reads: data/climate/typical-year.json, data/climate/change.json, data/climate/detail/<id>.json (per tab) and
+//   content/climate.json (the badges); which charts, in which order and with
 //   which label: content/variables.json "climateVariables".
 // Uses: helpers.js, content.js, charts.js. Used by: main.js (setupClimate).
 
@@ -73,7 +74,7 @@ function renderTypicalYear() {
     const data = variables[p.id];
     const unit = data ? data.unit + (data.note ? ', ' + data.note : '') : NO_DATA;
     const drawn = monthChartSvg(p, data);
-    box.appendChild(chartRow({ label: p.label, unit: unit }, data ? sources[data.source] : null, drawn.svg));
+    box.appendChild(chartRow({ label: p.label, unit: unit, onOpen: () => openClimateDetail(p.id) }, data ? sources[data.source] : null, drawn.svg));
     return drawn.panel;
   });
 
@@ -222,7 +223,7 @@ function renderClimateChange(content) {
     const data = variables[p.id];
     const unit = data ? data.unit + (data.note ? ', ' + data.note : '') : NO_DATA;
     const drawn = yearChartSvg(p, data, years, yearX, decades);
-    const row = chartRow({ label: p.label, unit: unit }, null, drawn.svg);
+    const row = chartRow({ label: p.label, unit: unit, onOpen: () => openClimateDetail(p.id) }, null, drawn.svg);
     // no trend box on top of the chart: the trend and its badge are shown in "In detail"
     row.querySelector('.source-tag').remove();
     box.appendChild(row);
@@ -286,9 +287,10 @@ function yearChartSvg(p, data, years, yearX, decades) {
 
 // =============================================================================================
 // Card "climate-detail" ("In detail"): one tab per variable (air temperature: daily max and daily min).
-// The selected tab shows the variable's name, unit, source and record period, two chart places
-// ((a) daily values with a running mean, (b) annual means with a trend line) and, next to (b), the
-// trend with its badge (the same as in "Change since 1950"). The charts are not filled yet.
+// The selected tab shows the variable's name, unit, source and record period, chart (a) with the daily
+// values (or, for sea level, the monthly anomaly) and chart (b) with the annual means and the trend,
+// on one shared year axis. The file of a variable (data/climate/detail/<id>.json) is loaded when its tab
+// is opened. The annual means and trends are the ones of change.json.
 // =============================================================================================
 
 let detailTabs = [];        // [{ id, panel, series, label }]
@@ -321,18 +323,98 @@ function renderClimateDetail(content) {
   renderClimateDetailTab();
 }
 
-function renderClimateDetailTab() {
+// Opens the tab of a variable in "In detail" (id = the id from climateVariables, the same one the panel
+// labels use) and scrolls smoothly to that card. Used by the variable names in the chart panels.
+async function openClimateDetail(id) {
+  const i = detailTabs.findIndex((tab) => tab.panel.id === id);
+  if (i < 0) return;
+  detailSelected = i;
+  // scroll only when the charts are drawn: the card is the last on the page, so with only a short
+  // "Loading..." text the page could not scroll far enough
+  await renderClimateDetailTab();
+  document.querySelector('[data-card="climate-detail"]').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// The tab's file is loaded only when the tab is opened, and kept for the next time.
+const CLIMATE_DETAIL_FOLDER = 'data/climate/detail/';
+const detailFiles = {};     // variable id -> the promise of its file
+
+function loadDetailFile(id) {
+  const path = CLIMATE_DETAIL_FOLDER + id + '.json';
+  if (!detailFiles[id]) {
+    detailFiles[id] = fetch(path)
+      .then((response) => {
+        if (!response.ok) throw new Error('the file could not be loaded (HTTP ' + response.status + ')');
+        return response.text();
+      })
+      .then((text) => {
+        const data = parseJsonFile(text, path);
+        if (!data || !Array.isArray(data.series)) throw new Error('"series" is missing');
+        return data;
+      })
+      .catch((err) => { delete detailFiles[id]; err.message = path + ': ' + err.message; throw err; });
+  }
+  return detailFiles[id];
+}
+
+async function renderClimateDetailTab() {
   const tabs = [...$('climate-detail-tabs').children];
   tabs.forEach((b, i) => { b.classList.toggle('selected', i === detailSelected); b.setAttribute('aria-pressed', i === detailSelected); });
   const tab = detailTabs[detailSelected];
   const box = $('climate-detail-body');
   box.innerHTML = '';
   if (!tab) return;
-  const data = ((typicalYear && typicalYear.variables) || {})[tab.panel.id];
+  box.innerHTML = '<p class="placeholder-text"></p>';
+  box.firstChild.textContent = t('messages.loading');
+  try {
+    const file = await loadDetailFile(tab.panel.id);
+    if (tab !== detailTabs[detailSelected]) return;      // another tab was opened meanwhile
+    box.innerHTML = '';
+    drawClimateDetail(tab, file, box);
+  } catch (err) {
+    if (tab !== detailTabs[detailSelected]) return;
+    // a problem with this file only affects this tab: the message names the file
+    box.innerHTML = '<p class="fine"></p>';
+    box.firstChild.textContent = t('messages.couldNotLoadClimateData', { error: err.message });
+    console.error(err);
+  }
+}
+
+// ---------- the tab: header line, chart (a) daily values, chart (b) annual means, shared year axis ----------
+
+// "YYYY-MM" to a point in time in years (the middle of that month), for example 1950-07 gives 1950.54
+function monthTime(label) {
+  return Number(label.slice(0, 4)) + (Number(label.slice(5, 7)) - 0.5) / 12;
+}
+
+// the p-value as text: "p < 0.001", "p = 0.012", "p = 0.24"
+function pValueText(p) {
+  if (!isNumber(p)) return '';
+  return p < 0.001 ? 'p < 0.001' : 'p = ' + p.toFixed(p < 0.01 ? 3 : 2);
+}
+
+// The styles of the trend lines in (b): the whole record first, then (sea level) the two periods.
+const TREND_LINE_STYLES = [
+  { colorVar: '--color-text-faint', dash: '4 3' },
+  { colorVar: '--color-text-body', dash: '2 2' },
+  { colorVar: '--color-text-body', dash: '7 3' }
+];
+
+function drawClimateDetail(tab, file, box) {
+  const p = tab.panel;
   const sources = CONTENT.variables.sources || {};
+  const typical = ((typicalYear && typicalYear.variables) || {})[p.id];
+  const change = ((climateChange && climateChange.variables) || {})[p.id];
+  const line = file.series.find((s) => s.id === tab.series) || file.series[0];       // the line of this tab
+  const annual = change && Array.isArray(change.series) ? (change.series.find((s) => s.id === tab.series) || change.series[0]) : null;
+  const sea = file.kind === 'monthly-anomaly';
+  const c = color(p.colorVar);
+  const grey = color('--color-text-faint');
+  const unit = file.unit;
+
   // header line: name · unit · source · record period
-  const facts = data ? [data.unit + (data.note ? ', ' + data.note : ''), (sources[data.source] || {}).label || NO_DATA,
-    data.record ? data.record.start.slice(0, 4) + '–' + data.record.end.slice(0, 4) : NO_DATA] : [NO_DATA];
+  const facts = [unit, typical && sources[typical.source] ? sources[typical.source].label : NO_DATA,
+    file.record ? file.record.start.slice(0, 4) + '–' + file.record.end.slice(0, 4) : NO_DATA];
   const head = document.createElement('div');
   head.className = 'detail-header';
   head.innerHTML = '<span class="detail-name"></span><span class="detail-facts"></span>';
@@ -340,31 +422,152 @@ function renderClimateDetailTab() {
   head.lastChild.textContent = '· ' + facts.join(' · ');
   box.appendChild(head);
 
-  // the two chart places, and the trend next to (b)
-  const place = (text) => { const d = document.createElement('div'); d.className = 'detail-chart'; d.innerHTML = '<span class="detail-chart-title"></span><span class="placeholder-text"></span>';
-    d.firstChild.textContent = text; d.lastChild.textContent = t('messages.notYetAvailable'); return d; };
-  const monthly = tab.panel.id === 'seaLevel';
-  box.appendChild(place(t(monthly ? 'labels.detailMonthly' : 'labels.detailDaily')));
-  const row = document.createElement('div');
-  row.className = 'detail-row';
-  row.appendChild(place(t('labels.detailAnnual')));
-  const trend = ((detailContent && detailContent.trends) || {})[tab.panel.id];
-  const badges = (detailContent && detailContent.badges) || {};
+  // the shared time axis: from the first to the last year of this variable's record, months and years on it
+  const months = line.months || [];
+  const years = annual && annual.years ? annual.years : [];
+  const first = Math.min(Number(months[0].slice(0, 4)), years.length ? years[0] : Infinity);
+  const last = Math.max(Number(months[months.length - 1].slice(0, 4)), years.length ? years[years.length - 1] : -Infinity);
+  const timeX = (time) => PLOT.left + (time - first) / (last + 1 - first) * (PLOT.right - PLOT.left);
+  const step = last - first > 40 ? 10 : 5;
+  const ticks = [];
+  for (let y = Math.ceil(first / step) * step; y <= last; y += step) ticks.push(y);
+
+  // ----- (a): the daily range per month as a light band with the running mean, or the monthly anomaly -----
+  const head1 = chartHead(p, ticks.map(timeX), 'daily values');
+  const upper = sea ? line.anomaly : line.max, lower = sea ? line.anomaly : line.min;
+  const known = [];
+  [upper, lower, line.running].forEach((list) => (list || []).forEach((v) => { if (isNumber(v)) known.push(v); }));
+  let svgA, panelA = null;
+  const monthIndexTime = months.map(monthTime);
+  if (!known.length) svgA = chartNoData(head1);
+  else {
+    const scale = chartScale(known, sea);
+    let svg = head1 + chartYAxis(scale.t, scale.yOf);
+    const xy = (i, v) => timeX(monthIndexTime[i]).toFixed(1) + ',' + scale.yOf(v).toFixed(1);
+    if (sea) {
+      // the monthly anomaly as a thin grey line, the 12-month running mean in the color of the variable
+      svg += '<rect class="plot-axis" x="' + PLOT.left + '" y="' + Math.round(scale.yOf(0)) + '" width="' + (PLOT.right - PLOT.left) + '" height="1"></rect>';
+      segmentsOf(line.anomaly).forEach((seg) => { if (seg.length > 1) svg += '<polyline points="' + seg.map((pt) => xy(pt.i, pt.val)).join(' ') + '" fill="none" stroke="' + grey + '" stroke-width="0.8" stroke-linejoin="round"></polyline>'; });
+    } else {
+      // the band from the lowest to the highest day of each month, in runs of months that have both
+      const both = months.map((m, i) => (isNumber(line.max[i]) && isNumber(line.min[i]) ? line.max[i] : null));
+      segmentsOf(both).forEach((seg) => {
+        if (seg.length < 2) return;
+        const top = seg.map((pt) => xy(pt.i, line.max[pt.i]));
+        const bottom = seg.map((pt) => xy(pt.i, line.min[pt.i])).reverse();
+        svg += '<polygon points="' + top.concat(bottom).join(' ') + '" fill="' + grey + '" fill-opacity="0.35"></polygon>';
+      });
+    }
+    segmentsOf(line.running).forEach((seg) => { if (seg.length > 1) svg += '<polyline points="' + seg.map((pt) => xy(pt.i, pt.val)).join(' ') + '" fill="none" stroke="' + c + '" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"></polyline>'; });
+    svgA = svg + '</svg>';
+    // what the comparison line shows at month i
+    const fmt = (v, list) => formatLike(v, list) + ' ' + unit;
+    panelA = {
+      yOf: scale.yOf,
+      points: (i) => (sea
+        ? [{ value: line.anomaly[i], color: grey, text: t('labels.detailAnomaly') + ' ' + fmt(line.anomaly[i], line.anomaly) },
+           { value: line.running[i], color: c, text: t('labels.detailRunning12') + ' ' + fmt(line.running[i], line.running) }]
+        : [{ value: line.max[i], color: grey, text: t('labels.detailHighest') + ' ' + fmt(line.max[i], line.max) },
+           { value: line.running[i], color: c, text: t('labels.detailRunning365') + ' ' + fmt(line.running[i], line.running) },
+           { value: line.min[i], color: grey, text: t('labels.detailLowest') + ' ' + fmt(line.min[i], line.min) }])
+    };
+  }
+
+  // ----- (b): the annual means with the trend line(s); the numbers are the ones of change.json -----
+  const head2 = chartHead(p, ticks.map(timeX), 'annual means');
+  const trends = [];       // [{ label, s: { slope, ci95, p, fit }, from, to }] shown as lines and in the corner text
+  if (annual && isNumber(annual.slope)) {
+    trends.push({ label: sea && years.length ? years[0] + '–' + years[years.length - 1] : '', s: annual, from: years[0], to: years[years.length - 1] });
+    if (sea) (change.periods || []).forEach((q) => trends.push({ label: q.start + '–' + q.end, s: q, from: q.start, to: q.end }));
+  }
+  const yearTime = (y) => y + 0.5;
+  const known2 = [];
+  if (annual) (annual.means || []).forEach((v) => { if (isNumber(v)) known2.push(v); });
+  trends.forEach((tr) => (tr.s.fit || []).forEach((v) => { if (isNumber(v)) known2.push(v); }));
+  let svgB, panelB = null;
+  const meanOf = {};      // year -> annual mean
+  if (annual) (annual.years || []).forEach((y, i) => { if (isNumber(annual.means[i])) meanOf[y] = annual.means[i]; });
+  if (!known2.length) svgB = chartNoData(head2);
+  else {
+    const scale = chartScale(known2, false);
+    let svg = head2 + chartYAxis(scale.t, scale.yOf);
+    trends.forEach((tr, k) => {
+      const style = TREND_LINE_STYLES[k % TREND_LINE_STYLES.length];
+      if (tr.s.fit) svg += '<line x1="' + timeX(yearTime(tr.from)).toFixed(1) + '" y1="' + scale.yOf(tr.s.fit[0]).toFixed(1) + '" x2="' + timeX(yearTime(tr.to)).toFixed(1) +
+        '" y2="' + scale.yOf(tr.s.fit[1]).toFixed(1) + '" stroke="' + color(style.colorVar) + '" stroke-width="1.2" stroke-dasharray="' + style.dash + '"></line>';
+    });
+    const row = (annual.years || []).map((y, i) => ({ y: y, v: annual.means[i] })).filter((d) => isNumber(d.v));
+    const at = (d) => timeX(yearTime(d.y)).toFixed(1) + ',' + scale.yOf(d.v).toFixed(1);
+    // runs of consecutive years
+    let run = [];
+    const flush = () => { if (run.length > 1) svg += '<polyline points="' + run.map(at).join(' ') + '" fill="none" stroke="' + c + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"></polyline>'; run = []; };
+    row.forEach((d) => { if (run.length && d.y !== run[run.length - 1].y + 1) flush(); run.push(d); });
+    flush();
+    row.forEach((d) => { svg += '<circle cx="' + timeX(yearTime(d.y)).toFixed(1) + '" cy="' + scale.yOf(d.v).toFixed(1) + '" r="1.8" fill="' + c + '"></circle>'; });
+    svgB = svg + '</svg>';
+    // at month i the annual mean of that year; its dot sits at the middle of the year
+    panelB = {
+      yOf: scale.yOf,
+      xAt: (i) => timeX(yearTime(Math.floor(monthIndexTime[i]))),
+      points: (i) => {
+        const y = Math.floor(monthIndexTime[i]);
+        return [{ value: meanOf[y], color: c, text: y + ': ' + formatLike(meanOf[y], annual.means) + ' ' + unit }];
+      }
+    };
+  }
+
+  // ----- the two rows, the axis, the trend box next to (b) and the comparison line -----
+  const stack = document.createElement('div');
+  stack.className = 'chart-stack detail-stack';
+  const rowA = chartRow({ label: t(sea ? 'labels.detailMonthly' : 'labels.detailDaily'), unit: unit }, null, svgA);
+  rowA.querySelector('.source-tag').remove();
+  const rowB = chartRow({ label: t('labels.detailAnnual'), unit: unit }, null, svgB);
+  rowB.querySelector('.source-tag').remove();
+
+  // the trend box: value, ± 95%, p-value and badge (the numbers are the ones of change.json)
   const summary = document.createElement('div');
   summary.className = 'detail-trend';
   summary.innerHTML = '<div class="method-label"></div>';
   summary.firstChild.textContent = t('labels.colTrend');
-  if (trend) {
-    // air temperature: only the line of the selected series ("Max ..." or "Min ...")
-    let lines = trendLines(tab.panel);
-    if (tab.series) {
-      const own = lines.filter((l) => l.toLowerCase().startsWith(String(tab.panel.seriesLabels[tab.series]).toLowerCase()));
-      if (own.length) lines = own;
-    }
-    lines.forEach((l) => { const v = document.createElement('div'); v.className = 'trend-tag-value mono'; v.textContent = l; summary.appendChild(v); });
-    if (badges[trend.badge]) summary.insertAdjacentHTML('beforeend', '<span class="trend-badge badge-' + trend.badge + '"></span>');
-    if (badges[trend.badge]) summary.lastChild.textContent = badges[trend.badge];
-  } else summary.insertAdjacentHTML('beforeend', '<div class="placeholder-text">' + t('messages.notYetAvailable') + '</div>');
-  row.appendChild(summary);
-  box.appendChild(row);
+  trends.forEach((tr, k) => {
+    const v = document.createElement('div');
+    v.className = 'trend-tag-value mono';
+    const style = TREND_LINE_STYLES[k % TREND_LINE_STYLES.length];
+    // with more than one trend (sea level) each has a small line sample as a legend
+    if (trends.length > 1) v.insertAdjacentHTML('beforeend', '<svg width="18" height="6" aria-hidden="true"><line x1="0" y1="3" x2="18" y2="3" stroke="' + color(style.colorVar) +
+      '" stroke-width="1.5" stroke-dasharray="' + style.dash + '"></line></svg> ');
+    v.appendChild(document.createTextNode((tr.label ? tr.label + ' ' : '') + trendText(tr.s, change.trendUnit) + ' · ' + pValueText(tr.s.p)));
+    summary.appendChild(v);
+  });
+  const trend = ((detailContent && detailContent.trends) || {})[p.id];
+  const badges = (detailContent && detailContent.badges) || {};
+  if (trend && badges[trend.badge]) {
+    const b = document.createElement('span');
+    b.className = 'trend-badge badge-' + trend.badge;
+    b.textContent = badges[trend.badge];
+    summary.appendChild(b);
+  }
+  if (!trends.length) summary.insertAdjacentHTML('beforeend', '<div class="placeholder-text">' + NO_DATA + '</div>');
+
+  stack.appendChild(rowA);
+  stack.appendChild(rowB);
+  stack.appendChild(summary);
+  stack.appendChild(sharedAxis(ticks.map((y) => ({ x: timeX(y), text: String(y) })), t('labels.year')));
+  stack.insertAdjacentHTML('beforeend', '<div class="comparison" hidden></div>');
+  box.appendChild(stack);
+  const note = document.createElement('p');
+  note.className = 'fine detail-note';
+  note.textContent = t(sea ? 'labels.detailNoteSea' : 'labels.detailNoteDaily');
+  box.appendChild(note);
+
+  // the comparison line snaps to months in (a) and to years in (b)
+  const monthNames = t('labels.monthsLong').split(',');
+  const start = monthIndexTime[0] - 0.5 / 12;
+  const charts = {
+    count: months.length, panels: [panelA, panelB],
+    xOf: (i) => timeX(monthIndexTime[i]),
+    indexAt: (plotX) => (plotX < PLOT.left ? -1 : Math.min(months.length - 1, Math.max(0, Math.floor((first + (plotX - PLOT.left) / (PLOT.right - PLOT.left) * (last + 1 - first) - start) * 12)))),
+    label: (i) => (monthNames[Number(months[i].slice(5, 7)) - 1] || months[i].slice(5, 7)) + ' ' + months[i].slice(0, 4)
+  };
+  attachComparisonLine(stack, () => charts);
 }

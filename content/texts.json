@@ -67,9 +67,16 @@
     "month": "Month",
     "dataSourcesTitle": "Where the data comes from",
     "dataSourcesAlt": "Map of the grid cells the climate data comes from: the ERA5-Land land cell, the ERA5 sea cell and the HYCOM cell near Sisal",
-    "detailDaily": "(a) Daily values with 365-day running mean",
-    "detailMonthly": "(a) Monthly anomaly with 12-month running mean",
-    "detailAnnual": "(b) Annual means with trend line",
+    "detailDaily": "Daily values",
+    "detailMonthly": "Monthly anomaly",
+    "detailAnnual": "Annual means",
+    "detailHighest": "highest day",
+    "detailLowest": "lowest day",
+    "detailRunning365": "365-day mean",
+    "detailRunning12": "12-month mean",
+    "detailAnomaly": "monthly anomaly",
+    "detailNoteDaily": "(a) Light band: lowest to highest day of each month. Line: 365-day running mean. (b) Annual means with the trend (dashed).",
+    "detailNoteSea": "(a) Grey line: monthly anomaly, seasonal cycle removed. Line: 12-month running mean. (b) Annual means with the trend over the whole record and over 1993–2011 and 2012–2025 (dashed).",
     "monthsLong": "January,February,March,April,May,June,July,August,September,October,November,December",
     "colTrend": "Trend",
 
@@ -95,6 +102,7 @@
 
   "messages": {
     "noData": "No data",
+    "loading": "Loading…",
     "notYetAvailable": "Not yet available",
     "pageNotYetAvailable": "This page has no content yet.",
     "selectEvent": "Select a storm in the list",

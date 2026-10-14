@@ -249,3 +249,6 @@ The file is one JSON object, written by the team (Method page). It is loaded by 
 - `files`: one object per code file: `name`, `description`, `format` (tag text) and `path` (path in the repository; an empty path shows the file as "Not yet available" and not downloadable).
 - `useCases`: one object per "do it yourself" example: `id` (short name, lowercase letters, numbers and dashes, used in the address #method/<id>), `title`, `image`, `steps` (list of one-line instructions), `files` (names of files of the same section) and `cards` (names of ready-made cards that get the "Do this analysis yourself" link to this use case).
 - Any number of sections, files and use cases is possible. Empty texts show "Not yet available".
+
+#### Structure of data/climate/detail/<variable id>.json
+Made by analysis/climatology/export_typical_year.py (never edit by hand); loaded by the website only when the tab of that variable is opened in "In detail". `unit`, `record` (`start`, `end`), `kind` ("daily" or "monthly-anomaly" for sea level) and `series` (air temperature: `max` and `min`). A daily series has `months` ("YYYY-MM"), `min` and `max` (lowest and highest day of the month) and `running` (365-day running mean, taken on the 15th). Sea level has `months`, `anomaly` (seasonal cycle removed) and `running` (12-month running mean). The annual means and trends are in change.json.

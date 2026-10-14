@@ -378,6 +378,13 @@ function groupCard(item, ready, pageId) {
   row.className = 'group-row';
   (Array.isArray(item.cards) ? item.cards : []).forEach((name) => row.appendChild(buildItem(name, ready, pageId)));
   card.appendChild(row);
+  // an optional quiet line under the cards: { "note": "..." }
+  if (item.note) {
+    const note = document.createElement('p');
+    note.className = 'group-note';
+    note.textContent = item.note;
+    card.appendChild(note);
+  }
   return card;
 }
 

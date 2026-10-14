@@ -52,3 +52,13 @@
 .trend-badge.badge-significant { background: var(--color-text-body); color: var(--color-surface); }
 .trend-badge.badge-borderline { background: var(--color-surface); box-shadow: inset 0 0 0 1px var(--color-text-body); color: var(--color-text-body); }
 .trend-badge.badge-to-confirm { background: transparent; border: 1px dashed var(--color-text-faint); padding: 2px 7px; }
+
+/* a variable name that opens its tab in "In detail" (a button that looks like text; chartRow with onOpen) */
+.anomaly-name.detail-link { padding: 0; border: 0; background: none; font-family: inherit; cursor: pointer; }
+.anomaly-name.detail-link:hover { text-decoration: underline; }
+.anomaly-name.detail-link:hover::after { content: ' \2197'; }
+.anomaly-name.detail-link:focus-visible { outline: 2px solid var(--color-text-body); outline-offset: 2px; border-radius: 3px; }
+
+/* the charts can be reached with Tab; the arrow keys then move the comparison line */
+.keyboard-charts:focus { outline: none; }
+.keyboard-charts:focus-visible { outline: 2px solid var(--color-text-body); outline-offset: 4px; border-radius: 6px; }

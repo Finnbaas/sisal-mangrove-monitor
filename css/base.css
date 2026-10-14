@@ -299,6 +299,7 @@ button { font-family: inherit; cursor: pointer; }
    (title row, charts, note), so the first chart and the axis at the bottom line up in both. */
 .group-card { padding: 24px; }
 .group-card > .card-title-row { margin-bottom: 14px; }
+.group-note { margin: 12px 0 0; font-size: 11px; color: var(--color-text-faint); }
 .group-row { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto auto; column-gap: 16px; }
 .group-row > [data-slot] > .card {
   grid-row: span 3;

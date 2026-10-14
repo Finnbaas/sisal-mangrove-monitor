@@ -17,6 +17,11 @@ the p-value). annual() and trend() are the notebook's calculations (see referenc
 reference/sea_level.py). The verdict per variable (Significant, Borderline, ...) is NOT made here: the team
 sets it in content/climate.json.
 
+"In detail" (data/climate/detail/<variable id>.json, one file per variable, loaded by the website only when
+its tab is opened): per month the lowest day, the highest day and the 365-day running mean (rolling 365,
+centered, min_periods 300, as in the notebook). Sea level: the monthly anomaly (seasonal cycle removed) and
+its 12-month running mean. The annual means and trends are not repeated there: they are in change.json.
+
 Run it from the project folder:
 
     python analysis/climatology/export_typical_year.py
@@ -43,6 +48,10 @@ INPUT_DIR = HERE
 # where the result goes (data/climate/ in the project folder)
 OUTPUT_FILE = HERE.parent.parent / 'data' / 'climate' / 'typical-year.json'
 CHANGE_FILE = HERE.parent.parent / 'data' / 'climate' / 'change.json'
+DETAIL_DIR = HERE.parent.parent / 'data' / 'climate' / 'detail'       # one file per variable
+
+# number of decimals in the detail files
+DETAIL_DECIMALS = 3
 
 # salinity: only one HYCOM model version is used (see the notebook)
 SALINITY_PERIOD = ('1993', '2012')
@@ -163,6 +172,34 @@ def change_record(*series):
     return {'start': int(min(a.index[0] for a in used)), 'end': int(max(a.index[-1] for a in used))}
 
 
+# "In detail": monthly range and running means
+
+def month_labels(index):
+    return [d.strftime('%Y-%m') for d in index]
+
+
+def detail_numbers(values):
+    return [None if pd.isna(v) else round(float(v), DETAIL_DECIMALS) for v in values]
+
+
+def detail_daily(id, s):
+    """One line of a detail chart: per month the lowest and highest day, and the 365-day running mean
+    (the value on the 15th of the month)."""
+    month = s.resample('MS')
+    lo, hi = month.min(), month.max()
+    running = s.rolling(365, center=True, min_periods=300).mean()      # as in the notebook
+    mid = running.reindex(lo.index + pd.Timedelta(days=14))
+    return {'id': id, 'months': month_labels(lo.index), 'min': detail_numbers(lo), 'max': detail_numbers(hi),
+            'running': detail_numbers(mid)}
+
+
+def detail_sea_level(sea):
+    """Sea level: the monthly anomaly (seasonal cycle removed) and its 12-month running mean."""
+    anom = sea - sea.groupby(sea.index.month).transform('mean')
+    return {'id': 'mean', 'months': month_labels(anom.index), 'anomaly': detail_numbers(anom),
+            'running': detail_numbers(anom.rolling(12, center=True).mean())}
+
+
 # ---------------------------------------------------------------------------------------------
 # WRITING THE FILE
 # ---------------------------------------------------------------------------------------------
@@ -246,6 +283,25 @@ def main():
     CHANGE_FILE.write_text(json.dumps({'variables': change}, ensure_ascii=False, indent=1), encoding='utf-8', newline='\n')
     print(f'Saved {CHANGE_FILE}')
 
+    # ---- In detail (data/climate/detail/<id>.json) ----
+    detail = {      # id: (unit, the daily series it is made from, its lines)
+        'airTemperature': ('°C', tmax, [detail_daily('max', tmax), detail_daily('min', tmin)]),
+        'precipitation': ('mm/day', rain, [detail_daily('mean', rain)]),
+        'seaSurfaceTemperature': ('°C', sst, [detail_daily('mean', sst)]),
+        'windSpeed': ('m/s', wind, [detail_daily('mean', wind)]),
+        'waveHeight': ('m', hs, [detail_daily('mean', hs)]),
+        'seaLevel': ('mm', sea, [detail_sea_level(sea)]),
+        'salinity': ('PSU', sal, [detail_daily('mean', sal)]),
+    }
+    DETAIL_DIR.mkdir(parents=True, exist_ok=True)
+    detail_summary = []
+    for vid, (unit, source, series) in detail.items():
+        body = {'unit': unit, 'record': record(source), 'kind': 'monthly-anomaly' if vid == 'seaLevel' else 'daily',
+                'series': series}
+        path = DETAIL_DIR / (vid + '.json')
+        path.write_text(json.dumps(body, ensure_ascii=False, separators=(',', ':')), encoding='utf-8', newline='\n')
+        detail_summary.append((vid, body['record'], path.stat().st_size))
+
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_FILE.write_text(json.dumps({'months': [int(x) for x in m], 'variables': variables}, ensure_ascii=False, indent=1),
                            encoding='utf-8', newline='\n')
@@ -254,6 +310,10 @@ def main():
     print('\nRecord period of each variable (check against the notes on the website):')
     for vid, v in variables.items():
         print(f"  {vid:24s} {v['record']['start']} to {v['record']['end']}")
+
+    print('\nDetail files (data/climate/detail/):')
+    for vid, rec, size in detail_summary:
+        print(f"  {vid:24s} {rec['start']} to {rec['end']}   {size / 1024:6.0f} KB")
 
 
 if __name__ == '__main__':

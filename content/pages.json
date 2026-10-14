@@ -62,7 +62,7 @@
           "intro": "For each variable: what a typical year looks like, and how it has changed since 1950.",
           "aside": "climate-sources",
           "wide": [
-            { "type": "group", "title": "Climate overview", "cards": ["climate-typical-year", "climate-change"] },
+            { "type": "group", "title": "Climate overview", "cards": ["climate-typical-year", "climate-change"], "note": "Click a variable name to see it in detail." },
             "climate-detail"
           ]
         }

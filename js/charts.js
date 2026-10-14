@@ -30,10 +30,24 @@ function ticksFor(min, max, includeZero = true) {
   return { ticks: ticks, decimals: decimals };
 }
 
+// The vertical scale of one chart: the tick values and yOf(value), the y position in SVG units.
+// known = all values drawn; includeZero = the scale must show 0; topRoom = share of the chart height kept
+// free at the top (for a text in the corner, 0 for none).
+function chartScale(known, includeZero, topRoom = 0) {
+  const t = ticksFor(Math.min(...known), Math.max(...known), includeZero);
+  const lo = Math.min(Math.min(...known), t.ticks[0]);
+  const dataHi = Math.max(Math.max(...known), t.ticks[t.ticks.length - 1]);
+  const hi = dataHi + ((dataHi - lo) || 1) * topRoom / (1 - topRoom);
+  const span = PLOT.bottom - PLOT.top;
+  const pad = 4 * ((hi - lo) || 1) / (span - 8);                // 4 SVG units of room above and below
+  return { t: t, yOf: (val) => PLOT.top + (hi + pad - val) / ((hi - lo) + 2 * pad) * span };
+}
+
 // ---------- parts shared by every set of stacked charts (storm anomalies, typical year, ...) ----------
 
 // One chart row: the name and unit on the left, the chart, and the source tag at the top right.
-// v = { label, unit }, source = { label, colorVar } or nothing (then "No data").
+// v = { label, unit, onOpen (optional) }, source = { label, colorVar } or nothing (then "No data").
+// With onOpen the name becomes a link (a button that looks like text) that calls onOpen when clicked.
 function chartRow(v, source, svg) {
   const row = document.createElement('div');
   row.className = 'anomaly-chart';
@@ -41,7 +55,16 @@ function chartRow(v, source, svg) {
     '<div class="anomaly-label"><span class="anomaly-name"></span><span class="anomaly-unit"></span></div>' +
     '<div class="anomaly-plot">' + svg + '</div>' +
     '<span class="source-tag"><span class="source-square"></span><span class="source-name"></span></span>';
-  row.querySelector('.anomaly-name').textContent = v.label;
+  const name = row.querySelector('.anomaly-name');
+  name.textContent = v.label;
+  if (v.onOpen) {
+    const link = document.createElement('button');
+    link.type = 'button';
+    link.className = 'anomaly-name detail-link';
+    link.textContent = v.label;
+    link.addEventListener('click', v.onOpen);
+    name.replaceWith(link);
+  }
   row.querySelector('.anomaly-unit').textContent = '(' + v.unit + ')';
   row.querySelector('.source-square').style.background = source ? color(source.colorVar) : color('--color-text-faint');
   row.querySelector('.source-name').textContent = source ? source.label : NO_DATA;
@@ -108,21 +131,47 @@ function segmentsOf(series) {
 //     indexAt(plotX),           the x value under the mouse (SVG units), or -1 (then the line hides)
 //     label(i),                 the text under the axis ("1995-10-04", "September")
 //     panels: [{ yOf(value),    one per chart, top to bottom (yOf null = the chart has no data)
-//                points(i) }] } the values shown at the line: [{ value, color, text }]
+//                points(i),        the values shown at the line: [{ value, color, text }]
+//                xAt(i) }] }       optional: another x for this chart's values (a yearly chart under a monthly line)
 
 // box: the element that holds the charts, the axis and the .comparison layer;
 // getCharts: returns the set (or null when nothing is shown)
+// The line also works with the keyboard: Tab to the charts, then the left and right arrow keys move it one
+// spot (Home and End jump to the first and last), Escape hides it.
 function attachComparisonLine(box, getCharts) {
+  box.tabIndex = 0;
+  box.classList.add('keyboard-charts');
   box.addEventListener('mousemove', (e) => showComparisonLine(box, getCharts(), e.clientX));
-  box.addEventListener('mouseleave', () => hideComparisonLine(box));
+  box.addEventListener('mouseleave', () => { if (document.activeElement !== box) hideComparisonLine(box); });
+  box.addEventListener('blur', () => hideComparisonLine(box));
+  box.addEventListener('keydown', (e) => {
+    const charts = getCharts();
+    if (!charts || !charts.count) return;
+    const last = charts.count - 1;
+    const now = box.comparisonIndex;                       // where the line is now (set by showComparisonLine)
+    let next;
+    if (e.key === 'ArrowRight') next = now === undefined ? 0 : Math.min(last, now + 1);
+    else if (e.key === 'ArrowLeft') next = now === undefined ? last : Math.max(0, now - 1);
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = last;
+    else if (e.key === 'Escape') { hideComparisonLine(box); return; }
+    else return;
+    e.preventDefault();
+    showComparisonLine(box, charts, null, next);
+  });
 }
 
 function hideComparisonLine(box) {
+  if (box) box.comparisonIndex = undefined;
   const layer = (box || $('event-charts')).querySelector('.comparison');
   if (layer) layer.hidden = true;
 }
 
-function showComparisonLine(box, charts, clientX) {
+// the least distance (px) between the texts next to the dots, a bit more than the height of one text
+const CHIP_SPACING = 22;
+
+// clientX = the mouse; or, for the keyboard, clientX is null and forcedIndex is the x value to show
+function showComparisonLine(box, charts, clientX, forcedIndex) {
   const layer = box.querySelector('.comparison');
   if (!charts || !charts.count || !layer) return;
   const plots = box.querySelectorAll('.anomaly-plot svg');
@@ -132,8 +181,9 @@ function showComparisonLine(box, charts, clientX) {
   const scale = first.width / PLOT.width;                 // the SVGs scale with the card width
 
   // the x value under the mouse
-  const index = charts.indexAt((clientX - first.left) / scale);
+  const index = forcedIndex !== undefined ? forcedIndex : charts.indexAt((clientX - first.left) / scale);
   if (index < 0) { hideComparisonLine(box); return; }
+  box.comparisonIndex = index;
 
   const x = first.left - boxRect.left + charts.xOf(index) * scale;
   const top = first.top - boxRect.top + PLOT.top * scale;
@@ -145,13 +195,21 @@ function showComparisonLine(box, charts, clientX) {
   plots.forEach((svg, k) => {
     const panel = charts.panels[k];
     const r = svg.getBoundingClientRect();
-    (panel ? panel.points(index) : [{ value: null, text: NO_DATA }]).forEach((p) => {
+    const px = panel && panel.xAt ? first.left - boxRect.left + panel.xAt(index) * scale : x;
+    // the values of this chart: the dot sits on the curve, the text next to it. Texts of values that lie
+    // close together are moved apart (top to bottom) so that no text covers another one.
+    const items = (panel ? panel.points(index) : [{ value: null, text: NO_DATA }]).map((p) => {
       const known = isNumber(p.value) && panel.yOf;
-      // a dot on the curve with the value; a missing value is shown as "No data" in the middle of the chart
-      const y = known ? r.top - boxRect.top + panel.yOf(p.value) * scale : r.top - boxRect.top + r.height / 2;
-      html += '<div class="hover-value' + (flip ? ' flip' : '') + '" style="left:' + x.toFixed(1) + 'px; top:' + y.toFixed(1) + 'px">' +
-        (known ? '<span class="hover-dot" style="border-color:' + p.color + '"></span>' : '<span class="hover-dot" style="visibility:hidden"></span>') +
-        '<span class="hover-chip">' + (known ? p.text : NO_DATA) + '</span></div>';
+      // a missing value is shown as "No data" in the middle of the chart
+      return { p: p, known: known, y: known ? r.top - boxRect.top + panel.yOf(p.value) * scale : r.top - boxRect.top + r.height / 2 };
+    });
+    let lastY = -Infinity;
+    [...items].sort((i, j) => i.y - j.y).forEach((item) => { item.textY = Math.max(item.y, lastY + CHIP_SPACING); lastY = item.textY; });
+    items.forEach((item) => {
+      const side = flip ? ' flip' : '';
+      if (item.known) html += '<div class="hover-value' + side + '" style="left:' + px.toFixed(1) + 'px; top:' + item.y.toFixed(1) + 'px"><span class="hover-dot" style="border-color:' + item.p.color + '"></span></div>';
+      html += '<div class="hover-value' + side + '" style="left:' + px.toFixed(1) + 'px; top:' + item.textY.toFixed(1) + 'px"><span class="hover-dot" style="visibility:hidden"></span>' +
+        '<span class="hover-chip">' + (item.known ? item.p.text : NO_DATA) + '</span></div>';
     });
   });
   layer.innerHTML = html;
