@@ -1,45 +1,26 @@
+// points.js: the Overview and Satellite screens (the monitoring points).
+//   Site map with the points, year slider, tipping status, point chart with its chips, values for the
+//   year, point info, trend signals, and the download menu (CSV of the data, PNG of the chart).
+// Reads: data/points.json; variables, scenarios and metrics from content/variables.json.
+// Uses: helpers.js, content.js. Used by: main.js (readPointContent, setupSlider, setupExports,
+//   setYear, loadPoints).
+
 // ---------- content (set from content/variables.json and content/texts.json, see readPointContent) ----------
 // No research content is written in this file: variables, labels, units, classes, scenarios and
-// metrics all come from the content/ folder. "colorVar" is the name of a color variable in style.css.
+// metrics all come from the content/ folder. "colorVar" is the name of a color variable in css/base.css.
 
-let YEAR_MIN, YEAR_MAX;   // the year range (variables.json "yearRange")
-let CLASSES = {};         // change classes of the points (variables.json "changeClasses")
 let SCENARIOS = {};       // tipping-point scenarios (variables.json "scenarios")
 let VARS = [];            // variables of the point charts (variables.json "pointVariables")
 let METRICS = [];         // rows of the trend signals card (variables.json "trendMetrics")
-let NO_DATA = 'No data';  // text shown wherever a value is missing (texts.json "messages.noData")
-let UNKNOWN = { label: NO_DATA, colorVar: '--color-text-faint', desc: '' };   // a missing class or scenario
+
 const checked = {};       // which variables are switched on in the point chart
 
 let allPoints = [];
 let selectedId = null;
 
-const $ = (id) => document.getElementById(id);
-
-// Reads a color from the variables at the top of style.css, e.g. color('--color-data-ndvi') gives '#1C3B2E'.
-// A color name that does not exist (a typo in content/variables.json) shows as grey.
-const warnedColors = new Set();
-function color(varName) {
-  const value = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
-  if (value) return value;
-  if (!warnedColors.has(varName)) { warnedColors.add(varName); console.warn('Unknown color ' + varName + ' (check "color" in content/variables.json)'); }
-  return getComputedStyle(document.documentElement).getPropertyValue('--color-text-faint').trim();
-}
-
-// Turns a color name from content/variables.json (e.g. "data-ndvi") into a CSS variable name.
-function colorVarOf(name) {
-  return '--color-' + (name || 'text-faint');
-}
-
 // Copies the point content from content/variables.json into the lists above.
 function readPointContent() {
   const v = CONTENT.variables;
-  YEAR_MIN = v.yearRange.first;
-  YEAR_MAX = v.yearRange.last;
-  NO_DATA = t('messages.noData');
-  UNKNOWN = { label: NO_DATA, colorVar: '--color-text-faint', desc: '' };
-  CLASSES = {};
-  Object.entries(v.changeClasses).forEach(([id, c]) => { CLASSES[id] = { label: c.label, colorVar: colorVarOf(c.color) }; });
   SCENARIOS = {};
   Object.entries(v.scenarios).forEach(([id, s]) => { SCENARIOS[id] = { label: s.label, colorVar: colorVarOf(s.color), desc: s.description || '' }; });
   VARS = v.pointVariables.map((x) => ({ id: x.id, label: x.label, unit: x.unit || '', colorVar: colorVarOf(x.color) }));
@@ -143,30 +124,6 @@ function seriesFor(point, v) {
   return point && Array.isArray(point[v.id]) ? point[v.id] : [];
 }
 
-function isNumber(value) {
-  return typeof value === 'number' && isFinite(value);
-}
-
-// Only the real numbers of a series (missing values are left out).
-function knownValues(series) {
-  return series.filter(isNumber);
-}
-
-// Counts how many decimals the data itself uses (the most found in the list of numbers),
-// so values are shown exactly as precisely as they are stored, never rounded or padded further.
-function decimalsIn(numbers) {
-  return Math.max(0, ...knownValues(numbers).map((n) => {
-    const parts = String(n).split('.');
-    return parts[1] ? parts[1].length : 0;
-  }));
-}
-
-// Formats a value with the same number of decimals as the series it belongs to.
-function formatLike(value, series) {
-  if (!isNumber(value)) return NO_DATA;
-  return value.toFixed(decimalsIn(series));
-}
-
 // A value with its unit, or "No data" (without unit) when the value is missing.
 function valueWithUnit(value, series, unit) {
   return isNumber(value) ? formatLike(value, series) + ' ' + unit : NO_DATA;
@@ -210,7 +167,7 @@ function renderAll() {
     m.setAttribute('aria-pressed', point !== null && m.dataset.id === point.id);
   });
 
-  // top bar + slider (an empty coordinates pill hides itself, see #coords:empty in style.css)
+  // top bar + slider (an empty coordinates pill hides itself, see #coords:empty in css/base.css)
   $('coords').textContent = point ? lonText(point) + ', ' + latText(point) : '';
   $('year-big').textContent = year;
 
@@ -253,9 +210,6 @@ function renderAll() {
     '<div class="trend-row"><div>' + m[0] + '</div><div class="mono r">' + (m[1] ? textOrNoData(vals, m[1]) : '—') +
     '</div><div class="mono r tau">' + textOrNoData(taus, m[2]) + '</div></div>'
   ).join('');
-
-  // the Climatology timeline shows the same year (see climatology.js)
-  updateTimelineYear(year);
 }
 
 // Reads one entry of metricVals / metricTaus, or "No data" when it is missing.
@@ -353,10 +307,7 @@ function renderChart(point, idx) {
 function setYear(year) {
   $('year-slider').value = Math.min(YEAR_MAX, Math.max(YEAR_MIN, year));
   if (allPoints.length) renderAll();
-  else {
-    $('year-big').textContent = $('year-slider').value;
-    updateTimelineYear(currentYear());
-  }
+  else $('year-big').textContent = $('year-slider').value;
 }
 
 // The survey years the arrow buttons step through: those of the selected point,
@@ -386,15 +337,8 @@ function setupSlider() {
 
 // ---------- exports ----------
 
-function download(filename, href) {
-  const a = document.createElement('a');
-  a.href = href;
-  a.download = filename;
-  a.click();
-}
-
-// The exported image does not use style.css. So for every part of the chart we copy
-// the colors the page is showing (from style.css) onto the copy that gets exported.
+// The exported image does not use the css files. So for every part of the chart we copy
+// the colors the page is showing (from the css files) onto the copy that gets exported.
 function copyChartColors(original, copy) {
   const fromParts = original.querySelectorAll('*');
   const toParts = copy.querySelectorAll('*');
@@ -447,131 +391,3 @@ function setupExports() {
     URL.revokeObjectURL(url);
   });
 }
-
-// ---------- navigation: screens and the address (#...) ----------
-//
-// Every page in content/pages.json has its own address (#overview, #satellite, ...), plus #method.
-// Links and buttons only change the address; showScreen() then shows the matching screen.
-// Because every switch changes the address, the browser's back and forward buttons work too.
-
-let RESEARCH_SECTIONS = [];      // page ids from content/pages.json, in menu order
-let DEFAULT_SECTION = null;      // the first page in content/pages.json
-let lastResearchSection = null;  // where the "Research" tab takes you back to
-
-// The Overview theme colors are the default; pages without their own theme in style.css use them.
-const THEME_DEFAULT = 'overview';
-
-// The screen named in the address, or null if the address is empty or unknown.
-function screenFromAddress() {
-  // the part before a slash is the screen: #method/<use case> is still the Method screen (see method.js)
-  const name = location.hash.slice(1).split('/')[0];
-  return name === 'method' || RESEARCH_SECTIONS.includes(name) ? name : null;
-}
-
-// Every research card exists once in index.html (data-card="map", ...). A section has empty slots
-// (data-slot="map", ...). This moves each card into the matching slot of the section being shown,
-// so one card (with its data, selected point and year) can appear in several sections.
-function placeCards(screenEl) {
-  screenEl.querySelectorAll('[data-slot]').forEach((slot) => {
-    const card = document.querySelector('[data-card="' + slot.dataset.slot + '"]');
-    if (card && card.parentElement !== slot) slot.appendChild(card);
-  });
-}
-
-function showScreen() {
-  let screen = screenFromAddress();
-  if (!screen) {
-    // empty or unknown address: show Overview, and correct the address without adding a back-button step
-    screen = DEFAULT_SECTION;
-    history.replaceState(null, '', '#' + screen);
-  }
-  const isMethod = screen === 'method';
-  if (!isMethod) lastResearchSection = screen;
-
-  // show only the matching screen, and move the cards it needs into its slots
-  document.querySelectorAll('[data-screen]').forEach((el) => {
-    el.hidden = el.dataset.screen !== screen;
-    if (!el.hidden) placeCards(el);
-  });
-
-  // sub-navigation: only on research sections, with the current section marked
-  $('subnav').hidden = isMethod;
-  document.querySelectorAll('.subtab').forEach((link) => {
-    const current = link.getAttribute('href') === '#' + screen;
-    link.classList.toggle('active', current);
-    if (current) link.setAttribute('aria-current', 'page');
-    else link.removeAttribute('aria-current');
-  });
-
-  // top bar tabs: Research or Method
-  document.querySelectorAll('.tab').forEach((btn) => {
-    const active = (btn.dataset.tab === 'method') === isMethod;
-    btn.classList.toggle('active', active);
-    btn.setAttribute('aria-selected', active);
-  });
-  // the coordinates belong to a selected point: only shown on pages with the point map
-  const cards = isMethod ? [] : cardsOnPage(screen);
-  $('coords').hidden = !cards.includes('point-map');
-
-  // the timeline places its markers by its width, which is only known once it is visible
-  if (cards.includes('event-timeline')) renderTimeline();
-
-  // section colors (see the SECTION THEMES in style.css): a page without its own theme, and the
-  // Method page, use the Overview colors
-  document.body.dataset.section = isMethod ? THEME_DEFAULT : screen;
-}
-
-function setupNavigation() {
-  // top bar tabs: "Research" goes back to the last research section you visited
-  document.querySelectorAll('.tab').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      location.hash = btn.dataset.tab === 'method' ? 'method' : lastResearchSection;
-    });
-  });
-
-  // footer link "Read the method": opens the Method page at the top
-  $('footer-method-link').addEventListener('click', () => {
-    location.hash = 'method';
-    window.scrollTo(0, 0);
-  });
-
-  // the address changed (a link, a tab, or the back/forward button): show that screen from the top
-  // (a link to one use case on the Method page scrolls to that use case instead: method.js)
-  window.addEventListener('hashchange', () => {
-    showScreen();
-    if (!openMethodTarget()) window.scrollTo(0, 0);
-  });
-
-  showScreen();
-}
-
-// ---------- start ----------
-// First the content (content.js), then everything else. If a content file has a problem,
-// the page shows a message naming the file instead of a blank page.
-
-async function start() {
-  try {
-    await loadContent();
-  } catch (err) {
-    showContentError(err);
-    return;
-  }
-  fillTexts();             // content.js: all data-text="..." texts
-  buildPages();            // content.js: menu, pages and simple cards from content/pages.json
-  readPointContent();
-  RESEARCH_SECTIONS = pageSections().map((s) => s.id);
-  DEFAULT_SECTION = RESEARCH_SECTIONS[0];
-  lastResearchSection = DEFAULT_SECTION;
-
-  setupClimatology();      // climatology.js: events, timeline and charts of the Climatology screen
-  setupClimate();          // climate.js: "Climate at Sisal" on the Climatology screen
-  setupStakeholders();     // stakeholders.js: areas, time card and panel of the Stakeholder screen
-  setupMethod();           // method.js: the Method page and the "Do this analysis yourself" links
-  setupNavigation();
-  setupSlider();
-  setupExports();
-  setYear(YEAR_MAX);
-  loadPoints();
-}
-
-start();

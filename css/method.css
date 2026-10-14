@@ -1,0 +1,95 @@
+/* method.css: the Method page (Figma: method-section, download-row, github-link, example-card,
+   use-case, cite-block, content-tag).
+   A section card has data-section="<page id>", so its file panel and links take the theme colors
+   of that research page (see the section themes in base.css). */
+#method { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+.method-placeholder { color: var(--color-text-faint); font-weight: 400; }
+.method-text { margin: 0; font-size: 14px; line-height: 1.5; color: var(--color-text-body); }
+.method-label { font-size: 11px; font-weight: 600; color: var(--color-text-faint); }
+
+/* page header */
+.method-header { padding: 24px; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.method-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.method-header h1, .method-section h2 { margin: 0; font-family: 'Newsreader', serif; font-weight: 600; font-size: 24px; line-height: 1.2; color: var(--color-text); }
+.method-intro { margin: 0; max-width: 760px; font-size: 14px; line-height: 1.6; color: var(--color-text-body); }
+/* marks content as an example, not final (Figma content-tag) */
+.content-tag { padding: 4px 10px; border-radius: 999px; border: 1px dashed var(--color-text-faint); font-size: 11px; font-weight: 600; color: var(--color-text-muted); }
+/* link to GitHub (Figma github-link): large = button, small = text link */
+.github-link { display: inline-flex; align-items: center; text-decoration: none; font-size: 13px; font-weight: 600; }
+.github-link.large { gap: 8px; padding: 10px 16px 10px 14px; border-radius: 12px; background: var(--color-accent); color: var(--color-text-on-accent); }
+.github-link.small { gap: 6px; color: var(--color-accent); }
+.github-link.small .icon { width: 14px; height: 14px; }
+.github-link.small:hover span { text-decoration: underline; }
+
+/* one analysis: description (about 55%) next to "Code and files" (about 45%) */
+.method-section { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+.method-columns { display: flex; align-items: flex-start; gap: 32px; }
+.method-description { flex: 0 0 53.3%; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+.method-head { display: flex; flex-direction: column; gap: 8px; }
+.method-block { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.method-source { font-size: 13px; font-weight: 600; color: var(--color-accent); text-decoration: none; }
+a.method-source:hover { text-decoration: underline; }
+.method-choices { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.method-choices li { display: flex; align-items: baseline; gap: 8px; font-size: 14px; color: var(--color-text-body); }
+.method-choices li::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--color-text-faint); flex-shrink: 0; transform: translateY(-2px); }
+.method-files { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; padding: 16px 12px; border-radius: 16px; background: var(--color-background); }
+.method-files-label { padding-left: 12px; font-size: 13px; font-weight: 600; color: var(--color-text-muted); }
+.method-files-empty { min-height: 96px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 14px; color: var(--color-text-faint); }
+.method-files-empty.small { min-height: 60px; }
+.method-files-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 4px 0 12px; }
+.download-all { background: var(--color-surface); text-decoration: none; }
+
+/* one downloadable file (Figma download-row): the whole row is the link */
+.download-list { display: flex; flex-direction: column; gap: 2px; }
+.download-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; color: var(--color-text-muted); text-decoration: none; }
+.download-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.download-name { font-size: 13px; font-weight: 700; color: var(--color-text); overflow-wrap: anywhere; }
+.download-description { font-size: 12px; color: var(--color-text-muted); }
+.format-tag { padding: 3px 8px; border-radius: 999px; border: 1px solid var(--color-border); background: var(--color-surface); font-size: 11px; font-weight: 600; color: var(--color-text-body); white-space: nowrap; }
+a.download-row:hover, a.download-row:focus-visible { background: var(--color-surface); box-shadow: 0 2px 8px rgba(28, 59, 46, 0.08); color: var(--color-accent); }
+a.download-row:hover .download-name, a.download-row:focus-visible .download-name { color: var(--color-accent); }
+/* a file that is listed but not in the repository yet */
+.download-row.unavailable { opacity: 0.6; }
+.download-soon { font-size: 11px; font-weight: 600; color: var(--color-text-muted); }
+
+/* "Do it yourself": gallery of what a researcher can make (Figma example-card) */
+.use-cases { display: flex; flex-direction: column; gap: 10px; padding-top: 16px; border-top: 1px solid var(--color-divider); }
+.use-cases-heading { font-size: 13px; font-weight: 600; color: var(--color-text-muted); }
+.use-cases-hint { margin-top: -6px; font-size: 12px; color: var(--color-text-muted); }
+.example-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.example-card { display: flex; flex-direction: column; padding: 0; border-radius: 12px; border: 1px solid var(--color-divider); background: var(--color-surface); box-shadow: 0 2px 8px rgba(28, 59, 46, 0.06); text-align: left; overflow: hidden; }
+.example-card:hover, .example-card:focus-visible { box-shadow: 0 10px 26px rgba(28, 59, 46, 0.07); }
+.example-card.selected { border-color: var(--color-accent); box-shadow: 0 0 0 1px var(--color-accent), 0 10px 26px rgba(28, 59, 46, 0.07); }
+/* the picture is fitted inside a white tile, never cropped; without a picture the tile is grey */
+.example-thumb { display: block; margin: 12px 12px 4px 12px; height: 132px; border-radius: 6px; background: var(--color-map-bg); overflow: hidden; }
+.example-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; background: var(--color-surface); }
+.example-title { display: block; padding: 8px 14px 14px 14px; font-size: 14px; line-height: 1.4; color: var(--color-text); }
+.example-card.selected .example-title { color: var(--color-accent); }
+
+/* the steps and files of the open example (Figma use-case) */
+.use-case { border-radius: 16px; background: var(--color-background); overflow: hidden; }
+.use-case.highlighted { box-shadow: inset 0 0 0 2px var(--color-accent); }
+.use-case-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 18px; background: var(--color-accent); color: var(--color-text-on-accent); font-size: 13px; font-weight: 600; }
+.use-case-bar a { color: inherit; }
+.use-case-body { display: flex; align-items: flex-start; gap: 32px; padding: 16px 12px 16px 18px; }
+.use-case-instructions { flex: 0 0 51.8%; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.use-case-title { font-size: 15px; font-weight: 700; color: var(--color-text); }
+.use-case-name { margin-top: 2px; font-size: 11px; color: var(--color-text-faint); }
+.use-case-steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.use-case-steps li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; line-height: 1.45; color: var(--color-text-body); }
+.use-case-number { width: 20px; height: 20px; border-radius: 50%; background: var(--color-surface); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--color-text-body); flex-shrink: 0; }
+.use-case-files { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.use-case-folder { padding: 4px 0 0 12px; }
+
+/* license and citation (Figma cite-block) */
+.cite-block { display: flex; align-items: flex-start; gap: 32px; padding: 20px 24px; border-radius: 22px; background: var(--color-surface-subtle); }
+.cite-license { flex: 0 0 240px; display: flex; flex-direction: column; gap: 4px; }
+.cite-citation { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.cite-doi { font-size: 12px; color: var(--color-text-muted); }
+
+@media (max-width: 960px) {
+  .method-columns, .use-case-body, .cite-block { flex-direction: column; }
+  .method-description, .use-case-instructions, .cite-license { flex-basis: auto; width: 100%; }
+  .method-files, .use-case-files { width: 100%; }
+  .example-gallery { grid-template-columns: repeat(2, 1fr); }
+}

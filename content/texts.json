@@ -33,7 +33,6 @@
     "metric": "Metric",
     "value": "Value",
     "tau": "τ",
-    "selected": "Selected:",
     "date": "Date",
     "anomalyExplanation": "Anomaly: difference from the 30-year mean for the same calendar day",
 
@@ -72,8 +71,6 @@
     "detailMonthly": "(a) Monthly anomaly with 12-month running mean",
     "detailAnnual": "(b) Annual means with trend line",
     "monthsLong": "January,February,March,April,May,June,July,August,September,October,November,December",
-    "colTypicalYear": "A typical year",
-    "colChange": "Change since 1950",
     "colTrend": "Trend",
 
     "exampleContent": "Example content",
@@ -105,9 +102,7 @@
     "couldNotLoadEvents": "Could not load event data: {error}",
     "filesWillBeAdded": "Files will be added here",
     "stepsWillBeAdded": "Steps will be added here",
-    "chartNotAvailable": "Chart not available",
     "couldNotLoadClimateData": "Could not load the climate charts: {error}",
-    "couldNotLoadClimate": "Could not load the climate table: {error}",
     "couldNotLoadMethod": "The Method page could not be loaded",
     "selectArea": "Select an area on the map or a bar in the timeline to see what stakeholders reported",
     "noObservationsInYear": "No observations in {year}",

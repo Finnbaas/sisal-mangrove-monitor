@@ -1,0 +1,100 @@
+// navigation.js: switching between the screens.
+//   Every page has its own address (#overview, #satellite, #climatology, #stakeholders, #method).
+//   Links only change the address; showScreen() then shows that screen, moves the cards it needs into
+//   place (placeCards) and sets the section colors. The back and forward buttons work too.
+// Reads: the page list of content/pages.json (through content.js).
+// Uses: helpers.js, content.js, method.js (openMethodTarget). Used by: main.js, method.js.
+
+// ---------- navigation: screens and the address (#...) ----------
+//
+// Every page in content/pages.json has its own address (#overview, #satellite, ...), plus #method.
+// Links and buttons only change the address; showScreen() then shows the matching screen.
+// Because every switch changes the address, the browser's back and forward buttons work too.
+
+let RESEARCH_SECTIONS = [];      // page ids from content/pages.json, in menu order
+let DEFAULT_SECTION = null;      // the first page in content/pages.json
+let lastResearchSection = null;  // where the "Research" tab takes you back to
+
+// The Overview theme colors are the default; pages without their own theme in css/base.css use them.
+const THEME_DEFAULT = 'overview';
+
+// The screen named in the address, or null if the address is empty or unknown.
+function screenFromAddress() {
+  // the part before a slash is the screen: #method/<use case> is still the Method screen (see method.js)
+  const name = location.hash.slice(1).split('/')[0];
+  return name === 'method' || RESEARCH_SECTIONS.includes(name) ? name : null;
+}
+
+// Every research card exists once in index.html (data-card="map", ...). A section has empty slots
+// (data-slot="map", ...). This moves each card into the matching slot of the section being shown,
+// so one card (with its data, selected point and year) can appear in several sections.
+function placeCards(screenEl) {
+  screenEl.querySelectorAll('[data-slot]').forEach((slot) => {
+    const card = document.querySelector('[data-card="' + slot.dataset.slot + '"]');
+    if (card && card.parentElement !== slot) slot.appendChild(card);
+  });
+}
+
+function showScreen() {
+  let screen = screenFromAddress();
+  if (!screen) {
+    // empty or unknown address: show Overview, and correct the address without adding a back-button step
+    screen = DEFAULT_SECTION;
+    history.replaceState(null, '', '#' + screen);
+  }
+  const isMethod = screen === 'method';
+  if (!isMethod) lastResearchSection = screen;
+
+  // show only the matching screen, and move the cards it needs into its slots
+  document.querySelectorAll('[data-screen]').forEach((el) => {
+    el.hidden = el.dataset.screen !== screen;
+    if (!el.hidden) placeCards(el);
+  });
+
+  // sub-navigation: only on research sections, with the current section marked
+  $('subnav').hidden = isMethod;
+  document.querySelectorAll('.subtab').forEach((link) => {
+    const current = link.getAttribute('href') === '#' + screen;
+    link.classList.toggle('active', current);
+    if (current) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
+  });
+
+  // top bar tabs: Research or Method
+  document.querySelectorAll('.tab').forEach((btn) => {
+    const active = (btn.dataset.tab === 'method') === isMethod;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-selected', active);
+  });
+  // the coordinates belong to a selected point: only shown on pages with the point map
+  const cards = isMethod ? [] : cardsOnPage(screen);
+  $('coords').hidden = !cards.includes('point-map');
+
+  // section colors (see the section themes in css/base.css): a page without its own theme, and the
+  // Method page, use the Overview colors
+  document.body.dataset.section = isMethod ? THEME_DEFAULT : screen;
+}
+
+function setupNavigation() {
+  // top bar tabs: "Research" goes back to the last research section you visited
+  document.querySelectorAll('.tab').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      location.hash = btn.dataset.tab === 'method' ? 'method' : lastResearchSection;
+    });
+  });
+
+  // footer link "Read the method": opens the Method page at the top
+  $('footer-method-link').addEventListener('click', () => {
+    location.hash = 'method';
+    window.scrollTo(0, 0);
+  });
+
+  // the address changed (a link, a tab, or the back/forward button): show that screen from the top
+  // (a link to one use case on the Method page scrolls to that use case instead: method.js)
+  window.addEventListener('hashchange', () => {
+    showScreen();
+    if (!openMethodTarget()) window.scrollTo(0, 0);
+  });
+
+  showScreen();
+}

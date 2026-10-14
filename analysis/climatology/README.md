@@ -37,7 +37,7 @@ It saves everything in one file: `data/climate/typical-year.json`. Per variable 
 | `seaLevel` | Sea level: monthly cycle relative to the annual mean, no band (satellite altimetry) |
 | `salinity` | Salinity, mean and band (HYCOM, 1993 to 2012 only) |
 
-The website (`climate.js`) draws the charts from this file, in the same style as the storm charts.
+The website (`js/climatology-climate.js`) draws the charts from this file, in the same style as the storm charts.
 The website never calculates numbers itself. Which variables are shown, in which order and with
 which label, is set in `climateVariables` in `content/variables.json`.
 
@@ -56,7 +56,7 @@ and are shown on the website in the "In detail" card.
 
 ## Changing the charts
 
-How the charts look (colors, sizes) is set by the website (`style.css` and `climate.js`), not by
+How the charts look (colors, sizes) is set by the website (`css/charts.css` and `js/climatology-climate.js`), not by
 this script. The settings at the top of `export_typical_year.py` are only the input and output
 files, the salinity period and the number of decimals.
 

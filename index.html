@@ -6,7 +6,13 @@
   <title>Sisal Mangrove Monitor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <!-- styles: base.css first (colors, themes, layout, cards), then one file per screen; charts.css is shared by the storm and climate charts -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/points.css">
+  <link rel="stylesheet" href="css/charts.css">
+  <link rel="stylesheet" href="css/climatology.css">
+  <link rel="stylesheet" href="css/stakeholders.css">
+  <link rel="stylesheet" href="css/method.css">
 </head>
 <body>
   <!-- Texts: every element with data-text="..." gets its text from content/texts.json (see content.js).
@@ -33,7 +39,7 @@
 
     <!-- The research sections (one per page in content/pages.json) are built by content.js and placed
          here, before the card library. Each section has empty slots (data-slot="..."); when the section
-         is shown, app.js moves the ready-made card with the same name (data-card="...") into each slot. -->
+         is shown, navigation.js moves the ready-made card with the same name (data-card="...") into each slot. -->
 
     <!-- CARD LIBRARY: every ready-made card exists only once, here. The names (data-card) are the
          names used in content/pages.json. -->
@@ -84,7 +90,7 @@
           </div>
           <div id="chips"></div>
           <svg id="chart" viewBox="0 0 600 170">
-            <!-- colors of these lines and labels are set in style.css -->
+            <!-- colors of these lines and labels are set in css/points.css -->
             <line class="gridline" x1="0" y1="150" x2="600" y2="150" stroke-width="1"></line>
             <line class="gridline" x1="0" y1="85" x2="600" y2="85" stroke-width="1"></line>
             <line class="gridline" x1="0" y1="20" x2="600" y2="20" stroke-width="1"></line>
@@ -134,34 +140,12 @@
           <div id="metrics"></div>
         </div>
 
-        <!-- CLIMATOLOGY CARDS (filled by climatology.js from data/events.json) -->
-
-        <div class="card" data-card="event-timeline">
-          <div id="timeline-header">
-            <div>
-              <div class="label-xs" data-text="labels.year"></div>
-              <div id="timeline-year"></div>
-            </div>
-            <div id="timeline-selected" hidden>
-              <span class="label-xs" data-text="labels.selected"></span>
-              <span class="selected-dot"></span>
-              <span id="timeline-selected-name"></span>
-              <span class="label-xs" id="timeline-selected-date"></span>
-            </div>
-          </div>
-          <!-- events above the track (each on a stem down to its date), then the time track with its handle -->
-          <div id="timeline">
-            <div id="timeline-events"></div>
-            <div id="timeline-track"><div id="timeline-fill"></div></div>
-            <input type="range" id="timeline-slider" step="1" aria-label="Year">
-            <div id="timeline-years"></div>
-          </div>
-        </div>
+        <!-- CLIMATOLOGY CARDS (filled by climatology-storms.js from data/events.json) -->
 
         <div class="card" data-card="event-list">
           <div class="card-title-row"><div class="card-title" data-text="cardTitles.event-list"></div><div class="expand">&#8599;</div></div>
           <div id="event-list"></div>
-          <!-- how many events there are, and the link that shows the whole list (climatology.js) -->
+          <!-- how many events there are, and the link that shows the whole list (climatology-storms.js) -->
           <div id="event-list-foot">
             <span id="event-list-note"></span>
             <button type="button" id="event-list-more" hidden></button>
@@ -179,12 +163,12 @@
               </div>
               <div class="expand">&#8599;</div>
             </div>
-            <!-- one chart per event variable, the shared date axis and the comparison line (drawn by climatology.js) -->
+            <!-- one chart per event variable, the shared date axis and the comparison line (drawn by climatology-storms.js) -->
             <div id="event-charts"></div>
           </div>
         </div>
 
-        <!-- CLIMATE AT SISAL (filled by climate.js). The charts are drawn like the storm charts above, from
+        <!-- CLIMATE AT SISAL (filled by climatology-climate.js). The charts are drawn like the storm charts above, from
              data/climate/typical-year.json (made by analysis/climatology/export_typical_year.py) -->
 
         <!-- the small card next to the heading of "Climate at Sisal": where the data comes from -->
@@ -201,7 +185,7 @@
             </div>
             <div class="expand">&#8599;</div>
           </div>
-          <!-- one chart per variable, one shared month axis and the comparison line (drawn by climate.js) -->
+          <!-- one chart per variable, one shared month axis and the comparison line (drawn by climatology-climate.js) -->
           <div id="typical-year-charts" class="chart-stack"></div>
           <p class="fine" id="typical-year-status"></p>
         </div>
@@ -217,9 +201,10 @@
           <div id="climate-change-charts" class="chart-stack">
             <p class="placeholder-text" data-text="messages.notYetAvailable"></p>
           </div>
+          <p class="fine" id="climate-change-status"></p>
         </div>
 
-        <!-- "In detail": one tab per variable; the charts in it are not filled yet (climate.js) -->
+        <!-- "In detail": one tab per variable; the charts in it are not filled yet (climatology-climate.js) -->
         <div class="card" data-card="climate-detail">
           <div class="card-title-row"><div class="card-title" data-text="cardTitles.climate-detail"></div></div>
           <div id="climate-detail-tabs" class="detail-tabs"></div>
@@ -284,12 +269,17 @@
     <button id="footer-method-link" class="footer-link" type="button" data-text="footer.methodLink"></button>
   </footer>
 
-  <!-- content.js, climatology.js, climate.js, stakeholders.js and method.js only define functions; app.js starts everything -->
-  <script src="content.js"></script>
-  <script src="climatology.js"></script>
-  <script src="climate.js"></script>
-  <script src="stakeholders.js"></script>
-  <script src="method.js"></script>
-  <script src="app.js"></script>
+  <!-- scripts: every file only defines functions, except main.js, which starts everything and comes last.
+       The order matters: helpers.js and content.js are used by all others; charts.js by both climatology files. -->
+  <script src="js/helpers.js"></script>
+  <script src="js/content.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/navigation.js"></script>
+  <script src="js/points.js"></script>
+  <script src="js/climatology-storms.js"></script>
+  <script src="js/climatology-climate.js"></script>
+  <script src="js/stakeholders.js"></script>
+  <script src="js/method.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>

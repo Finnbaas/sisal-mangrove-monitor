@@ -1,0 +1,263 @@
+// climatology-storms.js: "Storms at Sisal" on the Climatology page.
+//   The list of storms and extreme events, and for the selected storm one anomaly chart per variable
+//   (content/variables.json "eventVariables"), a shared date axis and the comparison line.
+// Reads: data/events.json (see CLAUDE.md "Structure of data/events.json").
+// Uses: helpers.js, content.js, charts.js. Used by: main.js (setupStorms).
+
+// ---------- content (set from content/variables.json and content/texts.json, see readStormContent) ----------
+
+let EVENT_VARS = [];   // one chart per entry, top to bottom (variables.json "eventVariables"; "id" = field in events.json)
+let SOURCES = {};        // where a variable's data comes from (variables.json "sources")
+let MONTHS = [];         // month names for the date labels (texts.json "months")
+
+function readStormContent() {
+  const v = CONTENT.variables;
+  EVENT_VARS = v.eventVariables.map((x) => ({ id: x.id, label: x.label, unit: x.unit || '', colorVar: colorVarOf(x.color) }));
+  SOURCES = {};
+  Object.entries(v.sources).forEach(([id, s]) => { SOURCES[id] = { label: s.label, colorVar: colorVarOf(s.color) }; });
+  MONTHS = Array.isArray(CONTENT.texts.months) && CONTENT.texts.months.length === 12 ? CONTENT.texts.months : ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+}
+
+const DAY_MARGIN = 2;          // empty days drawn before the first and after the last day of data
+
+// ---------- state ----------
+
+let events = [];               // contents of data/events.json
+let selectedEventId = null;    // no event selected at the start
+let chartScales = [];          // per chart: how to turn a value into a y position (used by the comparison line)
+
+// ---------- loading ----------
+
+async function loadEvents() {
+  try {
+    const response = await fetch('data/events.json');
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    events = await response.json();
+  } catch (err) {
+    $('events-status').textContent = t('messages.couldNotLoadEvents', { error: err.message });
+    console.error(err);
+  }
+  renderEventList();
+  renderEventCharts();
+}
+
+function setupStorms() {
+  readStormContent();
+  setupComparisonLine();
+  loadEvents();
+}
+
+// ---------- small helpers ----------
+
+function getSelectedEvent() {
+  return events.find((e) => e.id === selectedEventId) || null;
+}
+
+// "1995-09" -> { year: 1995, month: 9 }, or null when the text is not a valid month
+function parseMonth(text) {
+  const match = /^(\d{4})-(\d{2})$/.exec(text || '');
+  if (!match) return null;
+  const month = parseInt(match[2], 10);
+  return month >= 1 && month <= 12 ? { year: parseInt(match[1], 10), month: month } : null;
+}
+
+// "Sep 1995", or "No data" when the month is missing
+function monthLabel(ev) {
+  const m = parseMonth(ev.month);
+  return m ? MONTHS[m.month - 1] + ' ' + m.year : NO_DATA;
+}
+
+// A value with its sign ("+10.88", "−2.16"), with as many decimals as the data uses.
+function signedValue(value, series) {
+  if (!isNumber(value)) return NO_DATA;
+  const sign = value > 0 ? '+' : value < 0 ? '−' : '';
+  return sign + formatLike(Math.abs(value), series);
+}
+
+function seriesOf(ev, v) {
+  return Array.isArray(ev[v.id]) ? ev[v.id] : [];
+}
+
+// ---------- selecting an event ----------
+
+// Click a row to select that event; click the selected one again to deselect it.
+function selectEvent(id) {
+  selectedEventId = selectedEventId === id ? null : id;
+  renderEventList();
+  renderEventCharts();
+}
+
+// ---------- event list ----------
+
+// The list shows the first EVENT_LIST_ROWS events; the link under it shows all of them.
+const EVENT_LIST_ROWS = 5;
+let showAllEvents = false;
+
+function renderEventList() {
+  const list = $('event-list');
+  list.innerHTML = '';
+  // the selected event always stays in the list
+  const selectedIndex = events.findIndex((e) => e.id === selectedEventId);
+  const shortList = !showAllEvents && events.length > EVENT_LIST_ROWS && selectedIndex < EVENT_LIST_ROWS;
+  const shown = shortList ? events.slice(0, EVENT_LIST_ROWS) : events;
+
+  // under the list: the number of events since the first one, and the "Show all" link
+  const years = events.map((e) => parseMonth(e.month)).filter(Boolean).map((m) => m.year);
+  $('event-list-note').textContent = years.length ? t('labels.eventListNote', { count: events.length, year: Math.min(...years) }) : '';
+  const more = $('event-list-more');
+  more.hidden = !shortList;
+  more.textContent = t('labels.showAllEvents', { count: events.length });
+  more.onclick = () => { showAllEvents = true; renderEventList(); };
+
+  shown.forEach((ev) => {
+    const row = document.createElement('button');
+    row.className = 'event-row' + (ev.id === selectedEventId ? ' selected' : '');
+    row.setAttribute('aria-pressed', ev.id === selectedEventId);
+    row.innerHTML =
+      '<span class="event-row-dot"></span>' +
+      '<span class="event-row-text"><span class="event-row-name"></span><span class="event-row-date"></span></span>' +
+      '<span class="event-type"></span>';
+    row.querySelector('.event-row-name').textContent = ev.name || NO_DATA;
+    row.querySelector('.event-row-date').textContent = monthLabel(ev);
+    row.querySelector('.event-type').textContent = ev.type || NO_DATA;
+    row.addEventListener('click', () => selectEvent(ev.id));
+    list.appendChild(row);
+  });
+}
+
+// ---------- the six anomaly charts ----------
+
+// x position (SVG units) of day number i, for an event with n days of data
+function chartX(i, n) {
+  return PLOT.left + (i + DAY_MARGIN) / (n - 1 + 2 * DAY_MARGIN) * (PLOT.right - PLOT.left);
+}
+
+// Weekly gridlines: the days that fall on a Saturday (the same days as in the Figma design).
+function weeklyDays(dates) {
+  return dates.map((d, i) => ({ d: d, i: i })).filter((p) => new Date(p.d + 'T00:00:00Z').getUTCDay() === 6);
+}
+
+function renderEventCharts() {
+  const ev = getSelectedEvent();
+  $('event-charts-empty').hidden = !!ev;
+  $('event-charts-content').hidden = !ev;
+  chartScales = [];
+  stormCharts = null;
+  hideComparisonLine();
+  if (!ev) return;
+
+  $('event-title').textContent = (ev.name || NO_DATA) + ' (' + monthLabel(ev) + ')';
+  $('event-subtitle').textContent = t('labels.anomalyExplanation') + ' (' + (ev.baseline || NO_DATA) + ')';
+
+  const dates = Array.isArray(ev.dates) ? ev.dates : [];
+  const n = dates.length;
+  const weeks = weeklyDays(dates);
+  const box = $('event-charts');
+  box.innerHTML = '';
+
+  // no event variables listed in content/variables.json yet: say so instead of drawing empty charts
+  if (!EVENT_VARS.length) {
+    box.innerHTML = '<p class="placeholder-text"></p>';
+    box.firstChild.textContent = t('messages.notYetAvailable');
+    return;
+  }
+
+  EVENT_VARS.forEach((v) => {
+    const series = seriesOf(ev, v);
+    const source = SOURCES[(ev.sources || {})[v.id]];
+    box.appendChild(chartRow(v, source, chartSvg(series, n, weeks, v)));
+  });
+
+  // one shared date axis under all charts, with a label every week
+  if (n) box.appendChild(sharedAxis(weeks.map((w) => ({ x: chartX(w.i, n), text: w.d })), t('labels.date')));
+
+  // the comparison line and its labels are drawn on top of the charts
+  box.insertAdjacentHTML('beforeend', '<div id="comparison" class="comparison" hidden></div>');
+
+  // what the comparison line needs to know about these charts (see showComparisonLine)
+  const scales = chartScales;
+  stormCharts = {
+    count: n,
+    xOf: (i) => chartX(i, n),
+    // the day under the mouse (only days inside the data range)
+    indexAt: (plotX) => {
+      const day = Math.round((plotX - PLOT.left) / (PLOT.right - PLOT.left) * (n - 1 + 2 * DAY_MARGIN) - DAY_MARGIN);
+      return plotX < PLOT.left || day < 0 || day > n - 1 ? -1 : day;
+    },
+    label: (i) => dates[i],
+    panels: EVENT_VARS.map((v, k) => ({
+      yOf: scales[k] ? scales[k].yOf : null,
+      points: (i) => {
+        const sc = scales[k];
+        const value = sc ? sc.series[i] : null;
+        return [{ value: value, color: color(v.colorVar), text: isNumber(value) ? signedValue(value, sc.series) + ' ' + v.unit : NO_DATA }];
+      }
+    }))
+  };
+}
+
+// Draws one storm anomaly chart as SVG text. Also stores how values map to y positions in chartScales.
+function chartSvg(series, n, weeks, v) {
+  const known = knownValues(series);
+  // vertical gridlines are drawn even without data, so the charts stay aligned
+  const head = chartHead(v, weeks.map((w) => chartX(w.i, n)), 'anomaly');
+  if (!n || !known.length) {
+    chartScales.push(null);
+    return chartNoData(head);
+  }
+
+  // y scale: room for the ticks and the data, plus space for the label at the most extreme value
+  const min = Math.min(...known), max = Math.max(...known);
+  const t = ticksFor(min, max);
+  let extremeIndex = 0;
+  series.forEach((val, i) => { if (isNumber(val) && Math.abs(val) > Math.abs(series[extremeIndex] || 0)) extremeIndex = i; });
+  const extreme = series[extremeIndex];
+  const atTop = extreme >= 0;
+  const lo = Math.min(min, t.ticks[0]), hi = Math.max(max, t.ticks[t.ticks.length - 1]);
+  const span = PLOT.bottom - PLOT.top;
+  const perUnit = (span - PLOT.labelRoom - 4) / ((hi - lo) || 1);
+  const yMax = hi + (atTop ? PLOT.labelRoom : 4) / perUnit;
+  const yMin = lo - (atTop ? 4 : PLOT.labelRoom) / perUnit;
+  const yOf = (val) => PLOT.top + (yMax - val) / (yMax - yMin) * span;
+  chartScales.push({ yOf: yOf, series: series, v: v });
+
+  const lineColor = color(v.colorVar);
+  // horizontal gridlines, tick marks and tick values
+  let svg = head + chartYAxis(t, yOf);
+
+  // the data, split where values are missing (gaps are not drawn)
+  const zero = yOf(0);
+  segmentsOf(series).forEach((seg) => {
+    // add the exact points where the line crosses zero, so both fills meet the zero line cleanly
+    const pts = [];
+    seg.forEach((p, k) => {
+      pts.push([chartX(p.i, n), p.val]);
+      const next = seg[k + 1];
+      if (next && ((p.val > 0 && next.val < 0) || (p.val < 0 && next.val > 0))) {
+        const share = p.val / (p.val - next.val);
+        pts.push([chartX(p.i, n) + (chartX(next.i, n) - chartX(p.i, n)) * share, 0]);
+      }
+    });
+    const area = (clamp) => 'M ' + pts[0][0].toFixed(1) + ' ' + zero.toFixed(1) + ' ' +
+      pts.map((p) => 'L ' + p[0].toFixed(1) + ' ' + yOf(clamp(p[1])).toFixed(1)).join(' ') +
+      ' L ' + pts[pts.length - 1][0].toFixed(1) + ' ' + zero.toFixed(1) + ' Z';
+    // above zero at full strength, below zero at 35%
+    svg += '<path d="' + area((x) => Math.max(x, 0)) + '" fill="' + lineColor + '"></path>' +
+      '<path d="' + area((x) => Math.min(x, 0)) + '" fill="' + lineColor + '" fill-opacity="0.35"></path>';
+    if (pts.length === 1) svg += '<circle cx="' + pts[0][0].toFixed(1) + '" cy="' + yOf(pts[0][1]).toFixed(1) + '" r="2.5" fill="' + lineColor + '"></circle>';
+    else svg += '<polyline points="' + pts.map((p) => p[0].toFixed(1) + ',' + yOf(p[1]).toFixed(1)).join(' ') + '" fill="none" stroke="' + lineColor + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"></polyline>';
+  });
+  svg += '<rect class="plot-axis" x="' + PLOT.left + '" y="' + Math.round(zero) + '" width="' + (PLOT.right - PLOT.left) + '" height="1"></rect>';
+
+  // label at the most extreme value, with its sign
+  const ex = Math.min(PLOT.right - 30, Math.max(PLOT.left + 30, chartX(extremeIndex, n)));
+  const ey = atTop ? yOf(extreme) - 4 : yOf(extreme) + 13;
+  svg += '<text class="plot-extreme" x="' + ex.toFixed(1) + '" y="' + ey.toFixed(1) + '" text-anchor="middle">' + signedValue(extreme, series) + '</text>';
+  return svg + '</svg>';
+}
+
+let stormCharts = null;   // the storm anomaly charts, as such a set (made in renderEventCharts)
+
+function setupComparisonLine() {
+  attachComparisonLine($('event-charts'), () => stormCharts);
+}

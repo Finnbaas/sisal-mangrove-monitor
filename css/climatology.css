@@ -1,0 +1,62 @@
+/* climatology.css: the Climatology page: event list, storm card, data source card and "In detail"
+   (Figma components: event-row, event-list, detail-tab, graph-placeholder).
+   The stacked charts themselves are styled in charts.css. */
+
+/* event list (Figma event-list / event-row) */
+#event-list { display: flex; flex-direction: column; gap: 2px; }
+.event-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+.event-row:hover { background: var(--color-surface-subtle); }
+.event-row.selected { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
+.event-row-dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--color-text); background: var(--color-surface); flex-shrink: 0; }
+.event-row.selected .event-row-dot { background: var(--color-accent); border-color: var(--color-accent); }
+.event-row-text { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+.event-row-name { font-size: 13px; font-weight: 600; color: var(--color-text); }
+.event-row.selected .event-row-name { color: var(--color-accent); }
+.event-row-date { font-size: 11px; color: var(--color-text-muted); }
+.event-type { font-size: 11px; color: var(--color-text-body); background: var(--color-surface-subtle); border-radius: 999px; padding: 3px 8px; white-space: nowrap; }
+.event-row.selected .event-type { background: var(--color-surface); }
+/* under the list: "18 storms since 1950" and the "Show all" link (Figma list-note-wrap) */
+#event-list-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px 0 12px; }
+#event-list-note { font-size: 11px; color: var(--color-text-muted); }
+#event-list-note:empty { display: none; }
+#event-list-more { margin-left: auto; padding: 0; border: none; background: none; font-size: 13px; font-weight: 600; color: var(--color-accent); }
+#event-list-more:hover { text-decoration: underline; }
+
+/* event charts card */
+#event-charts-empty { min-height: 320px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 14px; color: var(--color-text-muted); }
+
+/* ---------- Climate at Sisal on the Climatology page ----------
+   The charts use the storm chart styles above (.anomaly-chart, .date-axis, .comparison). */
+/* the small "Where the data comes from" card next to the heading (Figma card-data-sources) */
+.climate-sources-card { flex: 0 0 340px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.climate-sources-card img { width: 100%; height: 130px; object-fit: cover; object-position: left center; border-radius: 12px; border: 1px solid var(--color-map-bg); display: block; }
+/* "In detail": tabs (Figma detail-tab), a header line, two chart places and the trend */
+[data-card="climate-detail"] { padding: 24px; }
+[data-card="climate-detail"] > .card-title-row { margin-bottom: 14px; }
+.detail-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.detail-tab { display: flex; align-items: center; gap: 7px; padding: 7px 13px 7px 11px; border-radius: 999px; border: 1.5px solid var(--color-divider); background: transparent; font-size: 12px; color: var(--color-text-muted); }
+.detail-tab:hover { background: var(--color-surface-subtle); color: var(--color-text); }
+.detail-tab.selected { background: var(--color-surface-subtle); border-color: var(--color-text-body); color: var(--color-text); font-weight: 600; }
+.detail-swatch { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+.detail-header { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.detail-name { font-size: 15px; font-weight: 700; color: var(--color-text); }
+.detail-facts { font-size: 14px; color: var(--color-text-muted); }
+.detail-chart { min-height: 200px; display: flex; flex-direction: column; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--color-map-bg); background: var(--color-surface-subtle); margin-bottom: 10px; }
+/* chart (a) is as wide as chart (b), which has the trend next to it */
+#climate-detail-body > .detail-chart { margin-right: 340px; }
+.detail-chart-title { font-size: 13px; font-weight: 600; color: var(--color-text-body); }
+.detail-chart .placeholder-text { margin: auto; }
+.detail-row { display: flex; gap: 20px; align-items: stretch; }
+.detail-row .detail-chart { flex: 1; margin-bottom: 0; }
+.detail-trend { flex: 0 0 320px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px 16px; border-radius: 12px; background: var(--color-surface-subtle); }

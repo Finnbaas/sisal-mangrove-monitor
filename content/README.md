@@ -1,7 +1,7 @@
 # Editing the content of the site
 
 Everything the site **says and shows** is set in this folder. You can change it without
-touching the code (`app.js`, `climatology.js`, `climate.js`, `stakeholders.js`, `method.js`, `content.js`).
+touching the code (the `js/` and `css/` folders).
 
 ## The rule: `data/` versus `content/`
 
@@ -76,7 +76,6 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 | `point-values` | Values of the selected point for the chosen year |
 | `point-info` | Change class and coordinates of the selected point |
 | `trend-signals` | EWS metrics and Kendall's tau of the selected point |
-| `event-timeline` | Timeline of storms and extreme events |
 | `event-list` | List of storms and extreme events |
 | `event-charts` | The anomaly charts of the selected event, one per event variable |
 | `climate-sources` | Small "Where the data comes from" card with the map of the data cells (used as `aside` of "Climate at Sisal") |
@@ -126,9 +125,9 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 - `id` must be the **exact field name** in `data/points.json`. If the data has no such field,
   the site shows "No data" for it.
 - `shownAtStart`: whether its line is switched on when the page opens.
-- `color`: the name of a color from the design (Figma variables / top of `style.css`), without
+- `color`: the name of a color from the design (Figma variables / top of `css/base.css`), without
   `--color-`. A **new** color is a design change: ask the designer to add it in Figma and
-  `style.css` first. A color name that does not exist shows as grey.
+  `css/base.css` first. A color name that does not exist shows as grey.
 
 `eventVariables` works the same way for the storm charts (`id` = field name in `data/events.json`).
 Each one becomes one chart; any number is possible. `sources` names the data sources that
@@ -191,24 +190,20 @@ pipeline: see `data/stakeholder-imagery/README.txt`.
 
 ## climate.json: "Climate at Sisal"
 
-The trends shown in "Change since 1950" and "In detail". The charts themselves come from `data/`.
+The year axis and the verdict badges of "Change since 1950" and "In detail". The trend numbers and the charts come from `data/climate/change.json`.
 
 ```json
 { "years": { "first": 1950, "last": 2025 },
   "badges": { "significant": "Significant", "borderline": "Borderline", ... },
   "trends": {
-    "airTemperature": { "lines": [ "Max +0.09 ± 0.04 °C/decade", "Min +0.13 ± 0.03 °C/decade" ], "badge": "significant" },
+    "airTemperature": { "badge": "significant" },
     ... } }
 ```
 
 - `years`: the year axis of "Change since 1950".
 - `badges`: the text of each badge. The key (`significant`, `borderline`, `not-robust`,
   `no-trend`, `to-confirm`) also sets its color.
-- `trends`: one entry per variable (`id` from `climateVariables`). `lines` are the trend texts
-  exactly as shown, copied from the notebook; `badge` is one key of `badges`. For a variable
-  with `seriesLabels`, start each line with that name ("Max ...", "Min ..."): its "In detail" tab
-  then shows only its own line. A variable without an entry shows no trend in "Change since 1950"
-  and "Not yet available" in "In detail".
+- `trends`: one entry per variable (`id` from `climateVariables`): `badge` is one key of `badges`, your verdict on the trend. The trend value itself is shown from the data. A variable without an entry shows no badge.
 
 ## texts.json: short texts
 

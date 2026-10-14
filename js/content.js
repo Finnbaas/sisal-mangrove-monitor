@@ -1,15 +1,11 @@
-// =====================================================================================
-// CONTENT: everything the team writes lives in the content/ folder (see content/README.md).
-//
-// This file
-//   - loads content/pages.json, variables.json and texts.json
-//   - checks them, and shows a clear message naming the file when one cannot be read
-//   - fills every text on the page that has data-text="..." (from texts.json)
-//   - builds the sub-navigation, the research sections and the simple cards from pages.json
-//   - shows a placeholder when a page or card has no content yet
-//
-// app.js calls loadContent() first and only starts the rest when the content is ready.
-// =====================================================================================
+// content.js: loads the team's content files and builds the pages from them.
+//   - loads and checks content/pages.json, variables.json and texts.json; if one cannot be read,
+//     the page shows a message naming the file instead of a blank page
+//   - fills every element with data-text="..." from texts.json; t('labels.year') gives one text
+//   - builds the sub-navigation, the pages, the parts with their section navigation, and the simple
+//     cards (image, text, placeholder, planned, group) from pages.json
+// Reads: content/pages.json, content/variables.json, content/texts.json (see content/README.md).
+// Used by: every screen file (CONTENT, t, parseJsonFile); main.js calls loadContent() first.
 
 let CONTENT = null;   // { pages, variables, texts } once loaded
 
@@ -375,7 +371,7 @@ function plannedCard(item) {
 
 // { "type": "group", "title": ..., "cards": ["card-a", "card-b"] }
 // One card with a small title that holds ready-made cards side by side, each with a light border
-// instead of its own shadow, so they read as parts of one card. Their rows line up (style.css).
+// instead of its own shadow, so they read as parts of one card. Their rows line up (css/base.css).
 function groupCard(item, ready, pageId) {
   const card = simpleCard('group-card', item.title, false);
   const row = document.createElement('div');

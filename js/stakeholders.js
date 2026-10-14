@@ -1,15 +1,8 @@
-// The Stakeholder screen (Figma: stakeholder-area, year-filter, year-handle, observation-bar,
-// certainty-legend, imagery-label, map-message, area-header, observation-box, entry-switcher).
-//
-// In interviews, stakeholders pointed out areas where they saw mangrove change. This file shows:
-//   - the areas on the map (card "stakeholder-map")
-//   - one slider that is also the time axis of the observation bars (card "stakeholder-time")
-//   - what stakeholders said about the selected area (card "stakeholder-panel")
-//
-// All content comes from content/stakeholders.json (written by the team). The yearly map images
-// come from data/stakeholder-imagery/ (made by the pipeline). Nothing is written in this file.
-// This file uses helpers from app.js ($, color, CLASSES, UNKNOWN, YEAR_MIN, YEAR_MAX) and
-// content.js (t, parseJsonFile, ContentError).
+// stakeholders.js: the Stakeholder screen.
+//   The areas where stakeholders saw mangrove change, on the map image of the selected year; one slider
+//   that is also the time axis of the observation bars; and what stakeholders said about the selected area.
+// Reads: content/stakeholders.json (written by the team) and the map images in data/stakeholder-imagery/.
+// Uses: helpers.js, content.js. Used by: main.js (setupStakeholders).
 
 const STAKEHOLDER_FILE = 'content/stakeholders.json';
 
@@ -100,17 +93,6 @@ function setupStakeholders() {
 
 // ---------- small helpers ----------
 
-// Makes a text from the content file safe to place in the page.
-function shText(value) {
-  return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-// A text from the content file, or "Not yet available" (in a lighter color) when it is empty.
-function shTextOrPlaceholder(value) {
-  if (value !== undefined && value !== null && String(value).trim() !== '') return shText(value);
-  return '<span class="sh-placeholder">' + shText(t('messages.notYetAvailable')) + '</span>';
-}
-
 function areaByNumber(number) {
   return stakeholders.areas.find((a) => a.number === number);
 }
@@ -118,7 +100,7 @@ function areaByNumber(number) {
 // Label and colors of an area's class (the same change classes as the Satellite page).
 function areaClass(area) {
   const cls = CLASSES[area.class] || UNKNOWN;
-  // "--c" is the class color and "--c-tint" its light background (see style.css)
+  // "--c" is the class color and "--c-tint" its light background (see css/stakeholders.css)
   return { label: cls.label, style: '--c: var(' + cls.colorVar + '); --c-tint: var(' + cls.colorVar + '-tint, var(--color-surface-subtle));' };
 }
 
@@ -213,7 +195,7 @@ function renderTrackYears() {
 function renderCertaintyLegend() {
   const styles = [['exact', 'labels.certaintyExact'], ['approximate', 'labels.certaintyApproximate'], ['ongoing', 'labels.certaintyOngoing'], ['expected', 'labels.certaintyExpected']];
   $('sh-certainty-legend').innerHTML = styles.map(([style, label]) =>
-    '<div class="sh-certainty"><span class="sh-sample"><span class="sh-bar-shape ' + style + '"><i></i></span></span>' + shText(t(label)) + '</div>').join('');
+    '<div class="sh-certainty"><span class="sh-sample"><span class="sh-bar-shape ' + style + '"><i></i></span></span>' + escapeHtml(t(label)) + '</div>').join('');
 }
 
 // The map: image of the year, the areas that have an observation in that year, legend and messages.
@@ -230,9 +212,9 @@ function renderStakeholderMap() {
     const s = a.shape;
     const place = 'left:' + s.leftPct + '%; top:' + s.topPct + '%; width:' + s.widthPct + '%; height:' + s.heightPct + '%;';
     const selected = a.number === shArea;
-    return '<button type="button" class="sh-area' + (selected ? ' selected' : '') + '" data-area="' + shText(a.number) + '" aria-pressed="' + selected + '"' +
-      ' title="' + shText(a.zone || '') + '" aria-label="' + shText(t('labels.area', { number: a.number }) + (a.zone ? ', ' + a.zone : '')) + '"' +
-      ' style="' + place + areaClass(a).style + '"><span class="sh-area-number">' + shText(a.number) + '</span></button>';
+    return '<button type="button" class="sh-area' + (selected ? ' selected' : '') + '" data-area="' + escapeHtml(a.number) + '" aria-pressed="' + selected + '"' +
+      ' title="' + escapeHtml(a.zone || '') + '" aria-label="' + escapeHtml(t('labels.area', { number: a.number }) + (a.zone ? ', ' + a.zone : '')) + '"' +
+      ' style="' + place + areaClass(a).style + '"><span class="sh-area-number">' + escapeHtml(a.number) + '</span></button>';
   }).join('');
 
   // a year without observations: say so on the map
@@ -245,7 +227,7 @@ function renderStakeholderMap() {
   stakeholders.areas.forEach((a) => { if (!seen.some((x) => x.class === a.class)) seen.push(a); });
   $('sh-legend').innerHTML = seen.map((a) => {
     const cls = areaClass(a);
-    return '<div class="lg" style="' + cls.style + '"><span class="lg-dot" style="background: var(--c)"></span>' + shText(cls.label) + '</div>';
+    return '<div class="lg" style="' + cls.style + '"><span class="lg-dot" style="background: var(--c)"></span>' + escapeHtml(cls.label) + '</div>';
   }).join('');
 }
 
@@ -284,13 +266,13 @@ function renderStakeholderRows() {
     let left = yearPct(o.startYear), right = yearPct(end);
     if (end === o.startYear) { left = Math.max(0, left - oneYear / 2); right = Math.min(100, left + oneYear); }
     const state = (o.area === shArea ? ' selected' : '') + (observationActive(o) ? '' : ' dimmed');
-    const tooltip = '<span class="sh-tooltip' + (left > 60 ? ' flip' : '') + '"><b>' + shTextOrPlaceholder(area.zone) + '</b>' +
-      '<span class="sh-tooltip-years">' + shText(observationYears(o)) + '</span>' +
-      '<span class="lg"><span class="lg-dot" style="background: var(--c)"></span>' + shText(cls.label) + '</span></span>';
+    const tooltip = '<span class="sh-tooltip' + (left > 60 ? ' flip' : '') + '"><b>' + textOrPlaceholder('sh-placeholder', area.zone) + '</b>' +
+      '<span class="sh-tooltip-years">' + escapeHtml(observationYears(o)) + '</span>' +
+      '<span class="lg"><span class="lg-dot" style="background: var(--c)"></span>' + escapeHtml(cls.label) + '</span></span>';
     return '<div class="sh-row' + state + '" style="' + cls.style + '">' +
-      '<div class="sh-row-number">' + shText(o.area) + '</div>' +
-      '<div class="sh-row-scale"><button type="button" class="sh-bar" data-area="' + shText(o.area) + '" aria-pressed="' + (o.area === shArea) + '"' +
-      ' aria-label="' + shText(t('labels.area', { number: o.area }) + ', ' + observationYears(o) + ', ' + cls.label) + '"' +
+      '<div class="sh-row-number">' + escapeHtml(o.area) + '</div>' +
+      '<div class="sh-row-scale"><button type="button" class="sh-bar" data-area="' + escapeHtml(o.area) + '" aria-pressed="' + (o.area === shArea) + '"' +
+      ' aria-label="' + escapeHtml(t('labels.area', { number: o.area }) + ', ' + observationYears(o) + ', ' + cls.label) + '"' +
       ' style="left:' + left + '%; width:' + (right - left) + '%">' +
       '<span class="sh-bar-shape ' + observationStyle(o) + '"><i></i></span>' + tooltip + '</button></div></div>';
   }).join('');
@@ -316,28 +298,28 @@ function renderStakeholderPanel() {
   const count = t(key, { count: shown.length, year: shYear });
   const others = all.length - shown.length;
 
-  const box = (title, body) => '<div class="observation-box"><div class="observation-title">' + shText(t(title)) + '</div>' + body + '</div>';
-  const textBox = (title, value) => box(title, '<div class="observation-text">' + shTextOrPlaceholder(value) + '</div>');
+  const box = (title, body) => '<div class="observation-box"><div class="observation-title">' + escapeHtml(t(title)) + '</div>' + body + '</div>';
+  const textBox = (title, value) => box(title, '<div class="observation-text">' + textOrPlaceholder('sh-placeholder', value) + '</div>');
   const quotes = (o.quotes || []).map((q) =>
-    '<div class="sh-quote"><div class="observation-text">“' + shTextOrPlaceholder(q.text) + '”</div>' +
-    (q.name ? '<div class="sh-quote-name">— ' + shText(q.name) + '</div>' : '') + '</div>').join('');
+    '<div class="sh-quote"><div class="observation-text">“' + textOrPlaceholder('sh-placeholder', q.text) + '”</div>' +
+    (q.name ? '<div class="sh-quote-name">— ' + escapeHtml(q.name) + '</div>' : '') + '</div>').join('');
 
   $('sh-panel-content').style.cssText = cls.style;
   $('sh-panel-content').innerHTML =
     '<div class="area-header">' +
-      '<div><div class="area-number">' + shText(t('labels.area', { number: area.number })) + '</div>' +
-      '<div class="area-zone">' + shTextOrPlaceholder(area.zone) + '</div></div>' +
-      '<div class="area-meta"><span class="class-badge"><span class="lg-dot" style="background: var(--c)"></span>' + shText(cls.label) + '</span>' +
-      '<span class="area-count">' + shText(count) + '</span></div>' +
+      '<div><div class="area-number">' + escapeHtml(t('labels.area', { number: area.number })) + '</div>' +
+      '<div class="area-zone">' + textOrPlaceholder('sh-placeholder', area.zone) + '</div></div>' +
+      '<div class="area-meta"><span class="class-badge"><span class="lg-dot" style="background: var(--c)"></span>' + escapeHtml(cls.label) + '</span>' +
+      '<span class="area-count">' + escapeHtml(count) + '</span></div>' +
     '</div>' +
-    (others > 0 ? '<div class="sh-other-years">' + shText(t(others === 1 ? 'labels.otherYearsOne' : 'labels.otherYears', { count: others })) + '</div>' : '') +
-    (shown.length > 1 ? '<div class="entry-switcher"><div class="entry-label">' + shText(t('labels.observationOf', { index: shEntry + 1, count: shown.length })) + '</div>' +
+    (others > 0 ? '<div class="sh-other-years">' + escapeHtml(t(others === 1 ? 'labels.otherYearsOne' : 'labels.otherYears', { count: others })) + '</div>' : '') +
+    (shown.length > 1 ? '<div class="entry-switcher"><div class="entry-label">' + escapeHtml(t('labels.observationOf', { index: shEntry + 1, count: shown.length })) + '</div>' +
       '<button type="button" class="step" data-entry-step="-1" aria-label="Previous observation"' + (shEntry === 0 ? ' disabled' : '') + '>&larr;</button>' +
       '<button type="button" class="step" data-entry-step="1" aria-label="Next observation"' + (shEntry === shown.length - 1 ? ' disabled' : '') + '>&rarr;</button></div>' : '') +
     '<div class="observation">' +
       '<div class="observation-pair">' + textBox('labels.change', o.change) + textBox('labels.period', o.period) + '</div>' +
       textBox('labels.cause', o.cause) +
-      box('labels.inTheirWords', quotes || '<div class="observation-text">' + shTextOrPlaceholder('') + '</div>') +
+      box('labels.inTheirWords', quotes || '<div class="observation-text">' + textOrPlaceholder('sh-placeholder', '') + '</div>') +
       textBox('labels.stakeholderType', o.stakeholderType) +
     '</div>';
 }
