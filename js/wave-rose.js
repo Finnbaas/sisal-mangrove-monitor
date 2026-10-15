@@ -1,6 +1,6 @@
 // wave-rose.js: the "Wave direction" card on the Climatology page: a wave rose drawn as SVG. Around a circle,
 //   N at the top and clockwise, each of the 8 directions has a wide pale wedge (all days) and a narrower wedge in the
-//   full colour (storm-wave days); the length is the share of days that the waves come from that direction.
+//   full colour (rough-sea days); the length is the share of days that the waves come from that direction.
 //   Hover a sector for its numbers. Nothing is calculated here.
 // Reads: data/climate/wave-direction.json (made by analysis/climatology/export_typical_year.py), the texts in
 //   content/texts.json ("waveRose") and the colour of "waveHeight" in content/variables.json.
@@ -58,7 +58,7 @@ function drawWaveRose() {
     svg += '<circle class="rose-ring" cx="' + ROSE.center + '" cy="' + ROSE.center + '" r="' + r.toFixed(1) + '"></circle>' +
       '<text class="plot-tick-label" x="' + (lx + 3).toFixed(1) + '" y="' + (ly + 4).toFixed(1) + '">' + Math.round(pct * 10) / 10 + '%</text>';
   }
-  // the wedges: pale for all days, narrower and full colour for storm-wave days
+  // the wedges: pale for all days, narrower and full colour for rough-sea days
   sectors.forEach((s, i) => {
     const angle = i * 45;
     svg += '<path d="' + roseWedge(angle, ROSE.allWidth, lengthOf(s.all)) + '" fill="' + fill + '" fill-opacity="0.3"></path>' +
@@ -101,7 +101,9 @@ function drawWaveRose() {
     legend.appendChild(item);
   });
   const record = waveRose.record || {};
-  $('wave-rose-note').textContent = t('waveRose.note', { start: (record.start || '').slice(0, 4), end: (record.end || '').slice(0, 4) });
+  const days = waveRose.days || {};   // number of days: all days and rough-sea days
+  $('wave-rose-note').textContent = t('waveRose.note', { start: (record.start || '').slice(0, 4), end: (record.end || '').slice(0, 4),
+    storm: isNumber(days.storm) ? days.storm : NO_DATA, all: isNumber(days.all) ? days.all : NO_DATA });
 }
 
 // "East" or "E" for a direction id, from content/texts.json

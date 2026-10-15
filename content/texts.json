@@ -8,7 +8,7 @@
     "point-info": "Point info",
     "trend-signals": "Trend signals",
     "storm-map": "Tropical cyclones near Sisal",
-    "wave-direction": "Wave direction",
+    "wave-direction": "Rough-sea wave direction",
     "storm-counts": "When storms come",
     "event-list": "Studied storms",
     "stakeholder-map": "Stakeholder observations",
@@ -121,9 +121,9 @@
 
   "waveRose": {
     "allDays": "All days",
-    "stormDays": "Storm-wave days (max wave height > {threshold} m)",
-    "hover": "{name}: {all}% of all days, {storm}% of storm-wave days",
-    "note": "Direction waves come from. ERA5, {start} to {end}.",
+    "stormDays": "Rough-sea days (max wave height > {threshold} m)",
+    "hover": "{name}: {all}% of all days, {storm}% of rough-sea days",
+    "note": "Direction waves come from. ERA5, {start} to {end}. {storm} of {all} days were rough-sea days. These are not only tropical cyclones.",
     "directions": {
       "N": { "short": "N", "name": "North" },
       "NE": { "short": "NE", "name": "Northeast" },
