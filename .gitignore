@@ -8,3 +8,6 @@ analysis/climatology/hurdat2_atlantic.txt
 # Python leftovers
 __pycache__/
 .ipynb_checkpoints/
+
+# macOS folder settings files
+.DS_Store
