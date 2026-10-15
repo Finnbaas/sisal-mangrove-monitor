@@ -23,7 +23,7 @@
         {
           "id": "storms",
           "title": "Storms at Sisal",
-          "intro": "11 tropical cyclones that passed within 100 km of Sisal and for which we have daily climate data.",
+          "intro": "All {total} tropical storms that passed near Sisal between {start} and {end}, and the {studied} of them that we study in detail with daily climate data.",
           "columns": [
             [
               "storm-map",

@@ -33,6 +33,13 @@ function renderStormCounts() {
   const first = stormCounts.record.start, last = stormCounts.record.end;
   const monthNames = t('labels.monthsLong').split(',');
 
+  // the intro of the storms section: the totals come from the JSON files (events.json = the storms studied in detail)
+  const intro = $('intro-storms');
+  if (intro && intro.dataset.template && Array.isArray(events) && events.length) {
+    const values = { total: storms.length, start: first, end: last, studied: events.length };
+    intro.textContent = Object.entries(values).reduce((text, [k, v]) => text.split('{' + k + '}').join(v), intro.dataset.template);
+  }
+
   // legend: the two kinds of storm
   const legend = $('storm-counts-legend');
   legend.innerHTML = '';
