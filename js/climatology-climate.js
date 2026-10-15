@@ -129,7 +129,7 @@ function monthChartSvg(p, data) {
 
   const bars = data.kind === 'bars';
   const withZero = bars || series.every((s) => !s.p10);         // bars and lines without a band show 0
-  const t = ticksFor(Math.min(...known), Math.max(...known), withZero);
+  const t = ticksFor(Math.min(...known), Math.max(...known), withZero, true);
   const lo = Math.min(Math.min(...known), t.ticks[0]), hi = Math.max(Math.max(...known), t.ticks[t.ticks.length - 1]);
   const span = PLOT.bottom - PLOT.top;
   const pad = 4 * ((hi - lo) || 1) / (span - 8);                // 4 SVG units of room above and below
@@ -280,7 +280,7 @@ function yearChartSvg(p, data, years, yearX, decades) {
   series.forEach((s) => ['means', 'fit'].forEach((k) => (s[k] || []).forEach((v) => { if (isNumber(v)) known.push(v); })));
   if (!known.length) return { svg: chartNoData(head), panel: null };
 
-  const t = ticksFor(Math.min(...known), Math.max(...known), false);
+  const t = ticksFor(Math.min(...known), Math.max(...known), false, true);
   const lo = Math.min(Math.min(...known), t.ticks[0]), hi = Math.max(Math.max(...known), t.ticks[t.ticks.length - 1]);
   const span = PLOT.bottom - PLOT.top;
   const pad = 4 * ((hi - lo) || 1) / (span - 8);                // 4 SVG units of room above and below

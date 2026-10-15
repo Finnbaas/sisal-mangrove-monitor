@@ -16,14 +16,15 @@ function niceStep(raw) {
 }
 
 // Tick values for one chart: include 0 (unless includeZero is false); add an outer tick only when
-// the data reaches clearly past the last inner tick (more than 80% of a step).
-function ticksFor(min, max, includeZero = true) {
+// the data reaches clearly past the last inner tick (more than 80% of a step). With coverData the
+// ticks always reach the data, so that no line or band runs past the first or last tick.
+function ticksFor(min, max, includeZero = true, coverData = false) {
   const lo = includeZero ? Math.min(min, 0) : min, hi = includeZero ? Math.max(max, 0) : max;
   const step = niceStep((hi - lo) / 5 || 1);
   let first = Math.ceil(lo / step) * step;
-  if (lo < first - 0.8 * step) first -= step;
+  if (lo < first - (coverData ? 0.001 : 0.8) * step) first -= step;
   let last = Math.floor(hi / step) * step;
-  if (hi > last + 0.8 * step) last += step;
+  if (hi > last + (coverData ? 0.001 : 0.8) * step) last += step;
   const decimals = Math.max(0, -Math.floor(Math.log10(step)));
   const ticks = [];
   for (let t = first; t <= last + step / 1000; t += step) ticks.push(Math.round(t / step) * step);
