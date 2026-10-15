@@ -27,6 +27,9 @@ of six variables around the storm (anomaly() is the notebook's calculation), the
 content/storm-periods.json, and from HURDAT2 (hurdat2_atlantic.txt) the strength near Sisal, the strongest strength
 over the whole life and the closest distance. The track code is the one of reference/storm_selection.py.
 
+"Wave direction" (data/climate/wave-direction.json): the share of days that the waves come from each of 8 directions,
+for all days and for storm-wave days (max wave height above 2 m); the sector calculation of the notebook.
+
 Run it from the project folder:
 
     python analysis/climatology/export_typical_year.py
@@ -61,6 +64,8 @@ DETAIL_DIR = HERE.parent.parent / 'data' / 'climate' / 'detail'       # one file
 STORM_PERIODS_FILE = HERE.parent.parent / 'content' / 'storm-periods.json'
 HURDAT_FILE = INPUT_DIR / 'hurdat2_atlantic.txt'
 EVENTS_FILE = HERE.parent.parent / 'data' / 'events.json'
+STORM_COUNTS_FILE = HERE.parent.parent / 'data' / 'storms' / 'storm-counts.json'
+COUNT_YEAR0, COUNT_YEAR1 = 1950, 2025   # record period of the storm counts (the ERA5-Land baseline)
 
 # number of decimals in the detail files
 DETAIL_DECIMALS = 3
@@ -98,6 +103,7 @@ VARIABLES = {
     'sst_c':           dict(src='era5', label='Sea surface temperature (ERA5)', unit='°C',   kind='linear'),
     'hs_mean_m':       dict(src='era5', label='Significant wave height (mean)', unit='m',    kind='linear'),
     'hs_max_m':        dict(src='era5', label='Significant wave height (max)',  unit='m',    kind='linear'),
+    'wave_dir_deg':    dict(src='era5', label='Mean wave direction (from)',     unit='°',    kind='circular'),
     # HYCOM, one pixel
     'salinity_surface_psu':dict(src='hycom', label='Surface salinity',                unit='PSU', kind='linear'),
 }
@@ -312,6 +318,7 @@ def hourly_tracks(trk, ids):
         g = g.drop_duplicates('time').set_index('time')
         idx = pd.date_range(g.index[0], g.index[-1], freq='h')
         num = g[['lat', 'lon', 'wind_kt']].reindex(g.index.union(idx)).interpolate('time').reindex(idx)
+        num['status'] = g['status'].reindex(idx, method='ffill')
         return num
     h = pd.concat({k: hourly(g) for k, g in only.groupby('id')}, names=['id', 'time']).reset_index()
     la1, lo1 = np.radians(SITE)
@@ -366,7 +373,7 @@ def export_storms():
             raise ValueError(f"{p['name']}: the storm period is outside the {len(dates)} days of the charts")
         tr = track_numbers(trk, h, ids[p['name']])
 
-        ev = {'id': f"{p['name'].lower()}-{start.year}", 'name': p['name'], 'type': tr['near'],
+        ev = {'id': f"{p['name'].lower()}-{start.year}", 'hurdatId': ids[p['name']], 'name': p['name'], 'type': tr['near'],
               'strengthNear': tr['near'], 'strengthPeak': tr['peak'], 'closestKm': tr['closestKm'],
               'month': f'{month_of.year}-{month_of.month:02d}',
               'stormPeriod': {'start': p['start'], 'end': p['end'], 'peak': p.get('peak')}, 'note': p.get('note', ''),
@@ -390,6 +397,83 @@ def export_storms():
     for name, date, tr, counts in sorted(table, key=lambda r: r[1]):
         print(f"{name:11s} {date}  {STRENGTH_ABBR[tr['near']] if tr['near'] else '-':6s} {STRENGTH_ABBR[tr['peak']]:8s} "
               f"{tr['closestKm']:4d}                 " + ' '.join(f'{c:4d}' for c in counts))
+
+
+def export_storm_counts():
+    """All storms near Sisal, 1950 to 2025: the selection of storm_selection.py (cell 13 of the notebook, the source of
+    panel (g)): within RADIUS_KM, status TS/HU/SS and at least 34 kt. Writes data/storms/storm-counts.json.
+    "studied" is true for the storms of content/storm-periods.json."""
+    periods = json.loads(STORM_PERIODS_FILE.read_text(encoding='utf-8'))['storms']
+    all_trk = read_hurdat()
+    trk = all_trk[all_trk['time'].dt.year.between(COUNT_YEAR0, COUNT_YEAR1)]
+    h = hourly_tracks(trk, list(trk['id'].unique()))
+    near = h[(h['km'] <= RADIUS_KM) & h['status'].isin(['TS', 'HU', 'SS']) & (h['wind_kt'] >= 34)]
+    first = near.groupby('id')['time'].min().sort_values()                    # first hour inside the circle
+    names = trk.drop_duplicates('id').set_index('id')['name']
+    studied = {storm_id(all_trk, p['name'], p['start'][:4]): p['name'] for p in periods}
+
+    storms = []
+    for sid, time in first.items():
+        name = names[sid].title()
+        storms.append({'id': f'{name.lower()}-{time.year}', 'hurdatId': sid, 'name': name, 'year': int(time.year),
+                       'month': int(time.month), 'studied': sid in studied})
+    per_month = pd.Series([x['month'] for x in storms]).value_counts().reindex(range(1, 13), fill_value=0)
+    months = [m for m in range(1, 13) if per_month[m]]
+    body = {
+        'record': {'start': COUNT_YEAR0, 'end': COUNT_YEAR1},
+        'rule': (f'Tropical or subtropical systems (HURDAT2 status TS, HU or SS) of at least tropical-storm strength '
+                 f'(34 kt) within {RADIUS_KM} km of Sisal, {COUNT_YEAR0} to {COUNT_YEAR1}. Track points are interpolated to '
+                 f'hourly; the month is that of the first hour inside the circle.'),
+        # numbers for the text under the charts (the website only shows them)
+        'summary': {'total': len(storms), 'firstMonth': months[0], 'lastMonth': months[-1],
+                    'peakMonths': [m for m in months if per_month[m] == per_month.max()]},
+        'storms': storms,
+    }
+    STORM_COUNTS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    STORM_COUNTS_FILE.write_text(json.dumps(body, ensure_ascii=False, indent=1), encoding='utf-8', newline='\n')
+
+    print(f'\nSaved {STORM_COUNTS_FILE}')
+    print(f'Storms within {RADIUS_KM} km of Sisal, {COUNT_YEAR0}-{COUNT_YEAR1}: {len(storms)}')
+    print('per month (J..D):', ' '.join(str(int(n)) for n in per_month))
+    print('studied storms NOT in this selection:', ', '.join(f'{n} {i[-4:]}' for i, n in studied.items() if i not in set(first.index)) or 'none')
+    print('in selection, not studied:', ', '.join(f"{x['name']} {x['year']}" for x in storms if not x['studied']) or 'none')
+
+
+# ---------------------------------------------------------------------------------------------
+# WAVE DIRECTION (data/climate/wave-direction.json)
+# ---------------------------------------------------------------------------------------------
+
+WAVE_FILE = HERE.parent.parent / 'data' / 'climate' / 'wave-direction.json'
+SECTORS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']      # 8 sectors of 45 degrees, N is centred on 0 degrees
+STORM_WAVE_M = 2                                              # a storm-wave day: daily max wave height above this (m)
+
+
+def export_wave_direction():
+    """The wave rose: the share of days that waves come from each of the 8 directions, for all days and for storm-wave
+    days (max wave height > 2 m). The calculation of the notebook cell "wave direction sectors" (figure 4b)."""
+    with redirect_stdout(io.StringIO()):
+        wavedir, _ = load_series('wave_dir_deg')
+        hmax, _ = load_series('hs_max_m')
+    d = pd.DataFrame({'dir': wavedir, 'h': hmax}).dropna()
+    sec = (((d['dir'] + 22.5) % 360) // 45).astype(int)        # 0 = N, 1 = NE, ...
+    storm = sec[d['h'] > STORM_WAVE_M]
+    all_pct = sec.value_counts(normalize=True).reindex(range(8), fill_value=0) * 100
+    storm_pct = storm.value_counts(normalize=True).reindex(range(8), fill_value=0) * 100
+
+    body = {
+        'unit': 'm', 'threshold': STORM_WAVE_M, 'source': 'era5-sea',
+        'record': {'start': str(d.index[0].date()), 'end': str(d.index[-1].date())},
+        'days': {'all': int(len(sec)), 'storm': int(len(storm))},
+        'sectors': [{'id': name, 'all': round(float(all_pct[i]), 1), 'storm': round(float(storm_pct[i]), 1)}
+                    for i, name in enumerate(SECTORS)],
+    }
+    WAVE_FILE.write_text(json.dumps(body, ensure_ascii=False, indent=1), encoding='utf-8', newline='\n')
+    print(f'\nSaved {WAVE_FILE}')
+    print(f"Wave direction, {body['record']['start']} to {body['record']['end']}: "
+          f"{body['days']['all']} days, {body['days']['storm']} storm-wave days (max wave height > {STORM_WAVE_M} m)")
+    print('sector   all days %   storm-wave days %')
+    for s in body['sectors']:
+        print(f"{s['id']:6s}   {s['all']:9.1f}   {s['storm']:15.1f}")
 
 
 def main():
@@ -487,6 +571,8 @@ def main():
         print(f"  {vid:24s} {rec['start']} to {rec['end']}   {size / 1024:6.0f} KB")
 
     export_storms()
+    export_storm_counts()
+    export_wave_direction()
 
 
 if __name__ == '__main__':

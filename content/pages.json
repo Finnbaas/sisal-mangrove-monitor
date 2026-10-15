@@ -23,36 +23,16 @@
         {
           "id": "storms",
           "title": "Storms at Sisal",
-          "intro": "11 tropical cyclones that passed within 100 km of Sisal and for which we have daily climate data.",
+          "intro": "All {total} tropical storms that passed near Sisal between {start} and {end}, and the {studied} of them that we study in detail with daily climate data.",
           "columns": [
             [
-              {
-                "type": "planned",
-                "title": "Tropical cyclones near Sisal",
-                "expand": true,
-                "graphs": [
-                  { "title": "Storm tracks", "label": "Map: tracks of the 11 storms within 100 km of Sisal", "height": 380 }
-                ]
-              },
-              {
-                "type": "planned",
-                "title": "When storms come",
-                "graphs": [
-                  { "title": "Storms per year (11 storms)", "label": "The 11 storms per year, clickable", "height": 150 },
-                  { "title": "Storms per month (11 storms)", "label": "The 11 storms per month, J to D", "height": 150, "width": 224 }
-                ]
-              },
+              "storm-map",
+              "storm-counts",
               "event-list"
             ],
             [
               "event-charts",
-              {
-                "type": "planned",
-                "title": "Wave direction",
-                "graphs": [
-                  { "title": "Wave direction", "label": "Rose diagram: all days and storm-wave days", "height": 160 }
-                ]
-              }
+              "wave-direction"
             ]
           ]
         },

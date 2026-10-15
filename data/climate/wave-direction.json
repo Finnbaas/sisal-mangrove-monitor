@@ -1,0 +1,55 @@
+{
+ "unit": "m",
+ "threshold": 2,
+ "source": "era5-sea",
+ "record": {
+  "start": "1979-01-01",
+  "end": "2025-12-31"
+ },
+ "days": {
+  "all": 17167,
+  "storm": 739
+ },
+ "sectors": [
+  {
+   "id": "N",
+   "all": 32.7,
+   "storm": 1.8
+  },
+  {
+   "id": "NE",
+   "all": 45.7,
+   "storm": 15.2
+  },
+  {
+   "id": "E",
+   "all": 14.4,
+   "storm": 60.4
+  },
+  {
+   "id": "SE",
+   "all": 2.7,
+   "storm": 19.1
+  },
+  {
+   "id": "S",
+   "all": 0.3,
+   "storm": 1.1
+  },
+  {
+   "id": "SW",
+   "all": 0.2,
+   "storm": 0.8
+  },
+  {
+   "id": "W",
+   "all": 0.3,
+   "storm": 0.7
+  },
+  {
+   "id": "NW",
+   "all": 3.8,
+   "storm": 1.1
+  }
+ ]
+}

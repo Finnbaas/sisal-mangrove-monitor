@@ -63,6 +63,21 @@
   --color-data-climate-sea-surface-temperature: #A0522D;
   --color-data-climate-sea-level: #234A8C;
 
+  /* Climatology screen: the storm map, the colors of design/storm-map-reference.html. Tracks by strength, five steps:
+     tropical depression, tropical storm, cat. 1-2, cat. 3-4, cat. 5. */
+  --color-storm-sea: #CFE0E8;
+  --color-storm-land: #DADCD2;
+  --color-storm-land-edge: #A7AFA3;     /* coast line and country borders */
+  --color-storm-outline: #7A8A93;       /* outline of Yucatán */
+  --color-storm-circle: #0B5E73;        /* the circle of 100 km around Sisal */
+  --color-storm-selected: #0E1418;      /* halo under the hovered or selected track */
+  --color-storm-1: #7FA6BF;
+  --color-storm-2: #3E8FB0;
+  --color-storm-3: #E3B53B;
+  --color-storm-4: #D5462B;
+  --color-storm-5: #5E1E7A;
+  --color-storm-nontropical: #8E989D;   /* the parts of a track that are not tropical: thin, dashed */
+
   /* Climatology screen: data source tags, same colors as the cells on the map (Figma data/source/...) */
   --color-data-source-era5-land: #498738;
   --color-data-source-era5-sea: #3C50F2;

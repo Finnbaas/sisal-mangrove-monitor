@@ -7,7 +7,10 @@
     "tipping-status": "Tipping status",
     "point-info": "Point info",
     "trend-signals": "Trend signals",
-    "event-list": "Storms and extreme events",
+    "storm-map": "Tropical cyclones near Sisal",
+    "wave-direction": "Rough-sea wave direction",
+    "storm-counts": "When storms come",
+    "event-list": "Studied storms",
     "stakeholder-map": "Stakeholder observations",
     "stakeholder-panel": "Area details",
     "climate-typical-year": "A typical year",
@@ -60,6 +63,8 @@
     "certaintyOngoing": "Ongoing",
     "certaintyExpected": "Expected",
 
+    "clickToEnlarge": "Click to enlarge",
+    "close": "Close",
     "eventListNote": "{count} storms since {year}",
     "strengthNear": "{strength} near Sisal",
     "strengthPeak": "{strength} at peak",
@@ -101,6 +106,52 @@
     "doi": "DOI:"
   },
 
+  "stormCounts": {
+    "studied": "Studied storm",
+    "other": "Other storm",
+    "chartLabel": "Storms",
+    "perMonth": "per month",
+    "perYear": "per year",
+    "monthAxisTitle": "Month",
+    "yearAxisTitle": "Year",
+    "and": "and",
+    "summary": "{total} storms of tropical storm strength or more passed near Sisal between {start} and {end}. Too few for a trend test. Storms come between {firstMonth} and {lastMonth}, most in {peak}.",
+    "notCounted": "Studied but not counted here: {storms}. They were weaker than tropical storm strength near Sisal."
+  },
+
+  "waveRose": {
+    "allDays": "All days",
+    "stormDays": "Rough-sea days (max wave height > {threshold} m)",
+    "hover": "{name}: {all}% of all days, {storm}% of rough-sea days",
+    "note": "Direction waves come from. ERA5, {start} to {end}. {storm} of {all} days were rough-sea days. These are not only tropical cyclones.",
+    "directions": {
+      "N": { "short": "N", "name": "North" },
+      "NE": { "short": "NE", "name": "Northeast" },
+      "E": { "short": "E", "name": "East" },
+      "SE": { "short": "SE", "name": "Southeast" },
+      "S": { "short": "S", "name": "South" },
+      "SW": { "short": "SW", "name": "Southwest" },
+      "W": { "short": "W", "name": "West" },
+      "NW": { "short": "NW", "name": "Northwest" }
+    }
+  },
+
+  "stormMap": {
+    "sisal": "Sisal",
+    "steps": {
+      "depression": "Tropical depression",
+      "storm": "Tropical storm",
+      "cat12": "Cat. 1–2",
+      "cat34": "Cat. 3–4",
+      "cat5": "Cat. 5"
+    },
+    "notTropical": "Not tropical",
+    "circle": "{km} km from Sisal",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "reset": "Reset"
+  },
+
   "strengths": {
     "tropical-depression": { "near": "Tropical depression", "peak": "tropical depression" },
     "tropical-storm": { "near": "Tropical storm", "peak": "tropical storm" },
@@ -121,6 +172,10 @@
     "selectEvent": "Select a storm in the list",
     "couldNotLoadPoints": "Could not load point data: {error}",
     "couldNotLoadEvents": "Could not load event data: {error}",
+    "couldNotLoadWaveRose": "Could not load the wave rose: {error}",
+    "couldNotLoadStormCounts": "Could not load the storm counts: {error}",
+    "couldNotLoadStormMap": "Could not load the storm map: {error}",
+    "stormMapUnmatched": "No match between the tracks and data/events.json for: {ids}",
     "filesWillBeAdded": "Files will be added here",
     "stepsWillBeAdded": "Steps will be added here",
     "couldNotLoadClimateData": "Could not load the climate charts: {error}",
