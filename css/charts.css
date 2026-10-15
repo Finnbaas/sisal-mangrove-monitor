@@ -14,6 +14,14 @@
 .plot-axis { fill: var(--color-text-faint); }
 .plot-tick-label { font-family: 'Archivo', sans-serif; font-size: 11px; fill: var(--color-text-muted); }
 .plot-extreme { font-family: 'Space Mono', monospace; font-size: 11px; fill: var(--color-text-body); }
+/* storm period (box) and peak (dashed line) in the storm charts: the "loss" red of base.css, as in the team's figures */
+.storm-box { fill: var(--color-class-loss); fill-opacity: 0.12; stroke: var(--color-class-loss); stroke-opacity: 0.5; stroke-width: 1; }
+.storm-peak { stroke: var(--color-class-loss); stroke-width: 1.2; stroke-dasharray: 4 3; }
+#event-legend { display: flex; gap: 16px; margin: 0 0 6px 40px; font-size: 11px; color: var(--color-text-body); }
+#event-legend:empty { display: none; }
+.storm-legend-item { display: flex; align-items: center; gap: 6px; }
+.storm-legend-box { width: 14px; height: 9px; background: color-mix(in srgb, var(--color-class-loss) 12%, transparent); border: 1px solid color-mix(in srgb, var(--color-class-loss) 50%, transparent); }
+.storm-legend-peak { width: 14px; border-top: 1.5px dashed var(--color-class-loss); }
 .plot-nodata { font-family: 'Archivo', sans-serif; font-size: 13px; fill: var(--color-text-faint); }
 /* source tag (Figma source-tag): top right of each chart */
 .source-tag {

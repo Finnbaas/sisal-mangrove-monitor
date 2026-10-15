@@ -3,6 +3,7 @@
 analysis/climatology/Sisal_ERA5Land_daily_all.csv
 analysis/climatology/Sisal_ERA5_daily_all.csv
 analysis/climatology/Sisal_HYCOM_daily_all.csv
+analysis/climatology/hurdat2_atlantic.txt
 
 # Python leftovers
 __pycache__/
