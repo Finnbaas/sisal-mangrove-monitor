@@ -2,11 +2,7 @@
   "yearRange": { "first": 1984, "last": 2026 },
 
   "pointVariables": [
-    { "id": "ndvi", "label": "NDVI", "unit": "index, 0–1", "color": "data-ndvi", "shownAtStart": true },
-    { "id": "temperature", "label": "Temp", "unit": "°C", "color": "data-temperature", "shownAtStart": false },
-    { "id": "salinity", "label": "Salinity", "unit": "PSU", "color": "data-salinity", "shownAtStart": false },
-    { "id": "precipitation", "label": "Precip", "unit": "mm/mo", "color": "data-precipitation", "shownAtStart": false },
-    { "id": "evapo", "label": "Evap./ET", "unit": "mm/day", "color": "data-evapotranspiration", "shownAtStart": false }
+    { "id": "ndvi", "label": "NDVI", "unit": "index, 0–1", "color": "data-ndvi", "shownAtStart": true }
   ],
 
   "trendMetrics": [
