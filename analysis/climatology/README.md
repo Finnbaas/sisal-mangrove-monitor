@@ -12,6 +12,7 @@ numbers for the "A typical year" charts on the Climatology page of the website.
 | `sealevel_sisal_monthly.csv` | Monthly sea level near Sisal (satellite altimetry), 1993 to 2025. |
 | `Sisal_ERA5Land_daily_all.csv` | Daily ERA5-Land values (air temperature, rainfall), from 1950. **Not on GitHub.** |
 | `Sisal_ERA5_daily_all.csv` | Daily ERA5 values (wind, waves, sea surface temperature), from 1979. **Not on GitHub.** |
+| `hurdat2_atlantic.txt` | HURDAT2 hurricane tracks (NOAA, public: `https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2024-040425.txt`), used for the strength and distance of the storms. **Not on GitHub.** |
 | `Sisal_HYCOM_daily_all.csv` | Daily HYCOM values (salinity), from 1992. **Not on GitHub.** |
 
 The three large data files are not stored on GitHub (they are listed in `.gitignore`), because
@@ -40,6 +41,16 @@ It saves everything in one file: `data/climate/typical-year.json`. Per variable 
 The website (`js/climatology-climate.js`) draws the charts from this file, in the same style as the storm charts.
 The website never calculates numbers itself. Which variables are shown, in which order and with
 which label, is set in `climateVariables` in `content/variables.json`.
+
+## Storms (data/events.json)
+
+The same script also makes `data/events.json`: the 11 storms of the Climatology page. The storm periods (red box) and peak
+dates are in `content/storm-periods.json`, which the team edits by hand; the script copies them into the file. The anomalies
+use the notebook calculation of the Hurricane Beryl figure (mean of the same calendar day over the whole record of each dataset,
+11-day window, smoothed over 31 days); the window is 25 days before and after the peak (no peak date: the middle of the storm
+period). Salinity is only used for 1993 to 2012 (one HYCOM model version), so later storms have no salinity. The strength near
+Sisal is the strongest wind within 100 km (hourly interpolation of the track), the closest distance is the minimum of the same track.
+After a change in `storm-periods.json`, run the script again.
 
 ## How to run it
 

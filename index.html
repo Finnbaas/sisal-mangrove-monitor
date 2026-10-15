@@ -145,10 +145,9 @@
         <div class="card" data-card="event-list">
           <div class="card-title-row"><div class="card-title" data-text="cardTitles.event-list"></div><div class="expand">&#8599;</div></div>
           <div id="event-list"></div>
-          <!-- how many events there are, and the link that shows the whole list (climatology-storms.js) -->
+          <!-- how many events there are (climatology-storms.js) -->
           <div id="event-list-foot">
             <span id="event-list-note"></span>
-            <button type="button" id="event-list-more" hidden></button>
           </div>
           <p class="fine" id="events-status"></p>
         </div>
@@ -163,6 +162,8 @@
               </div>
               <div class="expand">&#8599;</div>
             </div>
+            <!-- legend of the red box and dashed line in the charts (climatology-storms.js) -->
+            <div id="event-legend"></div>
             <!-- one chart per event variable, the shared date axis and the comparison line (drawn by climatology-storms.js) -->
             <div id="event-charts"></div>
           </div>

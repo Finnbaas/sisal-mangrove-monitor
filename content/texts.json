@@ -34,7 +34,7 @@
     "value": "Value",
     "tau": "τ",
     "date": "Date",
-    "anomalyExplanation": "Anomaly: difference from the 30-year mean for the same calendar day",
+    "anomalyExplanation": "Anomaly: difference from the mean for the same calendar day",
 
     "allYears": "All years",
     "showing": "Showing",
@@ -61,7 +61,10 @@
     "certaintyExpected": "Expected",
 
     "eventListNote": "{count} storms since {year}",
-    "showAllEvents": "Show all {count} storms →",
+    "strengthNear": "{strength} near Sisal",
+    "strengthPeak": "{strength} at peak",
+    "stormPeriod": "Storm period",
+    "stormPeak": "Peak",
     "typicalYearSubtitle": "Monthly mean; shaded band: 10th to 90th percentile of the daily values",
     "changeSubtitle": "Annual means and trend since the start of each record",
     "month": "Month",
@@ -96,6 +99,16 @@
     "license": "License",
     "citeThisMethod": "Cite this method",
     "doi": "DOI:"
+  },
+
+  "strengths": {
+    "tropical-depression": { "near": "Tropical depression", "peak": "tropical depression" },
+    "tropical-storm": { "near": "Tropical storm", "peak": "tropical storm" },
+    "hurricane-1": { "near": "Hurricane cat. 1", "peak": "cat. 1" },
+    "hurricane-2": { "near": "Hurricane cat. 2", "peak": "cat. 2" },
+    "hurricane-3": { "near": "Hurricane cat. 3", "peak": "cat. 3" },
+    "hurricane-4": { "near": "Hurricane cat. 4", "peak": "cat. 4" },
+    "hurricane-5": { "near": "Hurricane cat. 5", "peak": "cat. 5" }
   },
 
   "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],

@@ -89,37 +89,34 @@ function selectEvent(id) {
 
 // ---------- event list ----------
 
-// The list shows the first EVENT_LIST_ROWS events; the link under it shows all of them.
-const EVENT_LIST_ROWS = 5;
-let showAllEvents = false;
+// "Tropical storm near Sisal" (where = 'near') or "cat. 5 at peak" (where = 'peak'), from content/texts.json "strengths".
+// A storm that was never within 100 km at tropical-depression strength or more has no strength near Sisal: "No data".
+function strengthText(code, where) {
+  return code ? t(where === 'near' ? 'labels.strengthNear' : 'labels.strengthPeak', { strength: t('strengths.' + code + '.' + where) }) : NO_DATA;
+}
 
+// The list shows every event, in the order of data/events.json (newest first).
 function renderEventList() {
   const list = $('event-list');
   list.innerHTML = '';
-  // the selected event always stays in the list
-  const selectedIndex = events.findIndex((e) => e.id === selectedEventId);
-  const shortList = !showAllEvents && events.length > EVENT_LIST_ROWS && selectedIndex < EVENT_LIST_ROWS;
-  const shown = shortList ? events.slice(0, EVENT_LIST_ROWS) : events;
 
-  // under the list: the number of events since the first one, and the "Show all" link
+  // under the list: the number of events since the first one
   const years = events.map((e) => parseMonth(e.month)).filter(Boolean).map((m) => m.year);
   $('event-list-note').textContent = years.length ? t('labels.eventListNote', { count: events.length, year: Math.min(...years) }) : '';
-  const more = $('event-list-more');
-  more.hidden = !shortList;
-  more.textContent = t('labels.showAllEvents', { count: events.length });
-  more.onclick = () => { showAllEvents = true; renderEventList(); };
 
-  shown.forEach((ev) => {
+  events.forEach((ev) => {
     const row = document.createElement('button');
     row.className = 'event-row' + (ev.id === selectedEventId ? ' selected' : '');
     row.setAttribute('aria-pressed', ev.id === selectedEventId);
     row.innerHTML =
       '<span class="event-row-dot"></span>' +
       '<span class="event-row-text"><span class="event-row-name"></span><span class="event-row-date"></span></span>' +
-      '<span class="event-type"></span>';
+      '<span class="event-type"><span class="event-type-near"></span><span class="event-type-peak"></span></span>';
     row.querySelector('.event-row-name').textContent = ev.name || NO_DATA;
     row.querySelector('.event-row-date').textContent = monthLabel(ev);
-    row.querySelector('.event-type').textContent = ev.type || NO_DATA;
+    row.querySelector('.event-type-near').textContent = strengthText(ev.strengthNear, 'near');
+    // second line only when the storm was stronger elsewhere on its track than near Sisal
+    row.querySelector('.event-type-peak').textContent = ev.strengthPeak && ev.strengthPeak !== ev.strengthNear ? strengthText(ev.strengthPeak, 'peak') : '';
     row.addEventListener('click', () => selectEvent(ev.id));
     list.appendChild(row);
   });
@@ -147,6 +144,7 @@ function renderEventCharts() {
   if (!ev) return;
 
   $('event-title').textContent = (ev.name || NO_DATA) + ' (' + monthLabel(ev) + ')';
+  renderStormLegend(ev);
   $('event-subtitle').textContent = t('labels.anomalyExplanation') + ' (' + (ev.baseline || NO_DATA) + ')';
 
   const dates = Array.isArray(ev.dates) ? ev.dates : [];
@@ -165,7 +163,7 @@ function renderEventCharts() {
   EVENT_VARS.forEach((v) => {
     const series = seriesOf(ev, v);
     const source = SOURCES[(ev.sources || {})[v.id]];
-    box.appendChild(chartRow(v, source, chartSvg(series, n, weeks, v)));
+    box.appendChild(chartRow(v, source, chartSvg(series, n, weeks, v, stormMarks(ev, dates))));
   });
 
   // one shared date axis under all charts, with a label every week
@@ -197,10 +195,11 @@ function renderEventCharts() {
 }
 
 // Draws one storm anomaly chart as SVG text. Also stores how values map to y positions in chartScales.
-function chartSvg(series, n, weeks, v) {
+// marks = the storm period and peak (stormMarks), drawn behind the data in every chart, also without data.
+function chartSvg(series, n, weeks, v, marks) {
   const known = knownValues(series);
   // vertical gridlines are drawn even without data, so the charts stay aligned
-  const head = chartHead(v, weeks.map((w) => chartX(w.i, n)), 'anomaly');
+  const head = chartHead(v, weeks.map((w) => chartX(w.i, n)), 'anomaly') + marks;
   if (!n || !known.length) {
     chartScales.push(null);
     return chartNoData(head);
@@ -254,6 +253,41 @@ function chartSvg(series, n, weeks, v) {
   const ey = atTop ? yOf(extreme) - 4 : yOf(extreme) + 13;
   svg += '<text class="plot-extreme" x="' + ex.toFixed(1) + '" y="' + ey.toFixed(1) + '" text-anchor="middle">' + signedValue(extreme, series) + '</text>';
   return svg + '</svg>';
+}
+
+// The storm period as a red box over the full height of the chart, and the peak as a dashed red line
+// (the same as in the team's figures). Both come from "stormPeriod" in data/events.json; no peak date: only the box.
+function stormMarks(ev, dates) {
+  const period = ev.stormPeriod || {};
+  const n = dates.length;
+  let svg = '';
+  const first = dates.indexOf(period.start), last = dates.indexOf(period.end);
+  if (first >= 0 && last >= first) {
+    const x1 = chartX(first, n), x2 = chartX(last, n);
+    svg += '<rect class="storm-box" x="' + x1.toFixed(1) + '" y="' + PLOT.top + '" width="' + (x2 - x1).toFixed(1) + '" height="' + (PLOT.bottom - PLOT.top) + '"></rect>';
+  }
+  const peak = period.peak ? dates.indexOf(period.peak) : -1;
+  if (peak >= 0) {
+    const x = chartX(peak, n).toFixed(1);
+    svg += '<line class="storm-peak" x1="' + x + '" y1="' + PLOT.top + '" x2="' + x + '" y2="' + PLOT.bottom + '"></line>';
+  }
+  return svg;
+}
+
+// The small legend above the charts: "Storm period" and, when the storm has a peak date, "Peak".
+function renderStormLegend(ev) {
+  const period = ev.stormPeriod || {};
+  const legend = $('event-legend');
+  legend.innerHTML = '';
+  const item = (swatchClass, text) => {
+    const el = document.createElement('span');
+    el.className = 'storm-legend-item';
+    el.innerHTML = '<span class="' + swatchClass + '"></span><span></span>';
+    el.lastChild.textContent = text;
+    legend.appendChild(el);
+  };
+  if (period.start && period.end) item('storm-legend-box', t('labels.stormPeriod'));
+  if (period.peak) item('storm-legend-peak', t('labels.stormPeak'));
 }
 
 let stormCharts = null;   // the storm anomaly charts, as such a set (made in renderEventCharts)

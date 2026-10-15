@@ -23,7 +23,7 @@
         {
           "id": "storms",
           "title": "Storms at Sisal",
-          "intro": "The tropical cyclones that passed within 100 km of Sisal since 1950, when they come, and how the weather and the sea deviated from normal around each one.",
+          "intro": "11 tropical cyclones that passed within 100 km of Sisal and for which we have daily climate data.",
           "columns": [
             [
               {
@@ -31,15 +31,15 @@
                 "title": "Tropical cyclones near Sisal",
                 "expand": true,
                 "graphs": [
-                  { "title": "Storm tracks", "label": "Map: storm tracks within 100 km of Sisal, 1950 to 2025", "height": 380 }
+                  { "title": "Storm tracks", "label": "Map: tracks of the 11 storms within 100 km of Sisal", "height": 380 }
                 ]
               },
               {
                 "type": "planned",
                 "title": "When storms come",
                 "graphs": [
-                  { "title": "Storms per year", "label": "Storms per year, 1950 to 2025, clickable", "height": 150 },
-                  { "title": "Storms per month", "label": "Bar chart, J to D", "height": 150, "width": 224 }
+                  { "title": "Storms per year (11 storms)", "label": "The 11 storms per year, clickable", "height": 150 },
+                  { "title": "Storms per month (11 storms)", "label": "The 11 storms per month, J to D", "height": 150, "width": 224 }
                 ]
               },
               "event-list"
