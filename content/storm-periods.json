@@ -1,11 +1,11 @@
 {
   "_readme": "Written by the team. The storm period (red box) and the peak (dashed line) in the storm anomaly charts. Dates as YYYY-MM-DD. Leave \"peak\" empty (null) when there is no peak date yet: only the box is drawn. \"note\" is for remarks. After a change, run analysis/climatology/export_typical_year.py, which copies these dates into data/events.json.",
   "storms": [
-    { "name": "Gilbert", "start": "1988-09-07", "end": "1988-09-20", "peak": null, "note": "No peak date yet." },
+    { "name": "Gilbert", "start": "1988-09-07", "end": "1988-09-20", "peak": "1988-09-15", "note": "" },
     { "name": "Opal", "start": "1995-09-27", "end": "1995-10-06", "peak": "1995-09-30", "note": "" },
     { "name": "Mitch", "start": "1998-10-22", "end": "1998-11-05", "peak": "1998-11-03", "note": "" },
     { "name": "Isidore", "start": "2002-09-14", "end": "2002-09-26", "peak": "2002-09-23", "note": "" },
-    { "name": "Emily", "start": "2005-08-11", "end": "2005-08-21", "peak": "2005-08-18", "note": "To check: Emily crossed the Yucatán around 2005-07-18." },
+    { "name": "Emily", "start": "2005-07-11", "end": "2005-07-21", "peak": "2005-07-18", "note": "" },
     { "name": "Stan", "start": "2005-10-01", "end": "2005-10-05", "peak": "2005-10-02", "note": "" },
     { "name": "Cristobal", "start": "2020-06-01", "end": "2020-06-11", "peak": "2020-06-05", "note": "" },
     { "name": "Zeta", "start": "2020-10-24", "end": "2020-10-29", "peak": "2020-10-27", "note": "" },

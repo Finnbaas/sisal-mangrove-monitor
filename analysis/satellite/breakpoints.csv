@@ -1,0 +1,19 @@
+point_id,traj,class,type,breakpoint_date,breakpoint_year,magnitude
+more_c3_004,3.0,Monotonic loss,drop,1995-01-01,1995,-0.622
+more_c5_007,5.0,Ambiguous/high turnover,drop,1997-02-01,1997,-0.285
+more_c5_026,5.0,Ambiguous/high turnover,drop,1997-07-01,1997,-0.301
+new_886,,,drop,2000-11-01,2000,-0.535
+new_411,,,drop,2001-03-01,2001,-0.403
+more_c3_058,3.0,Monotonic loss,drop,2001-03-01,2001,-0.358
+new_4803,,,drop,2001-05-01,2001,-0.578
+new_6284,,,drop,2001-08-01,2001,-0.292
+more_c3_014,3.0,Monotonic loss,drop,2001-08-01,2001,-0.413
+base_69,3.0,Monotonic loss,drop,2001-08-01,2001,-0.485
+more_c3_042,3.0,Monotonic loss,drop,2001-09-01,2001,-0.379
+base_82,3.0,Monotonic loss,drop,2001-09-01,2001,-0.451
+more_c3_024,3.0,Monotonic loss,drop,2001-12-01,2001,-0.285
+new_3729,,,drop,2002-06-01,2002,-0.282
+more_c1_024,1.0,Stable interior,drop,2013-08-01,2013,-0.323
+new_2759,,,drop,2013-11-01,2013,-0.338
+more_c2_041,2.0,Stable edge,drop,2014-05-01,2014,-0.296
+more_c3_001,3.0,Monotonic loss,drop,2020-10-01,2020,-0.27

@@ -22,8 +22,38 @@ function setupClimate() {
   attachComparisonLine($('climate-change-charts'), () => climateChangeCharts);
   // the description of the data source map, for people who cannot see it
   const map = document.querySelector('.climate-sources-card img');
-  if (map) map.alt = t('labels.dataSourcesAlt');
+  if (map) {
+    map.alt = t('labels.dataSourcesAlt');
+    setupEnlargeableImage(map);
+  }
   loadTypicalYear();
+}
+
+// Pressing the image (or Enter on it) shows it big over the page; a click anywhere, the close button or Escape closes it.
+function setupEnlargeableImage(img) {
+  img.classList.add('enlargeable');
+  img.tabIndex = 0;
+  img.setAttribute('role', 'button');
+  img.title = t('labels.clickToEnlarge');
+
+  const open = () => {
+    const overlay = document.createElement('div');
+    overlay.className = 'image-overlay';
+    overlay.innerHTML = '<img alt=""><button type="button" class="image-overlay-close"></button>';
+    overlay.querySelector('img').src = img.src;
+    overlay.querySelector('img').alt = img.alt;
+    const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    const button = overlay.querySelector('button');
+    button.textContent = '\u00D7';
+    button.setAttribute('aria-label', t('labels.close'));
+    overlay.addEventListener('click', close);
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(overlay);
+    button.focus();
+  };
+  img.addEventListener('click', open);
+  img.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
 }
 
 async function loadTypicalYear() {
@@ -99,7 +129,7 @@ function monthChartSvg(p, data) {
 
   const bars = data.kind === 'bars';
   const withZero = bars || series.every((s) => !s.p10);         // bars and lines without a band show 0
-  const t = ticksFor(Math.min(...known), Math.max(...known), withZero);
+  const t = ticksFor(Math.min(...known), Math.max(...known), withZero, true);
   const lo = Math.min(Math.min(...known), t.ticks[0]), hi = Math.max(Math.max(...known), t.ticks[t.ticks.length - 1]);
   const span = PLOT.bottom - PLOT.top;
   const pad = 4 * ((hi - lo) || 1) / (span - 8);                // 4 SVG units of room above and below
@@ -250,7 +280,7 @@ function yearChartSvg(p, data, years, yearX, decades) {
   series.forEach((s) => ['means', 'fit'].forEach((k) => (s[k] || []).forEach((v) => { if (isNumber(v)) known.push(v); })));
   if (!known.length) return { svg: chartNoData(head), panel: null };
 
-  const t = ticksFor(Math.min(...known), Math.max(...known), false);
+  const t = ticksFor(Math.min(...known), Math.max(...known), false, true);
   const lo = Math.min(Math.min(...known), t.ticks[0]), hi = Math.max(Math.max(...known), t.ticks[t.ticks.length - 1]);
   const span = PLOT.bottom - PLOT.top;
   const pad = 4 * ((hi - lo) || 1) / (span - 8);                // 4 SVG units of room above and below

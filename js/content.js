@@ -250,7 +250,10 @@ function buildParts(section, s, ready) {
     header.appendChild(title);
     if (p.intro) {
       const intro = document.createElement('p');
-      intro.textContent = p.intro;
+      intro.id = 'intro-' + p.id;
+      // an intro with {placeholders} is filled in later, when the numbers have loaded (storm-counts.js)
+      if (p.intro.includes('{')) intro.dataset.template = p.intro;
+      else intro.textContent = p.intro;
       header.appendChild(intro);
     }
     headerRow.appendChild(header);
