@@ -22,6 +22,7 @@ async function start() {
 
   setupStorms();           // climatology-storms.js: event list and storm charts of the Climatology screen
   setupStormMap();         // storm-map.js: the map of the storm tracks on the Climatology screen
+  setupWaveRose();         // wave-rose.js: the wave direction rose on the Climatology screen
   setupClimate();          // climatology-climate.js: "Climate at Sisal" on the Climatology screen
   setupStakeholders();     // stakeholders.js: areas, time card and panel of the Stakeholder screen
   setupMethod();           // method.js: the Method page and the "Do this analysis yourself" links

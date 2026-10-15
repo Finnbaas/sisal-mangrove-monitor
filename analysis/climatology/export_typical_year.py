@@ -27,6 +27,9 @@ of six variables around the storm (anomaly() is the notebook's calculation), the
 content/storm-periods.json, and from HURDAT2 (hurdat2_atlantic.txt) the strength near Sisal, the strongest strength
 over the whole life and the closest distance. The track code is the one of reference/storm_selection.py.
 
+"Wave direction" (data/climate/wave-direction.json): the share of days that the waves come from each of 8 directions,
+for all days and for storm-wave days (max wave height above 2 m); the sector calculation of the notebook.
+
 Run it from the project folder:
 
     python analysis/climatology/export_typical_year.py
@@ -98,6 +101,7 @@ VARIABLES = {
     'sst_c':           dict(src='era5', label='Sea surface temperature (ERA5)', unit='°C',   kind='linear'),
     'hs_mean_m':       dict(src='era5', label='Significant wave height (mean)', unit='m',    kind='linear'),
     'hs_max_m':        dict(src='era5', label='Significant wave height (max)',  unit='m',    kind='linear'),
+    'wave_dir_deg':    dict(src='era5', label='Mean wave direction (from)',     unit='°',    kind='circular'),
     # HYCOM, one pixel
     'salinity_surface_psu':dict(src='hycom', label='Surface salinity',                unit='PSU', kind='linear'),
 }
@@ -392,6 +396,43 @@ def export_storms():
               f"{tr['closestKm']:4d}                 " + ' '.join(f'{c:4d}' for c in counts))
 
 
+# ---------------------------------------------------------------------------------------------
+# WAVE DIRECTION (data/climate/wave-direction.json)
+# ---------------------------------------------------------------------------------------------
+
+WAVE_FILE = HERE.parent.parent / 'data' / 'climate' / 'wave-direction.json'
+SECTORS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']      # 8 sectors of 45 degrees, N is centred on 0 degrees
+STORM_WAVE_M = 2                                              # a storm-wave day: daily max wave height above this (m)
+
+
+def export_wave_direction():
+    """The wave rose: the share of days that waves come from each of the 8 directions, for all days and for storm-wave
+    days (max wave height > 2 m). The calculation of the notebook cell "wave direction sectors" (figure 4b)."""
+    with redirect_stdout(io.StringIO()):
+        wavedir, _ = load_series('wave_dir_deg')
+        hmax, _ = load_series('hs_max_m')
+    d = pd.DataFrame({'dir': wavedir, 'h': hmax}).dropna()
+    sec = (((d['dir'] + 22.5) % 360) // 45).astype(int)        # 0 = N, 1 = NE, ...
+    storm = sec[d['h'] > STORM_WAVE_M]
+    all_pct = sec.value_counts(normalize=True).reindex(range(8), fill_value=0) * 100
+    storm_pct = storm.value_counts(normalize=True).reindex(range(8), fill_value=0) * 100
+
+    body = {
+        'unit': 'm', 'threshold': STORM_WAVE_M, 'source': 'era5-sea',
+        'record': {'start': str(d.index[0].date()), 'end': str(d.index[-1].date())},
+        'days': {'all': int(len(sec)), 'storm': int(len(storm))},
+        'sectors': [{'id': name, 'all': round(float(all_pct[i]), 1), 'storm': round(float(storm_pct[i]), 1)}
+                    for i, name in enumerate(SECTORS)],
+    }
+    WAVE_FILE.write_text(json.dumps(body, ensure_ascii=False, indent=1), encoding='utf-8', newline='\n')
+    print(f'\nSaved {WAVE_FILE}')
+    print(f"Wave direction, {body['record']['start']} to {body['record']['end']}: "
+          f"{body['days']['all']} days, {body['days']['storm']} storm-wave days (max wave height > {STORM_WAVE_M} m)")
+    print('sector   all days %   storm-wave days %')
+    for s in body['sectors']:
+        print(f"{s['id']:6s}   {s['all']:9.1f}   {s['storm']:15.1f}")
+
+
 def main():
     print('Loading the data')
     tmax, _ = load_series('t2m_max_c', 'c1')
@@ -487,6 +528,7 @@ def main():
         print(f"  {vid:24s} {rec['start']} to {rec['end']}   {size / 1024:6.0f} KB")
 
     export_storms()
+    export_wave_direction()
 
 
 if __name__ == '__main__':

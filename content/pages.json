@@ -39,13 +39,7 @@
             ],
             [
               "event-charts",
-              {
-                "type": "planned",
-                "title": "Wave direction",
-                "graphs": [
-                  { "title": "Wave direction", "label": "Rose diagram: all days and storm-wave days", "height": 160 }
-                ]
-              }
+              "wave-direction"
             ]
           ]
         },

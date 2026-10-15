@@ -227,6 +227,9 @@ The file is one JSON object, made by analysis/climatology/export_typical_year.py
   - `record`: `{ "start", "end" }`, the dates of the data period used.
   - `series`: list of lines, each `{ "id", "label" (optional), "mean", "p10", "p90" }` with 12 values per array (January to December). `p10` and `p90` (the shaded band) are left out when there is no band (rainfall, sea level). Air temperature has two series, `max` and `min`.
 
+#### Structure of data/climate/wave-direction.json
+Made by analysis/climatology/export_typical_year.py (never edit by hand); drawn as the wave rose by js/wave-rose.js. `unit`, `threshold` (a storm-wave day has a daily maximum wave height above this), `source`, `record` (`start`, `end`), `days` (`all`, `storm`: number of days in each group) and `sectors`: the 8 directions the waves come FROM (`N`, `NE`, `E`, `SE`, `S`, `SW`, `W`, `NW`), each with `all` and `storm`, the percentage of the days of that group (each group sums to 100).
+
 #### Structure of content/climate.json
 The file is one JSON object, written by the team. It has:
 - `years`: `{ "first", "last" }`, the year axis of "Change since 1950".

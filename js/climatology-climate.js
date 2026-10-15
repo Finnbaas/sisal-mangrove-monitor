@@ -22,8 +22,38 @@ function setupClimate() {
   attachComparisonLine($('climate-change-charts'), () => climateChangeCharts);
   // the description of the data source map, for people who cannot see it
   const map = document.querySelector('.climate-sources-card img');
-  if (map) map.alt = t('labels.dataSourcesAlt');
+  if (map) {
+    map.alt = t('labels.dataSourcesAlt');
+    setupEnlargeableImage(map);
+  }
   loadTypicalYear();
+}
+
+// Pressing the image (or Enter on it) shows it big over the page; a click anywhere, the close button or Escape closes it.
+function setupEnlargeableImage(img) {
+  img.classList.add('enlargeable');
+  img.tabIndex = 0;
+  img.setAttribute('role', 'button');
+  img.title = t('labels.clickToEnlarge');
+
+  const open = () => {
+    const overlay = document.createElement('div');
+    overlay.className = 'image-overlay';
+    overlay.innerHTML = '<img alt=""><button type="button" class="image-overlay-close"></button>';
+    overlay.querySelector('img').src = img.src;
+    overlay.querySelector('img').alt = img.alt;
+    const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    const button = overlay.querySelector('button');
+    button.textContent = '\u00D7';
+    button.setAttribute('aria-label', t('labels.close'));
+    overlay.addEventListener('click', close);
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(overlay);
+    button.focus();
+  };
+  img.addEventListener('click', open);
+  img.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
 }
 
 async function loadTypicalYear() {

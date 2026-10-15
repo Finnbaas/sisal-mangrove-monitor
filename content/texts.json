@@ -8,6 +8,7 @@
     "point-info": "Point info",
     "trend-signals": "Trend signals",
     "storm-map": "Tropical cyclones near Sisal",
+    "wave-direction": "Wave direction",
     "event-list": "Storms and extreme events",
     "stakeholder-map": "Stakeholder observations",
     "stakeholder-panel": "Area details",
@@ -61,6 +62,8 @@
     "certaintyOngoing": "Ongoing",
     "certaintyExpected": "Expected",
 
+    "clickToEnlarge": "Click to enlarge",
+    "close": "Close",
     "eventListNote": "{count} storms since {year}",
     "strengthNear": "{strength} near Sisal",
     "strengthPeak": "{strength} at peak",
@@ -102,6 +105,23 @@
     "doi": "DOI:"
   },
 
+  "waveRose": {
+    "allDays": "All days",
+    "stormDays": "Storm-wave days (max wave height > {threshold} m)",
+    "hover": "{name}: {all}% of all days, {storm}% of storm-wave days",
+    "note": "Direction waves come from. ERA5, {start} to {end}.",
+    "directions": {
+      "N": { "short": "N", "name": "North" },
+      "NE": { "short": "NE", "name": "Northeast" },
+      "E": { "short": "E", "name": "East" },
+      "SE": { "short": "SE", "name": "Southeast" },
+      "S": { "short": "S", "name": "South" },
+      "SW": { "short": "SW", "name": "Southwest" },
+      "W": { "short": "W", "name": "West" },
+      "NW": { "short": "NW", "name": "Northwest" }
+    }
+  },
+
   "stormMap": {
     "sisal": "Sisal",
     "steps": {
@@ -138,6 +158,7 @@
     "selectEvent": "Select a storm in the list",
     "couldNotLoadPoints": "Could not load point data: {error}",
     "couldNotLoadEvents": "Could not load event data: {error}",
+    "couldNotLoadWaveRose": "Could not load the wave rose: {error}",
     "couldNotLoadStormMap": "Could not load the storm map: {error}",
     "stormMapUnmatched": "No match between the tracks and data/events.json for: {ids}",
     "filesWillBeAdded": "Files will be added here",
