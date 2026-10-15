@@ -1,0 +1,153 @@
+{
+ "record": {
+  "start": 1950,
+  "end": 2025
+ },
+ "rule": "Tropical or subtropical systems (HURDAT2 status TS, HU or SS) of at least tropical-storm strength (34 kt) within 100 km of Sisal, 1950 to 2025. Track points are interpolated to hourly; the month is that of the first hour inside the circle.",
+ "summary": {
+  "total": 17,
+  "firstMonth": 6,
+  "lastMonth": 10,
+  "peakMonths": [
+   9
+  ]
+ },
+ "storms": [
+  {
+   "id": "charlie-1951",
+   "hurdatId": "AL041951",
+   "name": "Charlie",
+   "year": 1951,
+   "month": 8,
+   "studied": false
+  },
+  {
+   "id": "hilda-1955",
+   "hurdatId": "AL091955",
+   "name": "Hilda",
+   "year": 1955,
+   "month": 9,
+   "studied": false
+  },
+  {
+   "id": "flossy-1956",
+   "hurdatId": "AL071956",
+   "name": "Flossy",
+   "year": 1956,
+   "month": 9,
+   "studied": false
+  },
+  {
+   "id": "inez-1966",
+   "hurdatId": "AL091966",
+   "name": "Inez",
+   "year": 1966,
+   "month": 10,
+   "studied": false
+  },
+  {
+   "id": "beulah-1967",
+   "hurdatId": "AL131967",
+   "name": "Beulah",
+   "year": 1967,
+   "month": 9,
+   "studied": false
+  },
+  {
+   "id": "laurie-1969",
+   "hurdatId": "AL261969",
+   "name": "Laurie",
+   "year": 1969,
+   "month": 10,
+   "studied": false
+  },
+  {
+   "id": "brenda-1973",
+   "hurdatId": "AL081973",
+   "name": "Brenda",
+   "year": 1973,
+   "month": 8,
+   "studied": false
+  },
+  {
+   "id": "carmen-1974",
+   "hurdatId": "AL101974",
+   "name": "Carmen",
+   "year": 1974,
+   "month": 9,
+   "studied": false
+  },
+  {
+   "id": "gilbert-1988",
+   "hurdatId": "AL081988",
+   "name": "Gilbert",
+   "year": 1988,
+   "month": 9,
+   "studied": true
+  },
+  {
+   "id": "opal-1995",
+   "hurdatId": "AL171995",
+   "name": "Opal",
+   "year": 1995,
+   "month": 9,
+   "studied": true
+  },
+  {
+   "id": "isidore-2002",
+   "hurdatId": "AL102002",
+   "name": "Isidore",
+   "year": 2002,
+   "month": 9,
+   "studied": true
+  },
+  {
+   "id": "emily-2005",
+   "hurdatId": "AL052005",
+   "name": "Emily",
+   "year": 2005,
+   "month": 7,
+   "studied": true
+  },
+  {
+   "id": "cristobal-2020",
+   "hurdatId": "AL032020",
+   "name": "Cristobal",
+   "year": 2020,
+   "month": 6,
+   "studied": true
+  },
+  {
+   "id": "zeta-2020",
+   "hurdatId": "AL282020",
+   "name": "Zeta",
+   "year": 2020,
+   "month": 10,
+   "studied": true
+  },
+  {
+   "id": "grace-2021",
+   "hurdatId": "AL072021",
+   "name": "Grace",
+   "year": 2021,
+   "month": 8,
+   "studied": true
+  },
+  {
+   "id": "beryl-2024",
+   "hurdatId": "AL022024",
+   "name": "Beryl",
+   "year": 2024,
+   "month": 7,
+   "studied": true
+  },
+  {
+   "id": "milton-2024",
+   "hurdatId": "AL142024",
+   "name": "Milton",
+   "year": 2024,
+   "month": 10,
+   "studied": true
+  }
+ ]
+}

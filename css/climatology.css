@@ -31,6 +31,18 @@
 .lg-swatch { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
 #wave-rose-note { text-align: center; }
 
+/* "When storms come" bar charts (storm-counts.js): studied storms in the storm colour, other storms light grey */
+#storm-counts-legend { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-bottom: 8px; }
+#storm-counts-legend .lg { margin-bottom: 0; }
+#storm-counts-charts { position: relative; display: flex; flex-direction: column; gap: 4px; }
+#storm-counts-tip { position: absolute; z-index: 5; pointer-events: none; white-space: normal; max-width: 260px; }
+.count-studied { fill: var(--color-class-loss); background: var(--color-class-loss); }
+.count-other { fill: var(--color-text-faint); background: var(--color-text-faint); opacity: 0.45; }
+.count-block { stroke: var(--color-surface); stroke-width: 1; }
+.count-block.count-studied { cursor: pointer; }
+.count-block.selected { stroke: var(--color-text); stroke-width: 1.5; }
+.count-hit { fill: transparent; }
+
 /* event list (Figma event-list / event-row) */
 #event-list { display: flex; flex-direction: column; gap: 2px; }
 .event-row {

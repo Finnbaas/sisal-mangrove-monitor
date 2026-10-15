@@ -40,6 +40,7 @@ async function loadEvents() {
   renderEventList();
   renderEventCharts();
   renderStormMap();           // storm-map.js: the map shows the selected storm
+  renderStormCounts();        // storm-counts.js: footnote about studied storms that are not counted
   reportUnmatchedStorms();
 }
 
@@ -88,6 +89,7 @@ function selectEvent(id) {
   renderEventList();
   renderEventCharts();
   renderStormMap();           // storm-map.js: highlight the track, dim the others
+  renderStormCounts();        // storm-counts.js: outline the selected storm in the bar charts
 }
 
 // ---------- event list ----------

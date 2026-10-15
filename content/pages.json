@@ -27,14 +27,7 @@
           "columns": [
             [
               "storm-map",
-              {
-                "type": "planned",
-                "title": "When storms come",
-                "graphs": [
-                  { "title": "Storms per year (11 storms)", "label": "The 11 storms per year, clickable", "height": 150 },
-                  { "title": "Storms per month (11 storms)", "label": "The 11 storms per month, J to D", "height": 150, "width": 224 }
-                ]
-              },
+              "storm-counts",
               "event-list"
             ],
             [
