@@ -366,7 +366,7 @@ def export_storms():
             raise ValueError(f"{p['name']}: the storm period is outside the {len(dates)} days of the charts")
         tr = track_numbers(trk, h, ids[p['name']])
 
-        ev = {'id': f"{p['name'].lower()}-{start.year}", 'name': p['name'], 'type': tr['near'],
+        ev = {'id': f"{p['name'].lower()}-{start.year}", 'hurdatId': ids[p['name']], 'name': p['name'], 'type': tr['near'],
               'strengthNear': tr['near'], 'strengthPeak': tr['peak'], 'closestKm': tr['closestKm'],
               'month': f'{month_of.year}-{month_of.month:02d}',
               'stormPeriod': {'start': p['start'], 'end': p['end'], 'peak': p.get('peak')}, 'note': p.get('note', ''),

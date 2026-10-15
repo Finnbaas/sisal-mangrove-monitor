@@ -210,7 +210,7 @@ The file is one JSON array with one object per monitoring point (currently 6 poi
 
 #### Structure of data/events.json
 The file is one JSON array with one object per storm (Climatology screen), newest first. It is made by `export_storms()` in analysis/climatology/export_typical_year.py. Each object has:
-- `id`, `name`, `type`: event code (e.g. "opal-1995"), display name (e.g. "Opal"), and the strength near Sisal.
+- `id`, `hurdatId`, `name`, `type`: event code (e.g. "opal-1995"), HURDAT2 id (e.g. "AL171995"; the storm map matches tracks to events by it), display name (e.g. "Opal"), and the strength near Sisal.
 - `strengthNear`, `strengthPeak`: strongest class while within 100 km of Sisal, and over the whole life of the storm (HURDAT2): "tropical-depression", "tropical-storm" or "hurricane-1" to "hurricane-5". `strengthNear` is `null` if the storm was never within 100 km. The texts shown for them are in content/texts.json ("strengths"). `closestKm`: closest distance to Sisal in km.
 - `stormPeriod`: `{ "start", "end", "peak" }` (YYYY-MM-DD), copied from content/storm-periods.json (the team edits that file). `peak` is `null` when there is no peak date yet. `note`: remark from the same file.
 - `month`: "YYYY-MM", the month of the peak (or of the start of the storm period when there is no peak date); used for the date label, e.g. "Sep 1995".

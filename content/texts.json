@@ -7,6 +7,7 @@
     "tipping-status": "Tipping status",
     "point-info": "Point info",
     "trend-signals": "Trend signals",
+    "storm-map": "Tropical cyclones near Sisal",
     "event-list": "Storms and extreme events",
     "stakeholder-map": "Stakeholder observations",
     "stakeholder-panel": "Area details",
@@ -101,6 +102,22 @@
     "doi": "DOI:"
   },
 
+  "stormMap": {
+    "sisal": "Sisal",
+    "steps": {
+      "depression": "Tropical depression",
+      "storm": "Tropical storm",
+      "cat12": "Cat. 1–2",
+      "cat34": "Cat. 3–4",
+      "cat5": "Cat. 5"
+    },
+    "notTropical": "Not tropical",
+    "circle": "{km} km from Sisal",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "reset": "Reset"
+  },
+
   "strengths": {
     "tropical-depression": { "near": "Tropical depression", "peak": "tropical depression" },
     "tropical-storm": { "near": "Tropical storm", "peak": "tropical storm" },
@@ -121,6 +138,8 @@
     "selectEvent": "Select a storm in the list",
     "couldNotLoadPoints": "Could not load point data: {error}",
     "couldNotLoadEvents": "Could not load event data: {error}",
+    "couldNotLoadStormMap": "Could not load the storm map: {error}",
+    "stormMapUnmatched": "No match between the tracks and data/events.json for: {ids}",
     "filesWillBeAdded": "Files will be added here",
     "stepsWillBeAdded": "Steps will be added here",
     "couldNotLoadClimateData": "Could not load the climate charts: {error}",

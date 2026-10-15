@@ -2,6 +2,22 @@
    (Figma components: event-row, event-list, detail-tab, graph-placeholder).
    The stacked charts themselves are styled in charts.css. */
 
+/* storm map card: the map with the legend strip under it, both in one rounded frame */
+#storm-map-frame { border-radius: 16px; overflow: hidden; background: var(--color-storm-sea); }
+#storm-map { position: relative; width: 100%; height: 440px; }
+#storm-map-canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+#storm-map-canvas.over-track { cursor: pointer; }
+#storm-map-buttons { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; }
+.map-button { min-width: 32px; height: 32px; padding: 0 10px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-surface); font-size: 13px; color: var(--color-text-body); }
+.map-button:hover { background: var(--color-surface-subtle); }
+#storm-map-tip { position: absolute; pointer-events: none; }
+/* the legend strip under the map: same text style as the other legends (.lg) */
+#storm-map-legend { display: flex; flex-wrap: wrap; gap: 4px 18px; padding: 9px 14px; background: var(--color-surface-subtle); }
+#storm-map-legend .lg { margin-bottom: 0; }
+.lg-line { width: 16px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+.lg-line.dashed { height: 0; background: none; border-top: 2px dashed; }
+.lg-circle { width: 11px; height: 11px; border-radius: 50%; border: 1.5px dashed var(--color-storm-circle); flex-shrink: 0; box-sizing: border-box; }
+
 /* event list (Figma event-list / event-row) */
 #event-list { display: flex; flex-direction: column; gap: 2px; }
 .event-row {

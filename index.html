@@ -142,6 +142,24 @@
 
         <!-- CLIMATOLOGY CARDS (filled by climatology-storms.js from data/events.json) -->
 
+        <!-- storm map: drawn on the canvas by storm-map.js; the legend strip sits under the map -->
+        <div class="card" data-card="storm-map">
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.storm-map"></div><div class="expand">&#8599;</div></div>
+          <div id="storm-map-frame">
+            <div id="storm-map">
+              <canvas id="storm-map-canvas"></canvas>
+              <div id="storm-map-buttons">
+                <button type="button" id="storm-map-zoom-in" class="map-button">+</button>
+                <button type="button" id="storm-map-zoom-out" class="map-button">&minus;</button>
+                <button type="button" id="storm-map-reset" class="map-button" data-text="stormMap.reset"></button>
+              </div>
+              <div id="storm-map-tip" class="hover-chip" hidden></div>
+            </div>
+            <div id="storm-map-legend"></div>
+          </div>
+          <p class="fine" id="storm-map-status"></p>
+        </div>
+
         <div class="card" data-card="event-list">
           <div class="card-title-row"><div class="card-title" data-text="cardTitles.event-list"></div><div class="expand">&#8599;</div></div>
           <div id="event-list"></div>
@@ -278,6 +296,7 @@
   <script src="js/navigation.js"></script>
   <script src="js/points.js"></script>
   <script src="js/climatology-storms.js"></script>
+  <script src="js/storm-map.js"></script>
   <script src="js/climatology-climate.js"></script>
   <script src="js/stakeholders.js"></script>
   <script src="js/method.js"></script>

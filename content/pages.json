@@ -26,14 +26,7 @@
           "intro": "11 tropical cyclones that passed within 100 km of Sisal and for which we have daily climate data.",
           "columns": [
             [
-              {
-                "type": "planned",
-                "title": "Tropical cyclones near Sisal",
-                "expand": true,
-                "graphs": [
-                  { "title": "Storm tracks", "label": "Map: tracks of the 11 storms within 100 km of Sisal", "height": 380 }
-                ]
-              },
+              "storm-map",
               {
                 "type": "planned",
                 "title": "When storms come",

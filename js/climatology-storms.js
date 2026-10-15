@@ -39,6 +39,8 @@ async function loadEvents() {
   }
   renderEventList();
   renderEventCharts();
+  renderStormMap();           // storm-map.js: the map shows the selected storm
+  reportUnmatchedStorms();
 }
 
 function setupStorms() {
@@ -85,6 +87,7 @@ function selectEvent(id) {
   selectedEventId = selectedEventId === id ? null : id;
   renderEventList();
   renderEventCharts();
+  renderStormMap();           // storm-map.js: highlight the track, dim the others
 }
 
 // ---------- event list ----------
@@ -163,11 +166,14 @@ function renderEventCharts() {
   EVENT_VARS.forEach((v) => {
     const series = seriesOf(ev, v);
     const source = SOURCES[(ev.sources || {})[v.id]];
-    box.appendChild(chartRow(v, source, chartSvg(series, n, weeks, v, stormMarks(ev, dates))));
+    box.appendChild(chartRow(v, source, chartSvg(series, n, weeks, v)));
   });
 
   // one shared date axis under all charts, with a label every week
   if (n) box.appendChild(sharedAxis(weeks.map((w) => ({ x: chartX(w.i, n), text: w.d })), t('labels.date')));
+
+  // the storm period and peak: one box and one line over all charts
+  stormOverlay(box, ev, dates);
 
   // the comparison line and its labels are drawn on top of the charts
   box.insertAdjacentHTML('beforeend', '<div id="comparison" class="comparison" hidden></div>');
@@ -195,11 +201,10 @@ function renderEventCharts() {
 }
 
 // Draws one storm anomaly chart as SVG text. Also stores how values map to y positions in chartScales.
-// marks = the storm period and peak (stormMarks), drawn behind the data in every chart, also without data.
-function chartSvg(series, n, weeks, v, marks) {
+function chartSvg(series, n, weeks, v) {
   const known = knownValues(series);
   // vertical gridlines are drawn even without data, so the charts stay aligned
-  const head = chartHead(v, weeks.map((w) => chartX(w.i, n)), 'anomaly') + marks;
+  const head = chartHead(v, weeks.map((w) => chartX(w.i, n)), 'anomaly');
   if (!n || !known.length) {
     chartScales.push(null);
     return chartNoData(head);
@@ -255,23 +260,29 @@ function chartSvg(series, n, weeks, v, marks) {
   return svg + '</svg>';
 }
 
-// The storm period as a red box over the full height of the chart, and the peak as a dashed red line
-// (the same as in the team's figures). Both come from "stormPeriod" in data/events.json; no peak date: only the box.
-function stormMarks(ev, dates) {
+// The storm period as ONE red box over all charts, and the peak as one dashed red line (the same as in the team's
+// figures). Both come from "stormPeriod" in data/events.json; no peak date: only the box. The overlay is placed in
+// percent of the chart width (the charts are drawn on a 0 to PLOT.width grid), from the first to the last chart.
+function stormOverlay(box, ev, dates) {
   const period = ev.stormPeriod || {};
   const n = dates.length;
-  let svg = '';
+  const rows = box.querySelectorAll('.anomaly-chart');
+  if (!rows.length) return;
+  const top = rows[0].offsetTop, bottom = rows[rows.length - 1].offsetTop + rows[rows.length - 1].offsetHeight;
+  // x of day i as a CSS length: the 40 px label column, then a share of the rest
+  const left = (i) => 'calc(40px + (100% - 40px) * ' + (chartX(i, n) / PLOT.width).toFixed(5) + ')';
   const first = dates.indexOf(period.start), last = dates.indexOf(period.end);
-  if (first >= 0 && last >= first) {
-    const x1 = chartX(first, n), x2 = chartX(last, n);
-    svg += '<rect class="storm-box" x="' + x1.toFixed(1) + '" y="' + PLOT.top + '" width="' + (x2 - x1).toFixed(1) + '" height="' + (PLOT.bottom - PLOT.top) + '"></rect>';
-  }
+  const add = (className, style) => {
+    const el = document.createElement('div');
+    el.className = className;
+    el.style.top = top + 'px';
+    el.style.height = (bottom - top) + 'px';
+    Object.assign(el.style, style);
+    box.appendChild(el);
+  };
+  if (first >= 0 && last >= first) add('storm-box', { left: left(first), width: 'calc(' + left(last) + ' - ' + left(first) + ')' });
   const peak = period.peak ? dates.indexOf(period.peak) : -1;
-  if (peak >= 0) {
-    const x = chartX(peak, n).toFixed(1);
-    svg += '<line class="storm-peak" x1="' + x + '" y1="' + PLOT.top + '" x2="' + x + '" y2="' + PLOT.bottom + '"></line>';
-  }
-  return svg;
+  if (peak >= 0) add('storm-peak', { left: left(peak) });
 }
 
 // The small legend above the charts: "Storm period" and, when the storm has a peak date, "Peak".
