@@ -232,7 +232,8 @@ function selectMethodTab(id) {
 }
 
 // The content of one tab (Figma method-section): the gallery of things a researcher can make themselves with the
-// panel of the open one, and under it the collapsed row "About this analysis" with the background information.
+// panel of the open one, and under it the background information: the summary (always shown) and "Data sources",
+// "Key choices" and "Requirements", each its own toggle.
 function methodSectionHtml(section) {
   const block = (label, body) => '<div class="method-block"><div class="method-label">' + escapeHtml(t(label)) + '</div>' + body + '</div>';
   const placeholder = '<div class="method-text">' + textOrPlaceholder('method-placeholder', '') + '</div>';
@@ -259,22 +260,26 @@ function methodSectionHtml(section) {
   const info = Array.isArray(section.datasets) ?
     '<div class="method-info">' + list('labels.dataSources', section.datasets) + list('labels.limitations', section.limitations) + '</div>' : '';
 
-  // the background information of the other sections: the description, then "Data sources", "Key choices" and
-  // "Requirements", then the link to the folder on GitHub and the zip file
+  // A part that opens and closes (closed at the start): the small grey heading is the toggle (<summary>) with a
+  // chevron, the text is under it. The browser handles click, keyboard and screen readers (<details>).
+  const toggle = (label, body) => '<details class="method-toggle"><summary class="method-label">' + escapeHtml(t(label)) + '</summary>' +
+    '<div class="method-toggle-body">' + body + '</div></details>';
+
+  // the background information of the other sections: the summary (always shown), then "Data sources",
+  // "Key choices" and "Requirements" (each its own toggle), then the link to the folder on GitHub and the zip file
   const about = Array.isArray(section.datasets) ? '' :
-    '<details class="method-about" id="about-' + escapeHtml(section.id) + '">' +
-      '<summary>' + escapeHtml(t('labels.aboutThisAnalysis')) + '</summary>' +
+    '<div class="method-about" id="about-' + escapeHtml(section.id) + '">' +
       '<div class="method-about-body">' +
         '<p class="method-text">' + textOrPlaceholder('method-placeholder', section.description) + '</p>' +
-        '<div class="method-about-blocks">' + block('labels.dataSources', sourcesHtml) +
-          block('labels.keyChoices', choicesHtml) +
-          block('labels.requirements', '<div class="method-text">' + textOrPlaceholder('method-placeholder', section.requirements) + '</div>') + '</div>' +
+        '<div class="method-about-blocks">' + toggle('labels.dataSources', sourcesHtml) +
+          toggle('labels.keyChoices', choicesHtml) +
+          toggle('labels.requirements', '<div class="method-text">' + textOrPlaceholder('method-placeholder', section.requirements) + '</div>') + '</div>' +
         '<div class="method-files-actions">' +
           githubLink('small', t(isFilled(section.folder) ? 'labels.viewFolderOnGithub' : 'labels.viewOnGithub'), section.folder) +
           (isFilled(section.zip) ? '<a class="ghost download-all" href="' + escapeHtml(section.zip) + '" download>' + escapeHtml(t('labels.downloadAll')) + '</a>' : '') +
         '</div>' +
       '</div>' +
-    '</details>';
+    '</div>';
 
   // the theme colors of a section follow the research page with the same id (data-section, see css/base.css)
   return '<div class="card method-section" id="method-' + escapeHtml(section.id) + '" data-section="' + escapeHtml(section.id) + '" role="tabpanel" aria-label="' + escapeHtml(section.title) + '" hidden>' + info +

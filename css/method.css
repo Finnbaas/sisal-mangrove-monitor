@@ -55,6 +55,25 @@ a.method-source:hover { text-decoration: underline; }
 .method-about[open] > summary::before { transform: rotate(90deg); }
 .method-about > summary:hover { color: var(--color-text); }
 .method-about-body { display: flex; flex-direction: column; gap: 16px; padding: 0 16px 16px 16px; }
+div.method-about > .method-about-body { padding-top: 16px; }   /* the summary box without its own toggle row */
+/* "Data sources", "Key choices" and "Requirements": each opens and closes (<details>), closed at the start.
+   The heading is the toggle: the small grey label with a chevron that points right (closed) or down (open). */
+.method-toggle-body { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-top: 6px; }
+summary.method-label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; list-style: none; }
+summary.method-label::-webkit-details-marker { display: none; }   /* hide the browser's own triangle (Safari) */
+summary.method-label::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);          /* chevron pointing right */
+  transition: transform 0.15s;
+  flex-shrink: 0;
+}
+details[open] > summary.method-label::before { transform: rotate(45deg); }   /* pointing down */
+summary.method-label:hover { color: var(--color-text-muted); }
+summary.method-label:focus-visible { outline: 2px solid var(--color-text-body); outline-offset: 2px; border-radius: 3px; }
 .method-info { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; border-radius: 12px; background: var(--color-background); }
 .use-case-made { display: flex; flex-direction: column; gap: 4px; }
 .method-about-blocks { display: flex; flex-direction: column; gap: 14px; }
