@@ -2,11 +2,14 @@
 // climate charts. The chart size (PLOT), tick values, one chart row (label, chart, source tag), the
 // shared axis under a set of charts, and the comparison line: the dotted line that follows the mouse
 // and shows every chart's value at that day or month. Charts are drawn as SVG; nothing is calculated.
-// Uses: helpers.js. Used by: climatology-storms.js, climatology-climate.js. Styles: css/charts.css.
+// Uses: helpers.js. Used by: climatology-storms.js, climatology-climate.js, points.js (point chart). Styles: css/charts.css.
 
 // Size of one chart in SVG units (the same as the Figma anomaly-plot component).
 // The plot area runs from x 38 to 549 and from y 6 to 122; tick values sit left of x 38.
 const PLOT = { width: 549, height: 128, left: 38, right: 549, top: 6, bottom: 122, labelRoom: 16 };
+// The point chart (points.js) is taller: the shape of the NDVI plots of the analysis notebook (10 by 4).
+// Same width and left/right/top as PLOT, so the comparison line works the same way.
+const POINT_PLOT = Object.assign({}, PLOT, { height: 220, bottom: 214 });
 
 // A "nice" step between tick values: 1, 2 or 5 times a power of ten.
 function niceStep(raw) {
@@ -33,15 +36,15 @@ function ticksFor(min, max, includeZero = true, coverData = false) {
 
 // The vertical scale of one chart: the tick values and yOf(value), the y position in SVG units.
 // known = all values drawn; includeZero = the scale must show 0; topRoom = share of the chart height kept
-// free at the top (for a text in the corner, 0 for none).
-function chartScale(known, includeZero, topRoom = 0) {
+// free at the top (for a text in the corner, 0 for none); size = the chart size (PLOT, or POINT_PLOT).
+function chartScale(known, includeZero, topRoom = 0, size = PLOT) {
   const t = ticksFor(Math.min(...known), Math.max(...known), includeZero);
   const lo = Math.min(Math.min(...known), t.ticks[0]);
   const dataHi = Math.max(Math.max(...known), t.ticks[t.ticks.length - 1]);
   const hi = dataHi + ((dataHi - lo) || 1) * topRoom / (1 - topRoom);
-  const span = PLOT.bottom - PLOT.top;
+  const span = size.bottom - size.top;
   const pad = 4 * ((hi - lo) || 1) / (span - 8);                // 4 SVG units of room above and below
-  return { t: t, yOf: (val) => PLOT.top + (hi + pad - val) / ((hi - lo) + 2 * pad) * span };
+  return { t: t, yOf: (val) => size.top + (hi + pad - val) / ((hi - lo) + 2 * pad) * span };
 }
 
 // ---------- parts shared by every set of stacked charts (storm anomalies, typical year, ...) ----------
@@ -88,19 +91,20 @@ function sharedAxis(ticks, title) {
 }
 
 // The start of every chart: the SVG element and the vertical gridlines (gridX = x positions).
-function chartHead(v, gridX, kind) {
-  return '<svg viewBox="0 0 ' + PLOT.width + ' ' + PLOT.height + '" role="img" aria-label="' + v.label + ' ' + kind + '">' +
-    gridX.map((x) => '<rect class="plot-grid" x="' + Math.round(x) + '" y="' + PLOT.top + '" width="1" height="' + (PLOT.bottom - PLOT.top) + '"></rect>').join('');
+// size (optional) = the chart size: PLOT, or POINT_PLOT for the taller point chart.
+function chartHead(v, gridX, kind, size = PLOT) {
+  return '<svg viewBox="0 0 ' + size.width + ' ' + size.height + '" role="img" aria-label="' + v.label + ' ' + kind + '">' +
+    gridX.map((x) => '<rect class="plot-grid" x="' + Math.round(x) + '" y="' + size.top + '" width="1" height="' + (size.bottom - size.top) + '"></rect>').join('');
 }
 
 // A chart without data: the frame, the y-axis line and "No data" (or another text) in the middle.
-function chartNoData(head, text = NO_DATA) {
-  return head + '<rect class="plot-axis" x="' + PLOT.left + '" y="' + PLOT.top + '" width="1" height="' + (PLOT.bottom - PLOT.top) + '"></rect>' +
-    '<text class="plot-nodata" x="' + ((PLOT.left + PLOT.right) / 2) + '" y="' + ((PLOT.top + PLOT.bottom) / 2 + 4) + '" text-anchor="middle">' + text + '</text></svg>';
+function chartNoData(head, text = NO_DATA, size = PLOT) {
+  return head + '<rect class="plot-axis" x="' + size.left + '" y="' + size.top + '" width="1" height="' + (size.bottom - size.top) + '"></rect>' +
+    '<text class="plot-nodata" x="' + ((size.left + size.right) / 2) + '" y="' + ((size.top + size.bottom) / 2 + 4) + '" text-anchor="middle">' + text + '</text></svg>';
 }
 
 // Horizontal gridlines (not at 0), tick marks, tick values and the y-axis line.
-function chartYAxis(t, yOf, zeroGrid = false) {
+function chartYAxis(t, yOf, zeroGrid = false, size = PLOT) {
   let svg = '';
   t.ticks.forEach((tick) => {
     const y = Math.round(yOf(tick));
@@ -108,7 +112,7 @@ function chartYAxis(t, yOf, zeroGrid = false) {
     svg += '<rect class="plot-axis" x="' + (PLOT.left - 4) + '" y="' + y + '" width="4" height="1"></rect>' +
       '<text class="plot-tick-label" x="32" y="' + (y + 4) + '" text-anchor="end">' + (tick < 0 ? '−' : '') + Math.abs(tick).toFixed(t.decimals) + '</text>';
   });
-  return svg + '<rect class="plot-axis" x="' + PLOT.left + '" y="' + PLOT.top + '" width="1" height="' + (PLOT.bottom - PLOT.top) + '"></rect>';
+  return svg + '<rect class="plot-axis" x="' + size.left + '" y="' + size.top + '" width="1" height="' + (size.bottom - size.top) + '"></rect>';
 }
 
 // Splits a series into runs of consecutive known values: [[{i, val}, ...], ...]

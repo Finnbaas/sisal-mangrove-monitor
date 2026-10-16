@@ -204,7 +204,8 @@ The file is one JSON array with one object per monitoring point (currently 6 poi
 - `leftPct`, `topPct`: marker position on the site map image, in percent.
 - `years`: array of years (currently 14 survey years, 1984-2026).
 - `ndvi`, `temperature` (°C), `salinity` (PSU), `precipitation` (mm/month), `evapo` (mm/day): arrays with one value per entry in `years`, in the same order.
-- `breakpoint`: `{ "index": position in years, "label": "2010" }`, or `null` if no breakpoint was detected.
+- `ndviTrend` (featured points): the STL trend (deseasonalised) of the NDVI, one value per entry in `dates`; `null` in the months STL cuts off. `ndvi` and `ndviTrend` are the two lines of the notebook's NDVI plots, written by the notebook to analysis/satellite/featured_plot_lines.csv and featured_plot_breakpoints.csv, and copied into points.json by analysis/satellite/export_points.py.
+- `breakpoints` (featured points): list of `{ "type": "drop" or "rise", "index": position in dates, "label": "2001-08", "windowStart", "windowEnd": positions in dates of the 12-month window, "magnitude" }`; an empty list if none was detected.
 - `metricVals`: EWS values as strings: `stdDev`, `ar1`, `returnRate`, `kurtosis`, `skewness`.
 - `metricTaus`: Kendall's tau per metric as signed strings (e.g. "+0.51"): `ndvi`, `stdDev`, `ar1`, `returnRate`, `kurtosis`, `skewness`.
 

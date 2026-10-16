@@ -116,15 +116,24 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 
 ## variables.json: what is measured
 
+**Coordinates**: `coordinateDecimals` sets how many decimals the coordinates of the selected point are
+shown with (top bar and Point info card); 5 is about 1 m. Display only: `data/points.json` keeps the full values.
+
 **Add a variable to the point charts**: add a line to `pointVariables`:
 
 ```json
-{ "id": "ndvi", "label": "NDVI", "unit": "index, 0–1", "color": "data-ndvi", "shownAtStart": true }
+{ "id": "ndvi", "label": "NDVI", "unit": "index, −1 to 1", "decimals": 4, "axisRange": [-1, 1], "color": "data-ndvi", "shownAtStart": true }
 ```
 
 - `id` must be the **exact field name** in `data/points.json`. If the data has no such field,
   the site shows "No data" for it.
 - `shownAtStart`: whether its line is switched on when the page opens.
+- `decimals` (optional): how many decimals to show; without it, as many as the data has.
+- `axisRange` (optional): fixed lowest and highest value of the y-axis; without it, the axis follows the data.
+- `trend` (optional): `{ "id", "label" }` of a trend line drawn in the same chart, as in the NDVI plots
+  (`id` = field name in `data/points.json`, e.g. `ndviTrend`). The variable's own line is then grey, the
+  trend has the color of the point's change class, and the breakpoints are drawn in this chart.
+- `lineLabel` (optional): the name of the variable's own line next to the trend (e.g. "raw NDVI").
 - `color`: the name of a color from the design (Figma variables / top of `css/base.css`), without
   `--color-`. A **new** color is a design change: ask the designer to add it in Figma and
   `css/base.css` first. A color name that does not exist shows as grey.
