@@ -277,12 +277,11 @@ button { font-family: inherit; cursor: pointer; }
 
 /* a long page in parts (content/pages.json "parts"), e.g. Climatology: "Storms at Sisal", "Climate at Sisal" */
 .research-parts { display: flex; flex-direction: column; gap: 28px; }
-/* the section navigation stays at the top while scrolling (Figma section-nav, section-nav-item) */
+/* the section navigation stays at the top while scrolling (Figma section-nav, section-nav-item); its bar has the page
+   background, so content that scrolls underneath is hidden instead of showing around the pill */
+.section-nav-bar { position: sticky; top: 0; z-index: 20; margin: 0 -8px; padding: 12px 8px 10px; background: var(--color-background); }
 .section-nav {
-  position: sticky;
-  top: 12px;
-  z-index: 20;
-  align-self: flex-start;
+  width: fit-content;
   display: flex;
   gap: 4px;
   padding: 5px;
