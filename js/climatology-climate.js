@@ -254,8 +254,16 @@ function renderClimateChange(content) {
     const unit = data ? data.unit + (data.note ? ', ' + data.note : '') : NO_DATA;
     const drawn = yearChartSvg(p, data, years, yearX, decades);
     const row = chartRow({ label: p.label, unit: unit, onOpen: () => openClimateDetail(p.id) }, null, drawn.svg);
-    // no trend box on top of the chart: the trend and its badge are shown in "In detail"
+    // the source tag is replaced by the trend (value and p-value) in the top right; the badge is shown in "In detail"
     row.querySelector('.source-tag').remove();
+    const lines = data && Array.isArray(data.series) ? data.series.map((s) => trendTagText(s, p.seriesLabels[s.id], data.trendUnit)).filter(Boolean) : [];
+    if (lines.length) {
+      const tag = document.createElement('div');
+      tag.className = 'trend-tag';
+      lines.forEach((text) => { const line = document.createElement('span'); line.className = 'trend-tag-value'; line.textContent = text; tag.appendChild(line); });
+      row.style.setProperty('--tag-lines', lines.length);
+      row.appendChild(tag);
+    }
     box.appendChild(row);
     return drawn.panel;
   });
@@ -277,7 +285,7 @@ function yearChartSvg(p, data, years, yearX, decades) {
   const head = chartHead(p, decades.map(yearX), 'change since ' + years.first);
   const series = data && Array.isArray(data.series) ? data.series : [];
   const known = [];
-  series.forEach((s) => ['means', 'fit'].forEach((k) => (s[k] || []).forEach((v) => { if (isNumber(v)) known.push(v); })));
+  series.forEach((s) => ['means', 'fit'].forEach((k) => (k === 'fit' && !(s.p < TREND_P_LIMIT) ? [] : (s[k] || [])).forEach((v) => { if (isNumber(v)) known.push(v); })));
   if (!known.length) return { svg: chartNoData(head), panel: null };
 
   const t = ticksFor(Math.min(...known), Math.max(...known), false, true);
@@ -293,8 +301,8 @@ function yearChartSvg(p, data, years, yearX, decades) {
     const row = new Array(years.last - years.first + 1).fill(null);
     (s.years || []).forEach((y, i) => { if (y >= years.first && y <= years.last && isNumber(s.means[i])) row[y - years.first] = s.means[i]; });
     byYear.push(row);
-    // the trend: a dashed grey line from the first to the last year of the series
-    if (s.fit && s.years && s.years.length) {
+    // the trend: a dashed grey line from the first to the last year of the series, only when it is significant
+    if (s.p < TREND_P_LIMIT && s.fit && s.years && s.years.length) {
       svg += '<line x1="' + yearX(s.years[0]).toFixed(1) + '" y1="' + yOf(s.fit[0]).toFixed(1) + '" x2="' + yearX(s.years[s.years.length - 1]).toFixed(1) +
         '" y2="' + yOf(s.fit[1]).toFixed(1) + '" stroke="' + color('--color-text-faint') + '" stroke-width="1" stroke-dasharray="4 3"></line>';
     }
@@ -415,6 +423,18 @@ async function renderClimateDetailTab() {
 // "YYYY-MM" to a point in time in years (the middle of that month), for example 1950-07 gives 1950.54
 function monthTime(label) {
   return Number(label.slice(0, 4)) + (Number(label.slice(5, 7)) - 0.5) / 12;
+}
+
+// A trend is drawn (dashed line) and given as a number only when it is significant: p below this limit.
+const TREND_P_LIMIT = 0.05;
+
+// The trend of one series for the top right of a "Change since 1950" chart: "+0.09 ± 0.04 °C/decade, p < 0.001",
+// or "no significant trend (p = 0.24)". A named series (air temperature) starts with its name, e.g. "Max".
+function trendTagText(s, name, trendUnit) {
+  if (!isNumber(s.p)) return null;
+  const prefix = name ? name.charAt(0).toUpperCase() + name.slice(1) + ' ' : '';
+  if (s.p >= TREND_P_LIMIT || !isNumber(s.slope) || !isNumber(s.ci95)) return prefix + t('labels.noSignificantTrend', { p: pValueText(s.p) });
+  return prefix + trendText(s, trendUnit) + ', ' + pValueText(s.p);
 }
 
 // the p-value as text: "p < 0.001", "p = 0.012", "p = 0.24"

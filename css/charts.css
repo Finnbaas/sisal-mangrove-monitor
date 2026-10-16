@@ -54,7 +54,9 @@
 .hover-chip { padding: 2px 6px; border-radius: 6px; border: 1px solid var(--color-divider); background: var(--color-surface); font-family: 'Space Mono', monospace; font-size: 11px; color: var(--color-text); white-space: nowrap; box-shadow: 0 6px 18px rgba(28, 59, 46, 0.08); }
 
 /* the trend in the top right corner of a "Change since 1950" chart (where the other charts show their source) */
-.trend-tag { position: absolute; top: 0; right: 2px; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; padding: 4px 7px; border-radius: 6px; border: 1px solid var(--color-divider); background: var(--color-surface); }
+/* small text without a box, in a strip above the plot (one line of 14 px per series) so it never covers data */
+.trend-tag { position: absolute; top: 0; right: 2px; display: flex; flex-direction: column; align-items: flex-end; gap: 0; padding: 2px 0; line-height: 14px; }
+.anomaly-chart:has(.trend-tag) { padding-top: calc(8px + var(--tag-lines, 1) * 14px); }
 .trend-tag-value { font-size: 11px; color: var(--color-text); white-space: nowrap; }
 .trend-tag .trend-badge { margin-top: 2px; }
 /* how sure a trend is (Figma trend-badge) */
