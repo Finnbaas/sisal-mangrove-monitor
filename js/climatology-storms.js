@@ -23,7 +23,7 @@ const DAY_MARGIN = 2;          // empty days drawn before the first and after th
 // ---------- state ----------
 
 let events = [];               // contents of data/events.json
-let selectedEventId = null;    // no event selected at the start
+let selectedEventId = null;    // the selected event; at the start the one named in content/texts.json "defaultStorm"
 let chartScales = [];          // per chart: how to turn a value into a y position (used by the comparison line)
 
 // ---------- loading ----------
@@ -33,6 +33,8 @@ async function loadEvents() {
     const response = await fetch('data/events.json');
     if (!response.ok) throw new Error('HTTP ' + response.status);
     events = await response.json();
+    // select the default storm at the start, so the anomaly charts are not empty
+    if (events.some((e) => e.id === CONTENT.texts.defaultStorm)) selectedEventId = CONTENT.texts.defaultStorm;
   } catch (err) {
     $('events-status').textContent = t('messages.couldNotLoadEvents', { error: err.message });
     console.error(err);
@@ -139,6 +141,13 @@ function weeklyDays(dates) {
   return dates.map((d, i) => ({ d: d, i: i })).filter((p) => new Date(p.d + 'T00:00:00Z').getUTCDay() === 6);
 }
 
+// "2024-09-14" -> "14 Sep"
+function shortDate(text) {
+  const parts = String(text).split('-');
+  const month = parseInt(parts[1], 10);
+  return month >= 1 && month <= 12 ? parseInt(parts[2], 10) + ' ' + MONTHS[month - 1] : String(text);
+}
+
 function renderEventCharts() {
   const ev = getSelectedEvent();
   $('event-charts-empty').hidden = !!ev;
@@ -150,11 +159,13 @@ function renderEventCharts() {
 
   $('event-title').textContent = (ev.name || NO_DATA) + ' (' + monthLabel(ev) + ')';
   renderStormLegend(ev);
-  $('event-subtitle').textContent = t('labels.anomalyExplanation') + ' (' + (ev.baseline || NO_DATA) + ')';
+  // one line; the baseline of each dataset is in the hover text
+  $('event-subtitle').textContent = t('labels.anomalyExplanation');
+  $('event-subtitle').title = t('labels.baselineLabel') + ' ' + (ev.baseline || NO_DATA);
 
   const dates = Array.isArray(ev.dates) ? ev.dates : [];
   const n = dates.length;
-  const weeks = weeklyDays(dates);
+  const weeks = weeklyDays(dates).filter((w, k) => k % 2 === 0);      // every second week: fewer ticks
   const box = $('event-charts');
   box.innerHTML = '';
 
@@ -168,11 +179,11 @@ function renderEventCharts() {
   EVENT_VARS.forEach((v) => {
     const series = seriesOf(ev, v);
     const source = SOURCES[(ev.sources || {})[v.id]];
-    box.appendChild(chartRow(v, source, chartSvg(series, n, weeks, v)));
+    box.appendChild(chartRow(v, source, chartSvg(series, n, weeks, v, noDataReason(ev, v, source))));
   });
 
   // one shared date axis under all charts, with a label every week
-  if (n) box.appendChild(sharedAxis(weeks.map((w) => ({ x: chartX(w.i, n), text: w.d })), t('labels.date')));
+  if (n) box.appendChild(sharedAxis(weeks.map((w) => ({ x: chartX(w.i, n), text: shortDate(w.d) })), t('labels.date')));
 
   // the storm period and peak: one box and one line over all charts
   stormOverlay(box, ev, dates);
@@ -203,13 +214,23 @@ function renderEventCharts() {
 }
 
 // Draws one storm anomaly chart as SVG text. Also stores how values map to y positions in chartScales.
-function chartSvg(series, n, weeks, v) {
+// Why a chart has no data: the storm lies outside the record period of the variable (typical-year.json "record"),
+// for example "Record covers 1993 to 2012 (HYCOM cell)". Empty when the storm lies inside the record or the period is unknown.
+function noDataReason(ev, v, source) {
+  const record = typicalYear && typicalYear.variables && typicalYear.variables[v.id] && typicalYear.variables[v.id].record;
+  const dates = Array.isArray(ev.dates) ? ev.dates : [];
+  if (!record || !record.start || !record.end || !dates.length) return '';
+  if (dates[dates.length - 1] >= record.start && dates[0] <= record.end) return '';
+  return t('labels.noDataRecord', { start: record.start.slice(0, 4), end: record.end.slice(0, 4), source: source ? source.label : '' });
+}
+
+function chartSvg(series, n, weeks, v, reason) {
   const known = knownValues(series);
   // vertical gridlines are drawn even without data, so the charts stay aligned
   const head = chartHead(v, weeks.map((w) => chartX(w.i, n)), 'anomaly');
   if (!n || !known.length) {
     chartScales.push(null);
-    return chartNoData(head);
+    return chartNoData(head, NO_DATA, reason);
   }
 
   // y scale: room for the ticks and the data, plus space for the label at the most extreme value

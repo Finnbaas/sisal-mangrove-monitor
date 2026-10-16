@@ -93,10 +93,12 @@ function chartHead(v, gridX, kind) {
     gridX.map((x) => '<rect class="plot-grid" x="' + Math.round(x) + '" y="' + PLOT.top + '" width="1" height="' + (PLOT.bottom - PLOT.top) + '"></rect>').join('');
 }
 
-// A chart without data: the frame, the y-axis line and "No data" (or another text) in the middle.
-function chartNoData(head, text = NO_DATA) {
+// A chart without data: the frame, the y-axis line and "No data" (or another text) in the middle,
+// with an optional smaller line under it that says why (reason).
+function chartNoData(head, text = NO_DATA, reason = '') {
   return head + '<rect class="plot-axis" x="' + PLOT.left + '" y="' + PLOT.top + '" width="1" height="' + (PLOT.bottom - PLOT.top) + '"></rect>' +
-    '<text class="plot-nodata" x="' + ((PLOT.left + PLOT.right) / 2) + '" y="' + ((PLOT.top + PLOT.bottom) / 2 + 4) + '" text-anchor="middle">' + text + '</text></svg>';
+    '<text class="plot-nodata" x="' + ((PLOT.left + PLOT.right) / 2) + '" y="' + ((PLOT.top + PLOT.bottom) / 2 + (reason ? -2 : 4)) + '" text-anchor="middle">' + text + '</text>' +
+    (reason ? '<text class="plot-nodata-reason" x="' + ((PLOT.left + PLOT.right) / 2) + '" y="' + ((PLOT.top + PLOT.bottom) / 2 + 16) + '" text-anchor="middle">' + reason + '</text>' : '') + '</svg>';
 }
 
 // Horizontal gridlines (not at 0), tick marks, tick values and the y-axis line.

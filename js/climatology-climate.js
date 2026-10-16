@@ -14,6 +14,25 @@ let CLIMATE_PANELS = [];        // one chart per entry, top to bottom (variables
 let typicalYear = null;         // contents of data/climate/typical-year.json
 let typicalYearCharts = null;   // the charts, as a set for the comparison line (see charts.js)
 
+// The panels of "A typical year" and "Change since 1950": the same list as CLIMATE_PANELS, except that a variable
+// with named series (air temperature: max and min) gets one panel per series, so each trend is easy to see.
+// A panel of one series has `only` = the series id.
+function overviewPanels() {
+  const list = [];
+  CLIMATE_PANELS.forEach((p) => {
+    const ids = Object.keys(p.seriesLabels);
+    if (ids.length < 2) { list.push(p); return; }
+    ids.forEach((id) => list.push(Object.assign({}, p, { label: p.label + ' (' + p.seriesLabels[id] + ')', only: id, seriesLabels: {} })));
+  });
+  return list;
+}
+
+// The data of a panel: only its own series when it shows one series of a variable.
+function panelData(p, data) {
+  if (!data || !p.only || !Array.isArray(data.series)) return data;
+  return Object.assign({}, data, { series: data.series.filter((s) => s.id === p.only) });
+}
+
 function setupClimate() {
   CLIMATE_PANELS = (CONTENT.variables.climateVariables || []).map((x) => ({
     id: x.id, label: x.label, colorVar: colorVarOf(x.color), seriesLabels: x.seriesLabels || {}
@@ -69,6 +88,7 @@ async function loadTypicalYear() {
     console.error(err);
   }
   renderTypicalYear();
+  renderEventCharts();        // climatology-storms.js: the reason for "No data" uses the record period of this file
   loadClimateChange();
 }
 
@@ -100,11 +120,11 @@ function renderTypicalYear() {
   const sources = {};
   Object.entries(CONTENT.variables.sources || {}).forEach(([id, s]) => { sources[id] = { label: s.label, colorVar: colorVarOf(s.color) }; });
 
-  const panels = CLIMATE_PANELS.map((p) => {
-    const data = variables[p.id];
+  const panels = overviewPanels().map((p) => {
+    const data = panelData(p, variables[p.id]);
     const unit = data ? data.unit + (data.note ? ', ' + data.note : '') : NO_DATA;
     const drawn = monthChartSvg(p, data);
-    box.appendChild(chartRow({ label: p.label, unit: unit, onOpen: () => openClimateDetail(p.id) }, data ? sources[data.source] : null, drawn.svg));
+    box.appendChild(chartRow({ label: p.label, unit: unit, onOpen: () => openClimateDetail(p.id, p.only) }, data ? sources[data.source] : null, drawn.svg));
     return drawn.panel;
   });
 
@@ -249,13 +269,21 @@ function renderClimateChange(content) {
   for (let y = Math.ceil(years.first / 10) * 10; y <= years.last; y += 10) decades.push(y);
   const variables = (climateChange && climateChange.variables) || {};
 
-  const panels = CLIMATE_PANELS.map((p) => {
-    const data = variables[p.id];
+  const panels = overviewPanels().map((p) => {
+    const data = panelData(p, variables[p.id]);
     const unit = data ? data.unit + (data.note ? ', ' + data.note : '') : NO_DATA;
     const drawn = yearChartSvg(p, data, years, yearX, decades);
-    const row = chartRow({ label: p.label, unit: unit, onOpen: () => openClimateDetail(p.id) }, null, drawn.svg);
-    // no trend box on top of the chart: the trend and its badge are shown in "In detail"
+    const row = chartRow({ label: p.label, unit: unit, onOpen: () => openClimateDetail(p.id, p.only) }, null, drawn.svg);
+    // the source tag is replaced by the trend (value and p-value) in the top right; the badge is shown in "In detail"
     row.querySelector('.source-tag').remove();
+    const lines = data && Array.isArray(data.series) ? data.series.map((s) => trendTagText(s, p.seriesLabels[s.id], data.trendUnit)).filter(Boolean) : [];
+    if (lines.length) {
+      const tag = document.createElement('div');
+      tag.className = 'trend-tag';
+      lines.forEach((text) => { const line = document.createElement('span'); line.className = 'trend-tag-value'; line.textContent = text; tag.appendChild(line); });
+      row.style.setProperty('--tag-lines', lines.length);
+      row.appendChild(tag);
+    }
     box.appendChild(row);
     return drawn.panel;
   });
@@ -277,7 +305,7 @@ function yearChartSvg(p, data, years, yearX, decades) {
   const head = chartHead(p, decades.map(yearX), 'change since ' + years.first);
   const series = data && Array.isArray(data.series) ? data.series : [];
   const known = [];
-  series.forEach((s) => ['means', 'fit'].forEach((k) => (s[k] || []).forEach((v) => { if (isNumber(v)) known.push(v); })));
+  series.forEach((s) => ['means', 'fit'].forEach((k) => (k === 'fit' && !(s.p < TREND_P_LIMIT) ? [] : (s[k] || [])).forEach((v) => { if (isNumber(v)) known.push(v); })));
   if (!known.length) return { svg: chartNoData(head), panel: null };
 
   const t = ticksFor(Math.min(...known), Math.max(...known), false, true);
@@ -293,8 +321,8 @@ function yearChartSvg(p, data, years, yearX, decades) {
     const row = new Array(years.last - years.first + 1).fill(null);
     (s.years || []).forEach((y, i) => { if (y >= years.first && y <= years.last && isNumber(s.means[i])) row[y - years.first] = s.means[i]; });
     byYear.push(row);
-    // the trend: a dashed grey line from the first to the last year of the series
-    if (s.fit && s.years && s.years.length) {
+    // the trend: a dashed grey line from the first to the last year of the series, only when it is significant
+    if (s.p < TREND_P_LIMIT && s.fit && s.years && s.years.length) {
       svg += '<line x1="' + yearX(s.years[0]).toFixed(1) + '" y1="' + yOf(s.fit[0]).toFixed(1) + '" x2="' + yearX(s.years[s.years.length - 1]).toFixed(1) +
         '" y2="' + yOf(s.fit[1]).toFixed(1) + '" stroke="' + color('--color-text-faint') + '" stroke-width="1" stroke-dasharray="4 3"></line>';
     }
@@ -354,9 +382,10 @@ function renderClimateDetail(content) {
 }
 
 // Opens the tab of a variable in "In detail" (id = the id from climateVariables, the same one the panel
-// labels use) and scrolls smoothly to that card. Used by the variable names in the chart panels.
-async function openClimateDetail(id) {
-  const i = detailTabs.findIndex((tab) => tab.panel.id === id);
+// labels use; series = the series id when the panel shows one series, e.g. "max") and scrolls smoothly to that card.
+// Used by the variable names in the chart panels.
+async function openClimateDetail(id, series) {
+  const i = detailTabs.findIndex((tab) => tab.panel.id === id && (!series || tab.series === series));
   if (i < 0) return;
   detailSelected = i;
   // scroll only when the charts are drawn: the card is the last on the page, so with only a short
@@ -415,6 +444,18 @@ async function renderClimateDetailTab() {
 // "YYYY-MM" to a point in time in years (the middle of that month), for example 1950-07 gives 1950.54
 function monthTime(label) {
   return Number(label.slice(0, 4)) + (Number(label.slice(5, 7)) - 0.5) / 12;
+}
+
+// A trend is drawn (dashed line) and given as a number only when it is significant: p below this limit.
+const TREND_P_LIMIT = 0.05;
+
+// The trend of one series for the top right of a "Change since 1950" chart: "+0.09 ± 0.04 °C/decade, p < 0.001",
+// or "no significant trend (p = 0.24)". A named series (air temperature) starts with its name, e.g. "Max".
+function trendTagText(s, name, trendUnit) {
+  if (!isNumber(s.p)) return null;
+  const prefix = name ? name.charAt(0).toUpperCase() + name.slice(1) + ' ' : '';
+  if (s.p >= TREND_P_LIMIT || !isNumber(s.slope) || !isNumber(s.ci95)) return prefix + t('labels.noSignificantTrend', { p: pValueText(s.p) });
+  return prefix + trendText(s, trendUnit) + ', ' + pValueText(s.p);
 }
 
 // the p-value as text: "p < 0.001", "p = 0.012", "p = 0.24"
@@ -561,7 +602,7 @@ function drawClimateDetail(tab, file, box) {
   summary.firstChild.textContent = t('labels.colTrend');
   trends.forEach((tr, k) => {
     const v = document.createElement('div');
-    v.className = 'trend-tag-value mono';
+    v.className = 'trend-tag-value';
     const style = TREND_LINE_STYLES[k % TREND_LINE_STYLES.length];
     // with more than one trend (sea level) each has a small line sample as a legend
     if (trends.length > 1) v.insertAdjacentHTML('beforeend', '<svg width="18" height="6" aria-hidden="true"><line x1="0" y1="3" x2="18" y2="3" stroke="' + color(style.colorVar) +
