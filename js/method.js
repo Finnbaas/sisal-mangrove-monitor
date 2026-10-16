@@ -321,6 +321,15 @@ function useCaseHtml(section, useCase) {
   const madeHtml = isFilled(useCase.howMade) ?
     '<div class="use-case-made"><div class="method-label">' + escapeHtml(t('labels.howThisIsMade')) + '</div><p class="method-text">' + escapeHtml(fillFacts(useCase.howMade)) + '</p></div>' : '';
 
+  // optional: "How we used it" (one sentence, with a link to the page where the result is) and "What you need"
+  const usedHtml = isFilled(useCase.howWeUsed) ?
+    '<div class="use-case-made"><div class="method-label">' + escapeHtml(t('labels.howWeUsedIt')) + '</div><p class="method-text">' + escapeHtml(useCase.howWeUsed) +
+    (isFilled(useCase.howWeUsedLink) ? ' <a href="' + escapeHtml(useCase.howWeUsedLink) + '">' + escapeHtml(t('labels.seeOnClimatologyPage')) + ' &rarr;</a>' : '') + '</p></div>' : '';
+  const needs = (useCase.whatYouNeed || []).filter(isFilled);
+  const needHtml = needs.length ?
+    '<div class="use-case-made"><div class="method-label">' + escapeHtml(t('labels.whatYouNeed')) + '</div>' +
+    needs.map((n) => '<p class="method-text">' + escapeHtml(n) + '</p>').join('') + '</div>' : '';
+
   const steps = (useCase.steps || []).filter(isFilled);
   const stepsHtml = steps.length ? '<ol class="use-case-steps">' + steps.map((s, i) =>
     '<li><span class="use-case-number">' + (i + 1) + '</span><span>' + escapeHtml(fillFacts(s)) + '</span></li>').join('') + '</ol>'
@@ -335,7 +344,7 @@ function useCaseHtml(section, useCase) {
     '<button type="button" class="use-case-close" aria-label="' + escapeHtml(t('labels.closePanel')) + '" title="' + escapeHtml(t('labels.closePanel')) + '">&times;</button>' +
     '<div class="use-case-body">' +
       '<div class="use-case-instructions"><div><div class="use-case-title">' + textOrPlaceholder('method-placeholder', useCase.title) + '</div>' +
-      '<div class="use-case-name mono">#method/' + escapeHtml(useCase.id) + '</div></div>' + madeHtml + stepsHtml + '</div>' +
+      '<div class="use-case-name mono">#method/' + escapeHtml(useCase.id) + '</div></div>' + madeHtml + usedHtml + needHtml + stepsHtml + '</div>' +
       '<div class="use-case-files">' + filesHtml + '</div>' +
     '</div></div>';
 }

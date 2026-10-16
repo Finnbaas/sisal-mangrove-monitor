@@ -83,6 +83,11 @@
         { "name": "typical_year.py", "description": "Monthly mean and 10th to 90th percentile band.", "format": "Python", "path": "analysis/climatology/reference/typical_year.py" },
         { "name": "annual_trends.py", "description": "Annual means and trends.", "format": "Python", "path": "analysis/climatology/reference/annual_trends.py" },
         { "name": "sea_level.py", "description": "Sea level from the altimetry files: annual means and trends.", "format": "Python", "path": "analysis/climatology/reference/sea_level.py" },
+        { "name": "README.md", "description": "What the analysis shows, the input format, the steps and what the warnings mean.", "format": "Markdown", "path": "diy/climatology/event-anomaly/README.md" },
+        { "name": "event_anomaly.py", "description": "Anomaly chart around an event for your own data: settings at the top, saves a PNG and a CSV.", "format": "Python", "path": "diy/climatology/event-anomaly/event_anomaly.py" },
+        { "name": "get_era5_point.js", "description": "Google Earth Engine script that exports daily ERA5-Land data for any coordinates.", "format": "JavaScript", "path": "diy/climatology/event-anomaly/get_era5_point.js" },
+        { "name": "requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "diy/climatology/event-anomaly/requirements.txt" },
+        { "name": "sisal_milton_2024.csv", "description": "Our Sisal data (1950 to 2025) in the input format; runs Hurricane Milton out of the box.", "format": "CSV", "path": "diy/climatology/event-anomaly/example_data/sisal_milton_2024.csv" },
         { "name": "placeholder-script.py", "description": "Placeholder file.", "format": "Python", "path": "" },
         { "name": "placeholder-data.csv", "description": "Placeholder file.", "format": "CSV", "path": "" },
         { "name": "storm-periods.json", "description": "Storm period and peak date of each studied storm, edited by hand.", "format": "JSON", "path": "content/storm-periods.json" },
@@ -116,18 +121,23 @@
         {
           "id": "storm-anomaly-chart",
           "title": "Anomaly chart of the weather around one storm",
-          "image": "img/method/storm-anomalies.png",
+          "image": "img/method/event-anomaly.png",
           "howMade": "An anomaly is a daily value minus the mean of the same calendar day (baseline: {storms.baseline}). The charts show {storms.windowDays} days around the peak date; the box is the storm period and the dashed line the day the storm was closest to Sisal.",
+          "howWeUsed": "We used it to show how air temperature, wind, waves, rainfall and sea surface temperature at Sisal differed from normal around each of the studied storms.",
+          "howWeUsedLink": "#climatology",
+          "whatYouNeed": [
+            "A CSV file with a date column (YYYY-MM-DD) and one numeric column per variable, with at least 10 years of daily data.",
+            "No own data? The helper script exports daily ERA5-Land data (air temperature, rainfall, wind) for any coordinates from Google Earth Engine."
+          ],
           "infoCards": ["event-charts"],
           "steps": [
-            "Export the daily ERA5-Land, ERA5 and HYCOM values of the grid cells at your site from Earth Engine as CSV, one file per dataset, with a date column.",
-            "Look up your storm in HURDAT2 and add its name, storm period (start, end) and peak date to storm-periods.json.",
-            "In loading.py, set FILES to your CSV files. load_series() reads each variable as a complete daily series.",
-            "Calculate the anomaly with anomaly() in export_typical_year.py: the daily value minus the baseline. Baseline: {storms.baseline}.",
-            "Cut the anomaly {storms.windowDays} days before and after the peak date. export_storms() does this and writes the numbers for all storms.",
-            "Draw each variable as a filled line around zero, with the storm period as a box and the peak as a dashed line (chart functions: charts.js)."
+            "Install Python and the packages in requirements.txt (pandas, numpy, matplotlib) in a virtual environment.",
+            "Put your data in a CSV file in the input format, or export it with get_era5_point.js in the Earth Engine Code Editor.",
+            "Open event_anomaly.py and set the CSV path, the event name and dates, the days before and after, and the baseline.",
+            "Run python event_anomaly.py and read the data checks it prints.",
+            "Open the chart (PNG) and the anomaly values (CSV) in the output folder, and check the warnings before you use them."
           ],
-          "files": ["Sisal_ERA5Land_daily_all.csv", "Sisal_ERA5_daily_all.csv", "Sisal_HYCOM_daily_all.csv", "hurdat2_atlantic.txt", "storm-periods.json", "loading.py", "Clima_Baseline.ipynb", "export_typical_year.py", "charts.js"],
+          "files": ["README.md", "event_anomaly.py", "get_era5_point.js", "requirements.txt", "sisal_milton_2024.csv"],
           "cards": ["event-charts"]
         },
         {

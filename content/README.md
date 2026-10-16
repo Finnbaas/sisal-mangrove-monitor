@@ -288,6 +288,8 @@ code files to download. Everything on it comes from this file.
 - `datasets`: one line per dataset (name, variables, period) and `limitations`: at most three short lines.
   A section with `datasets` shows them as a compact list above the cards instead of the row "About this analysis".
 - `howMade`: at most two sentences, shown as "How this is made" at the top of the panel of a use case.
+- `howWeUsed` (optional, one sentence) with `howWeUsedLink` (optional, e.g. `#climatology`): shown as "How we used it", with a link to the page that shows the result.
+- `whatYouNeed` (optional, list of 1 or 2 lines): shown as "What you need".
 - `infoCards` (use case or section): research cards whose small ↗ button opens that panel (a section: its tab).
 - Numbers in curly brackets (also in `steps`) are filled in from the data files, so they always match the research
   page: `{storms.total}`, `{storms.start}`, `{storms.end}`, `{storms.studied}`, `{storms.notCounted}`,
