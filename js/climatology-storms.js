@@ -23,7 +23,7 @@ const DAY_MARGIN = 2;          // empty days drawn before the first and after th
 // ---------- state ----------
 
 let events = [];               // contents of data/events.json
-let selectedEventId = null;    // no event selected at the start
+let selectedEventId = null;    // the selected event; at the start the one named in content/texts.json "defaultStorm"
 let chartScales = [];          // per chart: how to turn a value into a y position (used by the comparison line)
 
 // ---------- loading ----------
@@ -33,6 +33,8 @@ async function loadEvents() {
     const response = await fetch('data/events.json');
     if (!response.ok) throw new Error('HTTP ' + response.status);
     events = await response.json();
+    // select the default storm at the start, so the anomaly charts are not empty
+    if (events.some((e) => e.id === CONTENT.texts.defaultStorm)) selectedEventId = CONTENT.texts.defaultStorm;
   } catch (err) {
     $('events-status').textContent = t('messages.couldNotLoadEvents', { error: err.message });
     console.error(err);

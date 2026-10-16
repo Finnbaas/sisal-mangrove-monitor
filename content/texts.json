@@ -1,6 +1,7 @@
 {
   "siteName": "Sisal Mangrove Monitor",
   "tabs": { "research": "Research", "method": "Method" },
+  "defaultStorm": "milton-2024",
 
   "cardTitles": {
     "point-map": "Site map",
