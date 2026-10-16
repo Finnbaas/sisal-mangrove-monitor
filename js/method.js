@@ -242,8 +242,16 @@ function methodSectionHtml(section) {
     isFilled(s.url) ? '<a class="method-source" href="' + escapeHtml(s.url) + '" target="_blank" rel="noopener">' + escapeHtml(s.label) + ' &rarr;</a>'
       : '<span class="method-source">' + escapeHtml(s.label) + '</span>').join('') : placeholder;
 
-  const choices = (section.keyChoices || []).filter(isFilled);
-  const choicesHtml = choices.length ? '<ul class="method-choices">' + choices.map((c) => '<li>' + escapeHtml(c) + '</li>').join('') + '</ul>' : placeholder;
+  // A key choice is a text, or { text, more, moreLabel }: then "text" is shown and "more" sits behind its own
+  // small toggle with the label "moreLabel" (e.g. "Show thresholds"): a <details>, no own JavaScript.
+  const choiceText = (c) => (c && typeof c === 'object' ? c.text : c);
+  const choiceHtml = (c) => {
+    if (!c || typeof c !== 'object' || !isFilled(c.more)) return escapeHtml(choiceText(c));
+    return '<span class="choice-text">' + escapeHtml(c.text) + ' <details class="choice-more"><summary>' +
+      escapeHtml(isFilled(c.moreLabel) ? c.moreLabel : t('labels.showMore')) + '</summary><span class="choice-more-text">' + escapeHtml(c.more) + '</span></details></span>';
+  };
+  const choices = (section.keyChoices || []).filter((c) => isFilled(choiceText(c)));
+  const choicesHtml = choices.length ? '<ul class="method-choices">' + choices.map((c) => '<li>' + choiceHtml(c) + '</li>').join('') + '</ul>' : placeholder;
 
   // a section with "datasets": a compact list of the data sources and the limitations, above the cards
   const list = (label, lines) => (lines || []).filter(isFilled).length ?

@@ -6,7 +6,8 @@
 // Uses: content.js (CONTENT, t) once the content is loaded.
 // Used by: every other js file. Loaded first.
 
-let YEAR_MIN, YEAR_MAX;   // the year range (variables.json "yearRange")
+let YEAR_MIN, YEAR_MAX;   // the year range (variables.json "yearRange"), used by the Stakeholder screen;
+                          // the point slider takes its years from data/points.json (points.js)
 let CLASSES = {};         // change classes of the points (variables.json "changeClasses")
 
 let NO_DATA = 'No data';  // text shown wherever a value is missing (texts.json "messages.noData")
@@ -47,10 +48,11 @@ function decimalsIn(numbers) {
   }));
 }
 
-// Formats a value with the same number of decimals as the series it belongs to.
-function formatLike(value, series) {
+// Formats a value with the same number of decimals as the series it belongs to,
+// or with a fixed number of decimals when "decimals" is given (e.g. from content/variables.json).
+function formatLike(value, series, decimals) {
   if (!isNumber(value)) return NO_DATA;
-  return value.toFixed(decimalsIn(series));
+  return value.toFixed(isNumber(decimals) ? decimals : decimalsIn(series));
 }
 
 function download(filename, href) {

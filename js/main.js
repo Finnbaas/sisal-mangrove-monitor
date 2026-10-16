@@ -30,8 +30,7 @@ async function start() {
   setupNavigation();
   setupSlider();
   setupExports();
-  setYear(YEAR_MAX);
-  loadPoints();
+  loadPoints();             // points.js: also sets the year slider to the years of the data
 }
 
 start();

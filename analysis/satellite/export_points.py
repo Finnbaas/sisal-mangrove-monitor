@@ -1,11 +1,15 @@
 # export_points.py: turns the monthly Landsat NDVI per point, the shape classes and the breakpoints
 #   into data/points.json, the file the Overview and Satellite screens read.
-# Reads (all in analysis/points/): the three monthly max-NDVI CSVs, shape_classes_points(n=1138).csv
-#   and breakpoints.csv.
+#   Every point gets its class and map position (drawn as a small dot). Only the featured points
+#   (content/featured-points.json, the ones you can click) also get the lines of their NDVI plot:
+#   the monthly NDVI, the STL trend (deseasonalised) and the breakpoints. Those are not calculated here:
+#   they are copied from the two CSVs that the analysis notebook writes (see step 2b).
+# Reads (in analysis/satellite/): the three monthly max-NDVI CSVs, shape_classes_points(n=1138).csv,
+#   featured_plot_lines.csv and featured_plot_breakpoints.csv; plus content/featured-points.json.
 # Writes: data/points.json (never edit that file by hand; run this script again instead).
 # Used by: js/points.js reads the output.
 #
-# Run from the WEBTOOL_MDP folder:   python analysis/points/export_points.py
+# Run from the WEBTOOL_MDP folder:   python analysis/satellite/export_points.py
 
 import json
 from pathlib import Path
@@ -14,8 +18,10 @@ import pandas as pd
 
 # ---------- settings ----------
 
-HERE = Path(__file__).resolve().parent          # analysis/points/
-OUTPUT = HERE.parent.parent / "data" / "points.json"
+HERE = Path(__file__).resolve().parent          # analysis/satellite/
+ROOT = HERE.parent.parent                       # WEBTOOL_MDP/
+OUTPUT = ROOT / "data" / "points.json"
+FEATURED_JSON = ROOT / "content" / "featured-points.json"
 
 # The three monthly NDVI files. The key is the prefix of the point ids in the class file
 # (base_0, more_c3_004, new_886, ...).
@@ -25,7 +31,10 @@ NDVI_CSVS = {
     "new": "N700_monthly_max_NDVI_per_point.csv",
 }
 CLASSES_CSV = "shape_classes_points(n=1138).csv"
-BREAKPOINTS_CSV = "breakpoints.csv"
+# The lines and breakpoints of the NDVI plots of the featured points, written by the export cell of the
+# analysis notebook (analysis/satellite/ndvi_monthly_classification.ipynb, after "4. Plot per point").
+PLOT_LINES_CSV = "featured_plot_lines.csv"
+PLOT_BREAKPOINTS_CSV = "featured_plot_breakpoints.csv"
 
 # Edges of the map image (bounding box of the GEE AOI). The map image must cover exactly these edges,
 # otherwise the markers end up in the wrong place.
@@ -34,7 +43,7 @@ MAP_SOUTH, MAP_NORTH = 21.07849757664358, 21.21314383673432
 
 # NDVI values are written unrounded (project rule). If the file turns out too slow to load,
 # the team can decide to set this to e.g. 4.
-ROUND_DECIMALS = 3
+ROUND_DECIMALS = None
 
 
 def clean(value):
@@ -65,10 +74,9 @@ all_months = pd.period_range(ndvi["date"].min(), ndvi["date"].max(), freq="M")
 DATES = [str(m) for m in all_months]                 # "1993-01", "1993-02", ...
 table = ndvi.pivot(index="date", columns="point_id", values="ndvi_max").reindex(DATES)
 
-# ---------- 2. classes and breakpoints ----------
+# ---------- 2. classes ----------
 
 classes = pd.read_csv(HERE / CLASSES_CSV)
-breaks = pd.read_csv(HERE / BREAKPOINTS_CSV)
 
 # check that the ids of the class file match the ids made from the NDVI files
 missing = sorted(set(classes["point_id"]) - set(table.columns))
@@ -78,12 +86,57 @@ if missing:
 if len(missing) == len(classes):
     raise SystemExit("No point ids match. The id prefixes need fixing; nothing was written.")
 
-# The site shows one breakpoint per point: if a point has more, keep the first and report it.
-breaks = breaks.sort_values("breakpoint_date")
-several = breaks["point_id"].duplicated().sum()
-if several:
-    print(f"NOTE: {several} extra breakpoints skipped (points with more than one; the first is kept).")
-first_break = breaks.drop_duplicates("point_id").set_index("point_id")
+# the featured points: only these get their full NDVI data
+featured_ids = [p["id"] for p in json.loads(FEATURED_JSON.read_text())["points"]]
+unknown = [pid for pid in featured_ids if pid not in set(classes["point_id"])]
+if unknown:
+    print(f"WARNING: featured points not found in {CLASSES_CSV}: {unknown}")
+
+# ---------- 2b. the lines of the NDVI plot of each featured point (from the notebook) ----------
+# The notebook writes exactly the data of its plots (img/satellite/point_*.png):
+#   featured_plot_lines.csv:       point_id, date ("1993-01"), ndvi (the grey "raw NDVI" line, gaps filled as
+#                                  in the notebook), trend (the "STL trend (deseasonalised)" line; empty in the
+#                                  months STL cuts off)
+#   featured_plot_breakpoints.csv: point_id, traj, type ("drop"/"rise"), breakpoint_date, window_start,
+#                                  window_end (the 12-month window), magnitude
+plot_lines_csv = pd.read_csv(HERE / PLOT_LINES_CSV, dtype={"date": str})
+plot_breaks_csv = pd.read_csv(HERE / PLOT_BREAKPOINTS_CSV, dtype=str)
+
+
+def month_index(date):
+    """Position of a month ("2001-08", or a date "2001-08-01") in DATES."""
+    month = str(date)[:7]
+    if month not in DATES:
+        raise SystemExit(f"Month {month} in {PLOT_BREAKPOINTS_CSV} is outside the months of the site. Nothing was written.")
+    return DATES.index(month)
+
+
+plot_lines = {}   # point id -> { ndvi, ndviTrend, breakpoints }
+for pid in featured_ids:
+    rows = plot_lines_csv[plot_lines_csv["point_id"] == pid].set_index("date")
+    if rows.empty:
+        print(f"WARNING: featured point {pid} is not in {PLOT_LINES_CSV} (run the export cell of the notebook again); "
+              "it gets no NDVI lines.")
+        continue
+    outside = sorted(set(rows.index) - set(DATES))
+    if outside:
+        raise SystemExit(f"{PLOT_LINES_CSV} has months for {pid} outside the months of the site, e.g. {outside[:3]}. Nothing was written.")
+    rows = rows.reindex(DATES)       # one value per month of the site; a month the notebook does not have stays null
+    breakpoints = []
+    for _, bp in plot_breaks_csv[plot_breaks_csv["point_id"] == pid].sort_values("breakpoint_date").iterrows():
+        breakpoints.append({
+            "type": bp["type"],                               # "drop" or "rise"
+            "index": month_index(bp["breakpoint_date"]),      # position in dates
+            "label": str(bp["breakpoint_date"])[:7],          # "2001-08"
+            "windowStart": month_index(bp["window_start"]),   # the 12-month window (positions in dates)
+            "windowEnd": month_index(bp["window_end"]),
+            "magnitude": clean(float(bp["magnitude"])),       # trend at window end minus at window start
+        })
+    plot_lines[pid] = {
+        "ndvi": [clean(v) for v in rows["ndvi"]],
+        "ndviTrend": [clean(v) for v in rows["trend"]],
+        "breakpoints": breakpoints,
+    }
 
 # ---------- 3. one object per point ----------
 
@@ -99,30 +152,32 @@ for _, row in classes.iterrows():
     if not (0 <= left <= 100 and 0 <= top <= 100):
         outside_map += 1
 
-    breakpoint = None
-    if pid in first_break.index:
-        month = str(first_break.loc[pid, "breakpoint_date"])[:7]      # "2001-08"
-        if month in DATES:
-            breakpoint = {"index": DATES.index(month), "label": month}
-
-    points.append({
+    point = {
         "id": pid,
         "name": pid,
         "changeClass": row["shape_class"],
-        "scenario": None,              # no tipping-point scenario per point yet: shown as "No data"
         "lat": float(row["lat"]),
         "lon": float(row["lon"]),
         "leftPct": round(left, 3),     # marker position only, not research data
         "topPct": round(top, 3),
-        "dates": DATES,
-        # years: the year of each month. Only kept so the current points.js keeps working;
-        # it can go once points.js reads "dates".
-        "years": [int(d[:4]) for d in DATES],
-        "ndvi": [clean(v) for v in table[pid]],
-        "breakpoint": breakpoint,
-        "metricVals": None,
-        "metricTaus": None,
-    })
+    }
+    if pid in featured_ids:
+        lines = plot_lines.get(pid, {"ndvi": [None] * len(DATES), "ndviTrend": [None] * len(DATES), "breakpoints": []})
+        point.update({
+            "scenario": None,          # no tipping-point scenario per point yet: shown as "No data"
+            "dates": DATES,
+            # years: the year of each month, used by the year slider in points.js
+            "years": [int(d[:4]) for d in DATES],
+            # ndvi: the grey "raw NDVI" line of the plot (monthly max NDVI, gaps filled as in the notebook)
+            "ndvi": lines["ndvi"],
+            # ndviTrend: the "STL trend (deseasonalised)" line of the plot
+            "ndviTrend": lines["ndviTrend"],
+            # breakpoints: all breakpoints of the plot, in time order (empty list = none)
+            "breakpoints": lines["breakpoints"],
+            "metricVals": None,
+            "metricTaus": None,
+        })
+    points.append(point)
 
 # ---------- 4. write and report ----------
 
@@ -130,7 +185,9 @@ OUTPUT.write_text(json.dumps(points, allow_nan=False, separators=(",", ":")))
 
 print(f"Wrote {len(points)} points, {len(DATES)} months ({DATES[0]} to {DATES[-1]}) to {OUTPUT}")
 print(f"File size: {OUTPUT.stat().st_size / 1e6:.1f} MB")
-print(f"Points with a breakpoint: {sum(p['breakpoint'] is not None for p in points)}")
+featured = [p for p in points if "ndvi" in p]
+print(f"Featured points with NDVI data: {len(featured)}, of which with a breakpoint: {sum(bool(p['breakpoints']) for p in featured)}")
+print("Classes of the featured points:", sorted({p['changeClass'] for p in featured}))
 if outside_map:
     print(f"WARNING: {outside_map} points fall outside the map edges.")
 print("Classes (for changeClasses in content/variables.json):")

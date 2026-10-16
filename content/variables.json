@@ -1,8 +1,11 @@
 {
   "yearRange": { "first": 1984, "last": 2026 },
 
+  "_coordinateDecimals": "How many decimals the coordinates of a point are shown with (5 = about 1 m). Display only: data/points.json keeps the full values.",
+  "coordinateDecimals": 5,
+
   "pointVariables": [
-    { "id": "ndvi", "label": "NDVI", "unit": "index, 0–1", "color": "data-ndvi", "shownAtStart": true }
+    { "id": "ndvi", "label": "NDVI", "lineLabel": "raw NDVI", "unit": "index, −1 to 1", "decimals": 4, "axisRange": [-1, 1], "color": "data-ndvi", "trend": { "id": "ndviTrend", "label": "STL trend (deseasonalised)" }, "shownAtStart": true }
   ],
 
   "trendMetrics": [
@@ -15,9 +18,12 @@
   ],
 
   "changeClasses": {
-    "loss": { "label": "Loss", "color": "class-loss" },
+    "stable": { "label": "Stable", "color": "class-stable" },
     "gain": { "label": "Gain", "color": "class-gain" },
-    "recovery": { "label": "Loss then recovery", "color": "class-recovery" }
+    "loss": { "label": "Loss", "color": "class-loss" },
+    "loss + recovery": { "label": "Loss + recovery", "color": "class-loss-recovery" },
+    "high turnover": { "label": "High turnover", "color": "class-high-turnover" },
+    "non-mangrove": { "label": "Non-mangrove", "color": "class-non-mangrove" }
   },
 
   "scenarios": {

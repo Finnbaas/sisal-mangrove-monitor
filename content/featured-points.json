@@ -1,0 +1,25 @@
+{
+  "_about": "The points you can click on the map (Overview and Satellite). Each needs an id from data/points.json. Other points are shown as small dots only. After changing this list, run analysis/satellite/export_points.py again (it writes the NDVI lines, trend and breakpoints only for these points).",
+  "points": [
+    { "id": "base_53" },
+    { "id": "base_68" },
+    { "id": "base_69" },
+    { "id": "base_72" },
+    { "id": "base_82" },
+    { "id": "base_121" },
+    { "id": "base_124" },
+    { "id": "base_133" },
+    { "id": "more_c10_007" },
+    { "id": "new_530" },
+    { "id": "new_886" },
+    { "id": "new_3336" },
+    { "id": "new_3363" },
+    { "id": "new_5393" },
+    { "id": "new_108" },
+    { "id": "new_1970" },
+    { "id": "new_2309" },
+    { "id": "new_2701" },
+    { "id": "new_457" },
+    { "id": "new_4481" }
+  ]
+}

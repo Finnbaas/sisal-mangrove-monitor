@@ -4,7 +4,7 @@
   "defaultStorm": "milton-2024",
 
   "cardTitles": {
-    "point-map": "Site map",
+    "point-map": "Sisal: monitoring points",
     "tipping-status": "Tipping status",
     "point-info": "Point info",
     "trend-signals": "Trend signals",
@@ -22,10 +22,13 @@
   "labels": {
     "year": "Year",
     "mapLegend": "Sample points",
-    "mapNote": "{count} points shown · illustrative marker placement, not pixel-matched to exact coordinates",
-    "mapNoteOnePoint": "1 point shown · illustrative marker placement, not pixel-matched to exact coordinates",
+    "mapSubtitle": "All {count} points are shown; click one of the {featured} larger markers to see an example.",
+    "mapNote": "Background: Sentinel-2 true-colour image, January–May 2024. Each dot is one of {count} monitoring points, coloured by class.",
+    "mapNoteOnePoint": "Background: Sentinel-2 true-colour image, January–May 2024. The dot is the one monitoring point, coloured by class.",
     "valuesFor": "Values for {year}",
-    "breakpoint": "Detected breakpoint: {year}",
+    "breakpoint": "Detected breakpoint: {breakpoints}",
+    "breakpointItem": "{type} {month} ({magnitude})",
+    "showMore": "Show more",
     "noVariablesSelected": "no variables selected",
     "exportPng": "Chart (PNG)",
     "exportCsv": "Data (CSV)",

@@ -36,10 +36,15 @@
   --color-class-loss: #D93A2B;
   --color-class-gain: #2E6FE2;
   --color-class-recovery: #F0C230;
+  --color-class-stable: #2F6B4F;
+  --color-class-loss-recovery: #D9469E;
+  --color-class-high-turnover: #F0C230;
+  --color-class-non-mangrove: #D9D9D9;
   /* light tint of each class color, for backgrounds (Stakeholder area panel; Figma class-...-tint) */
   --color-class-loss-tint: #F7D8D4;
   --color-class-gain-tint: #D6E3FA;
   --color-class-recovery-tint: #FCEFC5;
+  --color-class-loss-recovery-tint: #F7DAEB;
 
   /* tipping-point scenarios: text color of the scenario name */
   --color-scenario-1: #C1652F;

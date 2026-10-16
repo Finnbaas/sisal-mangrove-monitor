@@ -33,6 +33,15 @@
 a.method-source:hover { text-decoration: underline; }
 .method-choices { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
 .method-choices li { display: flex; align-items: baseline; gap: 8px; font-size: 14px; color: var(--color-text-body); }
+/* a long key choice: the rest of the text behind its own small toggle ("Show thresholds"), with a small chevron */
+.choice-more { display: inline; }
+.choice-more > summary { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; list-style: none; font-size: 12px; font-weight: 600; color: var(--color-accent); }
+.choice-more > summary::-webkit-details-marker { display: none; }
+.choice-more > summary::after { content: ''; width: 4px; height: 4px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg) translateY(-2px); }
+.choice-more[open] > summary::after { transform: rotate(-135deg) translate(-1px, -1px); }
+.choice-more > summary:hover { text-decoration: underline; }
+.choice-more > summary:focus-visible { outline: 2px solid var(--color-text-body); outline-offset: 2px; border-radius: 3px; }
+.choice-more-text { display: block; margin-top: 4px; }
 .method-choices li::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--color-text-faint); flex-shrink: 0; transform: translateY(-2px); }
 .method-files-empty { min-height: 60px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 14px; color: var(--color-text-faint); }
 .method-files-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -40,11 +49,11 @@ a.method-source:hover { text-decoration: underline; }
 
 /* "About this analysis": one collapsed row (details/summary) */
 .method-about { border-radius: 12px; background: var(--color-background); }
-.method-about summary { padding: 12px 16px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--color-text-muted); list-style: none; display: flex; align-items: center; gap: 8px; }
-.method-about summary::-webkit-details-marker { display: none; }
-.method-about summary::before { content: '\25B8'; font-size: 12px; transition: transform 0.15s; }
-.method-about[open] summary::before { transform: rotate(90deg); }
-.method-about summary:hover { color: var(--color-text); }
+.method-about > summary { padding: 12px 16px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--color-text-muted); list-style: none; display: flex; align-items: center; gap: 8px; }
+.method-about > summary::-webkit-details-marker { display: none; }
+.method-about > summary::before { content: '\25B8'; font-size: 12px; transition: transform 0.15s; }
+.method-about[open] > summary::before { transform: rotate(90deg); }
+.method-about > summary:hover { color: var(--color-text); }
 .method-about-body { display: flex; flex-direction: column; gap: 16px; padding: 0 16px 16px 16px; }
 .method-info { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; border-radius: 12px; background: var(--color-background); }
 .use-case-made { display: flex; flex-direction: column; gap: 4px; }
