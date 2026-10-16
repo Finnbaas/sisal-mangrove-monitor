@@ -14,6 +14,25 @@ let CLIMATE_PANELS = [];        // one chart per entry, top to bottom (variables
 let typicalYear = null;         // contents of data/climate/typical-year.json
 let typicalYearCharts = null;   // the charts, as a set for the comparison line (see charts.js)
 
+// The panels of "A typical year" and "Change since 1950": the same list as CLIMATE_PANELS, except that a variable
+// with named series (air temperature: max and min) gets one panel per series, so each trend is easy to see.
+// A panel of one series has `only` = the series id.
+function overviewPanels() {
+  const list = [];
+  CLIMATE_PANELS.forEach((p) => {
+    const ids = Object.keys(p.seriesLabels);
+    if (ids.length < 2) { list.push(p); return; }
+    ids.forEach((id) => list.push(Object.assign({}, p, { label: p.label + ' (' + p.seriesLabels[id] + ')', only: id, seriesLabels: {} })));
+  });
+  return list;
+}
+
+// The data of a panel: only its own series when it shows one series of a variable.
+function panelData(p, data) {
+  if (!data || !p.only || !Array.isArray(data.series)) return data;
+  return Object.assign({}, data, { series: data.series.filter((s) => s.id === p.only) });
+}
+
 function setupClimate() {
   CLIMATE_PANELS = (CONTENT.variables.climateVariables || []).map((x) => ({
     id: x.id, label: x.label, colorVar: colorVarOf(x.color), seriesLabels: x.seriesLabels || {}
@@ -100,11 +119,11 @@ function renderTypicalYear() {
   const sources = {};
   Object.entries(CONTENT.variables.sources || {}).forEach(([id, s]) => { sources[id] = { label: s.label, colorVar: colorVarOf(s.color) }; });
 
-  const panels = CLIMATE_PANELS.map((p) => {
-    const data = variables[p.id];
+  const panels = overviewPanels().map((p) => {
+    const data = panelData(p, variables[p.id]);
     const unit = data ? data.unit + (data.note ? ', ' + data.note : '') : NO_DATA;
     const drawn = monthChartSvg(p, data);
-    box.appendChild(chartRow({ label: p.label, unit: unit, onOpen: () => openClimateDetail(p.id) }, data ? sources[data.source] : null, drawn.svg));
+    box.appendChild(chartRow({ label: p.label, unit: unit, onOpen: () => openClimateDetail(p.id, p.only) }, data ? sources[data.source] : null, drawn.svg));
     return drawn.panel;
   });
 
@@ -249,11 +268,11 @@ function renderClimateChange(content) {
   for (let y = Math.ceil(years.first / 10) * 10; y <= years.last; y += 10) decades.push(y);
   const variables = (climateChange && climateChange.variables) || {};
 
-  const panels = CLIMATE_PANELS.map((p) => {
-    const data = variables[p.id];
+  const panels = overviewPanels().map((p) => {
+    const data = panelData(p, variables[p.id]);
     const unit = data ? data.unit + (data.note ? ', ' + data.note : '') : NO_DATA;
     const drawn = yearChartSvg(p, data, years, yearX, decades);
-    const row = chartRow({ label: p.label, unit: unit, onOpen: () => openClimateDetail(p.id) }, null, drawn.svg);
+    const row = chartRow({ label: p.label, unit: unit, onOpen: () => openClimateDetail(p.id, p.only) }, null, drawn.svg);
     // the source tag is replaced by the trend (value and p-value) in the top right; the badge is shown in "In detail"
     row.querySelector('.source-tag').remove();
     const lines = data && Array.isArray(data.series) ? data.series.map((s) => trendTagText(s, p.seriesLabels[s.id], data.trendUnit)).filter(Boolean) : [];
@@ -362,9 +381,10 @@ function renderClimateDetail(content) {
 }
 
 // Opens the tab of a variable in "In detail" (id = the id from climateVariables, the same one the panel
-// labels use) and scrolls smoothly to that card. Used by the variable names in the chart panels.
-async function openClimateDetail(id) {
-  const i = detailTabs.findIndex((tab) => tab.panel.id === id);
+// labels use; series = the series id when the panel shows one series, e.g. "max") and scrolls smoothly to that card.
+// Used by the variable names in the chart panels.
+async function openClimateDetail(id, series) {
+  const i = detailTabs.findIndex((tab) => tab.panel.id === id && (!series || tab.series === series));
   if (i < 0) return;
   detailSelected = i;
   // scroll only when the charts are drawn: the card is the last on the page, so with only a short
