@@ -28,10 +28,10 @@
   },
 
   "eventVariables": [
-    { "id": "airTemperature", "label": "Mean air temperature", "unit": "°C", "color": "data-climate-air-temperature" },
-    { "id": "windSpeed", "label": "10 m wind speed", "unit": "m/s", "color": "data-climate-wind-speed" },
-    { "id": "waveHeight", "label": "Max wave height", "unit": "m", "color": "data-climate-wave-height" },
-    { "id": "precipitation", "label": "Precipitation", "unit": "mm/day", "color": "data-climate-precipitation" },
+    { "id": "airTemperature", "label": "Air temperature (mean)", "unit": "°C", "color": "data-climate-air-temperature" },
+    { "id": "windSpeed", "label": "Wind speed", "unit": "m/s", "color": "data-climate-wind-speed" },
+    { "id": "waveHeight", "label": "Wave height (max)", "unit": "m", "color": "data-climate-wave-height" },
+    { "id": "precipitation", "label": "Rainfall", "unit": "mm/day", "color": "data-climate-precipitation" },
     { "id": "salinity", "label": "Surface salinity", "unit": "PSU", "color": "data-climate-salinity" },
     { "id": "seaSurfaceTemperature", "label": "Sea surface temperature", "unit": "°C", "color": "data-climate-sea-surface-temperature" }
   ],
