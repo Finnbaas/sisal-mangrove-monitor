@@ -142,6 +142,8 @@ button { font-family: inherit; cursor: pointer; }
 .card-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .card-title-row.top { align-items: flex-start; }
 .card-title { font-size: 13px; font-weight: 600; color: var(--color-text-muted); }
+a.expand { text-decoration: none; }
+a.expand:hover, a.expand:focus-visible { background: var(--color-border); color: var(--color-text); }
 .expand {
   width: 26px;
   height: 26px;
