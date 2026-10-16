@@ -141,6 +141,13 @@ function weeklyDays(dates) {
   return dates.map((d, i) => ({ d: d, i: i })).filter((p) => new Date(p.d + 'T00:00:00Z').getUTCDay() === 6);
 }
 
+// "2024-09-14" -> "14 Sep"
+function shortDate(text) {
+  const parts = String(text).split('-');
+  const month = parseInt(parts[1], 10);
+  return month >= 1 && month <= 12 ? parseInt(parts[2], 10) + ' ' + MONTHS[month - 1] : String(text);
+}
+
 function renderEventCharts() {
   const ev = getSelectedEvent();
   $('event-charts-empty').hidden = !!ev;
@@ -152,11 +159,13 @@ function renderEventCharts() {
 
   $('event-title').textContent = (ev.name || NO_DATA) + ' (' + monthLabel(ev) + ')';
   renderStormLegend(ev);
-  $('event-subtitle').textContent = t('labels.anomalyExplanation') + ' (' + (ev.baseline || NO_DATA) + ')';
+  // one line; the baseline of each dataset is in the hover text
+  $('event-subtitle').textContent = t('labels.anomalyExplanation');
+  $('event-subtitle').title = t('labels.baselineLabel') + ' ' + (ev.baseline || NO_DATA);
 
   const dates = Array.isArray(ev.dates) ? ev.dates : [];
   const n = dates.length;
-  const weeks = weeklyDays(dates);
+  const weeks = weeklyDays(dates).filter((w, k) => k % 2 === 0);      // every second week: fewer ticks
   const box = $('event-charts');
   box.innerHTML = '';
 
@@ -174,7 +183,7 @@ function renderEventCharts() {
   });
 
   // one shared date axis under all charts, with a label every week
-  if (n) box.appendChild(sharedAxis(weeks.map((w) => ({ x: chartX(w.i, n), text: w.d })), t('labels.date')));
+  if (n) box.appendChild(sharedAxis(weeks.map((w) => ({ x: chartX(w.i, n), text: shortDate(w.d) })), t('labels.date')));
 
   // the storm period and peak: one box and one line over all charts
   stormOverlay(box, ev, dates);

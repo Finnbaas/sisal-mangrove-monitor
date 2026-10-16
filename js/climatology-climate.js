@@ -602,7 +602,7 @@ function drawClimateDetail(tab, file, box) {
   summary.firstChild.textContent = t('labels.colTrend');
   trends.forEach((tr, k) => {
     const v = document.createElement('div');
-    v.className = 'trend-tag-value mono';
+    v.className = 'trend-tag-value';
     const style = TREND_LINE_STYLES[k % TREND_LINE_STYLES.length];
     // with more than one trend (sea level) each has a small line sample as a legend
     if (trends.length > 1) v.insertAdjacentHTML('beforeend', '<svg width="18" height="6" aria-hidden="true"><line x1="0" y1="3" x2="18" y2="3" stroke="' + color(style.colorVar) +

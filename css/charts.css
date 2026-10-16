@@ -13,11 +13,12 @@
 .plot-grid { fill: var(--color-divider); }
 .plot-axis { fill: var(--color-text-faint); }
 .plot-tick-label { font-family: 'Archivo', sans-serif; font-size: 11px; fill: var(--color-text-muted); }
-.plot-extreme { font-family: 'Space Mono', monospace; font-size: 11px; fill: var(--color-text-body); }
+.plot-extreme { font-family: 'Archivo', sans-serif; font-size: 11px; fill: var(--color-text-body); }
 /* storm period (box) and peak (dashed line) in the storm charts: the "loss" red of base.css, as in the team's figures */
 .storm-box, .storm-peak { position: absolute; pointer-events: none; }
 .storm-box { box-sizing: border-box; border: 2px solid color-mix(in srgb, var(--color-class-loss) 50%, transparent); }
 .storm-peak { width: 0; border-left: 2.5px dashed var(--color-class-loss); }
+#event-subtitle[title] { cursor: help; }
 #event-legend { display: flex; gap: 16px; margin: 0 0 6px 40px; font-size: 11px; color: var(--color-text-body); }
 #event-legend:empty { display: none; }
 .storm-legend-item { display: flex; align-items: center; gap: 6px; }

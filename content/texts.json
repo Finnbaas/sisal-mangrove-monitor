@@ -38,7 +38,8 @@
     "value": "Value",
     "tau": "τ",
     "date": "Date",
-    "anomalyExplanation": "Anomaly: difference from the mean for the same calendar day",
+    "anomalyExplanation": "Anomaly: difference from the mean of the same calendar day",
+    "baselineLabel": "Baseline:",
 
     "allYears": "All years",
     "showing": "Showing",
