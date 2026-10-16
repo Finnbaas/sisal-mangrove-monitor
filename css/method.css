@@ -46,6 +46,8 @@ a.method-source:hover { text-decoration: underline; }
 .method-about[open] summary::before { transform: rotate(90deg); }
 .method-about summary:hover { color: var(--color-text); }
 .method-about-body { display: flex; flex-direction: column; gap: 16px; padding: 0 16px 16px 16px; }
+.method-info { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; border-radius: 12px; background: var(--color-background); }
+.use-case-made { display: flex; flex-direction: column; gap: 4px; }
 .method-about-blocks { display: flex; flex-direction: column; gap: 14px; }
 
 /* "Do it yourself": gallery of what a researcher can make (Figma example-card) */
@@ -104,12 +106,3 @@ a.file-github:hover, a.file-github:focus-visible { color: var(--color-text); }
   .example-gallery { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* topics: short blocks that explain how the numbers of a research page are made (Climatology), in two columns,
-   inside "About this analysis" */
-.method-topics { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
-.method-topic { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px 16px; border-radius: 12px; background: var(--color-surface); scroll-margin-top: 16px; }
-.method-topic h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--color-text); }
-.method-topic.highlighted { box-shadow: inset 0 0 0 2px var(--color-accent); }
-.method-topic .use-case-bar { align-self: stretch; margin: -14px -16px 2px; border-radius: 12px 12px 0 0; }
-.method-topic-files { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
-@media (max-width: 960px) { .method-topics { grid-template-columns: 1fr; } }

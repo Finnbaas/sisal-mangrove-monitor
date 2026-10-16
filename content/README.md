@@ -258,7 +258,7 @@ code files to download. Everything on it comes from this file.
   (one line each: name, type tag, GitHub icon; the `description` shows on hover). An example without
   files shows "Files will be added here".
 - The Method page has one tab per section. The background texts of a section (`description`, `sources`,
-  `keyChoices`, `requirements`, or the `topics`) are in the collapsed row "About this analysis".
+  `keyChoices`, `requirements`) are in the collapsed row "About this analysis".
 
 **`useCases`**: the "Do it yourself" examples of a section. Each one is a card in the gallery
 (a picture of what you can make) that opens its steps and files when clicked:
@@ -276,36 +276,24 @@ code files to download. Everything on it comes from this file.
   `#method/` and the id. Lowercase letters, numbers and dashes only; each id may occur once.
 - `image`: a picture of the result, in `img/method/`. Without it the card shows a grey tile.
 - `steps`: three or four short instructions, one line each. Without steps the example shows
-  "Steps will be added here". A step can use the numbers in curly brackets of the topics
+  "Steps will be added here". A step can use numbers in curly brackets
   (for example `{storms.baseline}`, see below).
 - `files`: the **names** of the files this example needs, from the `files` of the same section.
 - `cards`: the ready-made cards (see the table under pages.json) that get the small link
   **"Do this analysis yourself"**. The link opens the Method page at this example. A card can link
   to one example only.
 
-**`topics`** (optional): short blocks of text in a section, for example the nine blocks that explain
-how the Climatology page is made, in the order of that page. They replace the blocks "Data sources",
-"Key choices" and "Requirements" of that section.
+**Texts with numbers** (section `datasets` and `limitations`, use case `howMade`):
 
-```json
-{ "id": "anomalies", "title": "Anomalies",
-  "text": "Baseline: {storms.baseline}. The charts show {storms.windowDays} days around the peak.",
-  "list": [ "A short line.", "Another short line." ],
-  "files": [ "export_typical_year.py" ],
-  "cards": [ "event-charts" ], "diyCards": [ "event-charts" ] }
-```
-
-- `id`: lowercase letters, numbers and dashes; the block has the address `#method/` and the id.
-- `title`, `text`, `list`: keep a block to about 80 words. Both `text` and `list` are optional.
-- Numbers in curly brackets are filled in from the data files, so they always match the research
+- `datasets`: one line per dataset (name, variables, period) and `limitations`: at most three short lines.
+  A section with `datasets` shows them as a compact list above the cards instead of the row "About this analysis".
+- `howMade`: at most two sentences, shown as "How this is made" at the top of the panel of a use case.
+- `infoCards` (use case or section): research cards whose small ↗ button opens that panel (a section: its tab).
+- Numbers in curly brackets (also in `steps`) are filled in from the data files, so they always match the research
   page: `{storms.total}`, `{storms.start}`, `{storms.end}`, `{storms.studied}`, `{storms.notCounted}`,
   `{storms.rule}`, `{storms.baseline}`, `{storms.windowDays}`, `{record.<variable id>.start}` and `.end`
   (for example `{record.salinity.start}`), `{trend.pLimit}`, `{seaLevel.periods}`, `{wave.threshold}`,
   `{wave.all}`, `{wave.storm}`, `{wave.start}`, `{wave.end}`. A number that is missing shows "No data".
-- `files`: names of files of the same section, shown as links to the file on GitHub (a file without
-  a `path` is left out).
-- `cards`: the research cards whose small ↗ button opens this block. `diyCards`: cards that get the
-  link "Do this analysis yourself" to this block. A card can link to one block only.
 
 ## Placeholder states on the site
 

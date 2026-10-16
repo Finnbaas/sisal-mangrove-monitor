@@ -1,11 +1,12 @@
-// method.js: the Method page and the "Do this analysis yourself" links on the research cards.
+// method.js: the Method page and the "Run this analysis on your own data" links on the research cards.
 //   One tab per analysis (Satellite, Climatology, Stakeholders). In a tab: a gallery of examples ("use
 //   cases"; clicking one opens its steps and files in a panel, one panel on the whole page) and a collapsed
 //   row "About this analysis". The address #method/<use case id> opens the right tab and panel.
-//   A section can also have "topics": short blocks that explain how the numbers of a research page are made
-//   (Climatology). The address #method/<topic id> scrolls to that block; the small ↗ button on the research
-//   cards links to it. Numbers in a topic text are written as {storms.total} and filled in from the data files.
-// Reads: content/method.json (written by the team) and, for the numbers in the topic texts, data/storms/storm-counts.json,
+//   A section can have "datasets" and "limitations": a compact list above the cards (Climatology); other sections
+//   have the collapsed row "About this analysis". A use case can have "howMade" (a short text at the top of its
+//   panel) and "infoCards": research cards whose small ↗ button opens that panel. Numbers in these texts are
+//   written as {storms.total} and filled in from the data files.
+// Reads: content/method.json (written by the team) and, for the numbers in the texts, data/storms/storm-counts.json,
 //   data/events.json, data/climate/typical-year.json, data/climate/change.json and data/climate/wave-direction.json.
 // Uses: helpers.js, content.js, navigation.js (lastResearchSection). Used by: main.js, navigation.js.
 
@@ -14,8 +15,8 @@ const METHOD_FILE = 'content/method.json';
 let method = null;           // contents of content/method.json, or null if it could not be loaded
 let activeTab = null;        // id of the section (tab) that is shown
 let openUseCase = null;      // id of the use case whose panel is open (only one on the whole page; none at the start)
-let methodFacts = {};        // the numbers that topic texts can use, from the data files (see loadMethodFacts)
-let methodArrival = null;    // { useCase, topic, from }: set when the visitor arrives through a link to one use case or topic
+let methodFacts = {};        // the numbers that the texts can use, from the data files (see loadMethodFacts)
+let methodArrival = null;    // { useCase, from }: set when the visitor arrives through a link to one use case
 let methodCameFrom = null;   // the research page on which a "Do this analysis yourself" link was clicked
 
 // Small icons, drawn in the text color of the place they are used in.
@@ -68,13 +69,6 @@ function checkMethod(content) {
       seen.push(u.id);
       return true;
     });
-    // topics: short blocks of text; their ids are used in the address too
-    s.topics = (Array.isArray(s.topics) ? s.topics : []).filter((tp) => {
-      if (!tp || !/^[a-z0-9-]+$/.test(tp.id || '') || !isFilled(tp.title)) { warn('a topic in "' + s.id + '" has no valid "id" or no "title" and is not shown.'); return false; }
-      if (seen.includes(tp.id)) { warn('the id "' + tp.id + '" is used twice; the second one is not shown.'); return false; }
-      seen.push(tp.id);
-      return true;
-    });
     return true;
   });
 }
@@ -100,9 +94,9 @@ function setupMethod() {
   loadMethod();
 }
 
-// ---------- the numbers in the topic texts ----------
+// ---------- the numbers in the texts ----------
 
-// Reads the data files of the Climatology page and collects the numbers that the topic texts use, so the Method
+// Reads the data files of the Climatology page and collects the numbers that the texts use, so the Method
 // page always says the same as the page itself. A file that cannot be read only leaves its numbers out ("No data").
 async function loadMethodFacts() {
   const read = async (file) => {
@@ -154,7 +148,7 @@ async function loadMethodFacts() {
   return facts;
 }
 
-// A text of a topic with its {placeholders} filled in, e.g. {storms.total}; a number that is not available becomes "No data".
+// A text with its {placeholders} filled in, e.g. {storms.total}; a number that is not available becomes "No data".
 function fillFacts(text) {
   return String(text).replace(/\{([\w.]+)\}/g, (match, path) => {
     const value = path.split('.').reduce((obj, key) => (obj && obj[key] !== undefined ? obj[key] : undefined), methodFacts);
@@ -192,15 +186,6 @@ function findUseCase(id) {
   for (const section of method.sections) {
     const useCase = section.useCases.find((u) => u.id === id);
     if (useCase) return { section: section, useCase: useCase };
-  }
-  return null;
-}
-
-// The topic with this id and the section it belongs to, or null.
-function findTopic(id) {
-  for (const section of method.sections) {
-    const topic = section.topics.find((tp) => tp.id === id);
-    if (topic) return { section: section, topic: topic };
   }
   return null;
 }
@@ -260,17 +245,22 @@ function methodSectionHtml(section) {
   const choices = (section.keyChoices || []).filter(isFilled);
   const choicesHtml = choices.length ? '<ul class="method-choices">' + choices.map((c) => '<li>' + escapeHtml(c) + '</li>').join('') + '</ul>' : placeholder;
 
-  // the background information: the description, then "Data sources", "Key choices" and "Requirements" (or the topics),
-  // then the link to the folder on GitHub and the zip file
-  const about =
+  // a section with "datasets": a compact list of the data sources and the limitations, above the cards
+  const list = (label, lines) => (lines || []).filter(isFilled).length ?
+    block(label, '<ul class="method-choices">' + lines.filter(isFilled).map((x) => '<li>' + escapeHtml(fillFacts(x)) + '</li>').join('') + '</ul>') : '';
+  const info = Array.isArray(section.datasets) ?
+    '<div class="method-info">' + list('labels.dataSources', section.datasets) + list('labels.limitations', section.limitations) + '</div>' : '';
+
+  // the background information of the other sections: the description, then "Data sources", "Key choices" and
+  // "Requirements", then the link to the folder on GitHub and the zip file
+  const about = Array.isArray(section.datasets) ? '' :
     '<details class="method-about" id="about-' + escapeHtml(section.id) + '">' +
       '<summary>' + escapeHtml(t('labels.aboutThisAnalysis')) + '</summary>' +
       '<div class="method-about-body">' +
         '<p class="method-text">' + textOrPlaceholder('method-placeholder', section.description) + '</p>' +
-        (section.topics.length ? '' : '<div class="method-about-blocks">' + block('labels.dataSources', sourcesHtml) +
+        '<div class="method-about-blocks">' + block('labels.dataSources', sourcesHtml) +
           block('labels.keyChoices', choicesHtml) +
-          block('labels.requirements', '<div class="method-text">' + textOrPlaceholder('method-placeholder', section.requirements) + '</div>') + '</div>') +
-        topicsHtml(section) +
+          block('labels.requirements', '<div class="method-text">' + textOrPlaceholder('method-placeholder', section.requirements) + '</div>') + '</div>' +
         '<div class="method-files-actions">' +
           githubLink('small', t(isFilled(section.folder) ? 'labels.viewFolderOnGithub' : 'labels.viewOnGithub'), section.folder) +
           (isFilled(section.zip) ? '<a class="ghost download-all" href="' + escapeHtml(section.zip) + '" download>' + escapeHtml(t('labels.downloadAll')) + '</a>' : '') +
@@ -279,7 +269,7 @@ function methodSectionHtml(section) {
     '</details>';
 
   // the theme colors of a section follow the research page with the same id (data-section, see css/base.css)
-  return '<div class="card method-section" id="method-' + escapeHtml(section.id) + '" data-section="' + escapeHtml(section.id) + '" role="tabpanel" aria-label="' + escapeHtml(section.title) + '" hidden>' +
+  return '<div class="card method-section" id="method-' + escapeHtml(section.id) + '" data-section="' + escapeHtml(section.id) + '" role="tabpanel" aria-label="' + escapeHtml(section.title) + '" hidden>' + info +
     (section.useCases.length ?
       '<div class="use-cases">' +
         '<div class="use-cases-heading">' + escapeHtml(t('labels.doItYourselfHeading')) + '</div>' +
@@ -289,23 +279,6 @@ function methodSectionHtml(section) {
       '</div>' : '') +
     about +
   '</div>';
-}
-
-// The topics of a section: one short block each, in the order of the research page. A topic has a "title", a "text",
-// an optional "list" of short lines, and "files": names of files of the section, linked to their place on GitHub.
-function topicsHtml(section) {
-  if (!section.topics.length) return '';
-  return '<div class="method-topics">' + section.topics.map((tp) => {
-    const list = (tp.list || []).filter(isFilled);
-    const files = (tp.files || []).map((name) => section.files.find((f) => f.name === name)).filter((f) => f && isFilled(f.path));
-    return '<div class="method-topic" id="topic-' + escapeHtml(tp.id) + '">' +
-      '<h3>' + escapeHtml(tp.title) + '</h3>' +
-      (isFilled(tp.text) ? '<p class="method-text">' + escapeHtml(fillFacts(tp.text)) + '</p>' : '') +
-      (list.length ? '<ul class="method-choices">' + list.map((x) => '<li>' + escapeHtml(fillFacts(x)) + '</li>').join('') + '</ul>' : '') +
-      (files.length ? '<div class="method-topic-files"><span class="method-label">' + escapeHtml(t('labels.codeAndFiles')) + '</span>' +
-        files.map((f) => '<a class="method-source" href="' + escapeHtml(githubFileAddress(f.path)) + '" target="_blank" rel="noopener">' + escapeHtml(f.name) + ' &rarr;</a>').join('') + '</div>' : '') +
-    '</div>';
-  }).join('') + '</div>';
 }
 
 // One file in the panel of a use case, on one line: the name, a small type label and a GitHub icon that links to the
@@ -345,6 +318,9 @@ function useCaseHtml(section, useCase) {
     '<div class="use-case-bar"><span>' + escapeHtml(t('labels.cameFrom', { page: fromPage.label })) + '</span>' +
     '<a href="#' + escapeHtml(fromPage.id) + '">&larr; ' + escapeHtml(t('labels.backTo', { page: fromPage.label })) + '</a></div>' : '';
 
+  const madeHtml = isFilled(useCase.howMade) ?
+    '<div class="use-case-made"><div class="method-label">' + escapeHtml(t('labels.howThisIsMade')) + '</div><p class="method-text">' + escapeHtml(fillFacts(useCase.howMade)) + '</p></div>' : '';
+
   const steps = (useCase.steps || []).filter(isFilled);
   const stepsHtml = steps.length ? '<ol class="use-case-steps">' + steps.map((s, i) =>
     '<li><span class="use-case-number">' + (i + 1) + '</span><span>' + escapeHtml(fillFacts(s)) + '</span></li>').join('') + '</ol>'
@@ -359,7 +335,7 @@ function useCaseHtml(section, useCase) {
     '<button type="button" class="use-case-close" aria-label="' + escapeHtml(t('labels.closePanel')) + '" title="' + escapeHtml(t('labels.closePanel')) + '">&times;</button>' +
     '<div class="use-case-body">' +
       '<div class="use-case-instructions"><div><div class="use-case-title">' + textOrPlaceholder('method-placeholder', useCase.title) + '</div>' +
-      '<div class="use-case-name mono">#method/' + escapeHtml(useCase.id) + '</div></div>' + stepsHtml + '</div>' +
+      '<div class="use-case-name mono">#method/' + escapeHtml(useCase.id) + '</div></div>' + madeHtml + stepsHtml + '</div>' +
       '<div class="use-case-files">' + filesHtml + '</div>' +
     '</div></div>';
 }
@@ -374,31 +350,16 @@ function openMethodTarget() {
   const parts = location.hash.slice(1).split('/');
   const found = parts[0] === 'method' && parts[1] ? findUseCase(parts[1]) : null;
   const hadArrival = methodArrival;
-  const topic = parts[0] === 'method' && parts[1] && !found ? findTopic(parts[1]) : null;
-  if (topic) {
-    // a link to a topic block: it is highlighted, with a way back to the page that linked to it
-    methodArrival = { topic: topic.topic.id, from: methodCameFrom };
-    methodCameFrom = null;
-    openUseCase = null;                                  // only one thing is open at a time
-    selectMethodTab(topic.section.id);
-    $('about-' + topic.section.id).open = true;          // the topics are inside "About this analysis"
-    markTopic(topic.topic.id);
-    const el = $('topic-' + topic.topic.id);
-    if (el && !$('method').hidden) el.scrollIntoView({ block: 'start' });
-    return true;
-  }
   if (!found) {
     // the plain Method page (or another page): nothing is highlighted any more
     methodArrival = null;
     methodCameFrom = null;
-    markTopic(null);
     // #method/<section id> opens that tab
     const tab = parts[0] === 'method' && parts[1] ? sectionById(parts[1]) : null;
     if (tab) { if (tab.id !== activeTab) openUseCase = null; selectMethodTab(tab.id); }
     else if (hadArrival) renderUseCases();
     return false;
   }
-  markTopic(null);
   methodArrival = { useCase: found.useCase.id, from: methodCameFrom };
   methodCameFrom = null;
   openUseCase = found.useCase.id;
@@ -406,20 +367,6 @@ function openMethodTarget() {
   const el = $('use-case-' + found.useCase.id);
   if (el && !$('method').hidden) el.scrollIntoView({ block: 'center' });
   return true;
-}
-
-// Highlights one topic block and shows the bar with the way back above it (id = null: nothing is highlighted).
-function markTopic(id) {
-  document.querySelectorAll('.method-topic.highlighted').forEach((el) => el.classList.remove('highlighted'));
-  document.querySelectorAll('.method-topic .use-case-bar').forEach((el) => el.remove());
-  const el = id ? $('topic-' + id) : null;
-  if (!el) return;
-  el.classList.add('highlighted');
-  const fromPage = methodArrival && methodArrival.from ? pageSections().find((p) => p.id === methodArrival.from) : null;
-  if (fromPage) {
-    el.insertAdjacentHTML('afterbegin', '<div class="use-case-bar"><span>' + escapeHtml(t('labels.cameFrom', { page: fromPage.label })) + '</span>' +
-      '<a href="#' + escapeHtml(fromPage.id) + '">&larr; ' + escapeHtml(t('labels.backTo', { page: fromPage.label })) + '</a></div>');
-  }
 }
 
 // "Do this analysis yourself" (Figma card-actions): a small link in the footer of every research
@@ -448,39 +395,22 @@ function placeCardLinks() {
     actions.appendChild(link);
   })));
 
-  method.sections.forEach((section) => section.topics.forEach((topic) => {
-    // the ↗ button in the title row of the card opens the topic block
-    (topic.cards || []).forEach((name) => {
-      const card = document.querySelector('[data-card="' + name + '"]');
-      const old = card && card.querySelector('.expand');
-      if (!old) { console.warn(METHOD_FILE + ': topic "' + topic.id + '" names the card "' + name + '", which has no ↗ button.'); return; }
-      const link = document.createElement('a');
-      link.className = 'expand';
-      link.href = '#method/' + topic.id;
-      link.title = t('labels.openTopic');
-      link.setAttribute('aria-label', t('labels.openTopic') + ': ' + topic.title);
-      link.textContent = '↗';
-      link.addEventListener('click', () => { methodCameFrom = lastResearchSection; });
-      old.replaceWith(link);
-    });
-    // and the "Do this analysis yourself" link of a card can open a topic block too
-    (topic.diyCards || []).forEach((name) => {
-      const card = document.querySelector('[data-card="' + name + '"]');
-      if (!card) { console.warn(METHOD_FILE + ': topic "' + topic.id + '" names the card "' + name + '", which does not exist.'); return; }
-      if (used.includes(name)) { console.warn(METHOD_FILE + ': the card "' + name + '" already has a "Do this analysis yourself" link.'); return; }
-      used.push(name);
-      let actions = card.querySelector('.card-actions');
-      if (!actions) {
-        actions = document.createElement('div');
-        actions.className = 'card-actions card-actions-footer';
-        card.appendChild(actions);
-      }
-      const link = document.createElement('a');
-      link.className = 'diy-link';
-      link.href = '#method/' + topic.id;
-      link.innerHTML = '<span>' + escapeHtml(t('labels.doItYourself')) + '</span>' + METHOD_ICONS.arrow;
-      link.addEventListener('click', () => { methodCameFrom = lastResearchSection; });
-      actions.appendChild(link);
-    });
-  }));
+  // the ↗ button in the title row of a card opens the panel of a use case (or, for a section, its tab)
+  const expandLink = (name, id, title) => {
+    const card = document.querySelector('[data-card="' + name + '"]');
+    const old = card && card.querySelector('.expand');
+    if (!old) { console.warn(METHOD_FILE + ': "' + id + '" names the card "' + name + '", which has no ↗ button.'); return; }
+    const link = document.createElement('a');
+    link.className = 'expand';
+    link.href = '#method/' + id;
+    link.title = t('labels.openTopic');
+    link.setAttribute('aria-label', t('labels.openTopic') + ': ' + title);
+    link.textContent = '↗';
+    link.addEventListener('click', () => { methodCameFrom = lastResearchSection; });
+    old.replaceWith(link);
+  };
+  method.sections.forEach((section) => {
+    (section.infoCards || []).forEach((name) => expandLink(name, section.id, section.title));
+    section.useCases.forEach((useCase) => (useCase.infoCards || []).forEach((name) => expandLink(name, useCase.id, useCase.title)));
+  });
 }

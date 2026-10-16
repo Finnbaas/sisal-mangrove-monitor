@@ -1,7 +1,7 @@
 {
   "exampleContent": true,
   "title": "Method and code",
-  "intro": "This page describes the methods behind the research pages and provides the code we used, so you can repeat the analyses with your own data. All files are in our GitHub repository.",
+  "intro": "This page explains the methods behind the research pages and gives the code to run the same analyses on your own data, location and question. Our Sisal results are one example of each analysis.",
 
   "repository": "https://github.com/Finnbaas/sisal-mangrove-monitor",
   "branch": "main",
@@ -60,10 +60,19 @@
     {
       "id": "climatology",
       "title": "Climatology analysis",
-      "description": "How the numbers on the Climatology page are made, in the order of the page. Numbers in these texts are read from the same data files as the page.",
-      "sources": [],
-      "keyChoices": [],
-      "requirements": "",
+      "infoCards": ["climate-sources"],
+      "datasets": [
+        "ERA5-Land, land cell: air temperature (daily maximum and minimum), rainfall. Daily, {record.airTemperature.start} to {record.airTemperature.end}.",
+        "ERA5, sea cell: wind speed, wave height, wave direction, sea surface temperature. Daily, {record.windSpeed.start} to {record.windSpeed.end}.",
+        "Satellite altimetry: sea level. Monthly, {record.seaLevel.start} to {record.seaLevel.end}.",
+        "HYCOM: surface salinity. Daily, {record.salinity.start} to {record.salinity.end}.",
+        "HURDAT2 (NOAA National Hurricane Center): storm tracks. Every 6 hours, {storms.start} to {storms.end}."
+      ],
+      "limitations": [
+        "One grid cell per variable, not an area average; reanalysis (model) data, not local measurements.",
+        "The record periods differ per variable; salinity only covers {record.salinity.start} to {record.salinity.end}, so later storms have no salinity.",
+        "Too few storms ({storms.total} in {storms.start} to {storms.end}) for a trend test."
+      ],
       "folder": "analysis/climatology",
       "zip": "",
       "files": [
@@ -83,88 +92,13 @@
         { "name": "Sisal_HYCOM_daily_all.csv", "description": "Daily HYCOM values (surface salinity) for one pixel.", "format": "CSV", "path": "" },
         { "name": "hurdat2_atlantic.txt", "description": "HURDAT2 storm tracks of NOAA, the source of the storm dates.", "format": "Text", "path": "" }
       ],
-      "topics": [
-        {
-          "id": "climate-data-sources",
-          "title": "Data sources",
-          "text": "Each variable comes from one grid cell of one dataset.",
-          "list": [
-            "ERA5-Land, land cell: air temperature (daily maximum and minimum) and rainfall. Daily, {record.airTemperature.start} to {record.airTemperature.end}.",
-            "ERA5, sea cell: wind speed, wave height, wave direction and sea surface temperature. Daily, {record.windSpeed.start} to {record.windSpeed.end}.",
-            "Satellite altimetry, grid point nearest 21.125°N, 90.125°W: sea level. Monthly, {record.seaLevel.start} to {record.seaLevel.end}.",
-            "HYCOM, one pixel: surface salinity. Daily, {record.salinity.start} to {record.salinity.end}.",
-            "HURDAT2 (NOAA National Hurricane Center): storm tracks. Every 6 hours, {storms.start} to {storms.end}."
-          ],
-          "files": ["loading.py"],
-          "cards": ["climate-sources"]
-        },
-        {
-          "id": "storm-selection",
-          "title": "Storm selection",
-          "text": "Counted in \"When storms come\": {storms.rule} This gives {storms.total} storms. We study {storms.studied} storms in detail: all passed within 100 km of Sisal and have daily climate data (ERA5 starts in {record.windSpeed.start}; earlier storms are counted, not studied). {storms.notCounted} are studied but not counted: near Sisal they were weaker than tropical storm strength.",
-          "files": ["storm_selection.py"],
-          "cards": ["storm-map", "storm-counts", "event-list"]
-        },
-        {
-          "id": "storm-periods",
-          "title": "Storm periods and peaks",
-          "text": "The box and the dashed line in the anomaly charts are the storm period and the peak date of each studied storm. The team sets them by hand in content/storm-periods.json, from the HURDAT2 track of the storm: the peak is the day the storm was closest to Sisal. The export script copies them to data/events.json.",
-          "files": ["export_typical_year.py"],
-          "cards": []
-        },
-        {
-          "id": "anomalies",
-          "title": "Anomalies",
-          "text": "An anomaly is a daily value minus the mean of the same calendar day. Baseline: {storms.baseline}. The mean uses an 11-day window around each day and is smoothed over 31 days; no trend is removed. The charts show {storms.windowDays} days before and after the peak date (or the middle of the storm period, if there is no peak date).",
-          "files": ["export_typical_year.py", "Clima_Baseline.ipynb"],
-          "cards": ["event-charts"]
-        },
-        {
-          "id": "typical-year",
-          "title": "A typical year",
-          "text": "For each calendar month: the line is the mean of all daily values of the record, the band runs from the 10th to the 90th percentile of those daily values. Rainfall is the mean monthly total (bars). Sea level has no band: it is the monthly mean relative to the annual mean. Air temperature has one panel for the daily maximum and one for the daily minimum.",
-          "files": ["typical_year.py"],
-          "cards": ["climate-typical-year"]
-        },
-        {
-          "id": "change-since-1950",
-          "title": "Change since 1950",
-          "text": "Annual means, over the record of each variable (years with at least 90% of the days; sea level: all 12 months). The trend is a linear regression of the annual means on the year, per decade (sea level: per year). The ± value is the 95% range of the slope (1.96 times its standard error), p is the p-value of the slope. The trend line is drawn only when p < {trend.pLimit}; otherwise the panel says no significant trend.",
-          "files": ["annual_trends.py", "export_typical_year.py"],
-          "cards": ["climate-change"]
-        },
-        {
-          "id": "in-detail",
-          "title": "In detail",
-          "text": "Per month, the band runs from the lowest to the highest daily value; the line is the 365-day running mean (centred, at least 300 days with data). Sea level shows the monthly anomaly (seasonal cycle removed) and its 12-month running mean, with trends for the whole record and for {seaLevel.periods}. Below, the annual means and trend as in Change since 1950.",
-          "files": ["export_typical_year.py", "sea_level.py"],
-          "cards": ["climate-detail"]
-        },
-        {
-          "id": "wave-direction",
-          "title": "Wave direction",
-          "text": "The compass is split into 8 sectors of 45°, centred on N, NE, E and so on. Each day is counted in the sector the waves come from (ERA5 daily mean wave direction), {wave.start} to {wave.end}. The wide wedge is all {wave.all} days. The narrow wedge is the {wave.storm} rough-sea days with a maximum wave height above {wave.threshold} m; these are not only tropical cyclones.",
-          "files": ["export_typical_year.py", "Clima_Baseline.ipynb"],
-          "cards": ["wave-direction"]
-        },
-        {
-          "id": "climate-limitations",
-          "title": "Limitations",
-          "list": [
-            "One grid cell per variable, not an area average.",
-            "ERA5, ERA5-Land and HYCOM are reanalysis (model) data, not local measurements.",
-            "The record periods differ: from {record.airTemperature.start} (air temperature, rainfall), {record.windSpeed.start} (wind, waves, sea surface temperature) and {record.seaLevel.start} (sea level).",
-            "Salinity only covers {record.salinity.start} to {record.salinity.end} (one HYCOM model version); later storms have no salinity.",
-            "Too few storms ({storms.total} in {storms.start} to {storms.end}) for a trend test."
-          ],
-          "cards": []
-        }
-      ],
       "useCases": [
         {
           "id": "storm-tracks-map",
           "title": "Map of the storm tracks around your site",
           "image": "img/method/storm-map.png",
+          "howMade": "We study {storms.studied} storms in detail: all passed within 100 km of Sisal and have daily climate data (ERA5 starts in {record.windSpeed.start}; earlier storms are counted, not studied). {storms.notCounted} are studied but not counted: near Sisal they were weaker than tropical storm strength.",
+          "infoCards": ["storm-map","event-list"],
           "steps": ["Placeholder step 1.", "Placeholder step 2.", "Placeholder step 3.", "Placeholder step 4."],
           "files": ["placeholder-script.py", "placeholder-data.csv"],
           "cards": ["storm-map"]
@@ -173,6 +107,8 @@
           "id": "storm-counts-chart",
           "title": "Chart of when storms come at your site",
           "image": "img/method/storm-counts.png",
+          "howMade": "Counted are tropical and subtropical storms of at least tropical-storm strength within 100 km of Sisal, {storms.start} to {storms.end}. This gives {storms.total} storms.",
+          "infoCards": ["storm-counts"],
           "steps": ["Placeholder step 1.", "Placeholder step 2.", "Placeholder step 3.", "Placeholder step 4."],
           "files": ["placeholder-script.py", "placeholder-data.csv"],
           "cards": ["storm-counts"]
@@ -181,6 +117,8 @@
           "id": "storm-anomaly-chart",
           "title": "Anomaly chart of the weather around one storm",
           "image": "img/method/storm-anomalies.png",
+          "howMade": "An anomaly is a daily value minus the mean of the same calendar day (baseline: {storms.baseline}). The charts show {storms.windowDays} days around the peak date; the box is the storm period and the dashed line the day the storm was closest to Sisal.",
+          "infoCards": ["event-charts"],
           "steps": [
             "Export the daily ERA5-Land, ERA5 and HYCOM values of the grid cells at your site from Earth Engine as CSV, one file per dataset, with a date column.",
             "Look up your storm in HURDAT2 and add its name, storm period (start, end) and peak date to storm-periods.json.",
@@ -196,6 +134,8 @@
           "id": "wave-direction-chart",
           "title": "Wave direction rose for your site",
           "image": "img/method/wave-direction.png",
+          "howMade": "The compass has 8 sectors of 45°, and each day is counted in the sector the waves come from, {wave.start} to {wave.end}. The wide wedge is all {wave.all} days, the narrow wedge the {wave.storm} rough-sea days with waves above {wave.threshold} m.",
+          "infoCards": ["wave-direction"],
           "steps": ["Placeholder step 1.", "Placeholder step 2.", "Placeholder step 3.", "Placeholder step 4."],
           "files": ["placeholder-script.py", "placeholder-data.csv"],
           "cards": ["wave-direction"]
@@ -204,6 +144,8 @@
           "id": "typical-year-chart",
           "title": "A typical year of the climate at your site",
           "image": "img/method/typical-year.png",
+          "howMade": "For each calendar month the line is the mean of all daily values of the record and the band runs from the 10th to the 90th percentile. Rainfall is the mean monthly total and sea level has no band.",
+          "infoCards": ["climate-typical-year"],
           "steps": ["Placeholder step 1.", "Placeholder step 2.", "Placeholder step 3.", "Placeholder step 4."],
           "files": ["placeholder-script.py", "placeholder-data.csv"],
           "cards": ["climate-typical-year"]
@@ -212,6 +154,8 @@
           "id": "change-since-1950-chart",
           "title": "Change since 1950 at your site",
           "image": "img/method/change-since-1950.png",
+          "howMade": "Annual means over the record of each variable (years with at least 90% of the days), with a linear trend per decade (sea level: per year). The trend line is drawn only when p < {trend.pLimit}.",
+          "infoCards": ["climate-change"],
           "steps": ["Placeholder step 1.", "Placeholder step 2.", "Placeholder step 3.", "Placeholder step 4."],
           "files": ["placeholder-script.py", "placeholder-data.csv"],
           "cards": ["climate-change"]
@@ -220,6 +164,8 @@
           "id": "in-detail-chart",
           "title": "Monthly range and running mean in detail",
           "image": "img/method/in-detail.png",
+          "howMade": "Per month the band runs from the lowest to the highest daily value, and the line is the 365-day running mean. Sea level shows the monthly anomaly and its 12-month running mean, with trends for {seaLevel.periods}.",
+          "infoCards": ["climate-detail"],
           "steps": ["Placeholder step 1.", "Placeholder step 2.", "Placeholder step 3.", "Placeholder step 4."],
           "files": ["placeholder-script.py", "placeholder-data.csv"],
           "cards": ["climate-detail"]
