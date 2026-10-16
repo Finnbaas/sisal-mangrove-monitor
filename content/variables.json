@@ -15,9 +15,12 @@
   ],
 
   "changeClasses": {
-    "loss": { "label": "Loss", "color": "class-loss" },
+    "stable": { "label": "Stable", "color": "class-stable" },
     "gain": { "label": "Gain", "color": "class-gain" },
-    "recovery": { "label": "Loss then recovery", "color": "class-recovery" }
+    "loss": { "label": "Loss", "color": "class-loss" },
+    "loss + recovery": { "label": "Loss + recovery", "color": "class-loss-recovery" },
+    "high turnover": { "label": "High turnover", "color": "class-high-turnover" },
+    "non-mangrove": { "label": "Non-mangrove", "color": "class-non-mangrove" }
   },
 
   "scenarios": {

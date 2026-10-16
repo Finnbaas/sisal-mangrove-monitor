@@ -15,7 +15,7 @@
     {
       "number": 2,
       "zone": "",
-      "class": "recovery",
+      "class": "loss + recovery",
       "shape": { "type": "ellipse", "leftPct": 61.7, "topPct": 44.2, "widthPct": 20.0, "heightPct": 15.3 }
     },
     {

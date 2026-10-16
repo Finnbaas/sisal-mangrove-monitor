@@ -1,7 +1,9 @@
 // points.js: the Overview and Satellite screens (the monitoring points).
 //   Site map with the points, year slider, tipping status, point chart with its chips, values for the
-//   year, point info, trend signals, and the download menu (CSV of the data, PNG of the chart).
-// Reads: data/points.json; variables, scenarios and metrics from content/variables.json.
+//   year, point info, trend signals, the NDVI plot image, and the download menu (CSV of the data, PNG of the chart).
+//   The map shows every point as a small dot; only the featured points (content/featured-points.json)
+//   are clickable markers.
+// Reads: data/points.json; content/featured-points.json; variables, scenarios and metrics from content/variables.json.
 // Uses: helpers.js, content.js. Used by: main.js (readPointContent, setupSlider, setupExports,
 //   setYear, loadPoints).
 
@@ -16,6 +18,7 @@ let METRICS = [];         // rows of the trend signals card (variables.json "tre
 const checked = {};       // which variables are switched on in the point chart
 
 let allPoints = [];
+let FEATURED = {};        // the clickable points: id -> { plot: path of the NDVI plot image } (content/featured-points.json)
 let selectedId = null;
 
 // Copies the point content from content/variables.json into the lists above.
@@ -41,12 +44,24 @@ async function loadPoints() {
   const statusEl = $('status');
   try {
     const response = await fetch('data/points.json');
-    if (!response.ok) throw new Error('HTTP ' + response.status);
+    if (!response.ok) throw new Error('data/points.json: HTTP ' + response.status);
     allPoints = await response.json();
+
+    // the featured (clickable) points and their plot images
+    const featuredResponse = await fetch('content/featured-points.json');
+    if (!featuredResponse.ok) throw new Error('content/featured-points.json: HTTP ' + featuredResponse.status);
+    FEATURED = {};
+    (await featuredResponse.json()).points.forEach((f) => { FEATURED[f.id] = { plot: f.plot }; });
 
     // No point is selected at the start: the cards show "No data" until a marker is clicked.
     const count = allPoints.length;
     $('map-note').textContent = count === 1 ? t('labels.mapNoteOnePoint') : t('labels.mapNote', { count: count });
+    // an image that cannot be found: say which file, instead of a broken picture
+    $('point-plot-image').onerror = () => {
+      $('point-plot-image').hidden = true;
+      $('point-plot-empty').hidden = false;
+      $('point-plot-empty').textContent = t('messages.couldNotLoadPlot', { file: $('point-plot-image').getAttribute('src') });
+    };
     renderMap();
     renderChips();
     renderAll();
@@ -77,10 +92,20 @@ function nearestIndexForYear(years, year) {
 
 // ---------- map ----------
 
+// Every point is drawn as a small dot (not clickable). The featured points are drawn on top as
+// larger, clickable markers.
 function renderMap() {
   const map = $('map');
-  map.querySelectorAll('.marker').forEach((m) => m.remove());
-  allPoints.forEach((p) => {
+  map.querySelectorAll('.marker, .dot').forEach((m) => m.remove());
+  allPoints.filter((p) => !FEATURED[p.id]).forEach((p) => {
+    const dot = document.createElement('div');
+    dot.className = 'dot';
+    dot.style.left = p.leftPct + '%';
+    dot.style.top = p.topPct + '%';
+    dot.style.background = color((CLASSES[p.changeClass] || UNKNOWN).colorVar);
+    map.appendChild(dot);
+  });
+  allPoints.filter((p) => FEATURED[p.id]).forEach((p) => {
     const btn = document.createElement('button');
     btn.className = 'marker';
     btn.dataset.id = p.id;
@@ -197,6 +222,17 @@ function renderAll() {
   ).join('');
   // no variables listed in content/variables.json: say so instead of an empty card
   if (VARS.length === 0) $('values').innerHTML = '<p class="placeholder-text">' + t('messages.notYetAvailable') + '</p>';
+
+  // NDVI plot image of the selected point (a ready-made picture in img/satellite/)
+  const plot = point && FEATURED[point.id] ? FEATURED[point.id].plot : null;
+  const plotImg = $('point-plot-image');
+  plotImg.hidden = !plot;
+  $('point-plot-empty').hidden = !!plot;
+  if (!plot) $('point-plot-empty').textContent = t('messages.selectPoint');
+  if (plot && plotImg.getAttribute('src') !== plot) {
+    plotImg.src = plot;
+    plotImg.alt = point.name;
+  }
 
   // point info
   $('info-class').textContent = cls.label;

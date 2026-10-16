@@ -1,11 +1,13 @@
 # export_points.py: turns the monthly Landsat NDVI per point, the shape classes and the breakpoints
 #   into data/points.json, the file the Overview and Satellite screens read.
-# Reads (all in analysis/points/): the three monthly max-NDVI CSVs, shape_classes_points(n=1138).csv
-#   and breakpoints.csv.
+#   Every point gets its class and map position (drawn as a small dot). Only the featured points
+#   (content/featured-points.json, the ones you can click) also get their monthly NDVI and breakpoint.
+# Reads (in analysis/satellite/): the three monthly max-NDVI CSVs, shape_classes_points(n=1138).csv
+#   and breakpoints.csv; plus content/featured-points.json.
 # Writes: data/points.json (never edit that file by hand; run this script again instead).
 # Used by: js/points.js reads the output.
 #
-# Run from the WEBTOOL_MDP folder:   python analysis/points/export_points.py
+# Run from the WEBTOOL_MDP folder:   python analysis/satellite/export_points.py
 
 import json
 from pathlib import Path
@@ -14,8 +16,10 @@ import pandas as pd
 
 # ---------- settings ----------
 
-HERE = Path(__file__).resolve().parent          # analysis/points/
-OUTPUT = HERE.parent.parent / "data" / "points.json"
+HERE = Path(__file__).resolve().parent          # analysis/satellite/
+ROOT = HERE.parent.parent                       # WEBTOOL_MDP/
+OUTPUT = ROOT / "data" / "points.json"
+FEATURED_JSON = ROOT / "content" / "featured-points.json"
 
 # The three monthly NDVI files. The key is the prefix of the point ids in the class file
 # (base_0, more_c3_004, new_886, ...).
@@ -34,7 +38,7 @@ MAP_SOUTH, MAP_NORTH = 21.07849757664358, 21.21314383673432
 
 # NDVI values are written unrounded (project rule). If the file turns out too slow to load,
 # the team can decide to set this to e.g. 4.
-ROUND_DECIMALS = 3
+ROUND_DECIMALS = None
 
 
 def clean(value):
@@ -85,6 +89,12 @@ if several:
     print(f"NOTE: {several} extra breakpoints skipped (points with more than one; the first is kept).")
 first_break = breaks.drop_duplicates("point_id").set_index("point_id")
 
+# the featured points: only these get their full NDVI data
+featured_ids = [p["id"] for p in json.loads(FEATURED_JSON.read_text())["points"]]
+unknown = [pid for pid in featured_ids if pid not in set(classes["point_id"])]
+if unknown:
+    print(f"WARNING: featured points not found in {CLASSES_CSV}: {unknown}")
+
 # ---------- 3. one object per point ----------
 
 points = []
@@ -105,24 +115,27 @@ for _, row in classes.iterrows():
         if month in DATES:
             breakpoint = {"index": DATES.index(month), "label": month}
 
-    points.append({
+    point = {
         "id": pid,
         "name": pid,
         "changeClass": row["shape_class"],
-        "scenario": None,              # no tipping-point scenario per point yet: shown as "No data"
         "lat": float(row["lat"]),
         "lon": float(row["lon"]),
         "leftPct": round(left, 3),     # marker position only, not research data
         "topPct": round(top, 3),
-        "dates": DATES,
-        # years: the year of each month. Only kept so the current points.js keeps working;
-        # it can go once points.js reads "dates".
-        "years": [int(d[:4]) for d in DATES],
-        "ndvi": [clean(v) for v in table[pid]],
-        "breakpoint": breakpoint,
-        "metricVals": None,
-        "metricTaus": None,
-    })
+    }
+    if pid in featured_ids:
+        point.update({
+            "scenario": None,          # no tipping-point scenario per point yet: shown as "No data"
+            "dates": DATES,
+            # years: the year of each month, used by the year slider in points.js
+            "years": [int(d[:4]) for d in DATES],
+            "ndvi": [clean(v) for v in table[pid]],
+            "breakpoint": breakpoint,
+            "metricVals": None,
+            "metricTaus": None,
+        })
+    points.append(point)
 
 # ---------- 4. write and report ----------
 
@@ -130,7 +143,9 @@ OUTPUT.write_text(json.dumps(points, allow_nan=False, separators=(",", ":")))
 
 print(f"Wrote {len(points)} points, {len(DATES)} months ({DATES[0]} to {DATES[-1]}) to {OUTPUT}")
 print(f"File size: {OUTPUT.stat().st_size / 1e6:.1f} MB")
-print(f"Points with a breakpoint: {sum(p['breakpoint'] is not None for p in points)}")
+featured = [p for p in points if "ndvi" in p]
+print(f"Featured points with NDVI data: {len(featured)}, of which with a breakpoint: {sum(p['breakpoint'] is not None for p in featured)}")
+print("Classes of the featured points:", sorted({p['changeClass'] for p in featured}))
 if outside_map:
     print(f"WARNING: {outside_map} points fall outside the map edges.")
 print("Classes (for changeClasses in content/variables.json):")

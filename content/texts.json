@@ -15,7 +15,8 @@
     "stakeholder-panel": "Area details",
     "climate-typical-year": "A typical year",
     "climate-change": "Change since 1950",
-    "climate-detail": "In detail"
+    "climate-detail": "In detail",
+    "point-plot": "NDVI, detrended and deseasonalized"
   },
 
   "labels": {
@@ -183,6 +184,8 @@
     "selectArea": "Select an area on the map or a bar in the timeline to see what stakeholders reported",
     "noObservationsInYear": "No observations in {year}",
     "couldNotLoadStakeholders": "Could not load the stakeholder content: {error}",
+    "selectPoint": "Click one of the larger markers on the map to see its NDVI.",
+    "couldNotLoadPlot": "Could not load the plot image {file}.",
     "stakeholderEntriesSkipped": "{count} incomplete entries in content/stakeholders.json are not shown (an area without number or shape, or an observation without start year or with an unknown area)"
   },
 
