@@ -262,10 +262,14 @@ code files to download. Everything on it comes from this file.
 ```
 
 - `format`: the small tag (for example Python, Notebook, Earth Engine, CSV, PDF).
-- `path`: where the file is in the repository. **While `path` is empty, the file is listed in
-  grey as "Not yet available" and cannot be downloaded.** Put the file in the repository first,
+- `path`: where the file is in the repository. **While `path` is empty, the GitHub icon of the file is
+  grey and has no link (hovering says "Not yet available").** Put the file in the repository first,
   then fill in its path.
-- A section without files shows "Files will be added here".
+- The files of a section are only shown in the panel of an example that names them in its `files`
+  (one line each: name, type tag, GitHub icon; the `description` shows on hover). An example without
+  files shows "Files will be added here".
+- The Method page has one tab per section. The background texts of a section (`description`, `sources`,
+  `keyChoices`, `requirements`) are in the collapsed row "About this analysis".
 
 **`useCases`**: the "Do it yourself" examples of a section. Each one is a card in the gallery
 (a picture of what you can make) that opens its steps and files when clicked:
@@ -283,11 +287,26 @@ code files to download. Everything on it comes from this file.
   `#method/` and the id. Lowercase letters, numbers and dashes only; each id may occur once.
 - `image`: a picture of the result, in `img/method/`. Without it the card shows a grey tile.
 - `steps`: three or four short instructions, one line each. Without steps the example shows
-  "Steps will be added here".
+  "Steps will be added here". A step can use numbers in curly brackets
+  (for example `{storms.baseline}`, see below).
 - `files`: the **names** of the files this example needs, from the `files` of the same section.
 - `cards`: the ready-made cards (see the table under pages.json) that get the small link
   **"Do this analysis yourself"**. The link opens the Method page at this example. A card can link
   to one example only.
+
+**Texts with numbers** (section `datasets` and `limitations`, use case `howMade`):
+
+- `datasets`: one line per dataset (name, variables, period) and `limitations`: at most three short lines.
+  A section with `datasets` shows them as a compact list above the cards instead of the row "About this analysis".
+- `howMade`: at most two sentences, shown as "How this is made" at the top of the panel of a use case.
+- `howWeUsed` (optional, one sentence) with `howWeUsedLink` (optional, e.g. `#climatology`): shown as "How we used it", with a link to the page that shows the result.
+- `whatYouNeed` (optional, list of 1 or 2 lines): shown as "What you need".
+- `infoCards` (use case or section): research cards whose small ↗ button opens that panel (a section: its tab).
+- Numbers in curly brackets (also in `steps`) are filled in from the data files, so they always match the research
+  page: `{storms.total}`, `{storms.start}`, `{storms.end}`, `{storms.studied}`, `{storms.notCounted}`,
+  `{storms.rule}`, `{storms.baseline}`, `{storms.windowDays}`, `{record.<variable id>.start}` and `.end`
+  (for example `{record.salinity.start}`), `{trend.pLimit}`, `{seaLevel.periods}`, `{wave.threshold}`,
+  `{wave.all}`, `{wave.storm}`, `{wave.start}`, `{wave.end}`. A number that is missing shows "No data".
 
 ## Placeholder states on the site
 
@@ -297,4 +316,4 @@ code files to download. Everything on it comes from this file.
 | "Not yet available" | A `placeholder` card: the content is not decided yet |
 | "No data" | The content is defined, but the data is missing from `data/` |
 | "Files will be added here" / "Steps will be added here" | A Method section or example without files or steps yet |
-| A file listed in grey, "Not yet available" | The file is named in `method.json` but has no `path` yet |
+| A grey GitHub icon on a file line | The file is named in `method.json` but has no `path` yet |

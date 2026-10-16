@@ -332,7 +332,7 @@ function pointChartSvg(v, point, idx, gridX, x) {
   const head = chartHead(v, gridX, 'chart', POINT_PLOT);
   const known = knownValues(series.concat(trend));
   // no point selected: an empty chart; a point without values: "No data"
-  if (!known.length) return { svg: chartNoData(head, point ? NO_DATA : '', POINT_PLOT), panel: null };
+  if (!known.length) return { svg: chartNoData(head, point ? NO_DATA : '', '', POINT_PLOT), panel: null };
 
   const scale = chartScale(v.axisRange || known, false, 0, POINT_PLOT);
   const yOf = scale.yOf;

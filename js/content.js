@@ -234,7 +234,11 @@ function buildParts(section, s, ready) {
   const nav = document.createElement('nav');
   nav.className = 'section-nav';
   nav.setAttribute('aria-label', s.label);
-  section.appendChild(nav);
+  // the bar stays at the top in the page background color, so cards and axis labels never show behind the navigation
+  const bar = document.createElement('div');
+  bar.className = 'section-nav-bar';
+  bar.appendChild(nav);
+  section.appendChild(bar);
   const partEls = [];
   s.parts.forEach((p, i) => {
     const part = document.createElement('div');
