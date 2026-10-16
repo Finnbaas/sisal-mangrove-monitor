@@ -247,6 +247,8 @@ code files to download. Everything on it comes from this file.
   `climatology`, `stakeholders`), the section gets the colors of that page.
 - `description`, `requirements`: short texts. `sources`: a list of links (`url` may be empty).
   `keyChoices`: a short list. Keep it brief: the details live in the code files and their comments.
+  A long choice can be split: `{ "text": "first sentence", "more": "the rest", "moreLabel": "Show thresholds" }`;
+  the rest is then hidden behind a small toggle with that label (without `moreLabel`: "Show more").
 - `folder`: the folder of this analysis in the repository; the link "View this folder on GitHub"
   opens it. Leave it empty while the folder does not exist yet.
 - `zip`: the path of a zip file with all files of this section. The button "Download all (.zip)"

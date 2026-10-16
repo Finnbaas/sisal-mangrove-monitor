@@ -131,7 +131,10 @@ function buildMethodPage() {
 // One analysis (Figma method-section): description on the left, "Code and files" on the right,
 // and under them the gallery of things a researcher can make themselves.
 function methodSectionHtml(section) {
-  const block = (label, body) => '<div class="method-block"><div class="method-label">' + escapeHtml(t(label)) + '</div>' + body + '</div>';
+  // A block that opens and closes (closed at the start): the small grey heading is the toggle (<summary>),
+  // the text is under it. The browser handles click, keyboard and screen readers (<details>); no own JavaScript.
+  const block = (label, body) => '<details class="method-block"><summary class="method-label">' + escapeHtml(t(label)) + '</summary>' +
+    '<div class="method-block-body">' + body + '</div></details>';
   const placeholder = '<div class="method-text">' + textOrPlaceholder('method-placeholder', '') + '</div>';
 
   const sources = (section.sources || []).filter((s) => s && isFilled(s.label));
@@ -139,8 +142,16 @@ function methodSectionHtml(section) {
     isFilled(s.url) ? '<a class="method-source" href="' + escapeHtml(s.url) + '" target="_blank" rel="noopener">' + escapeHtml(s.label) + ' &rarr;</a>'
       : '<span class="method-source">' + escapeHtml(s.label) + '</span>').join('') : placeholder;
 
-  const choices = (section.keyChoices || []).filter(isFilled);
-  const choicesHtml = choices.length ? '<ul class="method-choices">' + choices.map((c) => '<li>' + escapeHtml(c) + '</li>').join('') + '</ul>' : placeholder;
+  // A key choice is a text, or { text, more, moreLabel }: then "text" is shown and "more" sits behind its own
+  // small toggle with the label "moreLabel" (e.g. "Show thresholds"), again a <details> without own JavaScript.
+  const choiceText = (c) => (c && typeof c === 'object' ? c.text : c);
+  const choiceHtml = (c) => {
+    if (!c || typeof c !== 'object' || !isFilled(c.more)) return escapeHtml(choiceText(c));
+    return '<span class="choice-text">' + escapeHtml(c.text) + ' <details class="choice-more"><summary>' +
+      escapeHtml(isFilled(c.moreLabel) ? c.moreLabel : t('labels.showMore')) + '</summary><span class="choice-more-text">' + escapeHtml(c.more) + '</span></details></span>';
+  };
+  const choices = (section.keyChoices || []).filter((c) => isFilled(choiceText(c)));
+  const choicesHtml = choices.length ? '<ul class="method-choices">' + choices.map((c) => '<li>' + choiceHtml(c) + '</li>').join('') + '</ul>' : placeholder;
 
   // the theme colors of a section follow the research page with the same id (data-section, see css/base.css)
   return '<div class="card method-section" id="method-' + escapeHtml(section.id) + '" data-section="' + escapeHtml(section.id) + '">' +

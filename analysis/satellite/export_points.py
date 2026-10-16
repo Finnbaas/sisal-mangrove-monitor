@@ -31,8 +31,8 @@ NDVI_CSVS = {
     "new": "N700_monthly_max_NDVI_per_point.csv",
 }
 CLASSES_CSV = "shape_classes_points(n=1138).csv"
-# The lines and breakpoints of the NDVI plots of the featured points, written by the analysis notebook
-# (AES_Msc_MDP/code/ndvi_monthly_classification_n1138_csv_combined.ipynb, export cell after cell 21).
+# The lines and breakpoints of the NDVI plots of the featured points, written by the export cell of the
+# analysis notebook (analysis/satellite/ndvi_monthly_classification.ipynb, after "4. Plot per point").
 PLOT_LINES_CSV = "featured_plot_lines.csv"
 PLOT_BREAKPOINTS_CSV = "featured_plot_breakpoints.csv"
 

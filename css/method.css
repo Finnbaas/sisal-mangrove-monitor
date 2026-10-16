@@ -26,11 +26,37 @@
 .method-columns { display: flex; align-items: flex-start; gap: 32px; }
 .method-description { flex: 0 0 53.3%; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
 .method-head { display: flex; flex-direction: column; gap: 8px; }
-.method-block { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+/* Data sources, Key choices and Requirements: blocks that open and close (<details>), closed at the start.
+   The heading is the toggle: the small grey label with a chevron that points right (closed) or down (open). */
+.method-block-body { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-top: 6px; }
+summary.method-label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; list-style: none; }
+summary.method-label::-webkit-details-marker { display: none; }   /* hide the browser's own triangle (Safari) */
+summary.method-label::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);          /* chevron pointing right */
+  transition: transform 0.15s;
+  flex-shrink: 0;
+}
+details[open] > summary.method-label::before { transform: rotate(45deg); }   /* pointing down */
+summary.method-label:hover { color: var(--color-text-muted); }
+summary.method-label:focus-visible { outline: 2px solid var(--color-text-body); outline-offset: 2px; border-radius: 3px; }
 .method-source { font-size: 13px; font-weight: 600; color: var(--color-accent); text-decoration: none; }
 a.method-source:hover { text-decoration: underline; }
 .method-choices { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
 .method-choices li { display: flex; align-items: baseline; gap: 8px; font-size: 14px; color: var(--color-text-body); }
+/* a long key choice: the rest of the text behind its own small toggle ("Show thresholds"), with a small chevron */
+.choice-more { display: inline; }
+.choice-more > summary { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; list-style: none; font-size: 12px; font-weight: 600; color: var(--color-accent); }
+.choice-more > summary::-webkit-details-marker { display: none; }
+.choice-more > summary::after { content: ''; width: 4px; height: 4px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg) translateY(-2px); }
+.choice-more[open] > summary::after { transform: rotate(-135deg) translate(-1px, -1px); }
+.choice-more > summary:hover { text-decoration: underline; }
+.choice-more > summary:focus-visible { outline: 2px solid var(--color-text-body); outline-offset: 2px; border-radius: 3px; }
+.choice-more-text { display: block; margin-top: 4px; }
 .method-choices li::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--color-text-faint); flex-shrink: 0; transform: translateY(-2px); }
 .method-files { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; padding: 16px 12px; border-radius: 16px; background: var(--color-background); }
 .method-files-label { padding-left: 12px; font-size: 13px; font-weight: 600; color: var(--color-text-muted); }

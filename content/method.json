@@ -14,45 +14,70 @@
     {
       "id": "satellite",
       "title": "Satellite analysis",
-      "description": "",
-      "sources": [],
-      "keyChoices": [],
-      "requirements": "",
-      "folder": "",
+      "description": "Monthly maximum NDVI from Landsat (1993–2026) for 1138 random points in the Sisal area. Each series is regularised to monthly values, deseasonalised and detrended (STL), and corrected for the upward drift caused by the growing number of images per year. On these series we (1) detect breakpoints, (2) test for early warning signals before each loss, and (3) group all points into shape classes, shown on the map.",
+      "sources": [
+        { "label": "Landsat 5 TM, 7 ETM+, 8 and 9 OLI, Collection 2 Tier 1 Level-2 (surface reflectance), via Google Earth Engine", "url": "" },
+        { "label": "Global Mangrove Watch: used for the first mangrove mask, to select the points. The final mangrove map is based on NDVI, so Global Mangrove Watch is not the definitive mask.", "url": "" },
+        { "label": "Sentinel-2 SR Harmonized: only the background image of the map (January–May 2024). Not used for NDVI, because its record is too short to detect tipping points and early warning signals.", "url": "" }
+      ],
+      "keyChoices": [
+        "Monthly maximum NDVI: the maximum limits the effect of clouds; monthly steps are fine enough not to miss tipping points, which develop over several months.",
+        "Data from 1993 onwards: before that there are fewer than 12 Landsat images per year over Sisal.",
+        "The number of images per year increases over time, which pushes the monthly maximum upwards; this drift is removed in the detrending.",
+        "Breakpoint: a change of at least 0.25 NDVI within 12 months, after which the new level persists for at least 2 years. A drop followed by a quick recovery is resilience, not a breakpoint.",
+        "Early warning signals are computed only on the deseasonalised NDVI before the start of each loss, because an abrupt drop inside the rolling window would create false increases in variance and autocorrelation.",
+        "The significance of the early warning signals is tested against AR(1) surrogates; points without a breakpoint serve as controls.",
+        { "text": "Shape classes are based on the net NDVI change and the turnover of each series, with fixed thresholds.", "more": "The start and end level are the median of the first and last 3 years. Loss: net change of −0.3 or less. Gain: net change of +0.3 or more. Loss + recovery: mangrove (NDVI 0.3 or more) at the start and the end, but below 0.3 for at least 2 years in between. High turnover: turnover of 1.4 or more, a whole year below NDVI 0.25, or a monthly trend below 0. Non-mangrove: below 0.3 at the start and the end, with a mean NDVI below 0.25. All other points are stable.", "moreLabel": "Show thresholds" },
+        "Landsat and Sentinel-2 are not merged, because of sensor differences."
+      ],
+      "requirements": "A free Google Earth Engine account. Python 3 with pandas, numpy, matplotlib, statsmodels (STL) and scipy (Kendall's tau and smoothing).",
+      "folder": "analysis/satellite",
       "zip": "",
       "files": [
-        { "name": "ndvi_timeseries.js", "description": "Extracts the NDVI time series for your coordinates.", "format": "Earth Engine", "path": "" },
-        { "name": "early_warning_signals.ipynb", "description": "Calculates the early warning signals and Kendall's tau.", "format": "Notebook", "path": "" },
-        { "name": "scenario_classification.py", "description": "Classifies the tipping point scenario.", "format": "Python", "path": "" }
+        { "name": "GEE_NDVI.js", "description": "Extracts the monthly maximum NDVI per point.", "format": "Earth Engine", "path": "analysis/satellite/GEE_NDVI.js" },
+        { "name": "ndvi_monthly_classification.ipynb", "description": "Deseasonalising, breakpoints and shape classes.", "format": "Notebook", "path": "analysis/satellite/ndvi_monthly_classification.ipynb" },
+        { "name": "ews_monthly_new.ipynb", "description": "Early warning signals, Kendall's tau, surrogates, scenario matrix and sensitivity analysis.", "format": "Notebook", "path": "analysis/satellite/ews_monthly_new.ipynb" },
+        { "name": "export_points.py", "description": "Turns the results into the website data.", "format": "Python", "path": "analysis/satellite/export_points.py" }
       ],
       "useCases": [
         {
           "id": "ndvi-time-series",
           "title": "NDVI time series for your location",
-          "image": "img/method/ndvi-time-series.png",
-          "steps": [],
-          "files": ["ndvi_timeseries.js"],
+          "image": "img/satellite/point_base_53.png",
+          "steps": [
+            "Open the Earth Engine script in the Earth Engine Code Editor. Choose one location, or upload a CSV with the coordinates of several points.",
+            "Run the script and export the monthly maximum NDVI per point as a CSV to Google Drive.",
+            "Download the CSV from Google Drive to your computer.",
+            "Open the notebook, set the path to your CSV and run all cells.",
+            "The notebook regularises, deseasonalises and detrends each series and saves one plot per point, like the plots on the Satellite page."
+          ],
+          "files": ["GEE_NDVI.js", "ndvi_monthly_classification.ipynb"],
           "cards": ["point-chart"]
         },
         {
           "id": "tipping-point-custom-location",
           "title": "Tipping point analysis for your own location",
-          "image": "img/method/tipping-point.png",
+          "image": "img/satellite/point_base_69.png",
           "steps": [
-            "Download the Earth Engine script and open it in the Earth Engine Code Editor.",
-            "Change the coordinates at the top of the script to your location, run it, and export the NDVI time series as CSV.",
-            "Download the early warning signals notebook, open it in VS Code, and set the path to your CSV.",
-            "Run all cells: you get the early warning signals, Kendall's tau and the tipping point scenario for your location."
+            "Make the NDVI time series as in the example \"NDVI time series for your location\".",
+            "Run the breakpoint detection: it lists every point with a lasting drop, with its date and magnitude.",
+            "Open the early warning signals notebook. For each point with a loss, it takes the NDVI before the loss and computes the rolling standard deviation, AR1, return rate, kurtosis and skewness, and their Kendall's tau.",
+            "It compares these trends with AR(1) surrogates and with control points to test significance.",
+            "It places each point in the scenario matrix (NDVI tau vs SD tau) and repeats the analysis for other window sizes and bandwidths (sensitivity analysis)."
           ],
-          "files": ["ndvi_timeseries.js", "early_warning_signals.ipynb", "scenario_classification.py"],
+          "files": ["GEE_NDVI.js", "ndvi_monthly_classification.ipynb", "ews_monthly_new.ipynb"],
           "cards": ["trend-signals"]
         },
         {
           "id": "change-map",
-          "title": "Change map of your area: loss, gain and recovery",
-          "image": "img/site-map.png",
-          "steps": [],
-          "files": [],
+          "title": "Shape-class map of your area",
+          "image": "img/site-map2.png",
+          "steps": [
+            "Make the NDVI time series as in the example \"NDVI time series for your location\", for many random points in your area.",
+            "In the notebook, compute the net NDVI change and turnover per point and assign the shape classes (stable, gain, loss, loss + recovery, high turnover, non-mangrove).",
+            "Plot the classes on a map using the point coordinates."
+          ],
+          "files": ["GEE_NDVI.js", "ndvi_monthly_classification.ipynb"],
           "cards": []
         }
       ]

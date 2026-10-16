@@ -27,6 +27,7 @@
     "valuesFor": "Values for {year}",
     "breakpoint": "Detected breakpoint: {breakpoints}",
     "breakpointItem": "{type} {month} ({magnitude})",
+    "showMore": "Show more",
     "noVariablesSelected": "no variables selected",
     "exportPng": "Chart (PNG)",
     "exportCsv": "Data (CSV)",

@@ -169,7 +169,7 @@ Code conventions (keep them):
 
 ### Research content terms
 
-EWS metrics: standard deviation, AR1 (lag-1 autocorrelation), return rate, kurtosis, skewness. Trends are tested with Kendall's tau. Breakpoints are detected with LandTrendr.
+EWS metrics: standard deviation, AR1 (lag-1 autocorrelation), return rate, kurtosis, skewness. Trends are tested with Kendall's tau. Breakpoints: a change of at least 0.25 NDVI within 12 months on the STL trend, after which the new level persists for at least 2 years (a drop followed by a quick recovery is resilience, not a breakpoint). LandTrendr is no longer used.
 
 Tipping-point scenarios, based on the Kendall's tau trend of NDVI and of standard deviation (SD):
 - Scenario 1, Abrupt transition (potential EWS): NDVI tau < 0 and SD tau > 0
@@ -196,18 +196,20 @@ Labels are pending a team decision. Do not change them in either direction until
 ### Structure of the data and content files
 
 #### Structure of data/points.json
-The file is one JSON array with one object per monitoring point (currently 6 points, illustrative data). Each object has:
-- `id`, `name`: point code (e.g. "P08") and display name.
-- `changeClass`: "loss", "gain" or "recovery" (the change mask the point was sampled from; independent of the scenario).
-- `scenario`: number 1-4 (tipping-point scenario, see above).
+The file is one JSON array with one object per monitoring point (1138 points), made by analysis/satellite/export_points.py (never edit it by hand). Every point has:
+- `id`, `name`: point code (e.g. "base_69"); the name is the same code.
+- `changeClass`: the shape class of the NDVI line: "stable", "gain", "loss", "loss + recovery", "high turnover" or "non-mangrove" (from shape_classes_points(n=1138).csv; independent of the scenario).
 - `lat`, `lon`: coordinates in decimal degrees.
 - `leftPct`, `topPct`: marker position on the site map image, in percent.
-- `years`: array of years (currently 14 survey years, 1984-2026).
-- `ndvi`, `temperature` (°C), `salinity` (PSU), `precipitation` (mm/month), `evapo` (mm/day): arrays with one value per entry in `years`, in the same order.
+
+Only the featured points (content/featured-points.json, the clickable markers) also have:
+- `scenario`: number 1-4 (tipping-point scenario, see above); `null` for now (shown as "No data").
+- `dates`: the months, "1993-01" to the last month of the data; `years`: the year of each month (used by the year slider).
+- `ndvi`: monthly maximum NDVI, one value per entry in `dates` (the grey "raw NDVI" line of the plots; gaps filled as in the notebook).
 - `ndviTrend` (featured points): the STL trend (deseasonalised) of the NDVI, one value per entry in `dates`; `null` in the months STL cuts off. `ndvi` and `ndviTrend` are the two lines of the notebook's NDVI plots, written by the notebook to analysis/satellite/featured_plot_lines.csv and featured_plot_breakpoints.csv, and copied into points.json by analysis/satellite/export_points.py.
 - `breakpoints` (featured points): list of `{ "type": "drop" or "rise", "index": position in dates, "label": "2001-08", "windowStart", "windowEnd": positions in dates of the 12-month window, "magnitude" }`; an empty list if none was detected.
-- `metricVals`: EWS values as strings: `stdDev`, `ar1`, `returnRate`, `kurtosis`, `skewness`.
-- `metricTaus`: Kendall's tau per metric as signed strings (e.g. "+0.51"): `ndvi`, `stdDev`, `ar1`, `returnRate`, `kurtosis`, `skewness`.
+- `metricVals` (`null` for now): EWS values as strings: `stdDev`, `ar1`, `returnRate`, `kurtosis`, `skewness`.
+- `metricTaus` (`null` for now): Kendall's tau per metric as signed strings (e.g. "+0.51"): `ndvi`, `stdDev`, `ar1`, `returnRate`, `kurtosis`, `skewness`.
 
 #### Structure of data/events.json
 The file is one JSON array with one object per storm (Climatology screen), newest first. It is made by `export_storms()` in analysis/climatology/export_typical_year.py. Each object has:
@@ -250,7 +252,7 @@ The file is one JSON object, written by the team (Stakeholder screen). It is loa
 #### Structure of content/method.json
 The file is one JSON object, written by the team (Method page). It is loaded by method.js; an error in it shows a message on the Method page only.
 - `title`, `intro`, `exampleContent` (true shows the "Example content" tag), `repository` and `branch` (GitHub address, for the "View on GitHub" links), `license`, `citation`, `doi`.
-- `sections`: one object per analysis: `id` (a page id from content/pages.json gives the section that page's theme colors), `title`, `description`, `sources` (list of `{ "label", "url" }`), `keyChoices` (list of texts), `requirements`, `folder` (folder in the repository), `zip` (path of a zip with all files; the button only shows when filled), `files` and `useCases`.
+- `sections`: one object per analysis: `id` (a page id from content/pages.json gives the section that page's theme colors), `title`, `description`, `sources` (list of `{ "label", "url" }`), `keyChoices` (list of texts, or `{ "text", "more", "moreLabel" }` for a long choice with its rest behind a small toggle), `requirements`, `folder` (folder in the repository), `zip` (path of a zip with all files; the button only shows when filled), `files` and `useCases`.
 - `files`: one object per code file: `name`, `description`, `format` (tag text) and `path` (path in the repository; an empty path shows the file as "Not yet available" and not downloadable).
 - `useCases`: one object per "do it yourself" example: `id` (short name, lowercase letters, numbers and dashes, used in the address #method/<id>), `title`, `image`, `steps` (list of one-line instructions), `files` (names of files of the same section) and `cards` (names of ready-made cards that get the "Do this analysis yourself" link to this use case).
 - Any number of sections, files and use cases is possible. Empty texts show "Not yet available".
