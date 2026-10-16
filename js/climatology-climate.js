@@ -88,6 +88,7 @@ async function loadTypicalYear() {
     console.error(err);
   }
   renderTypicalYear();
+  renderEventCharts();        // climatology-storms.js: the reason for "No data" uses the record period of this file
   loadClimateChange();
 }
 

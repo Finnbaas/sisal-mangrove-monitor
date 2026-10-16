@@ -24,6 +24,7 @@
 .storm-legend-box { width: 14px; height: 9px; border: 2px solid color-mix(in srgb, var(--color-class-loss) 50%, transparent); }
 .storm-legend-peak { width: 14px; border-top: 2.5px dashed var(--color-class-loss); }
 .plot-nodata { font-family: 'Archivo', sans-serif; font-size: 13px; fill: var(--color-text-faint); }
+.plot-nodata-reason { font-family: 'Archivo', sans-serif; font-size: 11px; fill: var(--color-text-faint); }
 /* source tag (Figma source-tag): top right of each chart, in a strip above the plot so it never covers data */
 .anomaly-chart:has(.source-tag) { padding-top: 24px; }
 .source-tag {

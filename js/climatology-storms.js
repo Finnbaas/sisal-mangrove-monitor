@@ -170,7 +170,7 @@ function renderEventCharts() {
   EVENT_VARS.forEach((v) => {
     const series = seriesOf(ev, v);
     const source = SOURCES[(ev.sources || {})[v.id]];
-    box.appendChild(chartRow(v, source, chartSvg(series, n, weeks, v)));
+    box.appendChild(chartRow(v, source, chartSvg(series, n, weeks, v, noDataReason(ev, v, source))));
   });
 
   // one shared date axis under all charts, with a label every week
@@ -205,13 +205,23 @@ function renderEventCharts() {
 }
 
 // Draws one storm anomaly chart as SVG text. Also stores how values map to y positions in chartScales.
-function chartSvg(series, n, weeks, v) {
+// Why a chart has no data: the storm lies outside the record period of the variable (typical-year.json "record"),
+// for example "Record covers 1993 to 2012 (HYCOM cell)". Empty when the storm lies inside the record or the period is unknown.
+function noDataReason(ev, v, source) {
+  const record = typicalYear && typicalYear.variables && typicalYear.variables[v.id] && typicalYear.variables[v.id].record;
+  const dates = Array.isArray(ev.dates) ? ev.dates : [];
+  if (!record || !record.start || !record.end || !dates.length) return '';
+  if (dates[dates.length - 1] >= record.start && dates[0] <= record.end) return '';
+  return t('labels.noDataRecord', { start: record.start.slice(0, 4), end: record.end.slice(0, 4), source: source ? source.label : '' });
+}
+
+function chartSvg(series, n, weeks, v, reason) {
   const known = knownValues(series);
   // vertical gridlines are drawn even without data, so the charts stay aligned
   const head = chartHead(v, weeks.map((w) => chartX(w.i, n)), 'anomaly');
   if (!n || !known.length) {
     chartScales.push(null);
-    return chartNoData(head);
+    return chartNoData(head, NO_DATA, reason);
   }
 
   // y scale: room for the ticks and the data, plus space for the label at the most extreme value

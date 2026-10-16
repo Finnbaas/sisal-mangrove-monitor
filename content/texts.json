@@ -75,6 +75,7 @@
     "changeSubtitle": "Annual means and trend since the start of each record",
     "month": "Month",
     "dataSourcesTitle": "Where the data comes from",
+    "noDataRecord": "Record covers {start} to {end} ({source})",
     "dataSourcesAlt": "Map of the grid cells the climate data comes from: the ERA5-Land land cell, the ERA5 sea cell and the HYCOM cell near Sisal",
     "detailDaily": "Daily values",
     "detailMonthly": "Monthly anomaly",
