@@ -1,6 +1,6 @@
 // stakeholders.js: the Stakeholder screen.
-//   ONE map with the shapes of all three themes (Extent, Condition, Disturbance and recovery), theme buttons,
-//   a timeline that is also the year filter, and a panel with what stakeholders said about the clicked spot.
+//   ONE map with the shapes of all three themes (Extent, Condition, Disturbance and recovery), that can be moved
+//   and zoomed like the storm map, theme buttons, a timeline that is also the year filter, and a panel with what stakeholders said about the clicked spot.
 // Reads: data/stakeholders/stakeholders.json (shapes and table rows, made by analysis/stakeholders/build-stakeholders.py)
 //   and content/stakeholders.json (the team's years per row, theme names, colors of the three severities).
 // Uses: helpers.js, content.js. Used by: main.js (setupStakeholders).
@@ -9,6 +9,7 @@ const STAKEHOLDER_DATA_FILE = 'data/stakeholders/stakeholders.json';
 const STAKEHOLDER_CONTENT_FILE = 'content/stakeholders.json';
 const SH_MAP_WIDTH = 1000;   // width of the map drawing; the height follows from the aspect ratio of the base map
 const SH_BUBBLE = 14;        // radius of the number bubble on a shape (in map units)
+const SH_ZOOM_STEP = 1.6, SH_ZOOM_MAX = 12;   // zoom buttons: the same steps as the storm map
 const SH_HIT_MARGIN = 8;     // how far outside a thin shape a click or hover still counts as "on" it (in map units)
 
 let shData = null;           // data/stakeholders/stakeholders.json, or null if it could not be loaded
@@ -18,6 +19,7 @@ let shYearMin = null;        // first year of the timeline (content/stakeholders
 let shYear = null;           // the selected year; null means "All years" (the landing view)
 const shThemeOn = {};        // per theme: true = its shapes and rows are shown
 let shSelected = [];         // keys of the selected rows (a clicked spot can hold several)
+const shView = { scale: 1, tx: 0, ty: 0 };   // zoom and move of the map (map units); scale 1 = the whole map
 
 // ---------- loading and checking ----------
 
@@ -113,15 +115,49 @@ function setupStakeholders() {
     renderStakeholders();
   });
 
-  // the map: hover shows the number and zone, a click lists everything at that spot
-  $('sh-map').addEventListener('mousemove', showStakeholderHover);
-  $('sh-map').addEventListener('mouseleave', () => { $('sh-hover').hidden = true; });
-  $('sh-map').addEventListener('click', (e) => {
-    const hits = shapesAt(mapPoint(e));
+  // the map, like the storm map: drag to move, + / - / Reset to zoom, hover shows the number and zone,
+  // a click (without moving) lists everything at that spot
+  const map = $('sh-map');
+  let drag = null;
+  map.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('#sh-map-buttons')) return;
+    map.setPointerCapture(e.pointerId);
+    drag = { x: e.clientX, y: e.clientY, tx: shView.tx, ty: shView.ty, moved: false };
+  });
+  map.addEventListener('pointermove', (e) => {
+    if (drag) {
+      if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > 4) drag.moved = true;
+      if (drag.moved) {
+        const unit = SH_MAP_WIDTH / $('sh-svg').getBoundingClientRect().width;   // screen pixels -> map units
+        shView.tx = drag.tx + (e.clientX - drag.x) * unit;
+        shView.ty = drag.ty + (e.clientY - drag.y) * unit;
+        applyStakeholderView();
+        $('sh-hover').hidden = true;
+        return;
+      }
+    }
+    showStakeholderHover(e);
+  });
+  map.addEventListener('pointerup', (e) => {
+    const wasClick = drag && !drag.moved;
+    drag = null;
+    if (!wasClick) return;
     const keys = [];
-    hits.forEach((s) => { if (!keys.includes(rowKey(s.theme, s.id))) keys.push(rowKey(s.theme, s.id)); });
+    shapesAt(mapPoint(e)).forEach((s) => { if (!keys.includes(rowKey(s.theme, s.id))) keys.push(rowKey(s.theme, s.id)); });
     shSelected = sortedKeys(keys);
     renderStakeholders();
+  });
+  map.addEventListener('pointercancel', () => { drag = null; });
+  map.addEventListener('pointerleave', () => { drag = null; $('sh-hover').hidden = true; });
+
+  const zoomButtons = {
+    'sh-zoom-in': ['stormMap.zoomIn', () => zoomStakeholderMap(SH_MAP_WIDTH / 2, mapHeight() / 2, SH_ZOOM_STEP)],
+    'sh-zoom-out': ['stormMap.zoomOut', () => zoomStakeholderMap(SH_MAP_WIDTH / 2, mapHeight() / 2, 1 / SH_ZOOM_STEP)],
+    'sh-reset': ['stormMap.reset', () => { shView.scale = 1; shView.tx = 0; shView.ty = 0; renderStakeholderMap(); }]
+  };
+  Object.entries(zoomButtons).forEach(([id, [textPath, action]]) => {
+    $(id).setAttribute('aria-label', t(textPath));
+    $(id).addEventListener('click', () => { if (shData) action(); });
   });
 
   // clicking a bar in the timeline or a "Whole area" button selects that row (clicking it again deselects)
@@ -225,11 +261,29 @@ function visibleShapes() {
 
 function mapHeight() { return SH_MAP_WIDTH / shData.baseMap.aspectRatio; }
 
-// Where the mouse is, in map units.
+// Where the mouse is on the map, in map units (taking zoom and move into account).
 function mapPoint(e) {
   const rect = $('sh-svg').getBoundingClientRect();
-  const scale = SH_MAP_WIDTH / rect.width;
-  return { x: (e.clientX - rect.left) * scale, y: (e.clientY - rect.top) * scale };
+  const unit = SH_MAP_WIDTH / rect.width;
+  return { x: ((e.clientX - rect.left) * unit - shView.tx) / shView.scale, y: ((e.clientY - rect.top) * unit - shView.ty) / shView.scale };
+}
+
+// Keeps the map covering the frame (no empty edges), then moves the drawing.
+function applyStakeholderView() {
+  shView.tx = Math.min(0, Math.max(SH_MAP_WIDTH * (1 - shView.scale), shView.tx));
+  shView.ty = Math.min(0, Math.max(mapHeight() * (1 - shView.scale), shView.ty));
+  const view = $('sh-view');
+  if (view) view.setAttribute('transform', 'translate(' + shView.tx.toFixed(1) + ' ' + shView.ty.toFixed(1) + ') scale(' + shView.scale + ')');
+}
+
+// Zoom around a point of the frame (px, py in map units), like the storm map.
+function zoomStakeholderMap(px, py, factor) {
+  const scale = Math.max(1, Math.min(SH_ZOOM_MAX, shView.scale * factor));
+  factor = scale / shView.scale;
+  shView.tx = px - (px - shView.tx) * factor;
+  shView.ty = py - (py - shView.ty) * factor;
+  shView.scale = scale;
+  renderStakeholderMap();
 }
 
 // All shown shapes that cover a point, smallest first (the one on top comes first).
@@ -242,8 +296,10 @@ function shapesAt(point) {
     // the point in the rotated frame of the ellipse
     const lx = dx * Math.cos(a) + dy * Math.sin(a);
     const ly = -dx * Math.sin(a) + dy * Math.cos(a);
-    const rx = e.width * SH_MAP_WIDTH / 2 + SH_HIT_MARGIN, ry = e.height * SH_MAP_WIDTH / 2 + SH_HIT_MARGIN;
-    return (lx / rx) ** 2 + (ly / ry) ** 2 <= 1 || Math.hypot(dx, dy) <= SH_BUBBLE + 2;
+    // margin and bubble keep their size on screen, so in map units they shrink when zoomed in
+    const margin = SH_HIT_MARGIN / shView.scale;
+    const rx = e.width * SH_MAP_WIDTH / 2 + margin, ry = e.height * SH_MAP_WIDTH / 2 + margin;
+    return (lx / rx) ** 2 + (ly / ry) ** 2 <= 1 || Math.hypot(dx, dy) <= (SH_BUBBLE + 2) / shView.scale;
   });
   return hits.reverse();
 }
@@ -251,6 +307,7 @@ function shapesAt(point) {
 // Hover: the number and zone of the shape on top.
 function showStakeholderHover(e) {
   const hover = $('sh-hover');
+  if (!shData) return;
   const top = shapesAt(mapPoint(e))[0];
   if (!top) { hover.hidden = true; return; }
   const row = rowByKey(rowKey(top.theme, top.id));
@@ -349,10 +406,12 @@ function renderStakeholderMap() {
   const bubbles = shapes.map((s) => {
     const e = s.ellipse, cx = e.cx * SH_MAP_WIDTH, cy = e.cy * height;
     return '<g class="sh-bubble' + (s.cause === 'natural' ? ' natural' : '') + (selected(s) ? ' selected' : '') + '" style="' + style(s) + '">' +
-      '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + SH_BUBBLE + '"/>' +
-      '<text x="' + cx.toFixed(1) + '" y="' + cy.toFixed(1) + '">' + escapeHtml(s.id) + '</text></g>';
+      '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (SH_BUBBLE / shView.scale).toFixed(2) + '"/>' +
+      '<text x="' + cx.toFixed(1) + '" y="' + cy.toFixed(1) + '" style="font-size:' + (15 / shView.scale).toFixed(2) + 'px">' + escapeHtml(s.id) + '</text></g>';
   }).join('');
-  svg.innerHTML = '<image href="' + escapeHtml(shData.baseMap.file) + '" x="0" y="0" width="' + SH_MAP_WIDTH + '" height="' + height + '"/>' + outlines + bubbles;
+  // everything that moves with the map sits in one group (see applyStakeholderView)
+  svg.innerHTML = '<g id="sh-view"><image href="' + escapeHtml(shData.baseMap.file) + '" x="0" y="0" width="' + SH_MAP_WIDTH + '" height="' + height + '"/>' + outlines + bubbles + '</g>';
+  applyStakeholderView();
 
   // nothing to show: say why on the map
   const anyTheme = Object.keys(shData.themes).some((theme) => shThemeOn[theme]);

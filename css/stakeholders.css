@@ -9,13 +9,14 @@
 .sh-filter.on { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-text-on-accent); }
 
 /* map card: one SVG with the base map and all shapes; the height follows the aspect ratio set by stakeholders.js */
-#sh-map { position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 16px; overflow: hidden; background: var(--color-map-bg); cursor: pointer; }
+#sh-map { position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 16px; overflow: hidden; background: var(--color-map-bg); cursor: grab; touch-action: none; user-select: none; }
+#sh-map-buttons { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; z-index: 7; }
 #sh-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 /* one shape (Figma stakeholder-area): severity color at 25%, dashed outline */
-.sh-shape { fill: color-mix(in srgb, var(--c) 25%, transparent); stroke: var(--c); stroke-width: 2.5; stroke-dasharray: 8 5; }
+.sh-shape { fill: color-mix(in srgb, var(--c) 25%, transparent); stroke: var(--c); stroke-width: 2.5; stroke-dasharray: 8 5; vector-effect: non-scaling-stroke; }
 .sh-shape.selected { fill: color-mix(in srgb, var(--c) 50%, transparent); stroke-width: 4; stroke-dasharray: none; }
 /* the number on a shape; a filled grey bubble means a natural cause (Condition) */
-.sh-bubble circle { fill: var(--color-surface); stroke: var(--c); stroke-width: 2; }
+.sh-bubble circle { fill: var(--color-surface); stroke: var(--c); stroke-width: 2; vector-effect: non-scaling-stroke; }
 .sh-bubble.natural circle { fill: var(--color-text-muted); }
 .sh-bubble.selected circle { stroke-width: 3.5; }
 .sh-bubble text { font-size: 15px; font-weight: 600; fill: var(--color-text); text-anchor: middle; dominant-baseline: central; pointer-events: none; }

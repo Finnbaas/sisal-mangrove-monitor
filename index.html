@@ -257,6 +257,11 @@
           <!-- one SVG: the base map and all shapes on top of it (drawn by stakeholders.js) -->
           <div id="sh-map">
             <svg id="sh-svg" role="img" aria-label="Map of the study area with stakeholder observations"></svg>
+            <div id="sh-map-buttons">
+              <button type="button" id="sh-zoom-in" class="map-button">+</button>
+              <button type="button" id="sh-zoom-out" class="map-button">&minus;</button>
+              <button type="button" id="sh-reset" class="map-button" data-text="stormMap.reset"></button>
+            </div>
             <div id="sh-hover" class="sh-tooltip" hidden></div>
             <div id="sh-map-message" hidden></div>
           </div>
