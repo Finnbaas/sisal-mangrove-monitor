@@ -14,23 +14,12 @@
     {
       "id": "satellite",
       "title": "Satellite analysis",
-      "description": "Monthly maximum NDVI from Landsat (1993–2026) for 1138 random points in the Sisal area. Each series is regularised to monthly values, deseasonalised and detrended (STL), and corrected for the upward drift caused by the growing number of images per year. On these series we (1) detect breakpoints, (2) test for early warning signals before each loss, and (3) group all points into shape classes, shown on the map.",
-      "sources": [
-        { "label": "Landsat 5 TM, 7 ETM+, 8 and 9 OLI, Collection 2 Tier 1 Level-2 (surface reflectance), via Google Earth Engine", "url": "" },
-        { "label": "Global Mangrove Watch: used for the first mangrove mask, to select the points. The final mangrove map is based on NDVI, so Global Mangrove Watch is not the definitive mask.", "url": "" },
-        { "label": "Sentinel-2 SR Harmonized: only the background image of the map (January–May 2024). Not used for NDVI, because its record is too short to detect tipping points and early warning signals.", "url": "" }
+      "datasets": [
+        "Landsat 5 TM, 7 ETM+, 8 and 9 OLI, Collection 2 Tier 1 Level-2 (surface reflectance), via Google Earth Engine",
+        "Global Mangrove Watch: used for the first mangrove mask, to select the points. The final mangrove map is based on NDVI, so Global Mangrove Watch is not the definitive mask.",
+        "Sentinel-2 SR Harmonized: only the background image of the map (January–May 2024). Not used for NDVI, because its record is too short to detect tipping points and early warning signals."
       ],
-      "keyChoices": [
-        "Monthly maximum NDVI: the maximum limits the effect of clouds; monthly steps are fine enough not to miss tipping points, which develop over several months.",
-        "Data from 1993 onwards: before that there are fewer than 12 Landsat images per year over Sisal.",
-        "The number of images per year increases over time, which pushes the monthly maximum upwards; this drift is removed in the detrending.",
-        "Breakpoint: a change of at least 0.25 NDVI within 12 months, after which the new level persists for at least 2 years. A drop followed by a quick recovery is resilience, not a breakpoint.",
-        "Early warning signals are computed only on the deseasonalised NDVI before the start of each loss, because an abrupt drop inside the rolling window would create false increases in variance and autocorrelation.",
-        "The significance of the early warning signals is tested against AR(1) surrogates; points without a breakpoint serve as controls.",
-        { "text": "Shape classes are based on the net NDVI change and the turnover of each series, with fixed thresholds.", "more": "The start and end level are the median of the first and last 3 years. Loss: net change of −0.3 or less. Gain: net change of +0.3 or more. Loss + recovery: mangrove (NDVI 0.3 or more) at the start and the end, but below 0.3 for at least 2 years in between. High turnover: turnover of 1.4 or more, a whole year below NDVI 0.25, or a monthly trend below 0. Non-mangrove: below 0.3 at the start and the end, with a mean NDVI below 0.25. All other points are stable.", "moreLabel": "Show thresholds" },
-        "Landsat and Sentinel-2 are not merged, because of sensor differences."
-      ],
-      "requirements": "A free Google Earth Engine account. Python 3 with pandas, numpy, matplotlib, statsmodels (STL) and scipy (Kendall's tau and smoothing).",
+      "limitations": [],
       "folder": "analysis/satellite",
       "zip": "",
       "files": [
@@ -44,6 +33,17 @@
           "id": "ndvi-time-series",
           "title": "NDVI time series for your location",
           "image": "img/satellite/point_base_53.png",
+          "howMade": "Monthly maximum NDVI from Landsat (1993–2026) for 1138 random points in the Sisal area. Each series is regularised to monthly values, deseasonalised and detrended (STL), and corrected for the upward drift caused by the growing number of images per year. On these series we (1) detect breakpoints, (2) test for early warning signals before each loss, and (3) group all points into shape classes, shown on the map.",
+          "keyChoices": [
+            "Monthly maximum NDVI: the maximum limits the effect of clouds; monthly steps are fine enough not to miss tipping points, which develop over several months.",
+            "Data from 1993 onwards: before that there are fewer than 12 Landsat images per year over Sisal.",
+            "The number of images per year increases over time, which pushes the monthly maximum upwards; this drift is removed in the detrending.",
+            "Landsat and Sentinel-2 are not merged, because of sensor differences."
+          ],
+          "whatYouNeed": [
+            "A free Google Earth Engine account. Python 3 with pandas, numpy, matplotlib, statsmodels (STL) and scipy (Kendall's tau and smoothing)."
+          ],
+          "infoCards": ["point-chart"],
           "steps": [
             "Open the Earth Engine script in the Earth Engine Code Editor. Choose one location, or upload a CSV with the coordinates of several points.",
             "Run the script and export the monthly maximum NDVI per point as a CSV to Google Drive.",
@@ -58,6 +58,15 @@
           "id": "tipping-point-custom-location",
           "title": "Tipping point analysis for your own location",
           "image": "img/satellite/point_base_69.png",
+          "keyChoices": [
+            "Breakpoint: a change of at least 0.25 NDVI within 12 months, after which the new level persists for at least 2 years. A drop followed by a quick recovery is resilience, not a breakpoint.",
+            "Early warning signals are computed only on the deseasonalised NDVI before the start of each loss, because an abrupt drop inside the rolling window would create false increases in variance and autocorrelation.",
+            "The significance of the early warning signals is tested against AR(1) surrogates; points without a breakpoint serve as controls."
+          ],
+          "whatYouNeed": [
+            "A free Google Earth Engine account. Python 3 with pandas, numpy, matplotlib, statsmodels (STL) and scipy (Kendall's tau and smoothing)."
+          ],
+          "infoCards": ["trend-signals"],
           "steps": [
             "Make the NDVI time series as in the example \"NDVI time series for your location\".",
             "Run the breakpoint detection: it lists every point with a lasting drop, with its date and magnitude.",
@@ -72,13 +81,20 @@
           "id": "change-map",
           "title": "Shape-class map of your area",
           "image": "img/site-map2.png",
+          "keyChoices": [
+            { "text": "Shape classes are based on the net NDVI change and the turnover of each series, with fixed thresholds.", "more": "The start and end level are the median of the first and last 3 years. Loss: net change of −0.3 or less. Gain: net change of +0.3 or more. Loss + recovery: mangrove (NDVI 0.3 or more) at the start and the end, but below 0.3 for at least 2 years in between. High turnover: turnover of 1.4 or more, a whole year below NDVI 0.25, or a monthly trend below 0. Non-mangrove: below 0.3 at the start and the end, with a mean NDVI below 0.25. All other points are stable.", "moreLabel": "Show thresholds" }
+          ],
+          "whatYouNeed": [
+            "A free Google Earth Engine account. Python 3 with pandas, numpy, matplotlib, statsmodels (STL) and scipy (Kendall's tau and smoothing)."
+          ],
+          "infoCards": ["point-map"],
           "steps": [
             "Make the NDVI time series as in the example \"NDVI time series for your location\", for many random points in your area.",
             "In the notebook, compute the net NDVI change and turnover per point and assign the shape classes (stable, gain, loss, loss + recovery, high turnover, non-mangrove).",
             "Plot the classes on a map using the point coordinates."
           ],
           "files": ["GEE_NDVI.js", "ndvi_monthly_classification.ipynb"],
-          "cards": []
+          "cards": ["point-map"]
         }
       ]
     },
