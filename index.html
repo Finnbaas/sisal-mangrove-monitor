@@ -248,24 +248,18 @@
           <div id="climate-detail-body"></div>
         </div>
 
-        <!-- STAKEHOLDER CARDS (filled by stakeholders.js from data/stakeholders/stakeholders.json and content/stakeholders.json) -->
+        <!-- STAKEHOLDER CARDS (filled by stakeholders.js from content/stakeholders.json) -->
 
         <div class="card" data-card="stakeholder-map">
           <div class="card-title-row"><div class="card-title" data-text="cardTitles.stakeholder-map"></div><div class="expand">&#8599;</div></div>
-          <!-- one SVG: the base map and all shapes on top of it (drawn by stakeholders.js) -->
+          <!-- three layers: the map image of the year, the areas on top of it, and the labels -->
           <div id="sh-map">
-            <svg id="sh-svg" role="img" aria-label="Map of the study area with stakeholder observations"></svg>
-            <div id="sh-map-buttons">
-              <button type="button" id="sh-zoom-in" class="map-button">+</button>
-              <button type="button" id="sh-zoom-out" class="map-button">&minus;</button>
-              <button type="button" id="sh-reset" class="map-button" data-text="stormMap.reset"></button>
-            </div>
-            <div id="sh-hover" class="sh-tooltip" hidden></div>
+            <img id="sh-map-image" alt="">
+            <div id="sh-areas"></div>
+            <div id="sh-imagery-label"></div>
             <div id="sh-map-message" hidden></div>
           </div>
           <div id="sh-legend"></div>
-          <!-- observations that are not tied to a place on the map -->
-          <div id="sh-whole" hidden></div>
           <div class="fine" data-text="labels.stakeholderMapNote"></div>
           <p class="fine" id="sh-status"></p>
         </div>

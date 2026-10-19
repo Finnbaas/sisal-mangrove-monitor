@@ -136,13 +136,12 @@ Claude Code reads CLAUDE.md in every session, so the long descriptions live here
 - data/points.json: data of the monitoring points
 - data/events.json: data of the storm and extreme-weather events (Climatology screen)
 - data/climate/typical-year.json: the mean seasonal cycle per climate variable ("A typical year"), made by analysis/climatology/export_typical_year.py
-- data/stakeholders/: the Stakeholder map: stakeholders.json (shapes and table rows), base-map.jpg (the one base map) and check-overlay.png (check image of the shapes on the base map)
-- data/stakeholder-imagery/: yearly satellite snapshots, no longer used by the Stakeholder screen
+- data/stakeholder-imagery/: one satellite snapshot per year for the Stakeholder map (1984.jpg ... 2026.jpg, all with exactly the same extent and crop)
 - content/: everything the team writes and edits (see content/README.md):
   - content/pages.json: which pages exist and which cards each page shows
   - content/variables.json: variables (point, event and climate), trend metrics, change classes, scenarios, data sources, year range
   - content/texts.json: short labels and texts (card titles, messages, footer)
-  - content/stakeholders.json: the Stakeholder screen: timeline years of the rows, theme names, severity colors
+  - content/stakeholders.json: the Stakeholder screen: areas on the map and the stakeholder observations
   - content/method.json: the Method page: analyses, code files, use cases, and which research cards link to which use case
   - content/climate.json: "Climate at Sisal": the year range of Change since 1950, the trend texts and their badges
   - content/README.md: how to edit these files
@@ -245,11 +244,12 @@ The file is one JSON object, written by the team. It has:
 #### Structure of data/climate/change.json
 Made by analysis/climatology/export_typical_year.py (never edit by hand). `variables`: per climate variable id: `unit`, `trendUnit` (unit of slope and ci95: per decade, sea level per year), `record` (`start`, `end` year), optional `periods` (sea level: trends of 1993-2011 and 2012-2025) and `series` (air temperature: `max` and `min`), each `{ id, label, years, means (annual means), slope, ci95 (± 95%), p (p-value), fit (trend line value in the first and last year) }`.
 
-#### Structure of data/stakeholders/stakeholders.json
-Made by analysis/stakeholders/build-stakeholders.py from analysis/stakeholders/figma-raw.json (never edit by hand). `baseMap` (`file`, `aspectRatio`), `themes` (per theme: `title`, `description`, `legend` = what negative / atRisk / positive mean in that theme, Condition also `causeLegend`), `shapes` and `rows`. A shape is `{ id, theme, severity ("negative", "at-risk", "positive"), cause (Condition only: "natural", "anthropogenic"), ellipse: { cx, cy, width, height, rotation } }`: `cx`/`cy` are fractions of the map width/height, `width`/`height` both fractions of the map width, `rotation` in degrees clockwise. A row is one line of the Figma table: `id`, `theme`, `zone`, `period`, `change` / `signal` / `disturbance`, `cause`, `recovery`, `recoveryMode` (Disturbance only), `hasShape` and `stakeholders` (list of `{ code, group, text }`). The `id` is the number on the map ("5a" and "5b" exist); the same number occurs in several themes, so a shape or row is identified by theme + id.
-
 #### Structure of content/stakeholders.json
-Written by the team (Stakeholder screen), loaded by stakeholders.js; an error in it shows a message on the Stakeholder page only. `yearRange.first` (first year of the timeline), `themes` (short names, used as headings in the timeline and the legend), `severities` (label and color of negative / at-risk / positive), `causes` (texts of the two cause symbols) and `timeline` (per theme and id: `startYear`, `endYear`, `ongoing`, `certainty` of "exact", "approximate", "ongoing" or "expected"; `null` = no years known, the row shows only in All years). A row without a shape is listed as "Whole area".
+The file is one JSON object, written by the team (Stakeholder screen). It is loaded by stakeholders.js; an error in it shows a message on the Stakeholder page only.
+- `imagery`: `folder` and `extension` of the yearly map images (data/stakeholder-imagery/, one file per year named by the year) and the `placeholder` image shown when a year has no image.
+- `areas`: one object per area on the map: `number`, `zone` (name, may be empty), `class` ("loss", "recovery" or "gain", a key of changeClasses in content/variables.json) and `shape` (`type` "ellipse" with `leftPct`, `topPct`, `widthPct`, `heightPct`, in percent of the map image).
+- `observations`: one object per stakeholder observation: `area` (the area number), `change`, `period`, `cause`, `stakeholderType` (texts, may be empty), `startYear`, `endYear` (`null` if ongoing), `ongoing` (true/false), `certainty` ("exact", "approximate" or "expected") and `quotes` (list of `{ "text", "name" }`).
+- An area is shown in a year when that year falls within at least one of its observations. Ongoing observations count up to the last year of yearRange. An empty text shows "Not yet available".
 
 #### Structure of content/method.json
 The file is one JSON object, written by the team (Method page). It is loaded by method.js; an error in it shows a message on the Method page only.

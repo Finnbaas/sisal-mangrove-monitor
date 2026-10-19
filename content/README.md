@@ -17,7 +17,7 @@ touching the code (the `js/` and `css/` folders).
 | `pages.json` | Which pages (sections) exist and which cards each page shows, in which order |
 | `variables.json` | Which variables are shown (point charts and storm charts), their labels, units and colors; trend metrics; change classes; scenarios; data sources; the year range |
 | `texts.json` | Short texts: card titles, labels, messages, footer |
-| `stakeholders.json` | The Stakeholder page: timeline years of the rows, theme names, colors of the three severities |
+| `stakeholders.json` | The Stakeholder page: the areas on the map and what stakeholders said about them |
 | `method.json` | The Method page: the analyses, their code files, and the "do it yourself" examples that the research cards link to |
 | `climate.json` | "Climate at Sisal" on the Climatology page: the year range of "Change since 1950", the trends and their badges |
 
@@ -157,34 +157,47 @@ has decided (see CLAUDE.md).
 
 ## stakeholders.json: the Stakeholder page
 
-The shapes on the map and what stakeholders said (rows, quotes) are **not** in this file: they come
-from Figma and are written to `data/stakeholders/stakeholders.json` by
-`analysis/stakeholders/build-stakeholders.py` (never edit that by hand). This file holds what the
-team decides:
+The file has three parts.
 
-- `yearRange`: `first` = the first year of the Stakeholder timeline (the last year is the one in
-  `variables.json`).
-- `themes`: the short name of each theme (headings in the timeline and the legend) (`extent`, `condition`, `disturbance`).
-- `severities`: the three colors of the shapes: `negative`, `at-risk`, `positive`, each with a
-  `label` and a `color` (a color name from `css/base.css`, like in `changeClasses`).
-- `causes`: the two texts for the cause symbol of Condition (`natural`, `anthropogenic`).
-- `timeline`: the years of every row, per theme and per number:
+**`areas`**: the zones on the map. One entry per area:
 
 ```json
-"extent": {
-  "1": { "startYear": 1996, "endYear": 1996, "certainty": "exact" },
-  "2": { "startYear": 1996, "ongoing": true, "certainty": "ongoing" },
-  "3": null
-}
+{ "number": 1, "zone": "Zone name", "class": "loss",
+  "shape": { "type": "ellipse", "leftPct": 17.3, "topPct": 55.8, "widthPct": 22.0, "heightPct": 14.2 } }
 ```
 
-- `startYear`, `endYear`: numbers, no quotes. For one single year, write the same year twice.
-- `ongoing`: `true` if it is still happening; then leave `endYear` out.
-- `certainty`: `"exact"`, `"approximate"`, `"ongoing"` or `"expected"` (the style of the bar).
-- `null` = no years known yet. The row has no bar and shows only in "All years".
-- A number that is not in the data file is ignored, with a message on the page.
+- `number`: the number shown on the map and next to the bars. Each area has its own number.
+- `zone`: the name of the zone. Leave it empty (`""`) if it is not known yet.
+- `class`: `"loss"`, `"recovery"` or `"gain"` (the names and colors come from `changeClasses` in
+  `variables.json`, the same ones the Satellite page uses).
+- `shape`: where the area sits on the map image, in **percent of the image** (so it stays in
+  place when the image changes): `leftPct` and `topPct` are the top-left corner of the ellipse,
+  `widthPct` and `heightPct` its size.
 
-## climate.json: "Climate at Sisal"## climate.json: "Climate at Sisal"
+**`observations`**: what stakeholders said. One entry per observation (one row of the interview table):
+
+```json
+{ "area": 1, "change": "", "period": "", "startYear": 1988, "endYear": 1990,
+  "ongoing": false, "certainty": "exact", "cause": "", "stakeholderType": "",
+  "quotes": [ { "text": "", "name": "" } ] }
+```
+
+- `area`: the `number` of the area it belongs to. An area can have several observations.
+- `startYear`, `endYear`: numbers, no quotes. They place the bar on the timeline. For one single
+  year, write the same year twice.
+- `ongoing`: `true` if it is still happening; then write `"endYear": null`.
+- `certainty`: `"exact"`, `"approximate"` (period estimated from vague answers) or `"expected"`
+  (a change people expect but that has not happened yet).
+- `change`, `period`, `cause`, `stakeholderType`: texts shown in the panel. An empty text (`""`)
+  shows "Not yet available".
+- `quotes`: what people said in their own words (paraphrased), each with a `name` label.
+  Any number of quotes is possible.
+
+**`imagery`**: where the yearly map images are (`folder`), their file type (`extension`) and the
+image shown when a year has no image yet (`placeholder`). The images themselves are made by the
+pipeline: see `data/stakeholder-imagery/README.txt`.
+
+## climate.json: "Climate at Sisal"
 
 The year axis and the verdict badges of "Change since 1950" and "In detail". The trend numbers and the charts come from `data/climate/change.json`.
 
