@@ -20,12 +20,25 @@
         "Sentinel-2 SR Harmonized: only the background image of the map (January–May 2024). Not used for NDVI, because its record is too short to detect tipping points and early warning signals."
       ],
       "limitations": [],
-      "folder": "analysis/satellite",
+      "folder": "https://github.com/Finnbaas/sisal-mangrove-analyses/tree/main/satellite",
       "zip": "",
       "files": [
-        { "name": "GEE_NDVI.js", "description": "Extracts the monthly maximum NDVI per point.", "format": "Earth Engine", "path": "analysis/satellite/GEE_NDVI.js" },
-        { "name": "ndvi_monthly_classification.ipynb", "description": "Deseasonalising, breakpoints and shape classes.", "format": "Notebook", "path": "analysis/satellite/ndvi_monthly_classification.ipynb" },
-        { "name": "ews_monthly_new.ipynb", "description": "Early warning signals, Kendall's tau, surrogates, scenario matrix and sensitivity analysis.", "format": "Notebook", "path": "analysis/satellite/ews_monthly_new.ipynb" },
+        { "name": "GEE_NDVI.js", "description": "Extracts the monthly maximum NDVI per point.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/ndvi-time-series/GEE_NDVI.js" },
+        { "name": "ndvi_monthly_classification.ipynb", "description": "Deseasonalising, breakpoints and shape classes.", "format": "Notebook", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/ndvi-time-series/ndvi_monthly_classification.ipynb" },
+        { "name": "README.md", "description": "What the analysis shows, the input data, the steps and what the printed messages mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/ndvi-time-series/README.md" },
+        { "name": "requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/ndvi-time-series/requirements.txt" },
+        { "name": "monthly_max_NDVI_per_point.csv", "description": "Our Sisal data: 150 points, monthly maximum NDVI 1993 to 2026, in the input format; the notebooks run on it as it is.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/ndvi-time-series/example_data/monthly_max_NDVI_per_point.csv" },
+        { "name": "tipping-point-analysis/GEE_NDVI.js", "description": "Extracts the monthly maximum NDVI per point.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/tipping-point-analysis/GEE_NDVI.js" },
+        { "name": "tipping-point-analysis/ndvi_monthly_classification.ipynb", "description": "Deseasonalising, breakpoints and shape classes.", "format": "Notebook", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/tipping-point-analysis/ndvi_monthly_classification.ipynb" },
+        { "name": "ews_monthly_new.ipynb", "description": "Early warning signals, Kendall's tau, surrogates, scenario matrix and sensitivity analysis.", "format": "Notebook", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/tipping-point-analysis/ews_monthly_new.ipynb" },
+        { "name": "tipping-point-analysis/README.md", "description": "What the analysis shows, the input data, the steps and what the printed messages mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/tipping-point-analysis/README.md" },
+        { "name": "tipping-point-analysis/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/tipping-point-analysis/requirements.txt" },
+        { "name": "tipping-point-analysis/monthly_max_NDVI_per_point.csv", "description": "Our Sisal data: 150 points, monthly maximum NDVI 1993 to 2026, in the input format; the notebooks run on it as it is.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/tipping-point-analysis/example_data/monthly_max_NDVI_per_point.csv" },
+        { "name": "shape-class-map/GEE_NDVI.js", "description": "Extracts the monthly maximum NDVI per point.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/shape-class-map/GEE_NDVI.js" },
+        { "name": "shape-class-map/ndvi_monthly_classification.ipynb", "description": "Deseasonalising, breakpoints and shape classes.", "format": "Notebook", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/shape-class-map/ndvi_monthly_classification.ipynb" },
+        { "name": "shape-class-map/README.md", "description": "What the analysis shows, the input data, the steps and what the printed messages mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/shape-class-map/README.md" },
+        { "name": "shape-class-map/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/shape-class-map/requirements.txt" },
+        { "name": "shape-class-map/monthly_max_NDVI_per_point.csv", "description": "Our Sisal data: 150 points, monthly maximum NDVI 1993 to 2026, in the input format; the notebooks run on it as it is.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/shape-class-map/example_data/monthly_max_NDVI_per_point.csv" },
         { "name": "export_points.py", "description": "Turns the results into the website data.", "format": "Python", "path": "analysis/satellite/export_points.py" }
       ],
       "useCases": [
@@ -51,7 +64,7 @@
             "Open the notebook, set the path to your CSV and run all cells.",
             "The notebook regularises, deseasonalises and detrends each series and saves one plot per point, like the plots on the Satellite page."
           ],
-          "files": ["GEE_NDVI.js", "ndvi_monthly_classification.ipynb"],
+          "files": ["GEE_NDVI.js", "ndvi_monthly_classification.ipynb", "README.md", "requirements.txt", "monthly_max_NDVI_per_point.csv"],
           "cards": ["point-chart"]
         },
         {
@@ -74,7 +87,7 @@
             "It compares these trends with AR(1) surrogates and with control points to test significance.",
             "It places each point in the scenario matrix (NDVI tau vs SD tau) and repeats the analysis for other window sizes and bandwidths (sensitivity analysis)."
           ],
-          "files": ["GEE_NDVI.js", "ndvi_monthly_classification.ipynb", "ews_monthly_new.ipynb"],
+          "files": ["tipping-point-analysis/GEE_NDVI.js", "tipping-point-analysis/ndvi_monthly_classification.ipynb", "ews_monthly_new.ipynb", "tipping-point-analysis/README.md", "tipping-point-analysis/requirements.txt", "tipping-point-analysis/monthly_max_NDVI_per_point.csv"],
           "cards": ["trend-signals"]
         },
         {
@@ -93,7 +106,7 @@
             "In the notebook, compute the net NDVI change and turnover per point and assign the shape classes (stable, gain, loss, loss + recovery, high turnover, non-mangrove).",
             "Plot the classes on a map using the point coordinates."
           ],
-          "files": ["GEE_NDVI.js", "ndvi_monthly_classification.ipynb"],
+          "files": ["shape-class-map/GEE_NDVI.js", "shape-class-map/ndvi_monthly_classification.ipynb", "shape-class-map/README.md", "shape-class-map/requirements.txt", "shape-class-map/monthly_max_NDVI_per_point.csv"],
           "cards": ["point-map"]
         }
       ]
