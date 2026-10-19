@@ -133,6 +133,12 @@
         { "name": "wave-wind-rose/load_data.py", "description": "Reads and checks your input CSV (the same file is in every package).", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/wave-wind-rose/load_data.py" },
         { "name": "wave-wind-rose/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/wave-wind-rose/requirements.txt" },
         { "name": "sisal_waves.csv", "description": "Our Sisal wave direction and daily maximum wave height (ERA5, 1979 to 2025) in the input format; runs out of the box.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/wave-wind-rose/example_data/sisal_waves.csv" },
+        { "name": "event-counts/README.md", "description": "What the analysis shows, the input format, the steps and what the warnings mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-counts/README.md" },
+        { "name": "event_counts.py", "description": "Counts events per month and per year from a CSV of events: settings at the top, saves a PNG and two CSV files.", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-counts/event_counts.py" },
+        { "name": "make_events_from_hurdat2.py", "description": "Optional helper: makes the CSV of events from HURDAT2 storm tracks for any location, radius and minimum wind.", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-counts/make_events_from_hurdat2.py" },
+        { "name": "event-counts/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-counts/requirements.txt" },
+        { "name": "sisal_storms.csv", "description": "The 17 storms within 100 km of Sisal, 1950 to 2024, in the input format; runs out of the box.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-counts/example_data/sisal_storms.csv" },
+        { "name": "event-counts/hurdat2_atlantic.txt", "description": "HURDAT2 Atlantic storm tracks of NOAA (1851 to 2024), the input of the helper script.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-counts/example_data/hurdat2_atlantic.txt" },
         { "name": "placeholder-script.py", "description": "Placeholder file.", "format": "Python", "path": "" },
         { "name": "placeholder-data.csv", "description": "Placeholder file.", "format": "CSV", "path": "" },
         { "name": "storm-periods.json", "description": "Storm period and peak date of each studied storm, edited by hand.", "format": "JSON", "path": "content/storm-periods.json" },
@@ -158,9 +164,21 @@
           "title": "Events per month and year",
           "image": "img/method/storm-counts.png",
           "howMade": "Counted are tropical and subtropical storms of at least tropical-storm strength within 100 km of Sisal, {storms.start} to {storms.end}. This gives {storms.total} storms.",
+          "howWeUsed": "We used it to count the storms that came within 100 km of Sisal per month and per year, 1950 to 2024, and to see when in the year storms come.",
+          "howWeUsedLink": "#climatology",
+          "whatYouNeed": [
+            "A CSV file with one row per event and the columns name and date (YYYY-MM-DD), and the first and last year of your record.",
+            "No list of events? For storms, the helper script makes one for any location, radius and minimum wind from the HURDAT2 tracks of the National Hurricane Center (Atlantic and North-East Pacific)."
+          ],
           "infoCards": ["storm-counts"],
-          "steps": ["Placeholder step 1.", "Placeholder step 2.", "Placeholder step 3.", "Placeholder step 4."],
-          "files": ["placeholder-script.py", "placeholder-data.csv"],
+          "steps": [
+            "Install Python and the packages in requirements.txt (pandas, numpy, matplotlib) in a virtual environment.",
+            "Storms: download the HURDAT2 file of your ocean, open make_events_from_hurdat2.py, set the file, your location, the radius, the minimum wind and the years, and run it. Other events: write your own CSV with name and date.",
+            "Open event_counts.py and set the CSV path, what the events are called, the place and the first and last year of the record.",
+            "Run python event_counts.py and read the checks it prints.",
+            "Open the chart (PNG) and the counts per month and per year (CSV) in the output folder, and check the warnings before you use them."
+          ],
+          "files": ["event-counts/README.md", "event_counts.py", "make_events_from_hurdat2.py", "event-counts/requirements.txt", "sisal_storms.csv", "event-counts/hurdat2_atlantic.txt"],
           "cards": ["storm-counts"]
         },
         {
