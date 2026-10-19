@@ -123,6 +123,11 @@
         { "name": "long-term-trend/load_data.py", "description": "Reads and checks your input CSV (the same file is in every package).", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/long-term-trend/load_data.py" },
         { "name": "long-term-trend/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/long-term-trend/requirements.txt" },
         { "name": "long-term-trend/sisal_daily.csv", "description": "Our Sisal data (air temperature, rainfall, wind, waves, sea surface temperature, salinity) in the input format; runs out of the box.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/long-term-trend/example_data/sisal_daily.csv" },
+        { "name": "monthly-range/README.md", "description": "What the analysis shows, the input format, the steps and what the warnings mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/monthly-range/README.md" },
+        { "name": "monthly_range.py", "description": "Monthly range and running mean for your own data: settings at the top, saves a PNG and a CSV.", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/monthly-range/monthly_range.py" },
+        { "name": "monthly-range/load_data.py", "description": "Reads and checks your input CSV (the same file is in every package).", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/monthly-range/load_data.py" },
+        { "name": "monthly-range/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/monthly-range/requirements.txt" },
+        { "name": "monthly-range/sisal_daily.csv", "description": "Our Sisal data (air temperature, rainfall, wind, waves, sea surface temperature, salinity) in the input format; runs out of the box.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/monthly-range/example_data/sisal_daily.csv" },
         { "name": "placeholder-script.py", "description": "Placeholder file.", "format": "Python", "path": "" },
         { "name": "placeholder-data.csv", "description": "Placeholder file.", "format": "CSV", "path": "" },
         { "name": "storm-periods.json", "description": "Storm period and peak date of each studied storm, edited by hand.", "format": "JSON", "path": "content/storm-periods.json" },
@@ -231,12 +236,24 @@
         },
         {
           "id": "in-detail-chart",
-          "title": "Daily range and running mean",
+          "title": "Monthly range and running mean",
           "image": "img/method/in-detail.png",
           "howMade": "Per month the band runs from the lowest to the highest daily value, and the line is the 365-day running mean. Sea level shows the monthly anomaly and its 12-month running mean, with trends for {seaLevel.periods}.",
+          "howWeUsed": "We used it to show, for air temperature, rainfall, wind, waves, sea surface temperature and salinity at Sisal, how far each month ranged and how the level changed slowly over the years.",
+          "howWeUsedLink": "#climatology",
+          "whatYouNeed": [
+            "A CSV file with a date column (YYYY-MM-DD) and one numeric column per variable, with at least 10 years of daily data (a running mean needs a record of more than one year).",
+            "No own data? The helper script of the anomaly chart exports daily ERA5-Land data (air temperature, rainfall, wind) for any coordinates from Google Earth Engine."
+          ],
           "infoCards": ["climate-detail"],
-          "steps": ["Placeholder step 1.", "Placeholder step 2.", "Placeholder step 3.", "Placeholder step 4."],
-          "files": ["placeholder-script.py", "placeholder-data.csv"],
+          "steps": [
+            "Install Python and the packages in requirements.txt (pandas, numpy, matplotlib) in a virtual environment.",
+            "Put your data in a CSV file in the input format.",
+            "Open monthly_range.py and set the CSV path and, per column, its name and unit.",
+            "Run python monthly_range.py and read the data checks it prints.",
+            "Open the chart (PNG) and the monthly numbers (CSV) in the output folder, and check the warnings before you use them."
+          ],
+          "files": ["monthly-range/README.md", "monthly_range.py", "monthly-range/load_data.py", "monthly-range/requirements.txt", "monthly-range/sisal_daily.csv"],
           "cards": ["climate-detail"]
         }
 
