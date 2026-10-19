@@ -113,6 +113,11 @@
         { "name": "get_era5_point.js", "description": "Google Earth Engine script that exports daily ERA5-Land data for any coordinates.", "format": "JavaScript", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-anomaly/get_era5_point.js" },
         { "name": "requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-anomaly/requirements.txt" },
         { "name": "sisal_milton_2024.csv", "description": "Our Sisal data (1950 to 2025) in the input format; runs Hurricane Milton out of the box.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-anomaly/example_data/sisal_milton_2024.csv" },
+        { "name": "seasonal-cycle/README.md", "description": "What the analysis shows, the input format, the steps and what the warnings mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/seasonal-cycle/README.md" },
+        { "name": "seasonal_cycle.py", "description": "Seasonal cycle for your own data: settings at the top, saves a PNG and a CSV.", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/seasonal-cycle/seasonal_cycle.py" },
+        { "name": "load_data.py", "description": "Reads and checks your input CSV (the same file is in every package).", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/seasonal-cycle/load_data.py" },
+        { "name": "seasonal-cycle/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/seasonal-cycle/requirements.txt" },
+        { "name": "sisal_daily.csv", "description": "Our Sisal data (air temperature, rainfall, wind, waves, sea surface temperature, salinity) in the input format; runs out of the box.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/seasonal-cycle/example_data/sisal_daily.csv" },
         { "name": "placeholder-script.py", "description": "Placeholder file.", "format": "Python", "path": "" },
         { "name": "placeholder-data.csv", "description": "Placeholder file.", "format": "CSV", "path": "" },
         { "name": "storm-periods.json", "description": "Storm period and peak date of each studied storm, edited by hand.", "format": "JSON", "path": "content/storm-periods.json" },
@@ -180,9 +185,21 @@
           "title": "A typical year of the climate at your site",
           "image": "img/method/typical-year.png",
           "howMade": "For each calendar month the line is the mean of all daily values of the record and the band runs from the 10th to the 90th percentile. Rainfall is the mean monthly total and sea level has no band.",
+                    "howWeUsed": "We used it to show what a typical year looks like at Sisal for air temperature, rainfall, wind, waves, sea surface temperature and salinity.",
+          "howWeUsedLink": "#climatology",
+          "whatYouNeed": [
+            "A CSV file with a date column (YYYY-MM-DD) and one numeric column per variable, with at least 10 years of daily data.",
+            "No own data? The helper script of the anomaly chart exports daily ERA5-Land data (air temperature, rainfall, wind) for any coordinates from Google Earth Engine."
+          ],
           "infoCards": ["climate-typical-year"],
-          "steps": ["Placeholder step 1.", "Placeholder step 2.", "Placeholder step 3.", "Placeholder step 4."],
-          "files": ["placeholder-script.py", "placeholder-data.csv"],
+          "steps": [
+            "Install Python and the packages in requirements.txt (pandas, numpy, matplotlib) in a virtual environment.",
+            "Put your data in a CSV file in the input format.",
+            "Open seasonal_cycle.py and set the CSV path and, per column, its name, unit and \"mean\" (line with band) or \"total\" (monthly total, for rainfall).",
+            "Run python seasonal_cycle.py and read the data checks it prints.",
+            "Open the chart (PNG) and the monthly numbers (CSV) in the output folder, and check the warnings before you use them."
+          ],
+          "files": ["seasonal-cycle/README.md", "seasonal_cycle.py", "load_data.py", "seasonal-cycle/requirements.txt", "sisal_daily.csv"],
           "cards": ["climate-typical-year"]
         },
         {
