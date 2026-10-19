@@ -164,7 +164,7 @@ team decides:
 
 - `yearRange`: `first` = the first year of the Stakeholder timeline (the last year is the one in
   `variables.json`).
-- `themes`: the short name of each theme on the theme buttons (`extent`, `condition`, `disturbance`).
+- `themes`: the short name of each theme (headings in the timeline and the legend) (`extent`, `condition`, `disturbance`).
 - `severities`: the three colors of the shapes: `negative`, `at-risk`, `positive`, each with a
   `label` and a `color` (a color name from `css/base.css`, like in `changeClasses`).
 - `causes`: the two texts for the cause symbol of Condition (`natural`, `anthropogenic`).

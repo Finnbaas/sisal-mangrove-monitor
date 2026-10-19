@@ -1,6 +1,6 @@
 // stakeholders.js: the Stakeholder screen.
 //   ONE map with the shapes of all three themes (Extent, Condition, Disturbance and recovery), that can be moved
-//   and zoomed like the storm map, theme buttons, a timeline that is also the year filter, and a panel with what stakeholders said about the clicked spot.
+//   and zoomed like the storm map, a timeline that is also the year filter, and a panel with what stakeholders said about the clicked spot.
 // Reads: data/stakeholders/stakeholders.json (shapes and table rows, made by analysis/stakeholders/build-stakeholders.py)
 //   and content/stakeholders.json (the team's years per row, theme names, colors of the three severities).
 // Uses: helpers.js, content.js. Used by: main.js (setupStakeholders).
@@ -17,7 +17,6 @@ let shContent = null;        // content/stakeholders.json, or null if it could n
 let shRows = [];             // the table rows, each with its shapes, severity and years (see buildStakeholderRows)
 let shYearMin = null;        // first year of the timeline (content/stakeholders.json "yearRange")
 let shYear = null;           // the selected year; null means "All years" (the landing view)
-const shThemeOn = {};        // per theme: true = its shapes and rows are shown
 let shSelected = [];         // keys of the selected rows (a clicked spot can hold several)
 const shView = { scale: 1, tx: 0, ty: 0 };   // zoom and move of the map (map units); scale 1 = the whole map
 
@@ -42,7 +41,6 @@ async function loadStakeholders() {
     shData = data;
     shContent = content;
     buildStakeholderRows();
-    Object.keys(shData.themes).forEach((theme) => { shThemeOn[theme] = true; });
     shYearMin = shContent.yearRange.first;
     const slider = $('sh-slider');
     slider.min = shYearMin;
@@ -105,15 +103,6 @@ function setupStakeholders() {
   $('sh-year-back').addEventListener('click', () => setStakeholderYear(parseInt(slider.value, 10) - 1));
   $('sh-year-forward').addEventListener('click', () => setStakeholderYear(parseInt(slider.value, 10) + 1));
   $('sh-all-years').addEventListener('click', () => setStakeholderYear(shYear === null ? parseInt(slider.value, 10) : null));
-
-  // theme buttons
-  $('sh-filters').addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-theme]');
-    if (!btn) return;
-    shThemeOn[btn.dataset.theme] = !shThemeOn[btn.dataset.theme];
-    dropInactiveSelection();
-    renderStakeholders();
-  });
 
   // the map, like the storm map: drag to move, + / - / Reset to zoom, hover shows the number and zone,
   // a click (without moving) lists everything at that spot
@@ -215,10 +204,8 @@ function rowEnd(row) {
   return (tl.ongoing || typeof tl.endYear !== 'number') ? YEAR_MAX : tl.endYear;
 }
 
-// Does this row show up now? Its theme must be on, and in a single year the row must run in that year.
-// In "All years" every row of an active theme counts (also rows without years).
+// Does this row show up now? In "All years" every row counts (also rows without years); in a single year the row must run in that year.
 function rowActive(row) {
-  if (!shThemeOn[row.theme]) return false;
   if (shYear === null) return true;
   return !!row.timeline && row.timeline.startYear <= shYear && shYear <= rowEnd(row);
 }
@@ -336,7 +323,6 @@ function setStakeholderYear(year) {
 
 function renderStakeholders() {
   renderStakeholderControls();
-  renderThemeButtons();
   renderStakeholderMap();
   renderWholeArea();
   renderStakeholderRows();
@@ -353,15 +339,6 @@ function renderStakeholderControls() {
   // in All years the handle and its line are dimmed
   $('sh-time').classList.toggle('all-years', all);
   if (shYearMin !== null) $('sh-handle-line').style.left = yearPct(parseInt($('sh-slider').value, 10)) + '%';
-}
-
-// The three theme buttons: all on by default, each can be switched off.
-function renderThemeButtons() {
-  if (!shData) { $('sh-filters').innerHTML = ''; return; }
-  $('sh-filters').innerHTML = '<span class="label-xs">' + escapeHtml(t('labels.themeFilter')) + '</span>' +
-    Object.keys(shData.themes).map((theme) =>
-      '<button type="button" class="sh-filter' + (shThemeOn[theme] ? ' on' : '') + '" data-theme="' + escapeHtml(theme) + '" aria-pressed="' + shThemeOn[theme] + '">' +
-      escapeHtml(themeLabel(theme)) + '</button>').join('');
 }
 
 // Year labels under the track, every 5 years.
@@ -414,10 +391,9 @@ function renderStakeholderMap() {
   applyStakeholderView();
 
   // nothing to show: say why on the map
-  const anyTheme = Object.keys(shData.themes).some((theme) => shThemeOn[theme]);
   const none = shapes.length === 0;
-  $('sh-map-message').hidden = !none;
-  if (none) $('sh-map-message').textContent = !anyTheme ? t('messages.noThemeSelected') : (shYear !== null ? t('messages.noObservationsInYear', { year: shYear }) : t('messages.noThemeSelected'));
+  $('sh-map-message').hidden = !(none && shYear !== null);
+  if (none && shYear !== null) $('sh-map-message').textContent = t('messages.noObservationsInYear', { year: shYear });
 
   renderStakeholderLegend();
 }
@@ -450,11 +426,11 @@ function renderWholeArea() {
 }
 
 // The timeline: per theme a heading, then one row per table row with the number on the left and the bar
-// on the scale of the slider track. Themes that are switched off are left out.
+// on the scale of the slider track.
 function renderStakeholderRows() {
   if (!shData) { $('sh-rows').innerHTML = ''; return; }
   const oneYear = 100 / (YEAR_MAX - shYearMin);   // width of one year, in percent
-  $('sh-rows').innerHTML = Object.keys(shData.themes).filter((theme) => shThemeOn[theme]).map((theme) => {
+  $('sh-rows').innerHTML = Object.keys(shData.themes).map((theme) => {
     const rows = shRows.filter((r) => r.theme === theme).sort((a, b) =>
       (a.timeline ? a.timeline.startYear : 9999) - (b.timeline ? b.timeline.startYear : 9999) || idOrder(a.id) - idOrder(b.id));
     return '<div class="sh-theme-row">' + escapeHtml(themeLabel(theme)) + '</div>' + rows.map((r) => {

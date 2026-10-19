@@ -3,11 +3,6 @@
    stakeholders.js sets two colors on each shape, row and detail block:
    --c = the severity color (negative, at risk / partial, positive) and --c-tint = its light background. */
 
-/* theme buttons above the map: same look as the All years button */
-#sh-filters { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-.sh-filter { border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text-body); border-radius: 999px; padding: 7px 12px; font-size: 13px; font-weight: 600; }
-.sh-filter.on { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-text-on-accent); }
-
 /* map card: one SVG with the base map and all shapes; the height follows the aspect ratio set by stakeholders.js */
 #sh-map { position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 16px; overflow: hidden; background: var(--color-map-bg); cursor: grab; touch-action: none; user-select: none; }
 #sh-map-buttons { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; z-index: 7; }

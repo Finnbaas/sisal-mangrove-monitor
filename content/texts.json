@@ -49,7 +49,6 @@
     "showing": "Showing",
     "today": "today",
     "stakeholderMapNote": "Numbers are the numbers of the interview tables; the same number can occur in more than one theme.",
-    "themeFilter": "Show themes",
     "wholeArea": "Whole area",
     "wholeAreaNote": "Observations that are not tied to a place on the map.",
     "noPeriod": "No period set, shown in All years only",
@@ -198,7 +197,6 @@
     "couldNotLoadMethod": "The Method page could not be loaded",
     "selectArea": "Click a spot on the map or a bar in the timeline to see what stakeholders reported",
     "noObservationsInYear": "No observations in {year}",
-    "noThemeSelected": "Switch on a theme to see its shapes",
     "couldNotLoadStakeholders": "Could not load the stakeholder content: {error}",
     "stakeholderEntriesSkipped": "{count} timeline entries in content/stakeholders.json are not shown (they do not match a row in data/stakeholders/stakeholders.json, or have no start year)"
   },
