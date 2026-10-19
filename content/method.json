@@ -118,6 +118,11 @@
         { "name": "load_data.py", "description": "Reads and checks your input CSV (the same file is in every package).", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/seasonal-cycle/load_data.py" },
         { "name": "seasonal-cycle/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/seasonal-cycle/requirements.txt" },
         { "name": "sisal_daily.csv", "description": "Our Sisal data (air temperature, rainfall, wind, waves, sea surface temperature, salinity) in the input format; runs out of the box.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/seasonal-cycle/example_data/sisal_daily.csv" },
+        { "name": "long-term-trend/README.md", "description": "What the analysis shows, the input format, the steps and what the warnings mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/long-term-trend/README.md" },
+        { "name": "long_term_trend.py", "description": "Annual means and trend with significance for your own data: settings at the top, saves a PNG and two CSV files.", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/long-term-trend/long_term_trend.py" },
+        { "name": "long-term-trend/load_data.py", "description": "Reads and checks your input CSV (the same file is in every package).", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/long-term-trend/load_data.py" },
+        { "name": "long-term-trend/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/long-term-trend/requirements.txt" },
+        { "name": "long-term-trend/sisal_daily.csv", "description": "Our Sisal data (air temperature, rainfall, wind, waves, sea surface temperature, salinity) in the input format; runs out of the box.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/long-term-trend/example_data/sisal_daily.csv" },
         { "name": "placeholder-script.py", "description": "Placeholder file.", "format": "Python", "path": "" },
         { "name": "placeholder-data.csv", "description": "Placeholder file.", "format": "CSV", "path": "" },
         { "name": "storm-periods.json", "description": "Storm period and peak date of each studied storm, edited by hand.", "format": "JSON", "path": "content/storm-periods.json" },
@@ -207,9 +212,21 @@
           "title": "Change since 1950 at your site",
           "image": "img/method/change-since-1950.png",
           "howMade": "Annual means over the record of each variable (years with at least 90% of the days), with a linear trend per decade (sea level: per year). The trend line is drawn only when p < {trend.pLimit}.",
+          "howWeUsed": "We used it to show how air temperature, rainfall, wind, waves, sea surface temperature and salinity at Sisal changed over the years, and whether the trend is significant.",
+          "howWeUsedLink": "#climatology",
+          "whatYouNeed": [
+            "A CSV file with a date column (YYYY-MM-DD) and one numeric column per variable, with at least 20 years of daily data (10 complete years is the minimum for a rough picture).",
+            "No own data? The helper script of the anomaly chart exports daily ERA5-Land data (air temperature, rainfall, wind) for any coordinates from Google Earth Engine."
+          ],
           "infoCards": ["climate-change"],
-          "steps": ["Placeholder step 1.", "Placeholder step 2.", "Placeholder step 3.", "Placeholder step 4."],
-          "files": ["placeholder-script.py", "placeholder-data.csv"],
+          "steps": [
+            "Install Python and the packages in requirements.txt (pandas, numpy, scipy, matplotlib) in a virtual environment.",
+            "Put your data in a CSV file in the input format.",
+            "Open long_term_trend.py and set the CSV path and, per column, its name and unit.",
+            "Run python long_term_trend.py and read the data checks and the trends it prints.",
+            "Open the chart (PNG) and the annual means and trends (CSV) in the output folder, and check the warnings before you use them."
+          ],
+          "files": ["long-term-trend/README.md", "long_term_trend.py", "long-term-trend/load_data.py", "long-term-trend/requirements.txt", "long-term-trend/sisal_daily.csv"],
           "cards": ["climate-change"]
         },
         {
