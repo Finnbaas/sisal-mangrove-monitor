@@ -128,6 +128,11 @@
         { "name": "monthly-range/load_data.py", "description": "Reads and checks your input CSV (the same file is in every package).", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/monthly-range/load_data.py" },
         { "name": "monthly-range/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/monthly-range/requirements.txt" },
         { "name": "monthly-range/sisal_daily.csv", "description": "Our Sisal data (air temperature, rainfall, wind, waves, sea surface temperature, salinity) in the input format; runs out of the box.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/monthly-range/example_data/sisal_daily.csv" },
+        { "name": "wave-wind-rose/README.md", "description": "What the analysis shows, the input format, the steps and what the warnings mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/wave-wind-rose/README.md" },
+        { "name": "wave_wind_rose.py", "description": "Rose of where waves or wind come from, all days against days above a threshold: settings at the top, saves a PNG and a CSV.", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/wave-wind-rose/wave_wind_rose.py" },
+        { "name": "wave-wind-rose/load_data.py", "description": "Reads and checks your input CSV (the same file is in every package).", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/wave-wind-rose/load_data.py" },
+        { "name": "wave-wind-rose/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/wave-wind-rose/requirements.txt" },
+        { "name": "sisal_waves.csv", "description": "Our Sisal wave direction and daily maximum wave height (ERA5, 1979 to 2025) in the input format; runs out of the box.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/wave-wind-rose/example_data/sisal_waves.csv" },
         { "name": "placeholder-script.py", "description": "Placeholder file.", "format": "Python", "path": "" },
         { "name": "placeholder-data.csv", "description": "Placeholder file.", "format": "CSV", "path": "" },
         { "name": "storm-periods.json", "description": "Storm period and peak date of each studied storm, edited by hand.", "format": "JSON", "path": "content/storm-periods.json" },
@@ -182,12 +187,24 @@
         },
         {
           "id": "wave-direction-chart",
-          "title": "Direction rose",
+          "title": "Wave and wind rose",
           "image": "img/method/wave-direction.png",
           "howMade": "The compass has 8 sectors of 45°, and each day is counted in the sector the waves come from, {wave.start} to {wave.end}. The wide wedge is all {wave.all} days, the narrow wedge the {wave.storm} rough-sea days with waves above {wave.threshold} m.",
+          "howWeUsed": "We used it to show from which directions the waves come at Sisal, on all days and on rough-sea days with waves above 2 m.",
+          "howWeUsedLink": "#climatology",
+          "whatYouNeed": [
+            "A CSV file with a date column (YYYY-MM-DD), a column with the direction in degrees (0 to 360, the direction it comes from) and a column to decide which days count, for example wave height or wind speed. At least 10 years of daily data.",
+            "No own data? The helper script of the anomaly chart exports daily ERA5-Land data for any coordinates from Google Earth Engine; wave data comes from the Copernicus Climate Data Store."
+          ],
           "infoCards": ["wave-direction"],
-          "steps": ["Placeholder step 1.", "Placeholder step 2.", "Placeholder step 3.", "Placeholder step 4."],
-          "files": ["placeholder-script.py", "placeholder-data.csv"],
+          "steps": [
+            "Install Python and the packages in requirements.txt (pandas, numpy, matplotlib) in a virtual environment.",
+            "Put your data in a CSV file in the input format.",
+            "Open wave_wind_rose.py and set the CSV path, the direction column, the column and threshold for the rough days, and the names for the chart.",
+            "Run python wave_wind_rose.py and read the data checks and the table of percentages it prints.",
+            "Open the rose (PNG) and the numbers per sector (CSV) in the output folder, and check the warnings before you use them."
+          ],
+          "files": ["wave-wind-rose/README.md", "wave_wind_rose.py", "wave-wind-rose/load_data.py", "wave-wind-rose/requirements.txt", "sisal_waves.csv"],
           "cards": ["wave-direction"]
         },
         {
