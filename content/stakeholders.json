@@ -1,106 +1,57 @@
 {
-  "imagery": {
-    "folder": "data/stakeholder-imagery/",
-    "extension": "jpg",
-    "placeholder": "img/stakeholder-map-placeholder.jpg"
+  "yearRange": { "first": 1980 },
+
+  "themes": {
+    "extent": { "label": "Extent" },
+    "condition": { "label": "Condition" },
+    "disturbance": { "label": "Disturbance and recovery" }
   },
 
-  "areas": [
-    {
-      "number": 1,
-      "zone": "",
-      "class": "loss",
-      "shape": { "type": "ellipse", "leftPct": 17.3, "topPct": 55.8, "widthPct": 22.0, "heightPct": 14.2 }
-    },
-    {
-      "number": 2,
-      "zone": "",
-      "class": "loss + recovery",
-      "shape": { "type": "ellipse", "leftPct": 61.7, "topPct": 44.2, "widthPct": 20.0, "heightPct": 15.3 }
-    },
-    {
-      "number": 3,
-      "zone": "",
-      "class": "gain",
-      "shape": { "type": "ellipse", "leftPct": 44.1, "topPct": 68.9, "widthPct": 17.0, "heightPct": 18.4 }
-    }
-  ],
+  "severities": {
+    "negative": { "label": "Negative", "color": "class-loss" },
+    "at-risk": { "label": "At risk / partial", "color": "class-at-risk" },
+    "positive": { "label": "Positive", "color": "class-stable" }
+  },
 
-  "observations": [
-    {
-      "area": 1,
-      "change": "",
-      "period": "",
-      "startYear": 1988,
-      "endYear": 1990,
-      "ongoing": false,
-      "certainty": "exact",
-      "cause": "",
-      "stakeholderType": "",
-      "quotes": [
-        { "text": "", "name": "" },
-        { "text": "", "name": "" }
-      ]
+  "causes": {
+    "natural": "Natural cause",
+    "anthropogenic": "Anthropogenic cause"
+  },
+
+  "timeline": {
+    "extent": {
+      "1": { "startYear": 1996, "endYear": 1996, "certainty": "exact" },
+      "2": { "startYear": 1996, "ongoing": true, "certainty": "ongoing" },
+      "3": null,
+      "4": { "startYear": 2020, "ongoing": true, "certainty": "ongoing" },
+      "5a": null,
+      "5b": { "startYear": 2014, "ongoing": true, "certainty": "expected" },
+      "6": { "startYear": 2025, "endYear": 2026, "certainty": "expected" },
+      "7": { "startYear": 1998, "endYear": 1998, "certainty": "exact" },
+      "8": { "startYear": 1999, "endYear": 1999, "certainty": "exact" },
+      "9": { "startYear": 1998, "endYear": 1999, "certainty": "approximate" },
+      "10": { "startYear": 2000, "endYear": 2000, "certainty": "approximate" },
+      "11": { "startYear": 2023, "endYear": 2023, "certainty": "exact" }
     },
-    {
-      "area": 1,
-      "change": "",
-      "period": "",
-      "startYear": 1988,
-      "endYear": 1988,
-      "ongoing": false,
-      "certainty": "exact",
-      "cause": "",
-      "stakeholderType": "",
-      "quotes": [
-        { "text": "", "name": "" },
-        { "text": "", "name": "" }
-      ]
+    "condition": {
+      "1": { "startYear": 2021, "endYear": 2025, "certainty": "approximate" },
+      "2": { "startYear": 1988, "endYear": 1990, "certainty": "exact" },
+      "3": { "startYear": 1980, "ongoing": true, "certainty": "ongoing" },
+      "4": { "startYear": 2023, "ongoing": true, "certainty": "approximate" },
+      "5": null,
+      "6": { "startYear": 2025, "endYear": 2025, "certainty": "exact" },
+      "7": { "startYear": 2026, "ongoing": true, "certainty": "expected" },
+      "8": null,
+      "9": { "startYear": 2021, "endYear": 2026, "certainty": "approximate" },
+      "10": { "startYear": 2016, "endYear": 2026, "certainty": "approximate" },
+      "11": { "startYear": 2021, "endYear": 2026, "certainty": "approximate" }
     },
-    {
-      "area": 2,
-      "change": "",
-      "period": "",
-      "startYear": 1996,
-      "endYear": 2001,
-      "ongoing": false,
-      "certainty": "approximate",
-      "cause": "",
-      "stakeholderType": "",
-      "quotes": [
-        { "text": "", "name": "" },
-        { "text": "", "name": "" }
-      ]
-    },
-    {
-      "area": 3,
-      "change": "",
-      "period": "",
-      "startYear": 2005,
-      "endYear": null,
-      "ongoing": true,
-      "certainty": "exact",
-      "cause": "",
-      "stakeholderType": "",
-      "quotes": [
-        { "text": "", "name": "" },
-        { "text": "", "name": "" }
-      ]
-    },
-    {
-      "area": 2,
-      "change": "",
-      "period": "",
-      "startYear": 2025,
-      "endYear": 2026,
-      "ongoing": false,
-      "certainty": "expected",
-      "cause": "",
-      "stakeholderType": "",
-      "quotes": [
-        { "text": "", "name": "" },
-        { "text": "", "name": "" }
-      ]
+    "disturbance": {
+      "1": { "startYear": 1988, "endYear": 1988, "certainty": "exact" },
+      "2": { "startYear": 1988, "endYear": 1988, "certainty": "exact" },
+      "3": { "startYear": 1988, "endYear": 1990, "certainty": "exact" },
+      "4": { "startYear": 1988, "endYear": 1988, "certainty": "exact" },
+      "5": { "startYear": 2020, "endYear": 2020, "certainty": "exact" }
     }
-  ]
+  }
 }

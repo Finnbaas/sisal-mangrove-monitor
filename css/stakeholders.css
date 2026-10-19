@@ -1,49 +1,42 @@
-/* stakeholders.css: the Stakeholder screen (Figma components: stakeholder-area, imagery-label,
-   map-message, year-filter, year-handle, observation-bar, certainty-legend, area-header,
-   observation-box, entry-switcher).
-   stakeholders.js sets two colors on each area, row and on the panel:
-   --c = the class color (loss, recovery or gain) and --c-tint = its light background. */
+/* stakeholders.css: the Stakeholder screen (Figma components: stakeholder-area, map-message, year-filter,
+   year-handle, observation-bar, certainty-legend, area-header, observation-box).
+   stakeholders.js sets two colors on each shape, row and detail block:
+   --c = the severity color (negative, at risk / partial, positive) and --c-tint = its light background. */
 
-/* map card: the image of the year, the areas on top of it, and the labels */
-#sh-map { position: relative; width: 100%; aspect-ratio: 681 / 380; border-radius: 16px; overflow: hidden; background: var(--color-map-bg); }
-#sh-map-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-#sh-map-image:not([src]), #sh-map-image[src=""] { display: none; }
-#sh-areas { position: absolute; inset: 0; }
-/* one area (Figma stakeholder-area): class color at 25%, dashed outline, number in the middle */
-.sh-area {
-  position: absolute;
-  padding: 0;
-  border-radius: 50%;
-  border: 2px dashed var(--c);
-  background: color-mix(in srgb, var(--c) 25%, transparent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.sh-area:hover, .sh-area:focus-visible { border-width: 2.5px; background: color-mix(in srgb, var(--c) 40%, transparent); }
-.sh-area.selected { border: 3px solid var(--c); background: color-mix(in srgb, var(--c) 50%, transparent); }
-.sh-area-number {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 2px solid var(--c);
-  background: var(--color-surface);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-text);
-}
-.sh-area.selected .sh-area-number { border-width: 2.5px; }
-/* "Imagery: 1988" in the corner of the map (Figma imagery-label) */
-#sh-imagery-label { position: absolute; left: 12px; top: 12px; padding: 4px 9px; border-radius: 999px; background: color-mix(in srgb, var(--color-surface) 92%, transparent); font-size: 11px; font-weight: 600; color: var(--color-text-body); }
-#sh-imagery-label:empty { display: none; }
+/* theme buttons above the map: same look as the All years button */
+#sh-filters { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.sh-filter { border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text-body); border-radius: 999px; padding: 7px 12px; font-size: 13px; font-weight: 600; }
+.sh-filter.on { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-text-on-accent); }
+
+/* map card: one SVG with the base map and all shapes; the height follows the aspect ratio set by stakeholders.js */
+#sh-map { position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 16px; overflow: hidden; background: var(--color-map-bg); cursor: pointer; }
+#sh-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+/* one shape (Figma stakeholder-area): severity color at 25%, dashed outline */
+.sh-shape { fill: color-mix(in srgb, var(--c) 25%, transparent); stroke: var(--c); stroke-width: 2.5; stroke-dasharray: 8 5; }
+.sh-shape.selected { fill: color-mix(in srgb, var(--c) 50%, transparent); stroke-width: 4; stroke-dasharray: none; }
+/* the number on a shape; a filled grey bubble means a natural cause (Condition) */
+.sh-bubble circle { fill: var(--color-surface); stroke: var(--c); stroke-width: 2; }
+.sh-bubble.natural circle { fill: var(--color-text-muted); }
+.sh-bubble.selected circle { stroke-width: 3.5; }
+.sh-bubble text { font-size: 15px; font-weight: 600; fill: var(--color-text); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.sh-bubble.natural text { fill: var(--color-surface); }
+/* hover text on the map: number and zone (shares the look of the timeline tooltip, see .sh-tooltip) */
+#sh-hover { display: flex; bottom: auto; z-index: 6; pointer-events: none; }
+#sh-hover[hidden] { display: none; }
 /* "No observations in 1993" in the middle of the map (Figma map-message) */
 #sh-map-message { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 10px 16px; border-radius: 999px; background: var(--color-surface); box-shadow: 0 10px 26px rgba(28, 59, 46, 0.07); font-size: 13px; font-weight: 600; color: var(--color-text-body); white-space: nowrap; }
-#sh-legend { display: flex; flex-wrap: wrap; gap: 6px 20px; padding-top: 12px; }
+/* legend: one column per severity with its meaning per theme, and one for the cause symbols */
+#sh-legend { display: flex; flex-wrap: wrap; gap: 10px 28px; padding-top: 12px; }
 #sh-legend:empty { display: none; }
-#sh-legend .lg { margin-bottom: 0; }
+.sh-legend-col .lg { margin-bottom: 3px; }
+.sh-legend-meaning { font-size: 11px; color: var(--color-text-muted); padding-left: 15px; }
+.sh-sample-bubble { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--color-text-muted); background: var(--color-surface); flex-shrink: 0; box-sizing: border-box; }
+.sh-sample-bubble.natural { background: var(--color-text-muted); }
+/* rows without a place on the map */
+#sh-whole { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--color-divider); font-size: 11px; color: var(--color-text-muted); }
+.sh-whole-row { display: flex; align-items: center; gap: 8px; text-align: left; padding: 6px 10px; border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-surface); font-size: 13px; color: var(--color-text-body); }
+.sh-whole-row.selected { border-color: var(--color-text); }
+.sh-whole-number { min-width: 22px; text-align: center; font-weight: 600; color: var(--color-text); }
 
 /* Time card, top row (Figma year-filter): All years button, year display, back / forward */
 #sh-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
@@ -72,7 +65,13 @@
 /* All years: the handle and its line are dimmed */
 #sh-time.all-years #sh-slider, #sh-time.all-years #sh-handle-line { opacity: 0.3; }
 
-/* one row per observation: area number on the left, bar on the scale (Figma observation-bar) */
+/* heading of a theme in the timeline */
+.sh-theme-row { margin: 10px 0 4px; font-size: 11px; font-weight: 600; color: var(--color-text-muted); }
+.sh-theme-row:first-child { margin-top: 2px; }
+/* a row without years: only a note instead of a bar */
+.sh-nobar { padding: 0; border: none; background: transparent; font-size: 11px; line-height: 14px; color: var(--color-text-faint); text-align: left; }
+.sh-row.selected .sh-nobar { color: var(--color-text); }
+/* one row per table row: number on the left, bar on the scale (Figma observation-bar) */
 .sh-row { position: relative; height: 14px; }
 .sh-row-number { position: absolute; left: 0; width: 22px; text-align: center; font-size: 11px; font-weight: 600; line-height: 14px; color: var(--color-text-muted); }
 .sh-row.selected .sh-row-number { color: var(--color-text); }
@@ -128,18 +127,15 @@
 #sh-panel-empty { min-height: 480px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 14px; color: var(--color-text-faint); }
 #sh-panel-content { display: flex; flex-direction: column; gap: 12px; }
 .sh-placeholder { color: var(--color-text-faint); font-weight: 400; }
+.sh-spot-count { font-size: 12px; color: var(--color-text-muted); }
+.sh-theme-heading { font-size: 13px; font-weight: 700; color: var(--color-text); margin-top: 6px; }
+.sh-row-detail { display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px; }
 /* header (Figma area-header): class tint behind it, class color as left border */
 .area-header { display: flex; flex-direction: column; gap: 10px; padding: 16px 18px 16px 20px; border-radius: 14px; border-left: 4px solid var(--c); background: var(--c-tint); }
 .area-number { font-size: 12px; font-weight: 500; color: var(--color-text-muted); margin-bottom: 2px; }
 .area-zone { font-size: 15px; font-weight: 700; color: var(--color-text); }
 .area-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; }
 .class-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--color-surface); font-size: 13px; font-weight: 600; color: var(--color-text); }
-.area-count { font-size: 12px; color: var(--color-text-muted); }
-.sh-other-years { font-size: 11px; color: var(--color-text-muted); }
-/* "Observation 1 of 2" with its arrows (Figma entry-switcher) */
-.entry-switcher { display: flex; align-items: center; gap: 8px; }
-.entry-label { flex: 1; font-size: 13px; font-weight: 600; }
-.entry-switcher .step:disabled { opacity: 0.45; cursor: default; }
 /* one observation: a box per column of the interview table (Figma observation-box) */
 .observation { display: flex; flex-direction: column; gap: 8px; }
 .observation-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -148,3 +144,4 @@
 .observation-text { font-size: 14px; line-height: 1.4; color: var(--color-text-body); }
 .sh-quote { display: flex; flex-direction: column; gap: 2px; padding-left: 10px; border-left: 2px solid var(--color-divider); }
 .sh-quote-name { font-size: 11px; color: var(--color-text-muted); }
+.sh-quote + .sh-quote { margin-top: 6px; }

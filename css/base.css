@@ -40,6 +40,7 @@
   --color-class-loss-recovery: #D9469E;
   --color-class-high-turnover: #F0C230;
   --color-class-non-mangrove: #D9D9D9;
+  --color-class-at-risk: #FF9E42;    /* Stakeholder map: at risk / partly recovered (orange of the Figma map shapes; not yet a Figma variable) */
   /* light tint of each class color, for backgrounds (Stakeholder area panel; Figma class-...-tint) */
   --color-class-loss-tint: #F7D8D4;
   --color-class-gain-tint: #D6E3FA;
