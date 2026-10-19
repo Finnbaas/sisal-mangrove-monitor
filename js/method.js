@@ -159,8 +159,10 @@ function fillFacts(text) {
 // ---------- small helpers ----------
 
 // Makes a text from the content file safe to place in the page.
-// The address of a folder (or of the whole repository) on GitHub.
+// The address of a folder (or of the whole repository) on GitHub. A full address (https://...) is used as it is,
+// for folders in another repository (the analyses repository).
 function githubAddress(folder) {
+  if (/^https?:\/\//.test(folder || '')) return folder;
   const repo = String(method.repository || '').replace(/\/$/, '');
   return isFilled(folder) ? repo + '/tree/' + (method.branch || 'main') + '/' + folder : repo;
 }
@@ -172,8 +174,9 @@ function githubLink(size, label, folder) {
   return '<a class="github-link ' + size + '" href="' + escapeHtml(githubAddress(folder)) + '" target="_blank" rel="noopener">' + METHOD_ICONS.github + '<span>' + escapeHtml(label) + '</span></a>';
 }
 
-// The address of one file in the repository on GitHub.
+// The address of one file on GitHub. A full address (https://...) is used as it is.
 function githubFileAddress(path) {
+  if (/^https?:\/\//.test(path)) return path;
   return String(method.repository || '').replace(/\/$/, '') + '/blob/' + (method.branch || 'main') + '/' + path;
 }
 
