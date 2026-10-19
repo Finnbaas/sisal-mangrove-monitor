@@ -7,7 +7,6 @@
   "geometryNote": "ellipse.cx / cy are fractions of the base-map width / height (0-1). ellipse.width / height are both fractions of the base-map WIDTH. ellipse.rotation is in degrees, clockwise, around the centre.",
   "themes": {
     "extent": {
-      "prefix": "E",
       "title": "Extent of mangrove",
       "description": "Areas where mangrove was converted to another land use, or gained through planting",
       "legend": {
@@ -17,7 +16,6 @@
       }
     },
     "condition": {
-      "prefix": "C",
       "title": "Condition (of ecosystem)",
       "description": "Signals about the state of remaining mangrove and its environment (water, fauna, pollution)",
       "legend": {
@@ -31,7 +29,6 @@
       }
     },
     "disturbance": {
-      "prefix": "D",
       "title": "Disturbance and recovery",
       "description": "Abrupt die-off with the site remaining wetland, and whether and how it recovered",
       "legend": {
@@ -43,7 +40,7 @@
   },
   "shapes": [
     {
-      "id": "C9",
+      "id": "9",
       "theme": "condition",
       "severity": "at-risk",
       "ellipse": {
@@ -57,7 +54,7 @@
       "cause": "anthropogenic"
     },
     {
-      "id": "C5",
+      "id": "5",
       "theme": "condition",
       "severity": "negative",
       "ellipse": {
@@ -71,7 +68,7 @@
       "cause": "anthropogenic"
     },
     {
-      "id": "C5",
+      "id": "5",
       "theme": "condition",
       "severity": "negative",
       "ellipse": {
@@ -85,7 +82,7 @@
       "cause": "anthropogenic"
     },
     {
-      "id": "C3",
+      "id": "3",
       "theme": "condition",
       "severity": "negative",
       "ellipse": {
@@ -99,7 +96,7 @@
       "cause": "anthropogenic"
     },
     {
-      "id": "C8",
+      "id": "8",
       "theme": "condition",
       "severity": "at-risk",
       "ellipse": {
@@ -113,7 +110,7 @@
       "cause": "anthropogenic"
     },
     {
-      "id": "C2",
+      "id": "2",
       "theme": "condition",
       "severity": "negative",
       "ellipse": {
@@ -127,7 +124,7 @@
       "cause": "natural"
     },
     {
-      "id": "C4",
+      "id": "4",
       "theme": "condition",
       "severity": "negative",
       "ellipse": {
@@ -141,7 +138,7 @@
       "cause": "anthropogenic"
     },
     {
-      "id": "C7",
+      "id": "7",
       "theme": "condition",
       "severity": "at-risk",
       "ellipse": {
@@ -155,7 +152,7 @@
       "cause": "anthropogenic"
     },
     {
-      "id": "C10",
+      "id": "10",
       "theme": "condition",
       "severity": "at-risk",
       "ellipse": {
@@ -169,7 +166,7 @@
       "cause": "anthropogenic"
     },
     {
-      "id": "C11",
+      "id": "11",
       "theme": "condition",
       "severity": "at-risk",
       "ellipse": {
@@ -183,7 +180,7 @@
       "cause": "anthropogenic"
     },
     {
-      "id": "C6",
+      "id": "6",
       "theme": "condition",
       "severity": "at-risk",
       "ellipse": {
@@ -197,7 +194,7 @@
       "cause": "anthropogenic"
     },
     {
-      "id": "E6",
+      "id": "6",
       "theme": "extent",
       "severity": "at-risk",
       "ellipse": {
@@ -210,7 +207,7 @@
       "figmaNode": "314:3117"
     },
     {
-      "id": "E5b",
+      "id": "5b",
       "theme": "extent",
       "severity": "at-risk",
       "ellipse": {
@@ -223,7 +220,7 @@
       "figmaNode": "314:3120"
     },
     {
-      "id": "E5a",
+      "id": "5a",
       "theme": "extent",
       "severity": "negative",
       "ellipse": {
@@ -236,7 +233,7 @@
       "figmaNode": "314:3127"
     },
     {
-      "id": "E7",
+      "id": "7",
       "theme": "extent",
       "severity": "positive",
       "ellipse": {
@@ -249,7 +246,7 @@
       "figmaNode": "314:3129"
     },
     {
-      "id": "E7",
+      "id": "7",
       "theme": "extent",
       "severity": "positive",
       "ellipse": {
@@ -262,7 +259,7 @@
       "figmaNode": "314:3130"
     },
     {
-      "id": "E8",
+      "id": "8",
       "theme": "extent",
       "severity": "positive",
       "ellipse": {
@@ -275,7 +272,7 @@
       "figmaNode": "314:3131"
     },
     {
-      "id": "E8",
+      "id": "8",
       "theme": "extent",
       "severity": "positive",
       "ellipse": {
@@ -288,7 +285,7 @@
       "figmaNode": "314:3132"
     },
     {
-      "id": "E4",
+      "id": "4",
       "theme": "extent",
       "severity": "negative",
       "ellipse": {
@@ -301,7 +298,7 @@
       "figmaNode": "314:3134"
     },
     {
-      "id": "E2",
+      "id": "2",
       "theme": "extent",
       "severity": "negative",
       "ellipse": {
@@ -314,7 +311,7 @@
       "figmaNode": "314:3136"
     },
     {
-      "id": "E3",
+      "id": "3",
       "theme": "extent",
       "severity": "negative",
       "ellipse": {
@@ -327,7 +324,7 @@
       "figmaNode": "314:3137"
     },
     {
-      "id": "E11",
+      "id": "11",
       "theme": "extent",
       "severity": "positive",
       "ellipse": {
@@ -340,7 +337,7 @@
       "figmaNode": "314:3140"
     },
     {
-      "id": "E11",
+      "id": "11",
       "theme": "extent",
       "severity": "positive",
       "ellipse": {
@@ -353,7 +350,7 @@
       "figmaNode": "314:3141"
     },
     {
-      "id": "E9",
+      "id": "9",
       "theme": "extent",
       "severity": "positive",
       "ellipse": {
@@ -366,7 +363,7 @@
       "figmaNode": "314:3143"
     },
     {
-      "id": "E10",
+      "id": "10",
       "theme": "extent",
       "severity": "positive",
       "ellipse": {
@@ -379,7 +376,7 @@
       "figmaNode": "314:3145"
     },
     {
-      "id": "E1",
+      "id": "1",
       "theme": "extent",
       "severity": "negative",
       "ellipse": {
@@ -392,7 +389,7 @@
       "figmaNode": "314:3147"
     },
     {
-      "id": "E10",
+      "id": "10",
       "theme": "extent",
       "severity": "positive",
       "ellipse": {
@@ -405,7 +402,7 @@
       "figmaNode": "314:3150"
     },
     {
-      "id": "D2",
+      "id": "2",
       "theme": "disturbance",
       "severity": "negative",
       "ellipse": {
@@ -418,7 +415,7 @@
       "figmaNode": "314:3164"
     },
     {
-      "id": "D4",
+      "id": "4",
       "theme": "disturbance",
       "severity": "positive",
       "ellipse": {
@@ -431,7 +428,7 @@
       "figmaNode": "314:3166"
     },
     {
-      "id": "D3",
+      "id": "3",
       "theme": "disturbance",
       "severity": "at-risk",
       "ellipse": {
@@ -444,7 +441,7 @@
       "figmaNode": "314:3168"
     },
     {
-      "id": "D5",
+      "id": "5",
       "theme": "disturbance",
       "severity": "positive",
       "ellipse": {
@@ -457,7 +454,7 @@
       "figmaNode": "314:3170"
     },
     {
-      "id": "D1",
+      "id": "1",
       "theme": "disturbance",
       "severity": "negative",
       "ellipse": {
@@ -472,7 +469,7 @@
   ],
   "rows": [
     {
-      "id": "C1",
+      "id": "1",
       "theme": "condition",
       "sourceNumber": "-",
       "zone": "All of ciénaga in Sisal Coast",
@@ -494,7 +491,7 @@
       "hasShape": false
     },
     {
-      "id": "C2",
+      "id": "2",
       "theme": "condition",
       "sourceNumber": "2",
       "zone": "Ciénaga east of Sisal",
@@ -511,7 +508,7 @@
       "hasShape": true
     },
     {
-      "id": "C3",
+      "id": "3",
       "theme": "condition",
       "sourceNumber": "3",
       "zone": "Ciénaga east of Sisal",
@@ -533,7 +530,7 @@
       "hasShape": true
     },
     {
-      "id": "C4",
+      "id": "4",
       "theme": "condition",
       "sourceNumber": "4",
       "zone": "Dune and coast",
@@ -550,7 +547,7 @@
       "hasShape": true
     },
     {
-      "id": "C5",
+      "id": "5",
       "theme": "condition",
       "sourceNumber": "5",
       "zone": "Mangrove south of Sisal",
@@ -577,7 +574,7 @@
       "hasShape": true
     },
     {
-      "id": "C6",
+      "id": "6",
       "theme": "condition",
       "sourceNumber": "6",
       "zone": "Coast and sea",
@@ -594,7 +591,7 @@
       "hasShape": true
     },
     {
-      "id": "C7",
+      "id": "7",
       "theme": "condition",
       "sourceNumber": "7",
       "zone": "Hotels in the flood zone",
@@ -611,7 +608,7 @@
       "hasShape": true
     },
     {
-      "id": "C8",
+      "id": "8",
       "theme": "condition",
       "sourceNumber": "8",
       "zone": "Freshwater springs",
@@ -628,7 +625,7 @@
       "hasShape": true
     },
     {
-      "id": "C9",
+      "id": "9",
       "theme": "condition",
       "sourceNumber": "9",
       "zone": "Coastal area west of Sisal",
@@ -645,7 +642,7 @@
       "hasShape": true
     },
     {
-      "id": "C10",
+      "id": "10",
       "theme": "condition",
       "sourceNumber": "10",
       "zone": "Inland",
@@ -662,7 +659,7 @@
       "hasShape": true
     },
     {
-      "id": "C11",
+      "id": "11",
       "theme": "condition",
       "sourceNumber": "11",
       "zone": "Inland",
@@ -679,7 +676,7 @@
       "hasShape": true
     },
     {
-      "id": "E1",
+      "id": "1",
       "theme": "extent",
       "sourceNumber": "1",
       "zone": "Area east of Sisal’s Port",
@@ -696,7 +693,7 @@
       "hasShape": true
     },
     {
-      "id": "E2",
+      "id": "2",
       "theme": "extent",
       "sourceNumber": "2",
       "zone": "Sisal’s village edge against the mangrove",
@@ -718,7 +715,7 @@
       "hasShape": true
     },
     {
-      "id": "E3",
+      "id": "3",
       "theme": "extent",
       "sourceNumber": "3",
       "zone": "Plot with tall mangrove",
@@ -735,7 +732,7 @@
       "hasShape": true
     },
     {
-      "id": "E4",
+      "id": "4",
       "theme": "extent",
       "sourceNumber": "4",
       "zone": "Coastal strip and dune",
@@ -762,7 +759,7 @@
       "hasShape": true
     },
     {
-      "id": "E5a",
+      "id": "5a",
       "theme": "extent",
       "sourceNumber": "5a",
       "zone": "Punta Piedra (west)",
@@ -779,7 +776,7 @@
       "hasShape": true
     },
     {
-      "id": "E5b",
+      "id": "5b",
       "theme": "extent",
       "sourceNumber": "5b",
       "zone": "Paraíso Sisal / El Palmar reserve (west)",
@@ -806,7 +803,7 @@
       "hasShape": true
     },
     {
-      "id": "E6",
+      "id": "6",
       "theme": "extent",
       "sourceNumber": "6",
       "zone": "Former casuarina stand",
@@ -823,7 +820,7 @@
       "hasShape": true
     },
     {
-      "id": "E7",
+      "id": "7",
       "theme": "extent",
       "sourceNumber": "7",
       "zone": "Tzintzin",
@@ -840,7 +837,7 @@
       "hasShape": true
     },
     {
-      "id": "E8",
+      "id": "8",
       "theme": "extent",
       "sourceNumber": "8",
       "zone": "Lugar Carbonera (la reserva de ciénagas y manglares)",
@@ -857,7 +854,7 @@
       "hasShape": true
     },
     {
-      "id": "E9",
+      "id": "9",
       "theme": "extent",
       "sourceNumber": "9",
       "zone": "Specified on map",
@@ -874,7 +871,7 @@
       "hasShape": true
     },
     {
-      "id": "E10",
+      "id": "10",
       "theme": "extent",
       "sourceNumber": "10",
       "zone": "Specified on map",
@@ -891,7 +888,7 @@
       "hasShape": true
     },
     {
-      "id": "E11",
+      "id": "11",
       "theme": "extent",
       "sourceNumber": "11",
       "zone": "Specified on map",
@@ -908,7 +905,7 @@
       "hasShape": true
     },
     {
-      "id": "D1",
+      "id": "1",
       "theme": "disturbance",
       "sourceNumber": "1",
       "zone": "La bocana la carbonera",
@@ -936,7 +933,7 @@
       "hasShape": true
     },
     {
-      "id": "D2",
+      "id": "2",
       "theme": "disturbance",
       "sourceNumber": "2",
       "zone": "Area behind the Sisal to Mérida road",
@@ -954,7 +951,7 @@
       "hasShape": true
     },
     {
-      "id": "D3",
+      "id": "3",
       "theme": "disturbance",
       "sourceNumber": "3",
       "zone": "Ciénaga east of Sisal",
@@ -982,7 +979,7 @@
       "hasShape": true
     },
     {
-      "id": "D4",
+      "id": "4",
       "theme": "disturbance",
       "sourceNumber": "4",
       "zone": "Area behind the Sisal to Mérida road",
@@ -1000,7 +997,7 @@
       "hasShape": true
     },
     {
-      "id": "D5",
+      "id": "5",
       "theme": "disturbance",
       "sourceNumber": "5",
       "zone": "Ciénaga as a whole (no specific location)",

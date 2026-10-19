@@ -71,7 +71,7 @@ for el in raw["ellipses"]:
     cy -= oy  # now in base-map pixels (the three map images are identical and the same size)
     severity = SEVERITY_BY_FILL[el["fill"]]
     shape = {
-        "id": el["id"],
+        "id": el["id"][1:],  # the number on the map only ("4", "5a"); the theme field tells the maps apart
         "theme": el["theme"],
         "severity": severity,
         "ellipse": {
@@ -105,7 +105,7 @@ for el in raw["ellipses"]:
 for shape in shapes:
     if shape["theme"] != "condition":
         continue
-    number = shape["id"][1:]
+    number = shape["id"]
     bubble = [l for l in labels_by_theme["condition"] if l["text"] == number and "hidden" not in l.get("note", "")]
     shape["cause"] = ("natural" if bubble[0]["fill"] == "117,117,117" else "anthropogenic") if bubble else None
 
@@ -140,7 +140,7 @@ for theme_key, table in raw["tables"].items():
     for cells in table["rows"]:
         if cells[0] != "":  # a new row starts where the first column is filled
             number = cells[0]
-            row_id = theme["prefix"] + ("1" if number == "-" else number)
+            row_id = "1" if number == "-" else number  # the Condition "-" row is number 1
             current = {"id": row_id, "theme": theme_key, "sourceNumber": number, "zone": clean(cells[1])}
             if theme_key == "condition":
                 current.update(signal=clean(cells[2]), period=clean(cells[3]), cause=clean(cells[4]))
@@ -181,19 +181,19 @@ for code, groups in sorted(groups_by_code.items()):
 
 # ---------------------------------------------------------------- link rows and shapes
 for r in rows:
-    r["shapeCount"] = sum(1 for s in shapes if s["id"] == r["id"])
+    r["shapeCount"] = sum(1 for s in shapes if s["id"] == r["id"] and s["theme"] == r["theme"])
     r["hasShape"] = r["shapeCount"] > 0
     del r["shapeCount"]
-row_ids = {r["id"] for r in rows}
+row_keys = {(r["theme"], r["id"]) for r in rows}
 for r in rows:
     if not r["hasShape"]:
-        report.append(f"ROW WITHOUT SHAPE: {r['id']} ({r['zone']})")
-for sid in sorted({s["id"] for s in shapes} - row_ids):
-    report.append(f"SHAPE WITHOUT ROW: {sid}")
+        report.append(f"ROW WITHOUT SHAPE: {r['theme']} {r['id']} ({r['zone']})")
+for theme, sid in sorted({(s["theme"], s["id"]) for s in shapes} - row_keys):
+    report.append(f"SHAPE WITHOUT ROW: {theme} {sid}")
 
 themes_out = {}
 for key, t in raw["themes"].items():
-    themes_out[key] = {"prefix": t["prefix"], "title": t["title"], "description": t["description"],
+    themes_out[key] = {"title": t["title"], "description": t["description"],
                        "legend": {k: v.lstrip("= ").strip() for k, v in t["legend"].items()}}
     if "causeLegend" in t:
         themes_out[key]["causeLegend"] = {k: v.lstrip("= ").strip() for k, v in t["causeLegend"].items()}
@@ -212,6 +212,7 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 (OUT_DIR / "stakeholders.json").write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
 
 # ---------------------------------------------------------------- check image (SVG, rendered to PNG by hand)
+LETTER = {"extent": "E", "condition": "C", "disturbance": "D"}  # letters only in this check image
 COLORS = {"negative": "#f24822", "at-risk": "#ff9e42", "positive": "#66d575"}
 FILLS = {"negative": "#ffc7c2", "at-risk": "#ffe0c2", "positive": "#cdf4d3"}
 parts = [f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 {MAP_W} {MAP_H:.0f}" width="1600">',
@@ -224,7 +225,7 @@ for s in sorted(output["shapes"], key=lambda s: -s["ellipse"]["width"] * s["elli
 for s in output["shapes"]:
     e = s["ellipse"]
     parts.append(f'<text x="{e["cx"]*MAP_W:.1f}" y="{e["cy"]*MAP_H:.1f}" font-size="70" font-family="Arial" font-weight="bold" '
-                 f'text-anchor="middle" dominant-baseline="central" stroke="#fff" stroke-width="14" paint-order="stroke" fill="#222">{s["id"]}</text>')
+                 f'text-anchor="middle" dominant-baseline="central" stroke="#fff" stroke-width="14" paint-order="stroke" fill="#222">{LETTER[s["theme"]]}{s["id"]}</text>')
 parts.append("</svg>")
 (OUT_DIR / "check-overlay.svg").write_text("\n".join(parts), encoding="utf-8")
 
