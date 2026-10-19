@@ -14,29 +14,31 @@
     {
       "id": "satellite",
       "title": "Satellite analysis",
-      "description": "Monthly maximum NDVI from Landsat (1993–2026) for 1138 random points in the Sisal area. Each series is regularised to monthly values, deseasonalised and detrended (STL), and corrected for the upward drift caused by the growing number of images per year. On these series we (1) detect breakpoints, (2) test for early warning signals before each loss, and (3) group all points into shape classes, shown on the map.",
-      "sources": [
-        { "label": "Landsat 5 TM, 7 ETM+, 8 and 9 OLI, Collection 2 Tier 1 Level-2 (surface reflectance), via Google Earth Engine", "url": "" },
-        { "label": "Global Mangrove Watch: used for the first mangrove mask, to select the points. The final mangrove map is based on NDVI, so Global Mangrove Watch is not the definitive mask.", "url": "" },
-        { "label": "Sentinel-2 SR Harmonized: only the background image of the map (January–May 2024). Not used for NDVI, because its record is too short to detect tipping points and early warning signals.", "url": "" }
+      "datasets": [
+        "Landsat 5 TM, 7 ETM+, 8 and 9 OLI, Collection 2 Tier 1 Level-2 (surface reflectance), via Google Earth Engine",
+        "Global Mangrove Watch: used for the first mangrove mask, to select the points. The final mangrove map is based on NDVI, so Global Mangrove Watch is not the definitive mask.",
+        "Sentinel-2 SR Harmonized: only the background image of the map (January–May 2024). Not used for NDVI, because its record is too short to detect tipping points and early warning signals."
       ],
-      "keyChoices": [
-        "Monthly maximum NDVI: the maximum limits the effect of clouds; monthly steps are fine enough not to miss tipping points, which develop over several months.",
-        "Data from 1993 onwards: before that there are fewer than 12 Landsat images per year over Sisal.",
-        "The number of images per year increases over time, which pushes the monthly maximum upwards; this drift is removed in the detrending.",
-        "Breakpoint: a change of at least 0.25 NDVI within 12 months, after which the new level persists for at least 2 years. A drop followed by a quick recovery is resilience, not a breakpoint.",
-        "Early warning signals are computed only on the deseasonalised NDVI before the start of each loss, because an abrupt drop inside the rolling window would create false increases in variance and autocorrelation.",
-        "The significance of the early warning signals is tested against AR(1) surrogates; points without a breakpoint serve as controls.",
-        { "text": "Shape classes are based on the net NDVI change and the turnover of each series, with fixed thresholds.", "more": "The start and end level are the median of the first and last 3 years. Loss: net change of −0.3 or less. Gain: net change of +0.3 or more. Loss + recovery: mangrove (NDVI 0.3 or more) at the start and the end, but below 0.3 for at least 2 years in between. High turnover: turnover of 1.4 or more, a whole year below NDVI 0.25, or a monthly trend below 0. Non-mangrove: below 0.3 at the start and the end, with a mean NDVI below 0.25. All other points are stable.", "moreLabel": "Show thresholds" },
-        "Landsat and Sentinel-2 are not merged, because of sensor differences."
-      ],
-      "requirements": "A free Google Earth Engine account. Python 3 with pandas, numpy, matplotlib, statsmodels (STL) and scipy (Kendall's tau and smoothing).",
-      "folder": "analysis/satellite",
+      "limitations": [],
+      "folder": "https://github.com/Finnbaas/sisal-mangrove-analyses/tree/main/satellite",
       "zip": "",
       "files": [
-        { "name": "GEE_NDVI.js", "description": "Extracts the monthly maximum NDVI per point.", "format": "Earth Engine", "path": "analysis/satellite/GEE_NDVI.js" },
-        { "name": "ndvi_monthly_classification.ipynb", "description": "Deseasonalising, breakpoints and shape classes.", "format": "Notebook", "path": "analysis/satellite/ndvi_monthly_classification.ipynb" },
-        { "name": "ews_monthly_new.ipynb", "description": "Early warning signals, Kendall's tau, surrogates, scenario matrix and sensitivity analysis.", "format": "Notebook", "path": "analysis/satellite/ews_monthly_new.ipynb" },
+        { "name": "GEE_NDVI.js", "description": "Extracts the monthly maximum NDVI per point.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/ndvi-time-series/GEE_NDVI.js" },
+        { "name": "ndvi_monthly_classification.ipynb", "description": "Deseasonalising, breakpoints and shape classes.", "format": "Notebook", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/ndvi-time-series/ndvi_monthly_classification.ipynb" },
+        { "name": "README.md", "description": "What the analysis shows, the input data, the steps and what the printed messages mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/ndvi-time-series/README.md" },
+        { "name": "requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/ndvi-time-series/requirements.txt" },
+        { "name": "monthly_max_NDVI_per_point.csv", "description": "Our Sisal data: 150 points, monthly maximum NDVI 1993 to 2026, in the input format; the notebooks run on it as it is.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/ndvi-time-series/example_data/monthly_max_NDVI_per_point.csv" },
+        { "name": "tipping-point-analysis/GEE_NDVI.js", "description": "Extracts the monthly maximum NDVI per point.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/tipping-point-analysis/GEE_NDVI.js" },
+        { "name": "tipping-point-analysis/ndvi_monthly_classification.ipynb", "description": "Deseasonalising, breakpoints and shape classes.", "format": "Notebook", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/tipping-point-analysis/ndvi_monthly_classification.ipynb" },
+        { "name": "ews_monthly_new.ipynb", "description": "Early warning signals, Kendall's tau, surrogates, scenario matrix and sensitivity analysis.", "format": "Notebook", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/tipping-point-analysis/ews_monthly_new.ipynb" },
+        { "name": "tipping-point-analysis/README.md", "description": "What the analysis shows, the input data, the steps and what the printed messages mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/tipping-point-analysis/README.md" },
+        { "name": "tipping-point-analysis/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/tipping-point-analysis/requirements.txt" },
+        { "name": "tipping-point-analysis/monthly_max_NDVI_per_point.csv", "description": "Our Sisal data: 150 points, monthly maximum NDVI 1993 to 2026, in the input format; the notebooks run on it as it is.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/tipping-point-analysis/example_data/monthly_max_NDVI_per_point.csv" },
+        { "name": "shape-class-map/GEE_NDVI.js", "description": "Extracts the monthly maximum NDVI per point.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/shape-class-map/GEE_NDVI.js" },
+        { "name": "shape-class-map/ndvi_monthly_classification.ipynb", "description": "Deseasonalising, breakpoints and shape classes.", "format": "Notebook", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/shape-class-map/ndvi_monthly_classification.ipynb" },
+        { "name": "shape-class-map/README.md", "description": "What the analysis shows, the input data, the steps and what the printed messages mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/shape-class-map/README.md" },
+        { "name": "shape-class-map/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/shape-class-map/requirements.txt" },
+        { "name": "shape-class-map/monthly_max_NDVI_per_point.csv", "description": "Our Sisal data: 150 points, monthly maximum NDVI 1993 to 2026, in the input format; the notebooks run on it as it is.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/shape-class-map/example_data/monthly_max_NDVI_per_point.csv" },
         { "name": "export_points.py", "description": "Turns the results into the website data.", "format": "Python", "path": "analysis/satellite/export_points.py" }
       ],
       "useCases": [
@@ -44,6 +46,17 @@
           "id": "ndvi-time-series",
           "title": "NDVI time series for your location",
           "image": "img/satellite/point_base_53.png",
+          "howMade": "Monthly maximum NDVI from Landsat (1993–2026) for 1138 random points in the Sisal area. Each series is regularised to monthly values, deseasonalised and detrended (STL), and corrected for the upward drift caused by the growing number of images per year. On these series we (1) detect breakpoints, (2) test for early warning signals before each loss, and (3) group all points into shape classes, shown on the map.",
+          "keyChoices": [
+            "Monthly maximum NDVI: the maximum limits the effect of clouds; monthly steps are fine enough not to miss tipping points, which develop over several months.",
+            "Data from 1993 onwards: before that there are fewer than 12 Landsat images per year over Sisal.",
+            "The number of images per year increases over time, which pushes the monthly maximum upwards; this drift is removed in the detrending.",
+            "Landsat and Sentinel-2 are not merged, because of sensor differences."
+          ],
+          "whatYouNeed": [
+            "A free Google Earth Engine account. Python 3 with pandas, numpy, matplotlib, statsmodels (STL) and scipy (Kendall's tau and smoothing)."
+          ],
+          "infoCards": ["point-chart"],
           "steps": [
             "Open the Earth Engine script in the Earth Engine Code Editor. Choose one location, or upload a CSV with the coordinates of several points.",
             "Run the script and export the monthly maximum NDVI per point as a CSV to Google Drive.",
@@ -51,13 +64,22 @@
             "Open the notebook, set the path to your CSV and run all cells.",
             "The notebook regularises, deseasonalises and detrends each series and saves one plot per point, like the plots on the Satellite page."
           ],
-          "files": ["GEE_NDVI.js", "ndvi_monthly_classification.ipynb"],
+          "files": ["GEE_NDVI.js", "ndvi_monthly_classification.ipynb", "README.md", "requirements.txt", "monthly_max_NDVI_per_point.csv"],
           "cards": ["point-chart"]
         },
         {
           "id": "tipping-point-custom-location",
           "title": "Tipping point analysis for your own location",
           "image": "img/satellite/point_base_69.png",
+          "keyChoices": [
+            "Breakpoint: a change of at least 0.25 NDVI within 12 months, after which the new level persists for at least 2 years. A drop followed by a quick recovery is resilience, not a breakpoint.",
+            "Early warning signals are computed only on the deseasonalised NDVI before the start of each loss, because an abrupt drop inside the rolling window would create false increases in variance and autocorrelation.",
+            "The significance of the early warning signals is tested against AR(1) surrogates; points without a breakpoint serve as controls."
+          ],
+          "whatYouNeed": [
+            "A free Google Earth Engine account. Python 3 with pandas, numpy, matplotlib, statsmodels (STL) and scipy (Kendall's tau and smoothing)."
+          ],
+          "infoCards": ["trend-signals"],
           "steps": [
             "Make the NDVI time series as in the example \"NDVI time series for your location\".",
             "Run the breakpoint detection: it lists every point with a lasting drop, with its date and magnitude.",
@@ -65,20 +87,27 @@
             "It compares these trends with AR(1) surrogates and with control points to test significance.",
             "It places each point in the scenario matrix (NDVI tau vs SD tau) and repeats the analysis for other window sizes and bandwidths (sensitivity analysis)."
           ],
-          "files": ["GEE_NDVI.js", "ndvi_monthly_classification.ipynb", "ews_monthly_new.ipynb"],
+          "files": ["tipping-point-analysis/GEE_NDVI.js", "tipping-point-analysis/ndvi_monthly_classification.ipynb", "ews_monthly_new.ipynb", "tipping-point-analysis/README.md", "tipping-point-analysis/requirements.txt", "tipping-point-analysis/monthly_max_NDVI_per_point.csv"],
           "cards": ["trend-signals"]
         },
         {
           "id": "change-map",
           "title": "Shape-class map of your area",
           "image": "img/site-map2.png",
+          "keyChoices": [
+            { "text": "Shape classes are based on the net NDVI change and the turnover of each series, with fixed thresholds.", "more": "The start and end level are the median of the first and last 3 years. Loss: net change of −0.3 or less. Gain: net change of +0.3 or more. Loss + recovery: mangrove (NDVI 0.3 or more) at the start and the end, but below 0.3 for at least 2 years in between. High turnover: turnover of 1.4 or more, a whole year below NDVI 0.25, or a monthly trend below 0. Non-mangrove: below 0.3 at the start and the end, with a mean NDVI below 0.25. All other points are stable.", "moreLabel": "Show thresholds" }
+          ],
+          "whatYouNeed": [
+            "A free Google Earth Engine account. Python 3 with pandas, numpy, matplotlib, statsmodels (STL) and scipy (Kendall's tau and smoothing)."
+          ],
+          "infoCards": ["point-map"],
           "steps": [
             "Make the NDVI time series as in the example \"NDVI time series for your location\", for many random points in your area.",
             "In the notebook, compute the net NDVI change and turnover per point and assign the shape classes (stable, gain, loss, loss + recovery, high turnover, non-mangrove).",
             "Plot the classes on a map using the point coordinates."
           ],
-          "files": ["GEE_NDVI.js", "ndvi_monthly_classification.ipynb"],
-          "cards": []
+          "files": ["shape-class-map/GEE_NDVI.js", "shape-class-map/ndvi_monthly_classification.ipynb", "shape-class-map/README.md", "shape-class-map/requirements.txt", "shape-class-map/monthly_max_NDVI_per_point.csv"],
+          "cards": ["point-map"]
         }
       ]
     },
@@ -98,7 +127,7 @@
         "The record periods differ per variable; salinity only covers {record.salinity.start} to {record.salinity.end}, so later storms have no salinity.",
         "Too few storms ({storms.total} in {storms.start} to {storms.end}) for a trend test."
       ],
-      "folder": "analysis/climatology",
+      "folder": "https://github.com/Finnbaas/sisal-mangrove-analyses/tree/main/climatology",
       "zip": "",
       "files": [
         { "name": "Clima_Baseline.ipynb", "description": "The notebook with the analysis and the figures of the Climatology page.", "format": "Notebook", "path": "analysis/climatology/Clima_Baseline.ipynb" },
@@ -108,11 +137,44 @@
         { "name": "typical_year.py", "description": "Monthly mean and 10th to 90th percentile band.", "format": "Python", "path": "analysis/climatology/reference/typical_year.py" },
         { "name": "annual_trends.py", "description": "Annual means and trends.", "format": "Python", "path": "analysis/climatology/reference/annual_trends.py" },
         { "name": "sea_level.py", "description": "Sea level from the altimetry files: annual means and trends.", "format": "Python", "path": "analysis/climatology/reference/sea_level.py" },
-        { "name": "README.md", "description": "What the analysis shows, the input format, the steps and what the warnings mean.", "format": "Markdown", "path": "diy/climatology/event-anomaly/README.md" },
-        { "name": "event_anomaly.py", "description": "Anomaly chart around an event for your own data: settings at the top, saves a PNG and a CSV.", "format": "Python", "path": "diy/climatology/event-anomaly/event_anomaly.py" },
-        { "name": "get_era5_point.js", "description": "Google Earth Engine script that exports daily ERA5-Land data for any coordinates.", "format": "JavaScript", "path": "diy/climatology/event-anomaly/get_era5_point.js" },
-        { "name": "requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "diy/climatology/event-anomaly/requirements.txt" },
-        { "name": "sisal_milton_2024.csv", "description": "Our Sisal data (1950 to 2025) in the input format; runs Hurricane Milton out of the box.", "format": "CSV", "path": "diy/climatology/event-anomaly/example_data/sisal_milton_2024.csv" },
+        { "name": "README.md", "description": "What the analysis shows, the input format, the steps and what the warnings mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-anomaly/README.md" },
+        { "name": "event_anomaly.py", "description": "Anomaly chart around an event for your own data: settings at the top, saves a PNG and a CSV.", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-anomaly/event_anomaly.py" },
+        { "name": "get_era5_point.js", "description": "Google Earth Engine script that exports daily ERA5-Land data for any coordinates.", "format": "JavaScript", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-anomaly/get_era5_point.js" },
+        { "name": "requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-anomaly/requirements.txt" },
+        { "name": "sisal_milton_2024.csv", "description": "Our Sisal data (1950 to 2025) in the input format; runs Hurricane Milton out of the box.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-anomaly/example_data/sisal_milton_2024.csv" },
+        { "name": "seasonal-cycle/README.md", "description": "What the analysis shows, the input format, the steps and what the warnings mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/seasonal-cycle/README.md" },
+        { "name": "seasonal_cycle.py", "description": "Seasonal cycle for your own data: settings at the top, saves a PNG and a CSV.", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/seasonal-cycle/seasonal_cycle.py" },
+        { "name": "load_data.py", "description": "Reads and checks your input CSV (the same file is in every package).", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/seasonal-cycle/load_data.py" },
+        { "name": "seasonal-cycle/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/seasonal-cycle/requirements.txt" },
+        { "name": "sisal_daily.csv", "description": "Our Sisal data (air temperature, rainfall, wind, waves, sea surface temperature, salinity) in the input format; runs out of the box.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/seasonal-cycle/example_data/sisal_daily.csv" },
+        { "name": "long-term-trend/README.md", "description": "What the analysis shows, the input format, the steps and what the warnings mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/long-term-trend/README.md" },
+        { "name": "long_term_trend.py", "description": "Annual means and trend with significance for your own data: settings at the top, saves a PNG and two CSV files.", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/long-term-trend/long_term_trend.py" },
+        { "name": "long-term-trend/load_data.py", "description": "Reads and checks your input CSV (the same file is in every package).", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/long-term-trend/load_data.py" },
+        { "name": "long-term-trend/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/long-term-trend/requirements.txt" },
+        { "name": "long-term-trend/sisal_daily.csv", "description": "Our Sisal data (air temperature, rainfall, wind, waves, sea surface temperature, salinity) in the input format; runs out of the box.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/long-term-trend/example_data/sisal_daily.csv" },
+        { "name": "monthly-range/README.md", "description": "What the analysis shows, the input format, the steps and what the warnings mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/monthly-range/README.md" },
+        { "name": "monthly_range.py", "description": "Monthly range and running mean for your own data: settings at the top, saves a PNG and a CSV.", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/monthly-range/monthly_range.py" },
+        { "name": "monthly-range/load_data.py", "description": "Reads and checks your input CSV (the same file is in every package).", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/monthly-range/load_data.py" },
+        { "name": "monthly-range/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/monthly-range/requirements.txt" },
+        { "name": "monthly-range/sisal_daily.csv", "description": "Our Sisal data (air temperature, rainfall, wind, waves, sea surface temperature, salinity) in the input format; runs out of the box.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/monthly-range/example_data/sisal_daily.csv" },
+        { "name": "wave-wind-rose/README.md", "description": "What the analysis shows, the input format, the steps and what the warnings mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/wave-wind-rose/README.md" },
+        { "name": "wave_wind_rose.py", "description": "Rose of where waves or wind come from, all days against days above a threshold: settings at the top, saves a PNG and a CSV.", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/wave-wind-rose/wave_wind_rose.py" },
+        { "name": "wave-wind-rose/load_data.py", "description": "Reads and checks your input CSV (the same file is in every package).", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/wave-wind-rose/load_data.py" },
+        { "name": "wave-wind-rose/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/wave-wind-rose/requirements.txt" },
+        { "name": "sisal_waves.csv", "description": "Our Sisal wave direction and daily maximum wave height (ERA5, 1979 to 2025) in the input format; runs out of the box.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/wave-wind-rose/example_data/sisal_waves.csv" },
+        { "name": "event-counts/README.md", "description": "What the analysis shows, the input format, the steps and what the warnings mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-counts/README.md" },
+        { "name": "event_counts.py", "description": "Counts events per month and per year from a CSV of events: settings at the top, saves a PNG and two CSV files.", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-counts/event_counts.py" },
+        { "name": "make_events_from_hurdat2.py", "description": "Optional helper: makes the CSV of events from HURDAT2 storm tracks for any location, radius and minimum wind.", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-counts/make_events_from_hurdat2.py" },
+        { "name": "event-counts/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-counts/requirements.txt" },
+        { "name": "sisal_storms.csv", "description": "The 17 storms within 100 km of Sisal, 1950 to 2024, in the input format; runs out of the box.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-counts/example_data/sisal_storms.csv" },
+        { "name": "event-counts/hurdat2_atlantic.txt", "description": "HURDAT2 Atlantic storm tracks of NOAA (1851 to 2024), the input of the helper script.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-counts/example_data/hurdat2_atlantic.txt" },
+        { "name": "hurdat.py", "description": "Reads HURDAT2 and selects the storms near a location; the helper script imports it.", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-counts/hurdat.py" },
+        { "name": "storm-tracks/README.md", "description": "What the analysis shows, the input, the steps and what the warnings mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/storm-tracks/README.md" },
+        { "name": "storm_tracks.py", "description": "Map of the storm tracks within a radius of any location, coloured by strength: settings at the top, saves a PNG and two CSV files.", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/storm-tracks/storm_tracks.py" },
+        { "name": "storm-tracks/hurdat.py", "description": "Reads HURDAT2 and selects the storms near the location (the same file is in the event-counts package).", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/storm-tracks/hurdat.py" },
+        { "name": "storm-tracks/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/storm-tracks/requirements.txt" },
+        { "name": "storm-tracks/hurdat2_atlantic.txt", "description": "HURDAT2 Atlantic storm tracks of NOAA (1851 to 2024), the input of the script.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/storm-tracks/example_data/hurdat2_atlantic.txt" },
+        { "name": "world_map.json", "description": "Coastlines and country borders of the world (Natural Earth), the map under the tracks.", "format": "JSON", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/storm-tracks/map_data/world_map.json" },
         { "name": "placeholder-script.py", "description": "Placeholder file.", "format": "Python", "path": "" },
         { "name": "placeholder-data.csv", "description": "Placeholder file.", "format": "CSV", "path": "" },
         { "name": "storm-periods.json", "description": "Storm period and peak date of each studied storm, edited by hand.", "format": "JSON", "path": "content/storm-periods.json" },
@@ -125,27 +187,51 @@
       "useCases": [
         {
           "id": "storm-tracks-map",
-          "title": "Map of the storm tracks around your site",
+          "title": "Storm tracks near a location",
           "image": "img/method/storm-map.png",
           "howMade": "We study {storms.studied} storms in detail: all passed within 100 km of Sisal and have daily climate data (ERA5 starts in {record.windSpeed.start}; earlier storms are counted, not studied). {storms.notCounted} are studied but not counted: near Sisal they were weaker than tropical storm strength.",
+          "howWeUsed": "We used it to show the tracks of the storms that came within 100 km of Sisal, coloured by strength, and to see where they come from.",
+          "howWeUsedLink": "#climatology",
+          "whatYouNeed": [
+            "The HURDAT2 text file of your ocean from the National Hurricane Center (Atlantic, or North-East Pacific for the Pacific coast of Mexico and Central America).",
+            "The latitude and longitude of your location, a radius in km and a minimum wind. The coastlines of the world are included in the package."
+          ],
           "infoCards": ["storm-map","event-list"],
-          "steps": ["Placeholder step 1.", "Placeholder step 2.", "Placeholder step 3.", "Placeholder step 4."],
-          "files": ["placeholder-script.py", "placeholder-data.csv"],
+          "steps": [
+            "Install Python and the packages in requirements.txt (pandas, numpy, matplotlib) in a virtual environment.",
+            "Download the HURDAT2 file of your ocean from nhc.noaa.gov/data/hurdat and put it in the example_data folder.",
+            "Open storm_tracks.py and set the file, the name and coordinates of your location, the radius, the minimum wind, the years and the size of the map.",
+            "Run python storm_tracks.py and read the list of storms it prints.",
+            "Open the map (PNG) and the storm lists (CSV) in the output folder, and check the warnings before you use them."
+          ],
+          "files": ["storm-tracks/README.md", "storm_tracks.py", "storm-tracks/hurdat.py", "storm-tracks/requirements.txt", "storm-tracks/hurdat2_atlantic.txt", "world_map.json"],
           "cards": ["storm-map"]
         },
         {
           "id": "storm-counts-chart",
-          "title": "Chart of when storms come at your site",
+          "title": "Events per month and year",
           "image": "img/method/storm-counts.png",
           "howMade": "Counted are tropical and subtropical storms of at least tropical-storm strength within 100 km of Sisal, {storms.start} to {storms.end}. This gives {storms.total} storms.",
+          "howWeUsed": "We used it to count the storms that came within 100 km of Sisal per month and per year, 1950 to 2024, and to see when in the year storms come.",
+          "howWeUsedLink": "#climatology",
+          "whatYouNeed": [
+            "A CSV file with one row per event and the columns name and date (YYYY-MM-DD), and the first and last year of your record.",
+            "No list of events? For storms, the helper script makes one for any location, radius and minimum wind from the HURDAT2 tracks of the National Hurricane Center (Atlantic and North-East Pacific)."
+          ],
           "infoCards": ["storm-counts"],
-          "steps": ["Placeholder step 1.", "Placeholder step 2.", "Placeholder step 3.", "Placeholder step 4."],
-          "files": ["placeholder-script.py", "placeholder-data.csv"],
+          "steps": [
+            "Install Python and the packages in requirements.txt (pandas, numpy, matplotlib) in a virtual environment.",
+            "Storms: download the HURDAT2 file of your ocean, open make_events_from_hurdat2.py, set the file, your location, the radius, the minimum wind and the years, and run it. Other events: write your own CSV with name and date.",
+            "Open event_counts.py and set the CSV path, what the events are called, the place and the first and last year of the record.",
+            "Run python event_counts.py and read the checks it prints.",
+            "Open the chart (PNG) and the counts per month and per year (CSV) in the output folder, and check the warnings before you use them."
+          ],
+          "files": ["event-counts/README.md", "event_counts.py", "make_events_from_hurdat2.py", "hurdat.py", "event-counts/requirements.txt", "sisal_storms.csv", "event-counts/hurdat2_atlantic.txt"],
           "cards": ["storm-counts"]
         },
         {
           "id": "storm-anomaly-chart",
-          "title": "Anomaly chart of the weather around one storm",
+          "title": "Anomaly chart around an event",
           "image": "img/method/event-anomaly.png",
           "howMade": "An anomaly is a daily value minus the mean of the same calendar day (baseline: {storms.baseline}). The charts show {storms.windowDays} days around the peak date; the box is the storm period and the dashed line the day the storm was closest to Sisal.",
           "howWeUsed": "We used it to show how air temperature, wind, waves, rainfall and sea surface temperature at Sisal differed from normal around each of the studied storms.",
@@ -167,42 +253,90 @@
         },
         {
           "id": "wave-direction-chart",
-          "title": "Wave direction rose for your site",
+          "title": "Wave and wind rose",
           "image": "img/method/wave-direction.png",
           "howMade": "The compass has 8 sectors of 45°, and each day is counted in the sector the waves come from, {wave.start} to {wave.end}. The wide wedge is all {wave.all} days, the narrow wedge the {wave.storm} rough-sea days with waves above {wave.threshold} m.",
+          "howWeUsed": "We used it to show from which directions the waves come at Sisal, on all days and on rough-sea days with waves above 2 m.",
+          "howWeUsedLink": "#climatology",
+          "whatYouNeed": [
+            "A CSV file with a date column (YYYY-MM-DD), a column with the direction in degrees (0 to 360, the direction it comes from) and a column to decide which days count, for example wave height or wind speed. At least 10 years of daily data.",
+            "No own data? The helper script of the anomaly chart exports daily ERA5-Land data for any coordinates from Google Earth Engine; wave data comes from the Copernicus Climate Data Store."
+          ],
           "infoCards": ["wave-direction"],
-          "steps": ["Placeholder step 1.", "Placeholder step 2.", "Placeholder step 3.", "Placeholder step 4."],
-          "files": ["placeholder-script.py", "placeholder-data.csv"],
+          "steps": [
+            "Install Python and the packages in requirements.txt (pandas, numpy, matplotlib) in a virtual environment.",
+            "Put your data in a CSV file in the input format.",
+            "Open wave_wind_rose.py and set the CSV path, the direction column, the column and threshold for the rough days, and the names for the chart.",
+            "Run python wave_wind_rose.py and read the data checks and the table of percentages it prints.",
+            "Open the rose (PNG) and the numbers per sector (CSV) in the output folder, and check the warnings before you use them."
+          ],
+          "files": ["wave-wind-rose/README.md", "wave_wind_rose.py", "wave-wind-rose/load_data.py", "wave-wind-rose/requirements.txt", "sisal_waves.csv"],
           "cards": ["wave-direction"]
         },
         {
           "id": "typical-year-chart",
-          "title": "A typical year of the climate at your site",
+          "title": "Seasonal cycle",
           "image": "img/method/typical-year.png",
           "howMade": "For each calendar month the line is the mean of all daily values of the record and the band runs from the 10th to the 90th percentile. Rainfall is the mean monthly total and sea level has no band.",
+                    "howWeUsed": "We used it to show what a typical year looks like at Sisal for air temperature, rainfall, wind, waves, sea surface temperature and salinity.",
+          "howWeUsedLink": "#climatology",
+          "whatYouNeed": [
+            "A CSV file with a date column (YYYY-MM-DD) and one numeric column per variable, with at least 10 years of daily data.",
+            "No own data? The helper script of the anomaly chart exports daily ERA5-Land data (air temperature, rainfall, wind) for any coordinates from Google Earth Engine."
+          ],
           "infoCards": ["climate-typical-year"],
-          "steps": ["Placeholder step 1.", "Placeholder step 2.", "Placeholder step 3.", "Placeholder step 4."],
-          "files": ["placeholder-script.py", "placeholder-data.csv"],
+          "steps": [
+            "Install Python and the packages in requirements.txt (pandas, numpy, matplotlib) in a virtual environment.",
+            "Put your data in a CSV file in the input format.",
+            "Open seasonal_cycle.py and set the CSV path and, per column, its name, unit and \"mean\" (line with band) or \"total\" (monthly total, for rainfall).",
+            "Run python seasonal_cycle.py and read the data checks it prints.",
+            "Open the chart (PNG) and the monthly numbers (CSV) in the output folder, and check the warnings before you use them."
+          ],
+          "files": ["seasonal-cycle/README.md", "seasonal_cycle.py", "load_data.py", "seasonal-cycle/requirements.txt", "sisal_daily.csv"],
           "cards": ["climate-typical-year"]
         },
         {
           "id": "change-since-1950-chart",
-          "title": "Change since 1950 at your site",
+          "title": "Long-term trend with significance",
           "image": "img/method/change-since-1950.png",
           "howMade": "Annual means over the record of each variable (years with at least 90% of the days), with a linear trend per decade (sea level: per year). The trend line is drawn only when p < {trend.pLimit}.",
+          "howWeUsed": "We used it to show how air temperature, rainfall, wind, waves, sea surface temperature and salinity at Sisal changed over the years, and whether the trend is significant.",
+          "howWeUsedLink": "#climatology",
+          "whatYouNeed": [
+            "A CSV file with a date column (YYYY-MM-DD) and one numeric column per variable, with at least 20 years of daily data (10 complete years is the minimum for a rough picture).",
+            "No own data? The helper script of the anomaly chart exports daily ERA5-Land data (air temperature, rainfall, wind) for any coordinates from Google Earth Engine."
+          ],
           "infoCards": ["climate-change"],
-          "steps": ["Placeholder step 1.", "Placeholder step 2.", "Placeholder step 3.", "Placeholder step 4."],
-          "files": ["placeholder-script.py", "placeholder-data.csv"],
+          "steps": [
+            "Install Python and the packages in requirements.txt (pandas, numpy, scipy, matplotlib) in a virtual environment.",
+            "Put your data in a CSV file in the input format.",
+            "Open long_term_trend.py and set the CSV path and, per column, its name and unit.",
+            "Run python long_term_trend.py and read the data checks and the trends it prints.",
+            "Open the chart (PNG) and the annual means and trends (CSV) in the output folder, and check the warnings before you use them."
+          ],
+          "files": ["long-term-trend/README.md", "long_term_trend.py", "long-term-trend/load_data.py", "long-term-trend/requirements.txt", "long-term-trend/sisal_daily.csv"],
           "cards": ["climate-change"]
         },
         {
           "id": "in-detail-chart",
-          "title": "Monthly range and running mean in detail",
+          "title": "Monthly range and running mean",
           "image": "img/method/in-detail.png",
           "howMade": "Per month the band runs from the lowest to the highest daily value, and the line is the 365-day running mean. Sea level shows the monthly anomaly and its 12-month running mean, with trends for {seaLevel.periods}.",
+          "howWeUsed": "We used it to show, for air temperature, rainfall, wind, waves, sea surface temperature and salinity at Sisal, how far each month ranged and how the level changed slowly over the years.",
+          "howWeUsedLink": "#climatology",
+          "whatYouNeed": [
+            "A CSV file with a date column (YYYY-MM-DD) and one numeric column per variable, with at least 10 years of daily data (a running mean needs a record of more than one year).",
+            "No own data? The helper script of the anomaly chart exports daily ERA5-Land data (air temperature, rainfall, wind) for any coordinates from Google Earth Engine."
+          ],
           "infoCards": ["climate-detail"],
-          "steps": ["Placeholder step 1.", "Placeholder step 2.", "Placeholder step 3.", "Placeholder step 4."],
-          "files": ["placeholder-script.py", "placeholder-data.csv"],
+          "steps": [
+            "Install Python and the packages in requirements.txt (pandas, numpy, matplotlib) in a virtual environment.",
+            "Put your data in a CSV file in the input format.",
+            "Open monthly_range.py and set the CSV path and, per column, its name and unit.",
+            "Run python monthly_range.py and read the data checks it prints.",
+            "Open the chart (PNG) and the monthly numbers (CSV) in the output folder, and check the warnings before you use them."
+          ],
+          "files": ["monthly-range/README.md", "monthly_range.py", "monthly-range/load_data.py", "monthly-range/requirements.txt", "monthly-range/sisal_daily.csv"],
           "cards": ["climate-detail"]
         }
 

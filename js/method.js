@@ -5,7 +5,9 @@
 //   A section can have "datasets" and "limitations": a compact list above the cards (Climatology); other sections
 //   have the collapsed row "About this analysis". A use case can have "howMade" (a short text at the top of its
 //   panel) and "infoCards": research cards whose small ↗ button opens that panel. Numbers in these texts are
-//   written as {storms.total} and filled in from the data files.
+//   written as {storms.total} and filled in from the data files. A use case can also have "keyChoices" (a list under
+//   "Key choices"), "howWeUsed" and "whatYouNeed". A section with "datasets" (Climatology, Satellite) shows its data
+//   sources and limitations above the cards and the link to its folder on GitHub below them.
 // Reads: content/method.json (written by the team) and, for the numbers in the texts, data/storms/storm-counts.json,
 //   data/events.json, data/climate/typical-year.json, data/climate/change.json and data/climate/wave-direction.json.
 // Uses: helpers.js, content.js, navigation.js (lastResearchSection). Used by: main.js, navigation.js.
@@ -158,9 +160,28 @@ function fillFacts(text) {
 
 // ---------- small helpers ----------
 
+// A key choice is a text, or { text, more, moreLabel }: then "text" is shown and "more" sits behind its own
+// small toggle with the label "moreLabel" (e.g. "Show thresholds"): a <details>, no own JavaScript.
+const choiceText = (c) => (c && typeof c === 'object' ? c.text : c);
+function choiceHtml(c) {
+  if (!c || typeof c !== 'object' || !isFilled(c.more)) return escapeHtml(choiceText(c));
+  return '<span class="choice-text">' + escapeHtml(c.text) + ' <details class="choice-more"><summary>' +
+    escapeHtml(isFilled(c.moreLabel) ? c.moreLabel : t('labels.showMore')) + '</summary><span class="choice-more-text">' + escapeHtml(c.more) + '</span></details></span>';
+}
+
+// The row under the cards of a tab: the link to the folder on GitHub and, when the section has one, the zip file.
+function filesActions(section) {
+  return '<div class="method-files-actions">' +
+    githubLink('small', t(isFilled(section.folder) ? 'labels.viewFolderOnGithub' : 'labels.viewOnGithub'), section.folder) +
+    (isFilled(section.zip) ? '<a class="ghost download-all" href="' + escapeHtml(section.zip) + '" download>' + escapeHtml(t('labels.downloadAll')) + '</a>' : '') +
+    '</div>';
+}
+
 // Makes a text from the content file safe to place in the page.
-// The address of a folder (or of the whole repository) on GitHub.
+// The address of a folder (or of the whole repository) on GitHub. A full address (https://...) is used as it is,
+// for folders in another repository (the analyses repository).
 function githubAddress(folder) {
+  if (/^https?:\/\//.test(folder || '')) return folder;
   const repo = String(method.repository || '').replace(/\/$/, '');
   return isFilled(folder) ? repo + '/tree/' + (method.branch || 'main') + '/' + folder : repo;
 }
@@ -172,8 +193,9 @@ function githubLink(size, label, folder) {
   return '<a class="github-link ' + size + '" href="' + escapeHtml(githubAddress(folder)) + '" target="_blank" rel="noopener">' + METHOD_ICONS.github + '<span>' + escapeHtml(label) + '</span></a>';
 }
 
-// The address of one file in the repository on GitHub.
+// The address of one file on GitHub. A full address (https://...) is used as it is.
 function githubFileAddress(path) {
+  if (/^https?:\/\//.test(path)) return path;
   return String(method.repository || '').replace(/\/$/, '') + '/blob/' + (method.branch || 'main') + '/' + path;
 }
 
@@ -243,14 +265,6 @@ function methodSectionHtml(section) {
     isFilled(s.url) ? '<a class="method-source" href="' + escapeHtml(s.url) + '" target="_blank" rel="noopener">' + escapeHtml(s.label) + ' &rarr;</a>'
       : '<span class="method-source">' + escapeHtml(s.label) + '</span>').join('') : placeholder;
 
-  // A key choice is a text, or { text, more, moreLabel }: then "text" is shown and "more" sits behind its own
-  // small toggle with the label "moreLabel" (e.g. "Show thresholds"): a <details>, no own JavaScript.
-  const choiceText = (c) => (c && typeof c === 'object' ? c.text : c);
-  const choiceHtml = (c) => {
-    if (!c || typeof c !== 'object' || !isFilled(c.more)) return escapeHtml(choiceText(c));
-    return '<span class="choice-text">' + escapeHtml(c.text) + ' <details class="choice-more"><summary>' +
-      escapeHtml(isFilled(c.moreLabel) ? c.moreLabel : t('labels.showMore')) + '</summary><span class="choice-more-text">' + escapeHtml(c.more) + '</span></details></span>';
-  };
   const choices = (section.keyChoices || []).filter((c) => isFilled(choiceText(c)));
   const choicesHtml = choices.length ? '<ul class="method-choices">' + choices.map((c) => '<li>' + choiceHtml(c) + '</li>').join('') + '</ul>' : placeholder;
 
@@ -274,10 +288,7 @@ function methodSectionHtml(section) {
         '<div class="method-about-blocks">' + toggle('labels.dataSources', sourcesHtml) +
           toggle('labels.keyChoices', choicesHtml) +
           toggle('labels.requirements', '<div class="method-text">' + textOrPlaceholder('method-placeholder', section.requirements) + '</div>') + '</div>' +
-        '<div class="method-files-actions">' +
-          githubLink('small', t(isFilled(section.folder) ? 'labels.viewFolderOnGithub' : 'labels.viewOnGithub'), section.folder) +
-          (isFilled(section.zip) ? '<a class="ghost download-all" href="' + escapeHtml(section.zip) + '" download>' + escapeHtml(t('labels.downloadAll')) + '</a>' : '') +
-        '</div>' +
+        filesActions(section) +
       '</div>' +
     '</div>';
 
@@ -290,6 +301,7 @@ function methodSectionHtml(section) {
         '<div class="example-gallery" id="gallery-' + escapeHtml(section.id) + '"></div>' +
         '<div id="use-case-slot-' + escapeHtml(section.id) + '"></div>' +
       '</div>' : '') +
+    (Array.isArray(section.datasets) && isFilled(section.folder) ? filesActions(section) : '') +
     about +
   '</div>';
 }
@@ -334,6 +346,12 @@ function useCaseHtml(section, useCase) {
   const madeHtml = isFilled(useCase.howMade) ?
     '<div class="use-case-made"><div class="method-label">' + escapeHtml(t('labels.howThisIsMade')) + '</div><p class="method-text">' + escapeHtml(fillFacts(useCase.howMade)) + '</p></div>' : '';
 
+  // optional: the key choices of this card (a list; one can have its rest behind a small toggle)
+  const choices = (useCase.keyChoices || []).filter((c) => isFilled(choiceText(c)));
+  const choicesHtml = choices.length ?
+    '<div class="use-case-made"><div class="method-label">' + escapeHtml(t('labels.keyChoices')) + '</div>' +
+    '<ul class="method-choices">' + choices.map((c) => '<li>' + choiceHtml(c) + '</li>').join('') + '</ul></div>' : '';
+
   // optional: "How we used it" (one sentence, with a link to the page where the result is) and "What you need"
   const usedHtml = isFilled(useCase.howWeUsed) ?
     '<div class="use-case-made"><div class="method-label">' + escapeHtml(t('labels.howWeUsedIt')) + '</div><p class="method-text">' + escapeHtml(useCase.howWeUsed) +
@@ -357,7 +375,7 @@ function useCaseHtml(section, useCase) {
     '<button type="button" class="use-case-close" aria-label="' + escapeHtml(t('labels.closePanel')) + '" title="' + escapeHtml(t('labels.closePanel')) + '">&times;</button>' +
     '<div class="use-case-body">' +
       '<div class="use-case-instructions"><div><div class="use-case-title">' + textOrPlaceholder('method-placeholder', useCase.title) + '</div>' +
-      '<div class="use-case-name mono">#method/' + escapeHtml(useCase.id) + '</div></div>' + madeHtml + usedHtml + needHtml + stepsHtml + '</div>' +
+      '<div class="use-case-name mono">#method/' + escapeHtml(useCase.id) + '</div></div>' + madeHtml + choicesHtml + usedHtml + needHtml + stepsHtml + '</div>' +
       '<div class="use-case-files">' + filesHtml + '</div>' +
     '</div></div>';
 }

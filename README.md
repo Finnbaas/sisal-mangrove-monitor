@@ -9,6 +9,8 @@ The site only **shows** results. All numbers are calculated beforehand (Google E
 Python) and stored as JSON files. It is plain HTML, CSS and JavaScript: no frameworks, no build
 step, no backend. It is hosted on Netlify, which publishes the `main` branch automatically.
 
+The downloadable analyses (Python and Earth Engine code to run on your own data) live in a separate repository: https://github.com/Finnbaas/sisal-mangrove-analyses
+
 ## Run it on your computer
 
 1. Open this folder in VS Code.
@@ -252,9 +254,9 @@ The file is one JSON object, written by the team (Stakeholder screen). It is loa
 #### Structure of content/method.json
 The file is one JSON object, written by the team (Method page). It is loaded by method.js; an error in it shows a message on the Method page only.
 - `title`, `intro`, `exampleContent` (true shows the "Example content" tag), `repository` and `branch` (GitHub address, for the "View on GitHub" links), `license`, `citation`, `doi`.
-- `sections`: one object per analysis: `id` (a page id from content/pages.json gives the section that page's theme colors), `title`, `description`, `sources` (list of `{ "label", "url" }`), `keyChoices` (list of texts, or `{ "text", "more", "moreLabel" }` for a long choice with its rest behind a small toggle), `requirements`, `folder` (folder in the repository), `zip` (path of a zip with all files; the button only shows when filled), `files` and `useCases`.
-- `files`: one object per code file: `name`, `description`, `format` (tag text) and `path` (path in the repository; an empty path shows the file as "Not yet available" and not downloadable).
-- `useCases`: one object per "do it yourself" example: `id` (short name, lowercase letters, numbers and dashes, used in the address #method/<id>), `title`, `image`, `steps` (list of one-line instructions), `files` (names of files of the same section) and `cards` (names of ready-made cards that get the "Do this analysis yourself" link to this use case).
+- `sections`: one object per analysis: `id` (a page id from content/pages.json gives the section that page's theme colors), `title`, `folder` (folder in the repository, or a full https:// address for a folder in another repository; the "View on GitHub" link under the cards), `zip` (path of a zip with all files; the button only shows when filled), `files` and `useCases`. Climatology and Satellite also have `datasets` (list of the data sources) and `limitations` (list; leave empty for none), shown above the cards, and `infoCards` (cards whose small ↗ button opens the tab). A section without `datasets` (Stakeholders, for now) has the older collapsed block instead: `description`, `sources` (list of `{ "label", "url" }`), `keyChoices` and `requirements`.
+- `files`: one object per code file: `name`, `description`, `format` (tag text) and `path` (path in the repository, or a full https:// address for a file in another repository; an empty path shows the file as "Not yet available" and not downloadable).
+- `useCases`: one object per "do it yourself" example: `id` (short name, lowercase letters, numbers and dashes, used in the address #method/<id>), `title`, `image`, `howMade` (short text at the top of the panel), `keyChoices` (list of texts, or `{ "text", "more", "moreLabel" }` for a long choice with its rest behind a small toggle), `howWeUsed` and `howWeUsedLink`, `whatYouNeed` (list of texts), `infoCards` (research cards whose ↗ button opens this panel), `steps` (list of one-line instructions), `files` (names of files of the same section) and `cards` (names of ready-made cards that get the "Do this analysis yourself" link to this use case). Every part except the steps and files is left out of the panel when it is empty.
 - Any number of sections, files and use cases is possible. Empty texts show "Not yet available".
 
 #### Structure of data/climate/detail/<variable id>.json
