@@ -139,6 +139,13 @@
         { "name": "event-counts/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-counts/requirements.txt" },
         { "name": "sisal_storms.csv", "description": "The 17 storms within 100 km of Sisal, 1950 to 2024, in the input format; runs out of the box.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-counts/example_data/sisal_storms.csv" },
         { "name": "event-counts/hurdat2_atlantic.txt", "description": "HURDAT2 Atlantic storm tracks of NOAA (1851 to 2024), the input of the helper script.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-counts/example_data/hurdat2_atlantic.txt" },
+        { "name": "hurdat.py", "description": "Reads HURDAT2 and selects the storms near a location; the helper script imports it.", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/event-counts/hurdat.py" },
+        { "name": "storm-tracks/README.md", "description": "What the analysis shows, the input, the steps and what the warnings mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/storm-tracks/README.md" },
+        { "name": "storm_tracks.py", "description": "Map of the storm tracks within a radius of any location, coloured by strength: settings at the top, saves a PNG and two CSV files.", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/storm-tracks/storm_tracks.py" },
+        { "name": "storm-tracks/hurdat.py", "description": "Reads HURDAT2 and selects the storms near the location (the same file is in the event-counts package).", "format": "Python", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/storm-tracks/hurdat.py" },
+        { "name": "storm-tracks/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/storm-tracks/requirements.txt" },
+        { "name": "storm-tracks/hurdat2_atlantic.txt", "description": "HURDAT2 Atlantic storm tracks of NOAA (1851 to 2024), the input of the script.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/storm-tracks/example_data/hurdat2_atlantic.txt" },
+        { "name": "world_map.json", "description": "Coastlines and country borders of the world (Natural Earth), the map under the tracks.", "format": "JSON", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/climatology/storm-tracks/map_data/world_map.json" },
         { "name": "placeholder-script.py", "description": "Placeholder file.", "format": "Python", "path": "" },
         { "name": "placeholder-data.csv", "description": "Placeholder file.", "format": "CSV", "path": "" },
         { "name": "storm-periods.json", "description": "Storm period and peak date of each studied storm, edited by hand.", "format": "JSON", "path": "content/storm-periods.json" },
@@ -154,9 +161,21 @@
           "title": "Storm tracks near a location",
           "image": "img/method/storm-map.png",
           "howMade": "We study {storms.studied} storms in detail: all passed within 100 km of Sisal and have daily climate data (ERA5 starts in {record.windSpeed.start}; earlier storms are counted, not studied). {storms.notCounted} are studied but not counted: near Sisal they were weaker than tropical storm strength.",
+          "howWeUsed": "We used it to show the tracks of the storms that came within 100 km of Sisal, coloured by strength, and to see where they come from.",
+          "howWeUsedLink": "#climatology",
+          "whatYouNeed": [
+            "The HURDAT2 text file of your ocean from the National Hurricane Center (Atlantic, or North-East Pacific for the Pacific coast of Mexico and Central America).",
+            "The latitude and longitude of your location, a radius in km and a minimum wind. The coastlines of the world are included in the package."
+          ],
           "infoCards": ["storm-map","event-list"],
-          "steps": ["Placeholder step 1.", "Placeholder step 2.", "Placeholder step 3.", "Placeholder step 4."],
-          "files": ["placeholder-script.py", "placeholder-data.csv"],
+          "steps": [
+            "Install Python and the packages in requirements.txt (pandas, numpy, matplotlib) in a virtual environment.",
+            "Download the HURDAT2 file of your ocean from nhc.noaa.gov/data/hurdat and put it in the example_data folder.",
+            "Open storm_tracks.py and set the file, the name and coordinates of your location, the radius, the minimum wind, the years and the size of the map.",
+            "Run python storm_tracks.py and read the list of storms it prints.",
+            "Open the map (PNG) and the storm lists (CSV) in the output folder, and check the warnings before you use them."
+          ],
+          "files": ["storm-tracks/README.md", "storm_tracks.py", "storm-tracks/hurdat.py", "storm-tracks/requirements.txt", "storm-tracks/hurdat2_atlantic.txt", "world_map.json"],
           "cards": ["storm-map"]
         },
         {
@@ -178,7 +197,7 @@
             "Run python event_counts.py and read the checks it prints.",
             "Open the chart (PNG) and the counts per month and per year (CSV) in the output folder, and check the warnings before you use them."
           ],
-          "files": ["event-counts/README.md", "event_counts.py", "make_events_from_hurdat2.py", "event-counts/requirements.txt", "sisal_storms.csv", "event-counts/hurdat2_atlantic.txt"],
+          "files": ["event-counts/README.md", "event_counts.py", "make_events_from_hurdat2.py", "hurdat.py", "event-counts/requirements.txt", "sisal_storms.csv", "event-counts/hurdat2_atlantic.txt"],
           "cards": ["storm-counts"]
         },
         {
