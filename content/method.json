@@ -135,7 +135,7 @@
       "useCases": [
         {
           "id": "storm-tracks-map",
-          "title": "Map of the storm tracks around your site",
+          "title": "Storm tracks near a location",
           "image": "img/method/storm-map.png",
           "howMade": "We study {storms.studied} storms in detail: all passed within 100 km of Sisal and have daily climate data (ERA5 starts in {record.windSpeed.start}; earlier storms are counted, not studied). {storms.notCounted} are studied but not counted: near Sisal they were weaker than tropical storm strength.",
           "infoCards": ["storm-map","event-list"],
@@ -145,7 +145,7 @@
         },
         {
           "id": "storm-counts-chart",
-          "title": "Chart of when storms come at your site",
+          "title": "Events per month and year",
           "image": "img/method/storm-counts.png",
           "howMade": "Counted are tropical and subtropical storms of at least tropical-storm strength within 100 km of Sisal, {storms.start} to {storms.end}. This gives {storms.total} storms.",
           "infoCards": ["storm-counts"],
@@ -155,7 +155,7 @@
         },
         {
           "id": "storm-anomaly-chart",
-          "title": "Anomaly chart of the weather around one storm",
+          "title": "Anomaly chart around an event",
           "image": "img/method/event-anomaly.png",
           "howMade": "An anomaly is a daily value minus the mean of the same calendar day (baseline: {storms.baseline}). The charts show {storms.windowDays} days around the peak date; the box is the storm period and the dashed line the day the storm was closest to Sisal.",
           "howWeUsed": "We used it to show how air temperature, wind, waves, rainfall and sea surface temperature at Sisal differed from normal around each of the studied storms.",
@@ -177,7 +177,7 @@
         },
         {
           "id": "wave-direction-chart",
-          "title": "Wave direction rose for your site",
+          "title": "Direction rose",
           "image": "img/method/wave-direction.png",
           "howMade": "The compass has 8 sectors of 45°, and each day is counted in the sector the waves come from, {wave.start} to {wave.end}. The wide wedge is all {wave.all} days, the narrow wedge the {wave.storm} rough-sea days with waves above {wave.threshold} m.",
           "infoCards": ["wave-direction"],
@@ -187,7 +187,7 @@
         },
         {
           "id": "typical-year-chart",
-          "title": "A typical year of the climate at your site",
+          "title": "Seasonal cycle",
           "image": "img/method/typical-year.png",
           "howMade": "For each calendar month the line is the mean of all daily values of the record and the band runs from the 10th to the 90th percentile. Rainfall is the mean monthly total and sea level has no band.",
                     "howWeUsed": "We used it to show what a typical year looks like at Sisal for air temperature, rainfall, wind, waves, sea surface temperature and salinity.",
@@ -209,7 +209,7 @@
         },
         {
           "id": "change-since-1950-chart",
-          "title": "Change since 1950 at your site",
+          "title": "Long-term trend with significance",
           "image": "img/method/change-since-1950.png",
           "howMade": "Annual means over the record of each variable (years with at least 90% of the days), with a linear trend per decade (sea level: per year). The trend line is drawn only when p < {trend.pLimit}.",
           "howWeUsed": "We used it to show how air temperature, rainfall, wind, waves, sea surface temperature and salinity at Sisal changed over the years, and whether the trend is significant.",
@@ -231,7 +231,7 @@
         },
         {
           "id": "in-detail-chart",
-          "title": "Monthly range and running mean in detail",
+          "title": "Daily range and running mean",
           "image": "img/method/in-detail.png",
           "howMade": "Per month the band runs from the lowest to the highest daily value, and the line is the 365-day running mean. Sea level shows the monthly anomaly and its 12-month running mean, with trends for {seaLevel.periods}.",
           "infoCards": ["climate-detail"],
