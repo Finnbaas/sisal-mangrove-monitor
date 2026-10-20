@@ -41,8 +41,6 @@
 .legend-note { font-size: 10px; color: var(--color-text-muted); }
 /* "About this layer": list of periods and the place for the bar chart that follows later */
 .period-list { display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--color-text-body); }
-.period-line { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.period-swatches { display: flex; gap: 4px; }
 .chart-placeholder { display: flex; flex-direction: column; gap: 4px; padding: 12px; border: 1.5px dashed var(--color-border); border-radius: 12px; }
 .chart-placeholder-title { font-size: 12px; font-weight: 600; color: var(--color-text); }
 
