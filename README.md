@@ -171,7 +171,7 @@ Code conventions (keep them):
 
 ### Research content terms
 
-EWS metrics: standard deviation, AR1 (lag-1 autocorrelation), return rate, kurtosis, skewness. Trends are tested with Kendall's tau. Breakpoints: a change of at least 0.25 NDVI within 12 months on the STL trend, after which the new level persists for at least 2 years (a drop followed by a quick recovery is resilience, not a breakpoint). LandTrendr is no longer used.
+EWS metrics: standard deviation, AR1 (lag-1 autocorrelation), kurtosis, skewness. Trends are tested with Kendall's tau. Breakpoints: a change of at least 0.25 NDVI within 12 months on the STL trend, after which the new level persists for at least 2 years (a drop followed by a quick recovery is resilience, not a breakpoint). LandTrendr is no longer used.
 
 Tipping-point scenarios, based on the Kendall's tau trend of NDVI and of standard deviation (SD):
 - Scenario 1, Abrupt transition (potential EWS): NDVI tau < 0 and SD tau > 0
@@ -210,8 +210,13 @@ Only the featured points (content/featured-points.json, the clickable markers) a
 - `ndvi`: monthly maximum NDVI, one value per entry in `dates` (the grey "raw NDVI" line of the plots; gaps filled as in the notebook).
 - `ndviTrend` (featured points): the STL trend (deseasonalised) of the NDVI, one value per entry in `dates`; `null` in the months STL cuts off. `ndvi` and `ndviTrend` are the two lines of the notebook's NDVI plots, written by the notebook to analysis/satellite/featured_plot_lines.csv and featured_plot_breakpoints.csv, and copied into points.json by analysis/satellite/export_points.py.
 - `breakpoints` (featured points): list of `{ "type": "drop" or "rise", "index": position in dates, "label": "2001-08", "windowStart", "windowEnd": positions in dates of the 12-month window, "magnitude" }`; an empty list if none was detected.
-- `metricVals` (`null` for now): EWS values as strings: `stdDev`, `ar1`, `returnRate`, `kurtosis`, `skewness`.
-- `metricTaus` (`null` for now): Kendall's tau per metric as signed strings (e.g. "+0.51"): `ndvi`, `stdDev`, `ar1`, `returnRate`, `kurtosis`, `skewness`.
+
+#### Structure of data/vegetation/points.json
+The early warning signals (EWS) of the featured points, for the "Early warning signals" card (Vegetation page) and the trend signals card (Overview). Made by analysis/satellite/export_points.py from analysis/satellite/ews/featured_ews_stats.csv and featured_ews_series.csv, which the export cell (step 9) of analysis/satellite/ews/ews_monthly_new.ipynb writes; never edit it by hand. `{ "_about": ..., "points": [...] }`, one object per featured point:
+- `id`: point code; `status`: "ok" (EWS computed), "noBreakpoint" (no loss breakpoint: a control, not an EWS result), "tooShort" (less than 5 years before the loss), "tooInterpolated" (more than 25% interpolated months before the loss) or "notAnalysed" (too few months with data).
+- `lossStart`: "2001-02", the start of the 12-month loss window (`null` without a loss); `nSurrogates`: number of AR(1) surrogates of the significance test; `pMin`: 1 / nSurrogates.
+- Only with status "ok": `dates` (the months before `lossStart`), `nMonths`, `windowMonths` (rolling window), and `ews`: `residual`, `ar1`, `sd`, `skewness`, `kurtosis`, each `{ "values": one per entry in dates (null where the rolling window is not full yet), "tau", "p" }` (the residual has no tau and p).
+- `p` is the share of the surrogates with a tau at least as high as the observed one (one-sided). `p` = 0 means no surrogate reached it; the site then shows "p < pMin" (e.g. "p < 0.002").
 
 #### Structure of data/events.json
 The file is one JSON array with one object per storm (Climatology screen), newest first. It is made by `export_storms()` in analysis/climatology/export_typical_year.py. Each object has:

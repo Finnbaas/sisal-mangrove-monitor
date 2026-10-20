@@ -9,12 +9,11 @@
   ],
 
   "trendMetrics": [
-    { "label": "NDVI trend", "value": null, "tau": "ndvi" },
-    { "label": "Std. deviation", "value": "stdDev", "tau": "stdDev" },
-    { "label": "AR1", "value": "ar1", "tau": "ar1" },
-    { "label": "Return rate", "value": "returnRate", "tau": "returnRate" },
-    { "label": "Kurtosis", "value": "kurtosis", "tau": "kurtosis" },
-    { "label": "Skewness", "value": "skewness", "tau": "skewness" }
+    { "label": "NDVI trend", "ews": null },
+    { "label": "Std. deviation", "ews": "sd" },
+    { "label": "AR1", "ews": "ar1" },
+    { "label": "Kurtosis", "ews": "kurtosis" },
+    { "label": "Skewness", "ews": "skewness" }
   ],
 
   "changeClasses": {

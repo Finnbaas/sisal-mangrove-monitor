@@ -41,12 +41,14 @@
     "mapsLink": "Use this code for your area (adapt)",
     "mapsLinkTarget": "#method/change-map",
     "pointsLink": "Run this analysis on your own data",
-    "pointsLinkTarget": "#method/tipping-point-custom-location",
+    "pointsLinkTarget": "#method/ews",
     "ndviSeries": "NDVI",
     "ewsTitle": "Early warning signals",
     "couldNotLoad": "Could not load {file}.",
     "ewsSubtitle": "before the breakpoint",
+    "ewsSubtitleWithDate": "before the breakpoint (loss starts {date})",
     "ewsTau": "{label}: τ = {tau}, p = {p}",
+    "ewsTauBelow": "{label}: τ = {tau}, p < {p}",
     "ewsNoData": "No data"
   },
   "ewsCharts": [

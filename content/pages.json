@@ -4,7 +4,7 @@
       "id": "overview",
       "label": "Overview",
       "columns": [
-        ["point-map", "year-slider", "tipping-status"],
+        ["point-map", "year-slider", "point-description", "tipping-status"],
         ["point-chart", "point-values", ["point-info", "trend-signals"]]
       ]
     },
@@ -22,9 +22,9 @@
         },
         {
           "id": "tipping",
-          "title": "Tipping points",
+          "title": "Tipping points & Early Warning Signals",
           "intro": "Tipping-point analysis at {total} monitoring points.",
-          "columns": [["point-map"], ["point-chart", "veg-ews"]]
+          "columns": [["point-map", "point-description"], ["point-chart", "veg-ews"]]
         }
       ]
     },

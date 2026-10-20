@@ -3,7 +3,7 @@
 //   plots of the analysis notebook: NDVI, STL trend and breakpoints), values for the year, point info,
 //   trend signals, and the download menu (CSV of the data, PNG of the chart).
 //   The map shows every point as a small dot; only the featured points (content/featured-points.json)
-//   are clickable markers.
+//   are clickable markers. Their "description" is shown in the card under the map.
 // Reads: data/points.json; content/featured-points.json; variables, scenarios and metrics from content/variables.json.
 // Uses: helpers.js, content.js. Used by: main.js (readPointContent, setupSlider, setupExports,
 //   setYear, loadPoints).
@@ -23,7 +23,7 @@ let allPoints = [];
 // The year range of the point slider: the first and last year of the months ("dates") in data/points.json,
 // set by setPointYearRange() once the data is loaded. (variables.json "yearRange" is for the Stakeholder screen.)
 let POINT_YEAR_MIN = null, POINT_YEAR_MAX = null;
-let FEATURED = {};        // the clickable points: id -> true (content/featured-points.json)
+let FEATURED = {};        // the clickable points: id -> { description } (content/featured-points.json)
 let selectedId = null;
 
 // Copies the point content from content/variables.json into the lists above.
@@ -38,7 +38,8 @@ function readPointContent() {
   VARS = v.pointVariables.map((x) => ({ id: x.id, label: x.label, lineLabel: x.lineLabel || x.label, unit: x.unit || '', decimals: x.decimals,
     axisRange: x.axisRange, colorVar: colorVarOf(x.color), trend: x.trend || null }));
   VARS.forEach((x, i) => { checked[x.id] = !!v.pointVariables[i].shownAtStart; });
-  METRICS = v.trendMetrics.map((m) => [m.label, m.value, m.tau]);
+  // ews = the id of the early warning signal in data/vegetation/points.json (null: no data for this row yet)
+  METRICS = v.trendMetrics.map((m) => ({ label: m.label, ews: m.ews || null }));
   COORD_DECIMALS = v.coordinateDecimals;
 }
 
@@ -81,7 +82,7 @@ async function loadPoints() {
     const featuredResponse = await fetch('content/featured-points.json');
     if (!featuredResponse.ok) throw new Error('content/featured-points.json: HTTP ' + featuredResponse.status);
     FEATURED = {};
-    (await featuredResponse.json()).points.forEach((f) => { FEATURED[f.id] = true; });
+    (await featuredResponse.json()).points.forEach((f) => { FEATURED[f.id] = { description: f.description || '' }; });
 
     // No point is selected at the start: the cards show "No data" until a marker is clicked.
     const count = allPoints.length;
@@ -259,24 +260,32 @@ function renderAll() {
   // no variables listed in content/variables.json: say so instead of an empty card
   if (VARS.length === 0) $('values').innerHTML = '<p class="placeholder-text">' + t('messages.notYetAvailable') + '</p>';
 
+  // description of the selected point (content/featured-points.json, plain text): a hint without a selected point,
+  // "no description yet" when its description is empty
+  const description = point && FEATURED[point.id] ? FEATURED[point.id].description.trim() : '';
+  $('point-description').textContent = point ? (description || t('messages.noPointDescription')) : t('messages.pointDescriptionHint');
+  $('point-description').className = description ? 'point-description' : 'placeholder-text';
+
   // point info
   $('info-class').textContent = cls.label;
   $('info-lon').textContent = lonText(point);
   $('info-lat').textContent = latText(point);
 
-  // trend signals
-  const vals = point ? point.metricVals : null;
-  const taus = point ? point.metricTaus : null;
-  $('metrics').innerHTML = METRICS.map((m) =>
-    '<div class="trend-row"><div>' + m[0] + '</div><div class="mono r">' + (m[1] ? textOrNoData(vals, m[1]) : '—') +
-    '</div><div class="mono r tau">' + textOrNoData(taus, m[2]) + '</div></div>'
-  ).join('');
-}
-
-// Reads one entry of metricVals / metricTaus, or "No data" when it is missing.
-function textOrNoData(group, key) {
-  const value = group ? group[key] : null;
-  return value === null || value === undefined || value === '' ? NO_DATA : value;
+  // trend signals: p and Kendall's tau of the early warning signals before the loss (data/vegetation/points.json,
+  // read by vegetation.js). Only points with a loss breakpoint and enough data before it have them; other points
+  // get the same message as the Early warning signals card of the Vegetation page.
+  const ews = point && typeof ewsEntryFor === 'function' ? ewsEntryFor(point) : null;
+  if (ews && ews.status !== 'ok') {
+    $('metrics').innerHTML = '<p class="placeholder-text">' + escapeHtml(ewsStatusMessage(ews)) + '</p>';
+  } else {
+    $('metrics').innerHTML = METRICS.map((m) => {
+      const data = ews && ews.ews && m.ews ? ews.ews[m.ews] : null;
+      const p = ewsP(data ? data.p : null, ews ? ews.pMin : null);
+      const tau = data && isNumber(data.tau) ? formatLike(data.tau, [data.tau]) : NO_DATA;
+      return '<div class="trend-row"><div>' + escapeHtml(m.label) + '</div><div class="mono r">' + (p.below ? '&lt; ' : '') + p.text +
+        '</div><div class="mono r tau">' + tau + '</div></div>';
+    }).join('');
+  }
 }
 
 // ---------- chart ----------

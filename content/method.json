@@ -73,7 +73,23 @@
           "title": "Tipping point analysis for your own location",
           "image": "img/satellite/point_base_69.png",
           "keyChoices": [
-            "Breakpoint: a change of at least 0.25 NDVI within 12 months, after which the new level persists for at least 2 years. A drop followed by a quick recovery is resilience, not a breakpoint.",
+            "Breakpoint: a change of at least 0.25 NDVI within 12 months, after which the new level persists for at least 2 years. A drop followed by a quick recovery is resilience, not a breakpoint."
+          ],
+          "whatYouNeed": [
+            "A free Google Earth Engine account. Python 3 with pandas, numpy, matplotlib and statsmodels (STL)."
+          ],
+          "steps": [
+            "Make the NDVI time series as in the example \"NDVI time series for your location\".",
+            "Run the breakpoint detection in the notebook: a change of at least 0.25 NDVI within 12 months, after which the new level persists for at least 2 years.",
+            "It lists every point with a breakpoint, with its date and magnitude, and marks it in the plot."
+          ],
+          "files": ["tipping-point-analysis/GEE_NDVI.js", "tipping-point-analysis/ndvi_monthly_classification.ipynb", "tipping-point-analysis/README.md", "tipping-point-analysis/requirements.txt", "tipping-point-analysis/monthly_max_NDVI_per_point.csv"]
+        },
+        {
+          "id": "ews",
+          "title": "Early warning signals for your own location",
+          "image": "img/method/ews-base-86.png",
+          "keyChoices": [
             "Early warning signals are computed only on the deseasonalised NDVI before the start of each loss, because an abrupt drop inside the rolling window would create false increases in variance and autocorrelation.",
             "The significance of the early warning signals is tested against AR(1) surrogates; points without a breakpoint serve as controls."
           ],
@@ -82,19 +98,19 @@
           ],
           "infoCards": ["trend-signals"],
           "steps": [
-            "Make the NDVI time series as in the example \"NDVI time series for your location\".",
-            "Run the breakpoint detection: it lists every point with a lasting drop, with its date and magnitude.",
-            "Open the early warning signals notebook. For each point with a loss, it takes the NDVI before the loss and computes the rolling standard deviation, AR1, return rate, kurtosis and skewness, and their Kendall's tau.",
-            "It compares these trends with AR(1) surrogates and with control points to test significance.",
-            "It places each point in the scenario matrix (NDVI tau vs SD tau) and repeats the analysis for other window sizes and bandwidths (sensitivity analysis)."
+            "Find the breakpoints as in the example \"Tipping point analysis for your own location\".",
+            "For each point with a loss, take the deseasonalised NDVI before the start of the loss (at least 5 years needed).",
+            "Detrend it and compute the rolling standard deviation, AR1, kurtosis and skewness, with Kendall's tau per metric.",
+            "Test the significance against AR(1) surrogates and compare with control points without a breakpoint.",
+            "Place each point in the scenario matrix and check the sensitivity to window size and bandwidth."
           ],
-          "files": ["tipping-point-analysis/GEE_NDVI.js", "tipping-point-analysis/ndvi_monthly_classification.ipynb", "ews_monthly_new.ipynb", "tipping-point-analysis/README.md", "tipping-point-analysis/requirements.txt", "tipping-point-analysis/monthly_max_NDVI_per_point.csv"],
+          "files": ["ews_monthly_new.ipynb", "tipping-point-analysis/requirements.txt", "tipping-point-analysis/monthly_max_NDVI_per_point.csv"],
           "cards": ["trend-signals"]
         },
         {
           "id": "change-map",
           "title": "Shape-class map of your area",
-          "image": "img/site-map2.png",
+          "image": "img/method/shape-classes-map-n1138.png",
           "keyChoices": [
             { "text": "Shape classes are based on the net NDVI change and the turnover of each series, with fixed thresholds.", "more": "The start and end level are the median of the first and last 3 years. Loss: net change of −0.3 or less. Gain: net change of +0.3 or more. Loss + recovery: mangrove (NDVI 0.3 or more) at the start and the end, but below 0.3 for at least 2 years in between. High turnover: turnover of 1.4 or more, a whole year below NDVI 0.25, or a monthly trend below 0. Non-mangrove: below 0.3 at the start and the end, with a mean NDVI below 0.25. All other points are stable.", "moreLabel": "Show thresholds" }
           ],

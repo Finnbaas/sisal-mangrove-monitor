@@ -1,7 +1,8 @@
 // vegetation.js: the Vegetation page ("Vegetation data"): Mangrove maps and Tipping points.
 //   Section 1: a zoomable map (Leaflet) with the layers Condition | Change | Disturbance & recovery, an opacity
 //   slider, a legend that switches per layer, "About this layer" and "Where the data comes from".
-//   Section 2: the card "Early warning signals before the breakpoint" (residual, AR1 and SD with Kendall's tau and p).
+//   Section 2: the card "Early warning signals before the breakpoint" (residual, AR1 and SD with Kendall's tau and p),
+//   only for points with a loss breakpoint and enough data before it; other points get a short message.
 //   The points map and the Point card of this section are the original cards of points.js (data/points.json).
 // Reads: data/vegetation/layers.json (the map layers) and points.json (the early warning signals of the clickable points);
 //   content/vegetation.json (texts, layer switch, chart names). Nothing is typed in this file: every number comes from the data.
@@ -356,18 +357,48 @@ function vegChartRow(label, svg) {
   return row;
 }
 
+// The early warning signals of a point (data/vegetation/points.json), or null. Also used by the trend signals card (points.js).
+function ewsEntryFor(point) {
+  return point ? vegEws.find((e) => e.id === point.id) || null : null;
+}
+
+// The message of a point without EWS charts (content/texts.json), by its status in data/vegetation/points.json:
+// noBreakpoint (a control), tooShort, tooInterpolated or notAnalysed. A point that is missing from the file, or a file
+// without "status" (not exported yet by export_points.py), gets "not available yet". Also used by the trend signals card.
+const EWS_STATUS_MESSAGES = {
+  noBreakpoint: 'messages.ewsNoBreakpoint',
+  tooShort: 'messages.ewsTooShort',
+  tooInterpolated: 'messages.ewsTooInterpolated',
+  notAnalysed: 'messages.ewsNotAnalysed'
+};
+function ewsStatusMessage(entry) {
+  return t((entry && EWS_STATUS_MESSAGES[entry.status]) || 'messages.ewsNotAvailable');
+}
+
 // point = the selected point of points.js (or null: the charts show "No data", as the other cards do)
+// Only points with status "ok" have charts. They use the same timeline as the NDVI chart; the values exist only for
+// the months before the loss ("dates" of the entry), and a dashed line marks the start of the loss.
 function renderVegetationEws(point) {
   if (!vegLoaded) return;   // the data of this card is still loading: setupVegetation draws the card once it is there
   fillVegetationIntros();
   const box = $('veg-ews-charts');
   box.innerHTML = '';
   setText('veg-ews-title', vt('ewsTitle'));
-  setText('veg-ews-subtitle', vt('ewsSubtitle'));
-  const entry = point ? vegEws.find((e) => e.id === point.id) : null;
+  const entry = ewsEntryFor(point);
+  setText('veg-ews-subtitle', entry && entry.lossStart ? vt('ewsSubtitleWithDate', { date: entry.lossStart }) : vt('ewsSubtitle'));
   showPlaceholderTag($('veg-ews-title').parentElement, entry && entry.placeholder);
 
-  // the months of the point and the year ticks: the same as in the NDVI chart (points.js)
+  // a point without EWS (no loss breakpoint, or not enough data before it): a short message instead of charts
+  if (point && (!entry || entry.status !== 'ok')) {
+    const message = document.createElement('p');
+    message.className = 'placeholder-text';
+    message.textContent = ewsStatusMessage(entry);
+    box.appendChild(message);
+    return;
+  }
+
+  // The same timeline as the NDVI chart (points.js): all months of the point ("dates" in data/points.json), the same
+  // x scale and year ticks. The EWS only exist before the loss, so the months after it stay empty.
   const dates = point && Array.isArray(point.dates) ? point.dates : [];
   const x = pointXScale(dates.length);
   const ticks = [];
@@ -376,18 +407,31 @@ function renderVegetationEws(point) {
     if (year % YEAR_TICK_STEP === 0 && (i === 0 || parseInt(dates[i - 1], 10) !== year)) ticks.push({ x: x.xOf(i), text: String(year) });
   });
   const gridX = ticks.map((tick) => tick.x);
+  // place an EWS series (one value per month of entry.dates) on the months of the point; other months are null
+  const ewsDates = entry && Array.isArray(entry.dates) ? entry.dates : [];
+  const onTimeline = (values) => {
+    const full = dates.map(() => null);
+    ewsDates.forEach((d, i) => { const k = dates.indexOf(d); if (k >= 0) full[k] = values[i]; });
+    return full;
+  };
+  // the start of the loss: a dashed line at that month, as the breakpoint lines of the NDVI chart
+  const lossIndex = entry && entry.lossStart ? dates.indexOf(entry.lossStart) : -1;
+  const lossX = lossIndex >= 0 ? x.xOf(lossIndex).toFixed(1) : null;
+  const lossLine = lossX ? '<line x1="' + lossX + '" y1="' + PLOT.top + '" x2="' + lossX + '" y2="' + PLOT.bottom +
+    '" stroke="' + color('--color-breakpoint') + '" stroke-width="1.5" stroke-dasharray="4,4"></line>' : '';
 
   const num = (val) => (isNumber(val) ? formatLike(val, [val]) : NO_DATA);
   CONTENT.vegetation.ewsCharts.forEach((c) => {
-    const data = entry && entry.ews[c.id];
+    const data = entry && entry.ews ? entry.ews[c.id] : null;
     // Kendall's tau and p as a line of text above the chart (the residual has none)
     if (data && 'tau' in data) {
+      const p = ewsP(data.p, entry.pMin);
       const text = document.createElement('div');
       text.className = 'ews-tau';
-      text.textContent = vt('ewsTau', { label: c.label, tau: num(data.tau), p: num(data.p) });
+      text.textContent = vt(p.below ? 'ewsTauBelow' : 'ewsTau', { label: c.label, tau: num(data.tau), p: p.text });
       box.appendChild(text);
     }
-    const svg = data ? vegEwsChartSvg(c.label, data.values, vegColor(c.color), gridX, x, 'veg-clip-' + c.id)
+    const svg = data ? vegEwsChartSvg(c.label, onTimeline(data.values), vegColor(c.color), gridX, x, 'veg-clip-' + c.id).replace('</svg>', lossLine + '</svg>')
       : chartNoData(chartHead({ label: c.label }, gridX, 'chart'));
     box.appendChild(vegChartRow(c.label, svg));
   });

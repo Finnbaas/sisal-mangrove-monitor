@@ -55,6 +55,16 @@ function formatLike(value, series, decimals) {
   return value.toFixed(isNumber(decimals) ? decimals : decimalsIn(series));
 }
 
+// The p-value of an early warning signal (Vegetation EWS card and trend signals card), from data/vegetation/points.json.
+// p = share of the AR(1) surrogates with a tau at least as high as the observed one. p = 0 means that no surrogate
+// reached it: then the p is below pMin (1 / number of surrogates), shown as "p < 0.002" instead of "p = 0".
+// Returns { below: true/false, text }.
+function ewsP(p, pMin) {
+  if (!isNumber(p)) return { below: false, text: NO_DATA };
+  if (p === 0 && isNumber(pMin)) return { below: true, text: formatLike(pMin, [pMin]) };
+  return { below: false, text: formatLike(p, [p]) };
+}
+
 function download(filename, href) {
   const a = document.createElement('a');
   a.href = href;
