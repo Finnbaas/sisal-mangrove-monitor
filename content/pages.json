@@ -18,7 +18,7 @@
           "id": "maps",
           "title": "Mangrove maps",
           "intro": "Condition of the whole mangrove area as a map, with three layers.",
-          "columns": [["veg-map", "veg-source"], ["veg-about"]]
+          "columns": [["veg-map", "veg-source"], ["veg-about", "veg-chart"]]
         },
         {
           "id": "tipping",
