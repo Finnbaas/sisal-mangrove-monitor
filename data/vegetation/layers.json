@@ -7,10 +7,9 @@
     "north": 21.21314383673432
   },
   "source": {
-    "satellite": "Landsat",
-    "period": null,
-    "studyArea": "Sisal, Yucatán",
-    "placeholder": true
+    "satellite": "Landsat (change), Sentinel-2 (base map)",
+    "period": "1993-2025 (change), dry season 2024 (base map)",
+    "studyArea": "Sisal, Yucatán"
   },
   "layers": [
     {
