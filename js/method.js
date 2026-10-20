@@ -1,12 +1,12 @@
 // method.js: the Method page and the "Run this analysis on your own data" links on the research cards.
-//   One tab per analysis (Satellite, Climatology, Stakeholders). In a tab: a gallery of examples ("use
+//   One tab per analysis (Vegetation, Climatology, Stakeholders). In a tab: a gallery of examples ("use
 //   cases"; clicking one opens its steps and files in a panel, one panel on the whole page) and a collapsed
 //   row "About this analysis". The address #method/<use case id> opens the right tab and panel.
 //   A section can have "datasets" and "limitations": a compact list above the cards (Climatology); other sections
 //   have the collapsed row "About this analysis". A use case can have "howMade" (a short text at the top of its
 //   panel) and "infoCards": research cards whose small ↗ button opens that panel. Numbers in these texts are
 //   written as {storms.total} and filled in from the data files. A use case can also have "keyChoices" (a list under
-//   "Key choices"), "howWeUsed" and "whatYouNeed". A section with "datasets" (Climatology, Satellite) shows its data
+//   "Key choices"), "howWeUsed" and "whatYouNeed". A section with "datasets" (Climatology, Vegetation) shows its data
 //   sources and limitations above the cards and the link to its folder on GitHub below them.
 // Reads: content/method.json (written by the team) and, for the numbers in the texts, data/storms/storm-counts.json,
 //   data/events.json, data/climate/typical-year.json, data/climate/change.json and data/climate/wave-direction.json.
@@ -220,7 +220,7 @@ function buildMethodPage() {
       '<div class="method-title-row"><h1>' + textOrPlaceholder('method-placeholder', method.title) + '</h1>' +
       (method.exampleContent ? '<span class="content-tag">' + escapeHtml(t('labels.exampleContent')) + '</span>' : '') + '</div>' +
       (isFilled(method.intro) ? '<p class="method-intro">' + escapeHtml(method.intro) + '</p>' : '') +
-      githubLink('large', t('labels.viewRepositoryOnGithub'), '') +
+      githubLink('large', t('labels.viewRepositoryOnGithub'), method.downloadsRepository || '') +
     '</div>';
 
   const cite =

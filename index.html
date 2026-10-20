@@ -53,12 +53,15 @@
             </div>
             <div class="expand">&#8599;</div>
           </div>
-          <div id="map">
-            <img id="map-image" src="img/site-map2.png" alt="">
-            <div id="map-ring" hidden></div>
+          <!-- the legend strip sits under the map, like the storm map -->
+          <div id="map-frame">
+            <div id="map">
+              <img id="map-image" src="img/site-map2.png" alt="">
+              <div id="map-ring" hidden></div>
+            </div>
             <div id="legend">
-              <div id="legend-title" data-text="labels.mapLegend"></div>
-              <div id="legend-items"></div>
+              <span id="legend-title" data-text="labels.mapLegend"></span>
+              <span id="legend-items"></span>
             </div>
           </div>
           <div class="fine" id="map-note"></div>

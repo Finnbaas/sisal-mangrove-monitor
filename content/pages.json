@@ -10,7 +10,7 @@
     },
     {
       "id": "satellite",
-      "label": "Satellite data",
+      "label": "Vegetation data",
       "columns": [
         ["point-map", "year-slider", "tipping-status"],
         ["point-chart", ["point-info", "trend-signals"]]

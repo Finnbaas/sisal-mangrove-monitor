@@ -1,4 +1,4 @@
-// points.js: the Overview and Satellite screens (the monitoring points).
+// points.js: the Overview and Vegetation screens (the monitoring points).
 //   Site map with the points, year slider, tipping status, point chart with its chips (drawn like the NDVI
 //   plots of the analysis notebook: NDVI, STL trend and breakpoints), values for the year, point info,
 //   trend signals, and the download menu (CSV of the data, PNG of the chart).
