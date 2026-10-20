@@ -236,6 +236,23 @@ function buildParts(section, s, ready) {
   nav.className = 'section-nav';
   nav.setAttribute('aria-label', s.label);
   // the bar stays at the top in the page background color, so cards and axis labels never show behind the navigation
+  // an optional page title (and intro) above the section navigation (Figma: "Top / Page title"). An intro with
+  // {placeholders} is filled in later, when the numbers have loaded (vegetation.js)
+  if (s.title) {
+    const top = document.createElement('div');
+    top.className = 'part-header page-title';
+    const h1 = document.createElement('h2');
+    h1.textContent = s.title;
+    top.appendChild(h1);
+    if (s.intro) {
+      const intro = document.createElement('p');
+      intro.id = 'intro-page-' + s.id;
+      if (s.intro.includes('{')) intro.dataset.template = s.intro;
+      else intro.textContent = s.intro;
+      top.appendChild(intro);
+    }
+    section.appendChild(top);
+  }
   const bar = document.createElement('div');
   bar.className = 'section-nav-bar';
   bar.appendChild(nav);

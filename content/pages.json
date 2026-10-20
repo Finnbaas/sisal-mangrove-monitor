@@ -11,6 +11,8 @@
     {
       "id": "satellite",
       "label": "Vegetation data",
+      "title": "Vegetation data",
+      "intro": "Two analyses of the same mangrove: the condition of the whole area, and tipping points at {total} points.",
       "parts": [
         {
           "id": "maps",
@@ -22,7 +24,7 @@
           "id": "tipping",
           "title": "Tipping points",
           "intro": "Tipping-point analysis at {total} monitoring points.",
-          "columns": [["veg-numbers", "veg-points-map", "veg-matrix"], ["veg-selected", "veg-ews", "veg-examples"]]
+          "columns": [["veg-points-map"], ["veg-selected", "veg-ews"]]
         }
       ]
     },

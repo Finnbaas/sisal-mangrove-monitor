@@ -275,7 +275,7 @@
             <input type="range" id="veg-opacity" min="0" max="100" step="5">
             <span id="veg-opacity-value" class="opacity-value"></span>
           </div>
-          <div class="card-actions card-actions-footer"><a id="veg-maps-link" class="diy-link"></a></div>
+          <div class="card-actions card-actions-footer"><a id="veg-maps-link" class="veg-link"></a></div>
           <p class="fine" id="veg-map-status"></p>
         </div>
 
@@ -290,11 +290,6 @@
         </div>
 
         <!-- Tipping points -->
-        <div class="card" data-card="veg-numbers">
-          <div class="card-title-row"><div class="card-title"><span id="veg-numbers-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div></div>
-          <div id="veg-numbers-strip" class="numbers-strip"></div>
-        </div>
-
         <div class="card" data-card="veg-points-map">
           <div class="card-title-row top">
             <div>
@@ -303,6 +298,7 @@
             </div>
             <div class="expand">&#8599;</div>
           </div>
+          <!-- the legend strip lies inside the bottom of the map -->
           <div class="map-frame">
             <div id="veg-points-map" class="geo-map"></div>
             <div class="map-buttons">
@@ -312,43 +308,50 @@
             <div id="veg-points-legend" class="legend-strip"></div>
           </div>
           <div class="fine" id="veg-points-note"></div>
-          <div class="card-actions card-actions-footer"><a id="veg-points-link" class="diy-link"></a></div>
+          <div class="card-actions card-actions-footer"><a id="veg-points-link" class="veg-link"></a></div>
           <p class="fine" id="veg-points-status"></p>
         </div>
 
-        <div class="card" data-card="veg-matrix">
-          <div class="card-title-row"><div class="card-title"><span id="veg-matrix-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div></div>
-          <div id="veg-matrix-grid" class="matrix"></div>
-          <p class="fine" id="veg-matrix-hint"></p>
-        </div>
-
+        <!-- the selected point: title with the point id, class, one chip per variable, the series of the chosen variable -->
         <div class="card" data-card="veg-selected">
           <div class="card-title-row top">
             <div>
               <div class="card-title"><span id="veg-selected-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div>
-              <div class="faint" id="veg-selected-scenario"></div>
+              <div class="faint" id="veg-selected-class"></div>
             </div>
             <div class="expand">&#8599;</div>
           </div>
+          <div id="veg-chips" class="chip-row"></div>
           <div id="veg-selected-chart"></div>
           <div id="veg-selected-nodetail" class="no-detail" hidden>
             <div class="no-detail-title" id="veg-nodetail-title"></div>
             <div class="no-detail-text" id="veg-nodetail-text"></div>
           </div>
-          <div class="faint xs" id="veg-selected-summary"></div>
+          <div class="chart-foot">
+            <div class="faint xs" id="veg-selected-summary"></div>
+            <div class="card-actions">
+              <a id="veg-selected-link" class="veg-link"></a>
+              <button type="button" id="veg-download" class="icon-button">
+                <svg class="icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2V10.5M4.5 7.25L8 10.75L11.5 7.25M3 13.5H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
           <div id="veg-selected-breakpoint" class="breakpoint-note"></div>
         </div>
 
+        <!-- early warning signals before the breakpoint: residual, AR1 and SD with Kendall's tau and p, one shared year axis -->
         <div class="card" data-card="veg-ews">
-          <div class="card-title-row"><div class="card-title"><span id="veg-ews-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div><div class="expand">&#8599;</div></div>
-          <div class="trend-row head"><div id="veg-ews-h1"></div><div class="r" id="veg-ews-h2"></div><div class="r" id="veg-ews-h3"></div></div>
-          <div id="veg-ews-rows"></div>
-        </div>
-
-        <div class="card" data-card="veg-examples">
-          <div class="card-title-row"><div class="card-title"><span id="veg-examples-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div><div class="expand">&#8599;</div></div>
-          <div id="veg-examples-list" class="example-list"></div>
-          <div id="veg-examples-note" class="fine"></div>
+          <div class="card-title-row top">
+            <div>
+              <div class="card-title"><span id="veg-ews-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div>
+              <div class="faint" id="veg-ews-subtitle"></div>
+            </div>
+          </div>
+          <div id="veg-ews-charts" class="chart-stack"></div>
+          <div class="chart-foot">
+            <div></div>
+            <div class="card-actions"><a id="veg-ews-link" class="veg-link"></a></div>
+          </div>
         </div>
 
         <!-- STAKEHOLDER CARDS (filled by stakeholders.js from content/stakeholders.json) -->
