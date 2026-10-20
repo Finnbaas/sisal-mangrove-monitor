@@ -412,16 +412,7 @@ function renderAbout() {
   if (isFilled(layer.about.colors)) colors.appendChild(aboutText(layer.about.colors));   // a note on the colors
   body.appendChild(aboutBlock(vt('aboutColors'), colors));
 
-  // a place for a small chart that follows later (per-period view)
-  if (layer.about.chart) {
-    const box = document.createElement('div');
-    box.className = 'chart-placeholder';
-    box.innerHTML = '<span class="chart-placeholder-title"></span><span class="about-text"></span><span class="about-note"></span>';
-    box.querySelector('.chart-placeholder-title').textContent = layer.about.chart.title;
-    box.querySelector('.about-text').textContent = vt('chartPlaceholder');
-    box.querySelector('.about-note').textContent = layer.about.chart.note;
-    body.appendChild(box);
-  }
+  renderChartCard(layer);
 
   // share of area per class: the hectares as stored and their share of the total (one decimal), or "No data"
   if (layer.classes.length) {
@@ -461,6 +452,18 @@ function renderAbout() {
     block.appendChild(link);
     body.appendChild(block);
   }
+}
+
+// The separate card under "About this layer" for a small chart that follows later (per-period view); hidden when the view has none.
+function renderChartCard(layer) {
+  const card = document.querySelector('[data-card="veg-chart"]');
+  const chart = layer.about.chart;
+  card.hidden = !chart;
+  if (!chart) return;
+  setText('veg-chart-title', chart.title);
+  showPlaceholderTag($('veg-chart-title').parentElement, layer.placeholder);
+  $('veg-chart-text').textContent = vt('chartPlaceholder');
+  $('veg-chart-note').textContent = chart.note;
 }
 
 // A storm as a row like the storm list of the Climatology page; clicking it selects that storm there.
