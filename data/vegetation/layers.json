@@ -1,22 +1,54 @@
 {
   "_about": "The three map layers of the Vegetation page (Mangrove maps). Everything here is placeholder until the pipeline writes the real layers: set \"image\" to the map image path (e.g. data/vegetation/condition.png) and replace the texts and shares; remove \"placeholder\" when real. Colors are color names from css/base.css (without --color-). Layer ids must stay: condition, change, disturbance-recovery.",
-  "bounds": { "west": -90.1205305250568, "south": 21.07849758986408, "east": -89.93925612744492, "north": 21.213143823814388 },
-  "source": { "satellite": "Landsat", "period": null, "studyArea": "Sisal, Yucatán", "placeholder": true },
+  "bounds": {
+    "west": -90.12053053107839,
+    "south": 21.07849757664358,
+    "east": -89.93925611701589,
+    "north": 21.21314383673432
+  },
+  "source": {
+    "satellite": "Landsat",
+    "period": null,
+    "studyArea": "Sisal, Yucatán",
+    "placeholder": true
+  },
   "layers": [
     {
       "id": "condition",
       "title": "Mangrove condition map",
       "image": null,
       "bounds": null,
-      "legend": { "type": "gradient", "title": "Condition", "low": "low health", "high": "high health", "colors": ["class-loss", "class-recovery", "scenario-4"] },
+      "legend": {
+        "type": "gradient",
+        "title": "Condition",
+        "low": "low health",
+        "high": "high health",
+        "colors": [
+          "class-loss",
+          "class-recovery",
+          "scenario-4"
+        ]
+      },
       "about": {
         "shows": "Placeholder: one or two sentences on what the condition layer shows.",
         "computed": "Placeholder: data, index and method in plain words."
       },
       "classes": [
-        { "label": "Low condition", "color": "class-loss", "share": null },
-        { "label": "Medium condition", "color": "class-recovery", "share": null },
-        { "label": "High condition", "color": "scenario-4", "share": null }
+        {
+          "label": "Low condition",
+          "color": "class-loss",
+          "share": null
+        },
+        {
+          "label": "Medium condition",
+          "color": "class-recovery",
+          "share": null
+        },
+        {
+          "label": "High condition",
+          "color": "scenario-4",
+          "share": null
+        }
       ],
       "relatedStorms": [],
       "placeholder": true
@@ -24,37 +56,171 @@
     {
       "id": "change",
       "title": "Mangrove change map",
-      "image": null,
+      "image": "data/vegetation/change.png",
       "bounds": null,
-      "legend": { "type": "categories", "title": "Change", "items": [ { "label": "Growth", "color": "class-gain" }, { "label": "No growth", "color": "text-faint" } ] },
+      "legend": {
+        "type": "categories",
+        "title": "Change",
+        "items": [
+          {
+            "label": "Stable mangrove",
+            "color": "#1b7837"
+          },
+          {
+            "label": "Mangrove loss (confirmed)",
+            "color": "#d7191c"
+          },
+          {
+            "label": "Mangrove gain (confirmed)",
+            "color": "#2c7bb6"
+          },
+          {
+            "label": "Uncertain change",
+            "color": "#bdbdbd"
+          }
+        ]
+      },
       "about": {
-        "shows": "Placeholder: one or two sentences on what the change layer shows.",
-        "computed": "Placeholder: data, index and method in plain words."
+        "shows": "Where mangrove disappeared or appeared between 1993 and 2025.",
+        "computed": "Land cover was classified per period (Landsat, 7 periods). A change only counts as confirmed when NDVI agrees, i.e. the drop or rise is larger than in 95% of unchanged mangrove over the same period.",
+        "colors": "Grey areas changed in the land-cover maps but not clearly in NDVI; most lie on the mangrove-marsh boundary.",
+        "sharesNote": "Mapped areas, not error-adjusted."
       },
       "classes": [
-        { "label": "Growth", "color": "class-gain", "share": null },
-        { "label": "No growth", "color": "text-faint", "share": null }
+        {
+          "label": "Stable mangrove",
+          "color": "#1b7837",
+          "ha": 6974.9
+        },
+        {
+          "label": "Mangrove loss (confirmed)",
+          "color": "#d7191c",
+          "ha": 64.2
+        },
+        {
+          "label": "Mangrove gain (confirmed)",
+          "color": "#2c7bb6",
+          "ha": 449.4
+        },
+        {
+          "label": "Uncertain change",
+          "color": "#bdbdbd",
+          "ha": 1589.2
+        }
       ],
-      "relatedStorms": [],
-      "placeholder": true
+      "relatedStorms": []
     },
     {
       "id": "disturbance-recovery",
       "title": "Disturbance and recovery map",
       "image": null,
       "bounds": null,
-      "legend": { "type": "categories", "title": "Disturbance & recovery", "items": [ { "label": "Disturbed", "color": "class-loss" }, { "label": "Partially recovered", "color": "class-recovery" }, { "label": "Recovered", "color": "scenario-4" } ] },
+      "legend": {
+        "type": "categories",
+        "title": "Disturbance & recovery",
+        "items": [
+          {
+            "label": "Disturbed",
+            "color": "class-loss"
+          },
+          {
+            "label": "Partially recovered",
+            "color": "class-recovery"
+          },
+          {
+            "label": "Recovered",
+            "color": "scenario-4"
+          }
+        ]
+      },
       "about": {
         "shows": "Placeholder: one or two sentences on what the disturbance & recovery layer shows.",
         "computed": "Placeholder: data, index and method in plain words."
       },
       "classes": [
-        { "label": "Disturbed", "color": "class-loss", "share": null },
-        { "label": "Partially recovered", "color": "class-recovery", "share": null },
-        { "label": "Recovered", "color": "scenario-4", "share": null }
+        {
+          "label": "Disturbed",
+          "color": "class-loss",
+          "share": null
+        },
+        {
+          "label": "Partially recovered",
+          "color": "class-recovery",
+          "share": null
+        },
+        {
+          "label": "Recovered",
+          "color": "scenario-4",
+          "share": null
+        }
       ],
-      "relatedStorms": ["milton-2024", "beryl-2024"],
+      "relatedStorms": [
+        "milton-2024",
+        "beryl-2024"
+      ],
       "placeholder": true
     }
-  ]
+  ],
+  "basemap": {
+    "image": "data/vegetation/basemap.png",
+    "attribution": "Sentinel-2, Copernicus (2024)",
+    "aoi": [
+      [
+        -90.05041551503234,
+        21.162924684073946
+      ],
+      [
+        -90.09495298591237,
+        21.158981726153797
+      ],
+      [
+        -90.12053053107839,
+        21.141531063671124
+      ],
+      [
+        -90.12018720832448,
+        21.07859556361946
+      ],
+      [
+        -90.05066435065847,
+        21.07849757664358
+      ],
+      [
+        -89.93977110114675,
+        21.113251544607984
+      ],
+      [
+        -89.93925611701589,
+        21.21314383673432
+      ],
+      [
+        -90.00933715735849,
+        21.174100452704874
+      ],
+      [
+        -90.02163012765293,
+        21.17150261406858
+      ],
+      [
+        -90.01991318489279,
+        21.16485600403262
+      ],
+      [
+        -90.0310282590505,
+        21.162574817466144
+      ],
+      [
+        -90.03858135963644,
+        21.161774392793973
+      ],
+      [
+        -90.04819439674581,
+        21.159733290287747
+      ],
+      [
+        -90.05016850258077,
+        21.16581649311989
+      ]
+    ]
+  }
 }

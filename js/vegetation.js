@@ -29,7 +29,8 @@ function vt(key, values) {
   return text;
 }
 
-function vegColor(name) { return color(colorVarOf(name)); }
+// A color from a name in css/base.css ("class-loss") or, for map classes, a hex color as in the image ("#d7191c").
+function vegColor(name) { return String(name).startsWith('#') ? name : color(colorVarOf(name)); }
 function setText(id, text) { $(id).textContent = text; }
 
 // ---------- loading ----------
@@ -62,6 +63,7 @@ async function setupVegetation() {
   renderSource();
   renderLayer();
   setupMaps();
+  setupPointsMapBackground();
   vegLoaded = true;
   renderVegetationEws(getSelectedPoint());   // points.js: the selected point, none at the start
   window.addEventListener('hashchange', () => { if (location.hash.slice(1).split('/')[0] === 'satellite') renderAbout(); });
@@ -84,18 +86,25 @@ function renderStaticTexts() {
 }
 
 // ---------- maps (Leaflet) ----------
-// The two maps show the same base map (img/site-map2.png) over the same extent. The picture has no map
-// projection, so the map is flat (CRS.Simple): a point is placed at its [latitude, longitude].
+// Both maps show the Sentinel-2 base map (data/vegetation/basemap.png) over the same extent (layers.json "bounds").
+// The picture is in the Web Mercator projection (EPSG:3857), the same as Leaflet's default, so it is placed with
+// real longitude/latitude bounds. The AOI outline is a thin vector line from layers.json "basemap.aoi".
 
 function baseBounds() {
   const b = vegLayers.bounds;
   return L.latLngBounds([b.south, b.west], [b.north, b.east]);
 }
 
+// The AOI outline as Leaflet latitude/longitude pairs (layers.json stores [longitude, latitude]).
+function aoiLatLngs() { return vegLayers.basemap.aoi.map(([lon, lat]) => [lat, lon]); }
+
 function createMap(elementId, zoomInId, zoomOutId) {
   const bounds = baseBounds();
-  const map = L.map(elementId, { crs: L.CRS.Simple, zoomControl: false, attributionControl: false, zoomSnap: 0, scrollWheelZoom: false });
-  L.imageOverlay(CONTENT.vegetation.baseMap.image, bounds).addTo(map);
+  const map = L.map(elementId, { zoomControl: false, attributionControl: false, zoomSnap: 0, scrollWheelZoom: false });
+  // the attribution sits top left: the legend strip covers the bottom of the map
+  L.control.attribution({ position: 'topleft', prefix: false }).addTo(map);
+  L.imageOverlay(vegLayers.basemap.image, bounds, { attribution: vegLayers.basemap.attribution }).addTo(map);
+  L.polygon(aoiLatLngs(), { color: vegColor('surface'), weight: 1.5, opacity: 0.9, fill: false, interactive: false }).addTo(map);
   $(zoomInId).addEventListener('click', () => map.zoomIn());
   $(zoomOutId).addEventListener('click', () => map.zoomOut());
   // the map can only be measured when its card is on screen: (re)fit the extent whenever its size changes
@@ -120,6 +129,27 @@ function createMap(elementId, zoomInId, zoomOutId) {
 function setupMaps() {
   vegMaps.layers = createMap('veg-map', 'veg-map-zoom-in', 'veg-map-zoom-out');
   renderLayerOverlay();
+}
+
+// The points map (points.js) is a flat picture with dots placed in percent. It gets the same base map, the AOI
+// outline as an SVG line (longitude/latitude to percent in the Mercator projection of the picture) and the attribution.
+function mercatorY(latitude) { return Math.log(Math.tan(Math.PI / 4 + latitude * Math.PI / 360)); }
+
+function setupPointsMapBackground() {
+  const b = vegLayers.bounds;
+  const map = $('map');
+  $('map-image').src = vegLayers.basemap.image;
+  const top = mercatorY(b.north);
+  const height = top - mercatorY(b.south);
+  const points = vegLayers.basemap.aoi.map(([lon, lat]) =>
+    ((lon - b.west) / (b.east - b.west) * 100).toFixed(3) + ',' + ((top - mercatorY(lat)) / height * 100).toFixed(3)).join(' ');
+  const svg = '<svg id="map-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
+    '<polygon points="' + points + '" fill="none" stroke="' + vegColor('surface') + '" stroke-width="1.5" stroke-opacity="0.9" vector-effect="non-scaling-stroke"></polygon></svg>';
+  map.insertAdjacentHTML('beforeend', svg);
+  const credit = document.createElement('span');
+  credit.id = 'map-attribution';
+  credit.textContent = vegLayers.basemap.attribution;
+  map.appendChild(credit);
 }
 
 // ---------- section 1: the layers ----------
@@ -167,7 +197,7 @@ function renderLayerOverlay() {
   message.firstChild.textContent = vt('mapNotAvailable');
   if (!layer.image) return;
   const b = layer.bounds || vegLayers.bounds;
-  vegOverlay = L.imageOverlay(layer.image, L.latLngBounds([b.south, b.west], [b.north, b.east]), { opacity: $('veg-opacity').value / 100 }).addTo(vegMaps.layers);
+  vegOverlay = L.imageOverlay(layer.image, L.latLngBounds([b.south, b.west], [b.north, b.east]), { opacity: $('veg-opacity').value / 100, className: 'pixel-layer' }).addTo(vegMaps.layers);   // pixel-layer: sharp blocks, see vegetation.css
   // an image that cannot be loaded shows the same message
   vegOverlay.on('error', () => { message.hidden = false; });
 }
@@ -248,19 +278,28 @@ function renderAbout() {
   const colors = document.createElement('div');
   colors.className = 'about-legend';
   layer.classes.forEach((c) => colors.appendChild(legendItem(c.label, vegColor(c.color))));
+  if (isFilled(layer.about.colors)) colors.appendChild(aboutText(layer.about.colors));   // a note on the colors
   body.appendChild(aboutBlock(vt('aboutColors'), colors));
 
-  // share of area per class: the value as stored, or "No data"
+  // share of area per class: the hectares as stored and their share of the total (one decimal), or "No data"
   const shares = document.createElement('div');
+  const totalHa = layer.classes.reduce((sum, c) => sum + (isNumber(c.ha) ? c.ha : 0), 0);
   layer.classes.forEach((c) => {
     const row = document.createElement('div');
     row.className = 'value-row';
     row.innerHTML = '<span class="name"><span class="lg-dot"></span><span class="class-name"></span></span><span class="val"></span>';
     row.querySelector('.lg-dot').style.background = vegColor(c.color);
     row.querySelector('.class-name').textContent = c.label;
-    row.querySelector('.val').textContent = isNumber(c.share) ? c.share + ' %' : NO_DATA;
+    row.querySelector('.val').textContent = isNumber(c.ha) && totalHa > 0
+      ? vt('shareValue', { ha: c.ha.toFixed(1), percent: (c.ha / totalHa * 100).toFixed(1) })
+      : isNumber(c.share) ? c.share + ' %' : NO_DATA;
     shares.appendChild(row);
   });
+  if (isFilled(layer.about.sharesNote)) {
+    const note = aboutText(layer.about.sharesNote);
+    note.classList.add('about-note');
+    shares.appendChild(note);
+  }
   body.appendChild(aboutBlock(vt('aboutShares'), shares));
 
   // related storms (Disturbance & recovery): only when the list is not empty
