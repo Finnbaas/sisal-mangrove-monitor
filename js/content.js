@@ -4,10 +4,10 @@
 //   - fills every element with data-text="..." from texts.json; t('labels.year') gives one text
 //   - builds the sub-navigation, the pages, the parts with their section navigation, and the simple
 //     cards (image, text, placeholder, planned, group) from pages.json
-// Reads: content/pages.json, content/variables.json, content/texts.json (see content/README.md).
+// Reads: content/pages.json, content/variables.json, content/texts.json, content/vegetation.json (see content/README.md).
 // Used by: every screen file (CONTENT, t, parseJsonFile); main.js calls loadContent() first.
 
-let CONTENT = null;   // { pages, variables, texts } once loaded
+let CONTENT = null;   // { pages, variables, texts, vegetation } once loaded
 
 // The ready-made cards that exist in index.html (data-card="..."). pages.json may use these names.
 function readyCardNames() {
@@ -28,7 +28,8 @@ class ContentError extends Error {
 const CONTENT_FILES = [
   { key: 'pages', path: 'content/pages.json', json: true },
   { key: 'variables', path: 'content/variables.json', json: true },
-  { key: 'texts', path: 'content/texts.json', json: true }
+  { key: 'texts', path: 'content/texts.json', json: true },
+  { key: 'vegetation', path: 'content/vegetation.json', json: true }
 ];
 
 async function loadContent() {

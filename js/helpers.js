@@ -79,6 +79,13 @@ function textOrPlaceholder(cssClass, value, placeholderText) {
   return '<span class="' + cssClass + '">' + escapeHtml(placeholderText || t('messages.notYetAvailable')) + '</span>';
 }
 
+// Shows or hides the small "Placeholder" label (<span class="placeholder-tag"> in the title row of a card or in a
+// row) of an element. flag = the "placeholder" field of the data; it disappears when the real data has no such field.
+function showPlaceholderTag(el, flag) {
+  const tag = el && el.querySelector(".placeholder-tag");
+  if (tag) tag.hidden = !flag;
+}
+
 // Fills the values every screen shares from content/ (called by main.js before the screens start).
 function readSharedContent() {
   const v = CONTENT.variables;

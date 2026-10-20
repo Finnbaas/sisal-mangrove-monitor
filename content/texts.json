@@ -182,6 +182,8 @@
 
   "messages": {
     "noData": "No data",
+    "placeholderTag": "Placeholder",
+    "couldNotLoadVegetation": "Could not load the Vegetation data: {file}",
     "loading": "Loading…",
     "notYetAvailable": "Not yet available",
     "pageNotYetAvailable": "This page has no content yet.",

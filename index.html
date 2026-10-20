@@ -6,12 +6,15 @@
   <title>Sisal Mangrove Monitor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Leaflet (map library, from a CDN) for the two maps of the Vegetation page (vegetation.js) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <!-- styles: base.css first (colors, themes, layout, cards), then one file per screen; charts.css is shared by the storm and climate charts -->
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/points.css">
   <link rel="stylesheet" href="css/charts.css">
   <link rel="stylesheet" href="css/climatology.css">
   <link rel="stylesheet" href="css/stakeholders.css">
+  <link rel="stylesheet" href="css/vegetation.css">
   <link rel="stylesheet" href="css/method.css">
 </head>
 <body>
@@ -251,6 +254,103 @@
           <div id="climate-detail-body"></div>
         </div>
 
+        <!-- VEGETATION CARDS (filled by vegetation.js from data/vegetation/ and content/vegetation.json).
+             A <span class="placeholder-tag"> shows when the data of that card has "placeholder": true. -->
+
+        <!-- Mangrove maps: the map with the layer switch, legend strip and opacity slider -->
+        <div class="card" data-card="veg-map">
+          <div class="card-title-row"><div class="card-title"><span id="veg-map-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div><div class="expand">&#8599;</div></div>
+          <div id="veg-layer-switch" class="chip-row"></div>
+          <div id="veg-map-frame" class="map-frame">
+            <div id="veg-map" class="geo-map"></div>
+            <div id="veg-map-message" class="map-message" hidden></div>
+            <div class="map-buttons">
+              <button type="button" id="veg-map-zoom-in" class="map-button"></button>
+              <button type="button" id="veg-map-zoom-out" class="map-button"></button>
+            </div>
+            <div id="veg-legend" class="legend-strip"></div>
+          </div>
+          <div id="veg-opacity-row" class="opacity-row">
+            <span class="label-xs" id="veg-opacity-label"></span>
+            <input type="range" id="veg-opacity" min="0" max="100" step="5">
+            <span id="veg-opacity-value" class="opacity-value"></span>
+          </div>
+          <div class="card-actions card-actions-footer"><a id="veg-maps-link" class="diy-link"></a></div>
+          <p class="fine" id="veg-map-status"></p>
+        </div>
+
+        <div class="card" data-card="veg-about">
+          <div class="card-title-row"><div class="card-title"><span id="veg-about-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div></div>
+          <div id="veg-about-body" class="about-body"></div>
+        </div>
+
+        <div class="card" data-card="veg-source">
+          <div class="card-title-row"><div class="card-title"><span id="veg-source-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div></div>
+          <div id="veg-source-body"></div>
+        </div>
+
+        <!-- Tipping points -->
+        <div class="card" data-card="veg-numbers">
+          <div class="card-title-row"><div class="card-title"><span id="veg-numbers-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div></div>
+          <div id="veg-numbers-strip" class="numbers-strip"></div>
+        </div>
+
+        <div class="card" data-card="veg-points-map">
+          <div class="card-title-row top">
+            <div>
+              <div class="card-title"><span id="veg-points-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div>
+              <div class="faint" id="veg-points-subtitle"></div>
+            </div>
+            <div class="expand">&#8599;</div>
+          </div>
+          <div class="map-frame">
+            <div id="veg-points-map" class="geo-map"></div>
+            <div class="map-buttons">
+              <button type="button" id="veg-points-zoom-in" class="map-button"></button>
+              <button type="button" id="veg-points-zoom-out" class="map-button"></button>
+            </div>
+            <div id="veg-points-legend" class="legend-strip"></div>
+          </div>
+          <div class="fine" id="veg-points-note"></div>
+          <div class="card-actions card-actions-footer"><a id="veg-points-link" class="diy-link"></a></div>
+          <p class="fine" id="veg-points-status"></p>
+        </div>
+
+        <div class="card" data-card="veg-matrix">
+          <div class="card-title-row"><div class="card-title"><span id="veg-matrix-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div></div>
+          <div id="veg-matrix-grid" class="matrix"></div>
+          <p class="fine" id="veg-matrix-hint"></p>
+        </div>
+
+        <div class="card" data-card="veg-selected">
+          <div class="card-title-row top">
+            <div>
+              <div class="card-title"><span id="veg-selected-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div>
+              <div class="faint" id="veg-selected-scenario"></div>
+            </div>
+            <div class="expand">&#8599;</div>
+          </div>
+          <div id="veg-selected-chart"></div>
+          <div id="veg-selected-nodetail" class="no-detail" hidden>
+            <div class="no-detail-title" id="veg-nodetail-title"></div>
+            <div class="no-detail-text" id="veg-nodetail-text"></div>
+          </div>
+          <div class="faint xs" id="veg-selected-summary"></div>
+          <div id="veg-selected-breakpoint" class="breakpoint-note"></div>
+        </div>
+
+        <div class="card" data-card="veg-ews">
+          <div class="card-title-row"><div class="card-title"><span id="veg-ews-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div><div class="expand">&#8599;</div></div>
+          <div class="trend-row head"><div id="veg-ews-h1"></div><div class="r" id="veg-ews-h2"></div><div class="r" id="veg-ews-h3"></div></div>
+          <div id="veg-ews-rows"></div>
+        </div>
+
+        <div class="card" data-card="veg-examples">
+          <div class="card-title-row"><div class="card-title"><span id="veg-examples-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div><div class="expand">&#8599;</div></div>
+          <div id="veg-examples-list" class="example-list"></div>
+          <div id="veg-examples-note" class="fine"></div>
+        </div>
+
         <!-- STAKEHOLDER CARDS (filled by stakeholders.js from content/stakeholders.json) -->
 
         <div class="card" data-card="stakeholder-map">
@@ -321,6 +421,8 @@
   <script src="js/storm-counts.js"></script>
   <script src="js/wave-rose.js"></script>
   <script src="js/climatology-climate.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/vegetation.js"></script>
   <script src="js/stakeholders.js"></script>
   <script src="js/method.js"></script>
   <script src="js/main.js"></script>

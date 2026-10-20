@@ -1,0 +1,90 @@
+/* vegetation.css: the Vegetation page: the two maps (Leaflet), layer switch, legend strip, opacity slider,
+   "About this layer", key numbers, scenario matrix, selected point and example points.
+   Same cards, legends and list rows as the Climatology page (the shared classes are in base.css,
+   points.css and climatology.css); this file only adds what the Vegetation page needs.
+   Used by: vegetation.js. Loaded after stakeholders.css. */
+
+/* the page is a wide map (2/3) next to a narrower column (1/3), as in Figma */
+[data-screen="satellite"] .research-grid { grid-template-columns: 2fr 1fr; }
+
+/* layer switch: looks like the chips of the point card (.chip in points.css; own class because points.js changes every .chip) */
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.layer-chip { padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--color-border); background: transparent; font-size: 12px; font-weight: 500; color: var(--color-text); }
+.layer-chip.on { background: var(--color-surface-subtle); }
+
+/* map with the legend strip under it, both in one rounded frame (like #storm-map-frame) */
+.map-frame { position: relative; border-radius: 16px; overflow: hidden; background: var(--color-surface-subtle); }
+.geo-map { width: 100%; height: 440px; background: var(--color-map-bg); cursor: grab; }
+/* the zoom buttons sit on top of the map, top right (.map-button is in climatology.css) */
+.map-buttons { position: absolute; top: 10px; right: 10px; z-index: 500; display: flex; gap: 6px; }
+/* calm text on a map layer that is not available yet */
+.map-message { position: absolute; top: 0; left: 0; right: 0; height: 440px; z-index: 450; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.map-message span { padding: 8px 16px; border-radius: 12px; background: color-mix(in srgb, var(--color-surface) 85%, transparent); font-size: 13px; font-weight: 600; color: var(--color-text-muted); }
+
+/* the legend strip: like #storm-map-legend; the gradient is a bar, the categories are swatches */
+.legend-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; padding: 9px 14px; background: var(--color-surface-subtle); }
+.legend-strip .lg { margin-bottom: 0; }
+.legend-title { font-size: 11px; font-weight: 600; color: var(--color-text-muted); }
+.gradient-bar { width: 160px; height: 8px; border-radius: 4px; }
+
+/* opacity slider under the map */
+.opacity-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.opacity-row input[type="range"] { flex: 1; min-width: 0; accent-color: var(--color-data-slider); }
+.opacity-value { min-width: 40px; text-align: right; font-size: 13px; font-weight: 700; }
+
+/* "About this layer" */
+.about-body { display: flex; flex-direction: column; gap: 12px; }
+.about-block { display: flex; flex-direction: column; gap: 4px; }
+.about-label { font-size: 11px; font-weight: 600; color: var(--color-text-muted); }
+.about-text { margin: 0; font-size: 13px; line-height: 20px; color: var(--color-text-body); }
+.about-legend { display: flex; flex-direction: column; gap: 6px; }
+.value-row { display: flex; align-items: center; justify-content: space-between; height: 36px; border-top: 1px solid var(--color-divider); font-size: 12px; color: var(--color-text-body); }
+.value-row .name { display: flex; align-items: center; gap: 8px; }
+.value-row .val { font-size: 13px; font-weight: 700; color: var(--color-text); }
+/* related storms: the rows of the storm list (.event-row in climatology.css) as links */
+.storm-link-list { display: flex; flex-direction: column; gap: 2px; }
+.storm-link-list .event-row { cursor: pointer; }
+
+/* where the data comes from */
+.info-row { display: flex; align-items: center; justify-content: space-between; min-height: 36px; border-top: 1px solid var(--color-divider); font-size: 12px; color: var(--color-text-body); }
+.info-row .val { font-size: 13px; font-weight: 700; color: var(--color-text); }
+
+/* key numbers strip: computed from the points */
+.numbers-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.number-item { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 12px; background: var(--color-surface-subtle); }
+.number-value { font-family: 'Newsreader', serif; font-weight: 600; font-size: 24px; color: var(--color-text); }
+.number-label { font-size: 11px; color: var(--color-text-muted); }
+
+/* scenario matrix 2x2: columns = SD tau, rows = NDVI tau (names and signs from content/vegetation.json) */
+.matrix { display: grid; grid-template-columns: 64px 1fr 1fr; gap: 8px; align-items: stretch; }
+.matrix-axis { font-size: 11px; color: var(--color-text-muted); display: flex; align-items: center; justify-content: center; text-align: center; }
+.matrix-axis.x-title { grid-column: 2 / 4; }
+.matrix-quadrant { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border: 1.5px solid var(--color-border); border-radius: 12px; background: transparent; text-align: left; color: var(--color-text); }
+.matrix-quadrant:hover { background: var(--color-surface-subtle); }
+.matrix-quadrant.active { background: color-mix(in srgb, var(--color-accent) 10%, transparent); border-color: var(--color-accent); }
+.matrix-name { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
+.matrix-count { font-family: 'Newsreader', serif; font-weight: 600; font-size: 24px; }
+
+/* selected point: the NDVI series and the message for points without detail */
+#veg-selected-chart svg { width: 100%; height: auto; display: block; }
+.veg-plot-box { fill: none; stroke: var(--color-text-faint); stroke-width: 1; }
+.veg-ndvi-line { fill: none; stroke: var(--color-data-ndvi); stroke-width: 1.4; }
+.veg-axis-text { font-size: 11px; fill: var(--color-text-muted); font-family: 'Archivo', sans-serif; }
+.veg-bp-window.drop { fill: var(--color-class-loss-tint); }
+.veg-bp-window.rise { fill: var(--color-class-gain-tint); }
+.veg-bp-line.drop { stroke: var(--color-class-loss); stroke-width: 1.5; }
+.veg-bp-line.rise { stroke: var(--color-class-gain); stroke-width: 1.5; }
+.no-detail { height: 260px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px; text-align: center; border-radius: 12px; border: 1px solid var(--color-map-bg); background: var(--color-surface-subtle); }
+.no-detail-title { font-size: 13px; font-weight: 600; color: var(--color-text-body); }
+.no-detail-text { font-size: 12px; line-height: 18px; color: var(--color-text-faint); }
+#veg-selected-summary { margin-top: 10px; }
+.breakpoint-note { font-size: 11px; color: var(--color-breakpoint); margin-top: 8px; }
+.breakpoint-note:empty { display: none; }
+
+/* example points: the rows of the storm list; the list scrolls after about 7 rows */
+.example-list { display: flex; flex-direction: column; gap: 2px; max-height: 300px; overflow-y: auto; }
+.example-list .event-type { flex-direction: row; align-items: center; gap: 6px; }
+.event-type .lg-dot { width: 8px; height: 8px; }
+
+/* Leaflet: no tiles, so no attribution; the zoom controls are our own buttons */
+.geo-map .leaflet-control-attribution { display: none; }

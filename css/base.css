@@ -371,3 +371,7 @@ a.expand:hover, a.expand:focus-visible { background: var(--color-border); color:
   font: inherit;
   color: inherit;
 }
+
+/* small "Placeholder" label next to the title of a card or row whose data is not real yet. Shown by
+   showPlaceholderTag() (helpers.js) when the data has "placeholder": true; the same style everywhere. */
+.placeholder-tag { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; border: 1px dashed var(--color-text-faint); background: var(--color-surface-subtle); font-size: 10px; font-weight: 600; letter-spacing: 0.02em; color: var(--color-text-muted); vertical-align: 1px; white-space: nowrap; }
