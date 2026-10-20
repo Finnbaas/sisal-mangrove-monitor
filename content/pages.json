@@ -22,7 +22,7 @@
         },
         {
           "id": "tipping",
-          "title": "Tipping points",
+          "title": "Tipping points & Early Warning Signals",
           "intro": "Tipping-point analysis at {total} monitoring points.",
           "columns": [["point-map"], ["point-chart", "veg-ews"]]
         }
