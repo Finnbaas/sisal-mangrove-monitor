@@ -29,7 +29,7 @@ Details (file structure, JSON formats, Figma workflow, research terms) are in RE
 - Numbers are calculated in Python (analysis/climatology/) and written as JSON to data/climate/. Never calculate numbers in JavaScript and never save finished chart images in data/.
 
 ## Research terms (use exactly)
-EWS metrics: standard deviation, AR1, return rate, kurtosis, skewness. Trends: Kendall's tau. Breakpoints: a change of at least 0.25 NDVI within 12 months on the STL trend, after which the new level persists for at least 2 years (a drop followed by a quick recovery is resilience, not a breakpoint). We no longer use LandTrendr.
+EWS metrics: standard deviation, AR1, kurtosis, skewness. Trends: Kendall's tau. Breakpoints: a change of at least 0.25 NDVI within 12 months on the STL trend, after which the new level persists for at least 2 years (a drop followed by a quick recovery is resilience, not a breakpoint). We no longer use LandTrendr.
 Scenarios (NDVI tau / SD tau): 1 Abrupt transition (potential EWS) <0/>0; 2 Slowly transitioning (no EWS) <0/<0; 3 Recovering >0/>0; 4 Stable >0/<0. Do not rename, merge or reinterpret them; suggest a change instead.
 
 Labels are pending a team decision. Do not change them in either direction until this line is removed.

@@ -149,8 +149,9 @@ of the charts and tabs. The unit and data source come from the data file. Option
 `seriesLabels` names the lines of a variable with more than one line, for example
 `{ "max": "max", "min": "min" }` for air temperature; such a variable gets one "In detail" tab per line.
 
-`trendMetrics`: `value` and `tau` are field names in `metricVals` and `metricTaus` of
-`data/points.json` (`null` = no value, shown as "—").
+`trendMetrics`: the rows of the trend signals card. `ews` is the id of an early warning signal in
+`data/vegetation/points.json` (`ar1`, `sd`, `skewness`, `kurtosis`); the card shows its p and Kendall's tau.
+`null` = no data for this row yet (shown as "No data").
 
 `scenarios`: the scenario labels are **pending a team decision**; change them only when the team
 has decided (see CLAUDE.md).

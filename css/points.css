@@ -131,6 +131,8 @@
 .small-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
 #info { display: flex; flex-direction: column; gap: 12px; }
 .info-val { font-size: 13px; font-weight: 600; }
+/* description of the selected point (card point-description) */
+.point-description { margin: 0; font-size: 14px; line-height: 1.5; color: var(--color-text-body); }
 .info-val.mono { font-weight: 700; }
 .trend-row { display: grid; grid-template-columns: 1fr 68px 68px; font-size: 12px; align-items: center; min-height: 32px; padding: 6px 0; border-top: 1px solid var(--color-divider); }
 .trend-row.head { font-size: 11px; font-weight: 600; color: var(--color-text-faint); min-height: 0; padding: 0 0 4px 0; border-top: none; }
