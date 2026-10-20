@@ -77,6 +77,8 @@ function renderStaticTexts() {
   setText('veg-opacity-label', tx.opacity);
   setText('veg-map-zoom-in', tx.zoomIn);
   setText('veg-map-zoom-out', tx.zoomOut);
+  setText('veg-map-reset', tx.reset);
+  $('veg-map-reset').title = tx.resetTitle;
   [['veg-maps-link', tx.mapsLink, tx.mapsLinkTarget], ['veg-ews-link', tx.pointsLink, tx.pointsLinkTarget]].forEach(([id, label, target]) => {
     const link = $(id);
     link.href = target;
@@ -98,7 +100,7 @@ function baseBounds() {
 // The AOI outline as Leaflet latitude/longitude pairs (layers.json stores [longitude, latitude]).
 function aoiLatLngs() { return vegLayers.basemap.aoi.map(([lon, lat]) => [lat, lon]); }
 
-function createMap(elementId, zoomInId, zoomOutId) {
+function createMap(elementId, zoomInId, zoomOutId, resetId) {
   const bounds = baseBounds();
   const map = L.map(elementId, { zoomControl: false, attributionControl: false, zoomSnap: 0, scrollWheelZoom: false });
   // the attribution sits top left: the legend strip covers the bottom of the map
@@ -107,6 +109,8 @@ function createMap(elementId, zoomInId, zoomOutId) {
   L.polygon(aoiLatLngs(), { color: vegColor('surface'), weight: 1.5, opacity: 0.9, fill: false, interactive: false }).addTo(map);
   $(zoomInId).addEventListener('click', () => map.zoomIn());
   $(zoomOutId).addEventListener('click', () => map.zoomOut());
+  // reset: back to the whole area (the extent the map starts with)
+  $(resetId).addEventListener('click', () => map.fitBounds(bounds));
   // the map can only be measured when its card is on screen: (re)fit the extent whenever its size changes
   let fitted = false;
   new ResizeObserver(() => {
@@ -127,7 +131,7 @@ function createMap(elementId, zoomInId, zoomOutId) {
 }
 
 function setupMaps() {
-  vegMaps.layers = createMap('veg-map', 'veg-map-zoom-in', 'veg-map-zoom-out');
+  vegMaps.layers = createMap('veg-map', 'veg-map-zoom-in', 'veg-map-zoom-out', 'veg-map-reset');
   renderLayerOverlay();
 }
 

@@ -24,6 +24,8 @@
     "opacity": "Opacity",
     "zoomIn": "+",
     "zoomOut": "−",
+    "reset": "Reset",
+    "resetTitle": "Show the whole area again",
     "aboutTitle": "About this layer",
     "aboutShows": "What it shows",
     "aboutComputed": "How it was computed",
