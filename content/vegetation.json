@@ -1,0 +1,70 @@
+{
+  "_about": "Texts and settings of the Vegetation page (Mangrove maps + Tipping points), read by js/vegetation.js. The numbers and layers themselves come from data/vegetation/. Scenario names and tau signs follow CLAUDE.md; do not rename them here without the team's decision.",
+  "files": {
+    "layers": "data/vegetation/layers.json",
+    "points": "data/vegetation/points.json"
+  },
+  "baseMap": {
+    "image": "img/site-map2.png"
+  },
+  "defaultOpacity": 70,
+  "layerSwitch": [
+    {
+      "id": "condition",
+      "label": "Condition"
+    },
+    {
+      "id": "change",
+      "label": "Change"
+    },
+    {
+      "id": "disturbance-recovery",
+      "label": "Disturbance & recovery"
+    }
+  ],
+  "texts": {
+    "mapNotAvailable": "Map layer not yet available",
+    "opacity": "Opacity",
+    "zoomIn": "+",
+    "zoomOut": "−",
+    "aboutTitle": "About this layer",
+    "aboutShows": "What it shows",
+    "aboutComputed": "How it was computed",
+    "aboutColors": "How to read the colors",
+    "aboutShares": "Share of area per class",
+    "relatedStorms": "Related storms",
+    "relatedStormsLink": "See on the Climatology page",
+    "sourceTitle": "Where the data comes from",
+    "sourceSatellite": "Satellite",
+    "sourcePeriod": "Period",
+    "sourceArea": "Study area",
+    "mapsLink": "Use this code for your area (adapt)",
+    "mapsLinkTarget": "#method/change-map",
+    "pointsLink": "Run this analysis on your own data",
+    "pointsLinkTarget": "#method/tipping-point-custom-location",
+    "ndviSeries": "NDVI",
+    "ewsTitle": "Early warning signals",
+    "couldNotLoad": "Could not load {file}.",
+    "ewsSubtitle": "before the breakpoint",
+    "ewsTau": "{label}: τ = {tau}, p = {p}",
+    "ewsNoData": "No data"
+  },
+  "ewsCharts": [
+    {
+      "id": "residual",
+      "label": "residual",
+      "color": "text-faint"
+    },
+    {
+      "id": "ar1",
+      "label": "AR1",
+      "color": "data-salinity"
+    },
+    {
+      "id": "sd",
+      "label": "SD",
+      "color": "data-temperature"
+    }
+  ],
+  "axisTickEveryYears": 5
+}

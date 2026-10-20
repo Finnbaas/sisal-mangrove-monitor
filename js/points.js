@@ -1,4 +1,4 @@
-// points.js: the Overview and Satellite screens (the monitoring points).
+// points.js: the Overview and Vegetation screens (the monitoring points).
 //   Site map with the points, year slider, tipping status, point chart with its chips (drawn like the NDVI
 //   plots of the analysis notebook: NDVI, STL trend and breakpoints), values for the year, point info,
 //   trend signals, and the download menu (CSV of the data, PNG of the chart).
@@ -247,6 +247,8 @@ function renderAll() {
     c.style.borderColor = on ? color(v.colorVar) : '';
   });
   renderChart(point, idx);
+  // the card "Early warning signals" of the Vegetation page follows the selected point (vegetation.js)
+  if (typeof renderVegetationEws === 'function') renderVegetationEws(point);
 
   // values for year
   $('values-title').textContent = t('labels.valuesFor', { year: year });

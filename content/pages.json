@@ -10,10 +10,22 @@
     },
     {
       "id": "satellite",
-      "label": "Satellite data",
-      "columns": [
-        ["point-map", "year-slider", "tipping-status"],
-        ["point-chart", ["point-info", "trend-signals"]]
+      "label": "Vegetation data",
+      "title": "Vegetation data",
+      "intro": "Two analyses of the same mangrove: the condition of the whole area, and tipping points at {total} points.",
+      "parts": [
+        {
+          "id": "maps",
+          "title": "Mangrove maps",
+          "intro": "Condition of the whole mangrove area as a map, with three layers.",
+          "columns": [["veg-map", "veg-source"], ["veg-about"]]
+        },
+        {
+          "id": "tipping",
+          "title": "Tipping points",
+          "intro": "Tipping-point analysis at {total} monitoring points.",
+          "columns": [["point-map"], ["point-chart", "veg-ews"]]
+        }
       ]
     },
     {

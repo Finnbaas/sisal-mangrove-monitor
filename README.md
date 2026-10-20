@@ -25,7 +25,7 @@ files. Changes to the files show after saving; Live Server reloads the page.
 | Address | Page |
 |---|---|
 | `#overview` | Map with the monitoring points, year slider, tipping-point status, point chart and values |
-| `#satellite` | The same cards for the satellite analysis |
+| `#satellite` | The same cards for the vegetation analysis |
 | `#climatology` | "Storms at Sisal" (event list, storm charts) and "Climate at Sisal" (a typical year, change since 1950, in detail) |
 | `#stakeholders` | Areas where stakeholders saw mangrove change, with a time axis and their observations |
 | `#method` | Methods and code files to download; `#method/<id>` opens one "do it yourself" example |
@@ -36,7 +36,7 @@ files. Changes to the files show after saving; Live Server reloads the page.
 index.html            the one page of the site: top bar, footer and the "card library"
 css/
   base.css            colors, section themes, layout, cards, footer (loaded first)
-  points.css          Overview and Satellite
+  points.css          Overview and Vegetation
   charts.css          stacked charts, shared by storms and climate
   climatology.css     Climatology page
   stakeholders.css    Stakeholder page
@@ -46,7 +46,7 @@ js/
   content.js          loads the content/ files, fills the texts, builds the pages
   charts.js           chart parts and the comparison line (used by storms and climate)
   navigation.js       switching between pages (the #address)
-  points.js           Overview and Satellite
+  points.js           Overview and Vegetation
   climatology-storms.js   Storms at Sisal
   climatology-climate.js  Climate at Sisal
   stakeholders.js     Stakeholder page
@@ -121,13 +121,13 @@ Claude Code reads CLAUDE.md in every session, so the long descriptions live here
 - index.html: page structure (top bar, footer, the card library); loads the css and js files
 - css/: one shared file plus one per screen. Load order in index.html: base, points, charts, climatology, stakeholders, method.
   - css/base.css: design tokens (colors as CSS variables at the top, named like the Figma Tokens), section themes, page, top bar, navigation, cards, placeholders, research layout, card actions, footer
-  - css/points.css (Overview and Satellite), css/charts.css (stacked charts shared by storms and climate), css/climatology.css, css/stakeholders.css, css/method.css
+  - css/points.css (Overview and Vegetation), css/charts.css (stacked charts shared by storms and climate), css/climatology.css, css/stakeholders.css, css/method.css
 - js/: one file per screen plus shared helpers. All files share global names, so the script order in index.html matters (helpers.js first, main.js last); only main.js runs code, the others only define functions.
   - js/helpers.js: $, colors, number formatting (formatLike), escapeHtml, textOrPlaceholder, download, and the values every screen shares (year range, change classes, NO_DATA; filled by readSharedContent)
   - js/content.js: loads and checks content/pages.json, variables.json and texts.json, fills the texts, builds the pages, parts and simple cards, shows placeholder states
   - js/charts.js: the chart parts and the comparison line, shared by the storm charts and the climate charts
   - js/navigation.js: switching screens by the address (#overview ... #method), moving cards into place
-  - js/points.js: Overview and Satellite (map, year slider, point chart, values, trend signals, downloads)
+  - js/points.js: Overview and Vegetation (map, year slider, point chart, values, trend signals, downloads)
   - js/climatology-storms.js: "Storms at Sisal" (event list, storm anomaly charts)
   - js/climatology-climate.js: "Climate at Sisal" (A typical year, Change since 1950, In detail)
   - js/stakeholders.js: the Stakeholder screen (areas on the map, the Time card with the observation bars, the area panel)

@@ -1,5 +1,5 @@
 {
-  "_about": "The points you can click on the map (Overview and Satellite). Each needs an id from data/points.json. Other points are shown as small dots only. After changing this list, run analysis/satellite/export_points.py again (it writes the NDVI lines, trend and breakpoints only for these points).",
+  "_about": "The points you can click on the map (Overview and Vegetation). Each needs an id from data/points.json. Other points are shown as small dots only. After changing this list, run analysis/satellite/export_points.py again (it writes the NDVI lines, trend and breakpoints only for these points).",
   "points": [
     { "id": "base_53" },
     { "id": "base_68" },

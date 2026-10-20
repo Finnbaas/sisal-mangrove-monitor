@@ -1,0 +1,70 @@
+/* vegetation.css: the Vegetation page: the two maps (Leaflet), layer switch, legend strip, opacity slider,
+   "About this layer", the point chips, the early warning charts and the data source table.
+   Same cards, legends and list rows as the Climatology page (the shared classes are in base.css,
+   points.css and climatology.css); this file only adds what the Vegetation page needs.
+   Used by: vegetation.js. Loaded after stakeholders.css. */
+
+/* Mangrove maps: a wide map (2/3) next to a narrower column (1/3), as in Figma; Tipping points keeps the default columns */
+#satellite-maps .research-grid { grid-template-columns: 2fr 1fr; }
+
+/* layer switch: looks like the chips of the point card (.chip in points.css; own class because points.js changes every .chip) */
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.layer-chip { padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--color-border); background: transparent; font-size: 12px; font-weight: 500; color: var(--color-text); }
+.layer-chip.on { background: var(--color-surface-subtle); }
+
+/* map with the legend strip under it, both in one rounded frame (like #storm-map-frame) */
+.map-frame { position: relative; border-radius: 16px; overflow: hidden; background: var(--color-surface-subtle); }
+/* isolation: the map's own layers stay under the legend strip and the buttons that lie on it */
+/* the map has the shape of the base map picture (2000:1486), so the whole extent fills it */
+.geo-map { width: 100%; aspect-ratio: 2000 / 1486; background: var(--color-map-bg); isolation: isolate; }
+/* the zoom buttons sit on top of the map, top right (.map-button is in climatology.css) */
+.map-buttons { position: absolute; top: 10px; right: 10px; z-index: 500; display: flex; gap: 6px; }
+/* calm text on a map layer that is not available yet */
+.map-message { position: absolute; top: 0; left: 0; right: 0; height: 100%; z-index: 450; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.map-message span { padding: 8px 16px; border-radius: 12px; background: color-mix(in srgb, var(--color-surface) 85%, transparent); font-size: 13px; font-weight: 600; color: var(--color-text-muted); }
+
+/* the legend strip: like #storm-map-legend; the gradient is a bar, the categories are swatches */
+.legend-strip { position: absolute; left: 0; right: 0; bottom: 0; z-index: 500; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; padding: 9px 14px; background: color-mix(in srgb, var(--color-surface-subtle) 92%, transparent); }
+.legend-strip .lg { margin-bottom: 0; }
+.legend-title { font-size: 11px; font-weight: 600; color: var(--color-text-muted); }
+.gradient-bar { width: 160px; height: 8px; border-radius: 4px; }
+
+/* opacity slider under the map */
+.opacity-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.opacity-row input[type="range"] { flex: 1; min-width: 0; accent-color: var(--color-data-slider); }
+.opacity-value { min-width: 40px; text-align: right; font-size: 13px; font-weight: 700; }
+
+/* page title above the toggle (Figma "Top / Page title") */
+.page-title { margin-bottom: -8px; }
+
+/* "Where the data comes from": a small table card, as wide as "About this layer" */
+[data-card="veg-source"] { max-width: 451px; }
+
+/* "About this layer" */
+.about-body { display: flex; flex-direction: column; gap: 12px; }
+.about-block { display: flex; flex-direction: column; gap: 4px; }
+.about-label { font-size: 11px; font-weight: 600; color: var(--color-text-muted); }
+.about-text { margin: 0; font-size: 13px; line-height: 20px; color: var(--color-text-body); }
+.about-legend { display: flex; flex-direction: column; gap: 6px; }
+.value-row { display: flex; align-items: center; justify-content: space-between; height: 36px; border-top: 1px solid var(--color-divider); font-size: 12px; color: var(--color-text-body); }
+.value-row .name { display: flex; align-items: center; gap: 8px; }
+.value-row .val { font-size: 13px; font-weight: 700; color: var(--color-text); }
+/* related storms: the rows of the storm list (.event-row in climatology.css) as links */
+.storm-link-list { display: flex; flex-direction: column; gap: 2px; }
+.storm-link-list .event-row { cursor: pointer; }
+
+/* where the data comes from */
+.info-row { display: flex; align-items: center; justify-content: space-between; min-height: 36px; border-top: 1px solid var(--color-divider); font-size: 12px; color: var(--color-text-body); }
+.info-row .val { font-size: 13px; font-weight: 700; color: var(--color-text); }
+
+/* Leaflet: no tiles, so no attribution; the zoom controls are our own buttons */
+.geo-map .leaflet-control-attribution { display: none; }
+
+.chart-foot { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+/* Kendall's tau and p between the early warning charts, centered over the plot */
+.ews-tau { margin: 4px 0 0 40px; text-align: center; font-size: 11px; color: var(--color-text-body); }
+
+/* the links "Use this code..." and "Run this analysis..." (look of .diy-link in base.css; own class because method.js rebuilds every .diy-link) */
+.veg-link { display: flex; align-items: center; gap: 4px; padding: 6px 8px; border-radius: 8px; font-size: 12px; font-weight: 500; color: var(--color-accent); text-decoration: none; white-space: nowrap; width: fit-content; }
+.veg-link:hover, .veg-link:focus-visible { background: var(--color-surface-subtle); }
+.veg-link:hover .icon { transform: translateX(2px); }

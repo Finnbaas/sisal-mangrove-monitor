@@ -1,0 +1,60 @@
+{
+  "_about": "The three map layers of the Vegetation page (Mangrove maps). Everything here is placeholder until the pipeline writes the real layers: set \"image\" to the map image path (e.g. data/vegetation/condition.png) and replace the texts and shares; remove \"placeholder\" when real. Colors are color names from css/base.css (without --color-). Layer ids must stay: condition, change, disturbance-recovery.",
+  "bounds": { "west": -90.1205305250568, "south": 21.07849758986408, "east": -89.93925612744492, "north": 21.213143823814388 },
+  "source": { "satellite": "Landsat", "period": null, "studyArea": "Sisal, Yucatán", "placeholder": true },
+  "layers": [
+    {
+      "id": "condition",
+      "title": "Mangrove condition map",
+      "image": null,
+      "bounds": null,
+      "legend": { "type": "gradient", "title": "Condition", "low": "low health", "high": "high health", "colors": ["class-loss", "class-recovery", "scenario-4"] },
+      "about": {
+        "shows": "Placeholder: one or two sentences on what the condition layer shows.",
+        "computed": "Placeholder: data, index and method in plain words."
+      },
+      "classes": [
+        { "label": "Low condition", "color": "class-loss", "share": null },
+        { "label": "Medium condition", "color": "class-recovery", "share": null },
+        { "label": "High condition", "color": "scenario-4", "share": null }
+      ],
+      "relatedStorms": [],
+      "placeholder": true
+    },
+    {
+      "id": "change",
+      "title": "Mangrove change map",
+      "image": null,
+      "bounds": null,
+      "legend": { "type": "categories", "title": "Change", "items": [ { "label": "Growth", "color": "class-gain" }, { "label": "No growth", "color": "text-faint" } ] },
+      "about": {
+        "shows": "Placeholder: one or two sentences on what the change layer shows.",
+        "computed": "Placeholder: data, index and method in plain words."
+      },
+      "classes": [
+        { "label": "Growth", "color": "class-gain", "share": null },
+        { "label": "No growth", "color": "text-faint", "share": null }
+      ],
+      "relatedStorms": [],
+      "placeholder": true
+    },
+    {
+      "id": "disturbance-recovery",
+      "title": "Disturbance and recovery map",
+      "image": null,
+      "bounds": null,
+      "legend": { "type": "categories", "title": "Disturbance & recovery", "items": [ { "label": "Disturbed", "color": "class-loss" }, { "label": "Partially recovered", "color": "class-recovery" }, { "label": "Recovered", "color": "scenario-4" } ] },
+      "about": {
+        "shows": "Placeholder: one or two sentences on what the disturbance & recovery layer shows.",
+        "computed": "Placeholder: data, index and method in plain words."
+      },
+      "classes": [
+        { "label": "Disturbed", "color": "class-loss", "share": null },
+        { "label": "Partially recovered", "color": "class-recovery", "share": null },
+        { "label": "Recovered", "color": "scenario-4", "share": null }
+      ],
+      "relatedStorms": ["milton-2024", "beryl-2024"],
+      "placeholder": true
+    }
+  ]
+}
