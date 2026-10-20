@@ -19,7 +19,20 @@
       "label": "Disturbance & recovery"
     }
   ],
+  "viewSwitch": {
+    "change": [
+      {
+        "id": "classes",
+        "label": "Classes"
+      },
+      {
+        "id": "per-period",
+        "label": "Per period"
+      }
+    ]
+  },
   "texts": {
+    "chartPlaceholder": "Bar chart follows in a later step.",
     "mapNotAvailable": "Map layer not yet available",
     "opacity": "Opacity",
     "zoomIn": "+",

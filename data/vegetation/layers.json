@@ -1,5 +1,5 @@
 {
-  "_about": "The three map layers of the Vegetation page (Mangrove maps). Everything here is placeholder until the pipeline writes the real layers: set \"image\" to the map image path (e.g. data/vegetation/condition.png) and replace the texts and shares; remove \"placeholder\" when real. Colors are color names from css/base.css (without --color-). Layer ids must stay: condition, change, disturbance-recovery. basemapBounds: the extent of data/vegetation/basemap.png; layerBounds: the extent of the layer images (a layer can set its own \"bounds\").",
+  "_about": "The three map layers of the Vegetation page (Mangrove maps). Everything here is placeholder until the pipeline writes the real layers: set \"image\" to the map image path (e.g. data/vegetation/condition.png) and replace the texts and shares; remove \"placeholder\" when real. Colors are color names from css/base.css (without --color-). Layer ids must stay: condition, change, disturbance-recovery. basemapBounds: the extent of data/vegetation/basemap.png; layerBounds: the extent of the layer images (a layer can set its own \"bounds\"). The change layer has \"views\" (classes, per-period), each with its own image, bounds, legend, about and classes; the sub-switch labels are in content/vegetation.json \"viewSwitch\".",
   "basemapBounds": {
     "west": -90.13500994306808,
     "south": 21.064999279900693,
@@ -61,59 +61,143 @@
     {
       "id": "change",
       "title": "Mangrove change map",
-      "image": "data/vegetation/change.png",
-      "bounds": null,
-      "legend": {
-        "type": "categories",
-        "title": "Change",
-        "items": [
-          {
-            "label": "Stable mangrove",
-            "color": "#1b7837"
-          },
-          {
-            "label": "Mangrove loss (confirmed)",
-            "color": "#d7191c"
-          },
-          {
-            "label": "Mangrove gain (confirmed)",
-            "color": "#2c7bb6"
-          },
-          {
-            "label": "Uncertain change",
-            "color": "#bdbdbd"
-          }
-        ]
-      },
-      "about": {
-        "shows": "Where mangrove disappeared or appeared between 1993 and 2025.",
-        "computed": "Land cover was classified per period (Landsat, 7 periods). A change only counts as confirmed when NDVI agrees, i.e. the drop or rise is larger than in 95% of unchanged mangrove over the same period.",
-        "colors": "Grey areas changed in the land-cover maps but not clearly in NDVI; most lie on the mangrove-marsh boundary.",
-        "sharesNote": "Mapped areas, not error-adjusted."
-      },
-      "classes": [
+      "views": [
         {
-          "label": "Stable mangrove",
-          "color": "#1b7837",
-          "ha": 6974.9
+          "id": "classes",
+          "image": "data/vegetation/change.png",
+          "bounds": null,
+          "legend": {
+            "type": "categories",
+            "title": "Change",
+            "items": [
+              {
+                "label": "Stable mangrove",
+                "color": "#1b7837"
+              },
+              {
+                "label": "Mangrove loss (confirmed)",
+                "color": "#d7191c"
+              },
+              {
+                "label": "Mangrove gain (confirmed)",
+                "color": "#2c7bb6"
+              },
+              {
+                "label": "Uncertain change",
+                "color": "#bdbdbd"
+              }
+            ]
+          },
+          "about": {
+            "shows": "Where mangrove disappeared or appeared between 1993 and 2025.",
+            "computed": "Land cover was classified per period (Landsat, 7 periods). A change only counts as confirmed when NDVI agrees, i.e. the drop or rise is larger than in 95% of unchanged mangrove over the same period.",
+            "colors": "Grey areas changed in the land-cover maps but not clearly in NDVI; most lie on the mangrove-marsh boundary.",
+            "sharesNote": "Mapped areas, not error-adjusted."
+          },
+          "classes": [
+            {
+              "label": "Stable mangrove",
+              "color": "#1b7837",
+              "ha": 6974.9
+            },
+            {
+              "label": "Mangrove loss (confirmed)",
+              "color": "#d7191c",
+              "ha": 64.2
+            },
+            {
+              "label": "Mangrove gain (confirmed)",
+              "color": "#2c7bb6",
+              "ha": 449.4
+            },
+            {
+              "label": "Uncertain change",
+              "color": "#bdbdbd",
+              "ha": 1589.2
+            }
+          ],
+          "relatedStorms": []
         },
         {
-          "label": "Mangrove loss (confirmed)",
-          "color": "#d7191c",
-          "ha": 64.2
-        },
-        {
-          "label": "Mangrove gain (confirmed)",
-          "color": "#2c7bb6",
-          "ha": 449.4
-        },
-        {
-          "label": "Uncertain change",
-          "color": "#bdbdbd",
-          "ha": 1589.2
+          "id": "per-period",
+          "title": "Confirmed loss and gain per period",
+          "image": null,
+          "bounds": null,
+          "legend": {
+            "type": "periods",
+            "title": "Confirmed",
+            "steps": [
+              {
+                "label": "P1→P2",
+                "range": "1993-97 → 1998-2002",
+                "provisional": false
+              },
+              {
+                "label": "P2→P3",
+                "range": "1998-2002 → 2004-08",
+                "provisional": false
+              },
+              {
+                "label": "P3→P4",
+                "range": "2004-08 → 2009-13",
+                "provisional": false
+              },
+              {
+                "label": "P4→P5",
+                "range": "2009-13 → 2014-18",
+                "provisional": false
+              },
+              {
+                "label": "P5→P6",
+                "range": "2014-18 → 2019-23",
+                "provisional": false
+              },
+              {
+                "label": "P6→P7",
+                "range": "2019-23 → 2024-25",
+                "provisional": true
+              }
+            ],
+            "rows": [
+              {
+                "label": "Loss",
+                "colors": [
+                  "#fee5d9",
+                  "#fcbba1",
+                  "#fc9272",
+                  "#fb6a4a",
+                  "#de2d26",
+                  "#a50f15"
+                ]
+              },
+              {
+                "label": "Gain",
+                "colors": [
+                  "#eff3ff",
+                  "#c6dbef",
+                  "#9ecae1",
+                  "#6baed6",
+                  "#3182bd",
+                  "#08519c"
+                ]
+              }
+            ],
+            "provisionalNote": "P6→P7 is provisional"
+          },
+          "about": {
+            "shows": "When confirmed mangrove loss and gain happened, per period between 1993 and 2025.",
+            "computed": "Same method as the change classes: each confirmed loss or gain pixel is colored by the period in which its new state started.",
+            "colors": "Darker means more recent. P6→P7 is provisional: it is not yet confirmed by a later period.",
+            "chart": {
+              "title": "Loss and gain per period",
+              "note": "Periods differ in length; P7 covers only 2024-2025."
+            }
+          },
+          "classes": [],
+          "relatedStorms": [],
+          "placeholder": true
         }
-      ],
-      "relatedStorms": []
+      ]
     },
     {
       "id": "disturbance-recovery",

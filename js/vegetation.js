@@ -15,6 +15,7 @@ let vegLayers = null;          // contents of data/vegetation/layers.json
 let vegEws = [];               // the early warning signals per point id (data/vegetation/points.json)
 let vegLoaded = false;         // true when layers.json and points.json have loaded
 let vegLayerId = null;         // the layer shown in the map of section 1
+let vegViewIds = {};           // the chosen view per layer id (layers with "views", e.g. Change: classes | per-period)
 let vegOverlay = null;         // the Leaflet image of that layer
 let vegMaps = {};              // the Leaflet map of the layers: { layers }
 const START_PADDING = 40;      // px of base map around the outline in the start view of the maps
@@ -60,6 +61,7 @@ async function setupVegetation() {
 
   renderStaticTexts();
   renderLayerSwitch();
+  renderViewSwitch();
   setupOpacity();
   renderSource();
   renderLayer();
@@ -207,7 +209,13 @@ function setupPointsMapBackground() {
 
 // ---------- section 1: the layers ----------
 
-function currentLayer() { return vegLayers.layers.find((l) => l.id === vegLayerId); }
+// The layer shown. A layer with "views" (layers.json) gets the fields of the chosen view (image, legend, about, ...) on top.
+function currentLayer() {
+  const layer = vegLayers.layers.find((l) => l.id === vegLayerId);
+  if (!layer.views) return layer;
+  const view = layer.views.find((v) => v.id === vegViewIds[layer.id]) || layer.views[0];
+  return Object.assign({}, layer, view, { id: layer.id });
+}
 
 function renderLayerSwitch() {
   const box = $('veg-layer-switch');
@@ -221,6 +229,32 @@ function renderLayerSwitch() {
     chip.addEventListener('click', () => {
       vegLayerId = item.id;
       renderLayerSwitch();
+      renderViewSwitch();
+      renderLayer();
+      renderLayerOverlay();
+    });
+    box.appendChild(chip);
+  });
+}
+
+// The small switch under the layer chips (e.g. Change: Classes | Per period): only for layers with views.
+function renderViewSwitch() {
+  const box = $('veg-view-switch');
+  const items = CONTENT.vegetation.viewSwitch[vegLayerId];
+  box.hidden = !items;
+  box.innerHTML = '';
+  if (!items) return;
+  const layer = vegLayers.layers.find((l) => l.id === vegLayerId);
+  const activeId = (vegViewIds[vegLayerId] || layer.views[0].id);
+  items.forEach((item) => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'layer-chip' + (item.id === activeId ? ' on' : '');
+    chip.textContent = item.label;
+    chip.setAttribute('aria-pressed', item.id === activeId);
+    chip.addEventListener('click', () => {
+      vegViewIds[vegLayerId] = item.id;
+      renderViewSwitch();
       renderLayer();
       renderLayerOverlay();
     });
@@ -271,7 +305,30 @@ function renderLegend(legend) {
   title.className = 'legend-title';
   title.textContent = legend.title;
   box.appendChild(title);
-  if (legend.type === 'gradient') {
+  if (legend.type === 'periods') {
+    // two rows of color blocks (loss, gain), one block per period transition; the dates are in the tooltip
+    const grid = document.createElement('div');
+    grid.className = 'legend-periods';
+    legend.rows.forEach((row) => {
+      const name = document.createElement('span');
+      name.className = 'period-row-label';
+      name.textContent = row.label;
+      grid.appendChild(name);
+      row.colors.forEach((c, n) => {
+        const step = legend.steps[n];
+        const block = document.createElement('span');
+        block.className = 'period-block' + (n >= row.colors.length / 2 ? ' dark' : '');
+        block.style.background = c;
+        block.textContent = step.label + (step.provisional ? '*' : '');
+        block.title = step.label + ' (' + step.range + ')' + (step.provisional ? ' – ' + legend.provisionalNote : '');
+        grid.appendChild(block);
+      });
+    });
+    const note = document.createElement('span');
+    note.className = 'legend-note';
+    note.textContent = '* ' + legend.provisionalNote;
+    box.append(grid, note);
+  } else if (legend.type === 'gradient') {
     // low label, a bar from the first to the last color, high label
     const low = document.createElement('span');
     low.className = 'lg';
@@ -327,14 +384,36 @@ function renderAbout() {
   body.appendChild(aboutBlock(vt('aboutShows'), aboutText(layer.about.shows)));
   body.appendChild(aboutBlock(vt('aboutComputed'), aboutText(layer.about.computed)));
 
-  // how to read the colors: one color block per class
+  // how to read the colors: one color block per class (the per-period view lists its periods instead)
   const colors = document.createElement('div');
   colors.className = 'about-legend';
   layer.classes.forEach((c) => colors.appendChild(legendItem(c.label, vegColor(c.color))));
+  if (layer.legend.type === 'periods') {
+    const list = document.createElement('div');
+    list.className = 'period-list';
+    layer.legend.steps.forEach((st) => {
+      const line = document.createElement('span');
+      line.textContent = st.label + ' (' + st.range + ')' + (st.provisional ? ' – ' + layer.legend.provisionalNote : '');
+      list.appendChild(line);
+    });
+    colors.appendChild(list);
+  }
   if (isFilled(layer.about.colors)) colors.appendChild(aboutText(layer.about.colors));   // a note on the colors
   body.appendChild(aboutBlock(vt('aboutColors'), colors));
 
+  // a place for a small chart that follows later (per-period view)
+  if (layer.about.chart) {
+    const box = document.createElement('div');
+    box.className = 'chart-placeholder';
+    box.innerHTML = '<span class="chart-placeholder-title"></span><span class="about-text"></span><span class="about-note"></span>';
+    box.querySelector('.chart-placeholder-title').textContent = layer.about.chart.title;
+    box.querySelector('.about-text').textContent = vt('chartPlaceholder');
+    box.querySelector('.about-note').textContent = layer.about.chart.note;
+    body.appendChild(box);
+  }
+
   // share of area per class: the hectares as stored and their share of the total (one decimal), or "No data"
+  if (layer.classes.length) {
   const shares = document.createElement('div');
   const totalHa = layer.classes.reduce((sum, c) => sum + (isNumber(c.ha) ? c.ha : 0), 0);
   layer.classes.forEach((c) => {
@@ -354,6 +433,7 @@ function renderAbout() {
     shares.appendChild(note);
   }
   body.appendChild(aboutBlock(vt('aboutShares'), shares));
+  }
 
   // related storms (Disturbance & recovery): only when the list is not empty
   const storms = (layer.relatedStorms || []).map((id) => (typeof events !== 'undefined' ? events : []).find((e) => e.id === id)).filter(Boolean);
