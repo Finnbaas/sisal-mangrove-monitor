@@ -5,9 +5,9 @@
 #   the monthly NDVI, the STL trend (deseasonalised) and the breakpoints. Those are not calculated here:
 #   they are copied from the two CSVs that the analysis notebook writes (see step 2b).
 #   It also copies the early warning signals (EWS) of the featured points, written by the export cell of
-#   ews_monthly_new.ipynb (step 9), into data/vegetation/points.json (see step 5). Nothing is calculated here.
+#   ews/ews_monthly_new.ipynb (step 9), into data/vegetation/points.json (see step 5). Nothing is calculated here.
 # Reads (in analysis/satellite/): the three monthly max-NDVI CSVs, shape_classes_points(n=1138).csv,
-#   featured_plot_lines.csv, featured_plot_breakpoints.csv, featured_ews_stats.csv and featured_ews_series.csv;
+#   featured_plot_lines.csv, featured_plot_breakpoints.csv, and ews/featured_ews_stats.csv and ews/featured_ews_series.csv;
 #   plus content/featured-points.json.
 # Writes: data/points.json and data/vegetation/points.json (never edit those files by hand; run this script again instead).
 # Used by: js/points.js and js/vegetation.js read the output.
@@ -39,7 +39,9 @@ CLASSES_CSV = "shape_classes_points(n=1138).csv"
 # analysis notebook (analysis/satellite/ndvi_monthly_classification.ipynb, after "4. Plot per point").
 PLOT_LINES_CSV = "featured_plot_lines.csv"
 PLOT_BREAKPOINTS_CSV = "featured_plot_breakpoints.csv"
-# The early warning signals of the featured points, written by the export cell of ews_monthly_new.ipynb (step 9).
+# The early warning signals of the featured points, written by the export cell of ews/ews_monthly_new.ipynb (step 9)
+# into the ews/ folder (the EWS notebook has its own folder, like its use case on the Method page).
+EWS_DIR = HERE / "ews"
 EWS_STATS_CSV = "featured_ews_stats.csv"
 EWS_SERIES_CSV = "featured_ews_series.csv"
 # notebook column name -> name in data/vegetation/points.json (the ids of "ewsCharts" in content/vegetation.json)
@@ -208,12 +210,12 @@ print(classes["shape_class"].value_counts().to_string())
 # featured_ews_series.csv: the pre-loss segment of the "ok" points: point_id, date, deseason, resid, ar1, sd, skew, kurtosis
 # p is the share of AR(1) surrogates with a tau at least as high as the observed one (one-sided, as in the notebook).
 
-if not (HERE / EWS_STATS_CSV).exists() or not (HERE / EWS_SERIES_CSV).exists():
-    print(f"WARNING: {EWS_STATS_CSV} or {EWS_SERIES_CSV} not found (run step 9 of ews_monthly_new.ipynb); "
+if not (EWS_DIR / EWS_STATS_CSV).exists() or not (EWS_DIR / EWS_SERIES_CSV).exists():
+    print(f"WARNING: {EWS_STATS_CSV} or {EWS_SERIES_CSV} not found (run step 9 of ews/ews_monthly_new.ipynb); "
           f"{EWS_OUTPUT} was not changed.")
 else:
-    ews_stats = pd.read_csv(HERE / EWS_STATS_CSV, dtype={"loss_start": str}).set_index("point_id")
-    ews_series = pd.read_csv(HERE / EWS_SERIES_CSV, dtype={"date": str})
+    ews_stats = pd.read_csv(EWS_DIR / EWS_STATS_CSV, dtype={"loss_start": str}).set_index("point_id")
+    ews_series = pd.read_csv(EWS_DIR / EWS_SERIES_CSV, dtype={"date": str})
     ews_points = []
     for pid in featured_ids:
         if pid not in ews_stats.index:
@@ -247,7 +249,7 @@ else:
     EWS_OUTPUT.write_text(json.dumps({
         "_about": "Early warning signals of the clickable points (content/featured-points.json) for the card "
                   "\"Early warning signals\" of the Vegetation page. Written by analysis/satellite/export_points.py from "
-                  "the export of ews_monthly_new.ipynb; never edit by hand. Only points with a loss breakpoint and enough "
+                  "the export of analysis/satellite/ews/ews_monthly_new.ipynb; never edit by hand. Only points with a loss breakpoint and enough "
                   "data before it (status \"ok\") have series; those run over \"dates\" (the months before lossStart). "
                   "p = share of the nSurrogates AR(1) surrogates with a tau at least as high as the observed one.",
         "points": ews_points,

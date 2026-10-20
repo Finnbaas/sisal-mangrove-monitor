@@ -1,5 +1,5 @@
 {
- "_about": "Early warning signals of the clickable points (content/featured-points.json) for the card \"Early warning signals\" of the Vegetation page. Written by analysis/satellite/export_points.py from the export of ews_monthly_new.ipynb; never edit by hand. Only points with a loss breakpoint and enough data before it (status \"ok\") have series; those run over \"dates\" (the months before lossStart). p = share of the nSurrogates AR(1) surrogates with a tau at least as high as the observed one.",
+ "_about": "Early warning signals of the clickable points (content/featured-points.json) for the card \"Early warning signals\" of the Vegetation page. Written by analysis/satellite/export_points.py from the export of analysis/satellite/ews/ews_monthly_new.ipynb; never edit by hand. Only points with a loss breakpoint and enough data before it (status \"ok\") have series; those run over \"dates\" (the months before lossStart). p = share of the nSurrogates AR(1) surrogates with a tau at least as high as the observed one.",
  "points": [
   {
    "id": "base_53",
