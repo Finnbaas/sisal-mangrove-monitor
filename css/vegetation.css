@@ -15,8 +15,8 @@
 /* map with the legend strip under it, both in one rounded frame (like #storm-map-frame) */
 .map-frame { position: relative; border-radius: 16px; overflow: hidden; background: var(--color-surface-subtle); }
 /* isolation: the map's own layers stay under the legend strip and the buttons that lie on it */
-/* the map has the shape of the base map picture (1600:1275), so the whole extent fills it */
-.geo-map { width: 100%; aspect-ratio: 1600 / 1275; background: var(--color-map-bg); isolation: isolate; }
+/* the map has the shape of the base map picture (1800:1485), so the whole extent fills it */
+.geo-map { width: 100%; aspect-ratio: 1800 / 1485; background: var(--color-map-bg); isolation: isolate; }
 /* the zoom buttons sit on top of the map, top right (.map-button is in climatology.css) */
 .map-buttons { position: absolute; top: 10px; right: 10px; z-index: 500; display: flex; gap: 6px; }
 /* calm text on a map layer that is not available yet */

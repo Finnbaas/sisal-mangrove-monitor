@@ -17,6 +17,7 @@ let vegLoaded = false;         // true when layers.json and points.json have loa
 let vegLayerId = null;         // the layer shown in the map of section 1
 let vegOverlay = null;         // the Leaflet image of that layer
 let vegMaps = {};              // the Leaflet map of the layers: { layers }
+const START_PADDING = 40;      // px of base map around the outline in the start view of the maps
 
 // A text from content/vegetation.json "texts", e.g. vt('pointsMapSubtitle', { shown: 5, total: 10 }).
 function vt(key, values) {
@@ -65,6 +66,7 @@ async function setupVegetation() {
   setupMaps();
   setupPointsMapBackground();
   vegLoaded = true;
+  if (allPoints.length) { renderMap(); renderAll(); }   // points.js: the dots, now on the new base map
   renderVegetationEws(getSelectedPoint());   // points.js: the selected point, none at the start
   window.addEventListener('hashchange', () => { if (location.hash.slice(1).split('/')[0] === 'satellite') renderAbout(); });
 }
@@ -93,7 +95,7 @@ function renderStaticTexts() {
 // real longitude/latitude bounds. The AOI outline is a thin vector line from layers.json "basemap.aoi".
 
 function baseBounds() {
-  const b = vegLayers.bounds;
+  const b = vegLayers.basemapBounds;
   return L.latLngBounds([b.south, b.west], [b.north, b.east]);
 }
 
@@ -101,27 +103,30 @@ function baseBounds() {
 function aoiLatLngs() { return vegLayers.basemap.aoi.map(([lon, lat]) => [lat, lon]); }
 
 function createMap(elementId, zoomInId, zoomOutId, resetId) {
-  const bounds = baseBounds();
-  const map = L.map(elementId, { zoomControl: false, attributionControl: false, zoomSnap: 0, scrollWheelZoom: false });
+  const bounds = baseBounds();                  // the whole base map: the map cannot be panned outside it
+  const aoi = L.latLngBounds(aoiLatLngs());     // the study area outline: the start view
+  const map = L.map(elementId, { zoomControl: false, attributionControl: false, zoomSnap: 0, scrollWheelZoom: false, maxBoundsViscosity: 1 });
+  // the start view: the outline with 40 px of base map on every side (the legend strip lies over the bottom of the map)
+  const legendHeight = () => $(elementId).parentElement.querySelector('.legend-strip').offsetHeight;
+  const showStart = () => map.fitBounds(aoi, { paddingTopLeft: [START_PADDING, START_PADDING], paddingBottomRight: [START_PADDING, START_PADDING + legendHeight()], animate: false });
   // the attribution sits top left: the legend strip covers the bottom of the map
   L.control.attribution({ position: 'topleft', prefix: false }).addTo(map);
   L.imageOverlay(vegLayers.basemap.image, bounds, { attribution: vegLayers.basemap.attribution }).addTo(map);
   L.polygon(aoiLatLngs(), { color: vegColor('surface'), weight: 1.5, opacity: 0.9, fill: false, interactive: false }).addTo(map);
   $(zoomInId).addEventListener('click', () => map.zoomIn());
   $(zoomOutId).addEventListener('click', () => map.zoomOut());
-  // reset: back to the whole area (the extent the map starts with)
-  $(resetId).addEventListener('click', () => map.fitBounds(bounds));
+  // reset: back to the start view
+  $(resetId).addEventListener('click', showStart);
   // the map can only be measured when its card is on screen: (re)fit the extent whenever its size changes
   let fitted = false;
   new ResizeObserver(() => {
     const box = $(elementId);
     if (!box.clientWidth) return;
     map.invalidateSize();
-    map.setMinZoom(-20);
-    map.fitBounds(bounds, { animate: false });
-    map.setMinZoom(map.getZoom());
-    map.setMaxZoom(map.getZoom() + 4);
-    map.setMaxBounds(bounds.pad(0.05));
+    map.setMinZoom(map.getBoundsZoom(bounds));   // the level at which the whole base map just fits
+    map.setMaxBounds(bounds);
+    map.setMaxZoom(map.getBoundsZoom(aoi, false, L.point(2 * START_PADDING, 2 * START_PADDING + legendHeight())) + 4);
+    showStart();
     if (!fitted) {
       fitted = true;
       renderAbout();   // related storms need the storm list, which has loaded by now
@@ -135,25 +140,69 @@ function setupMaps() {
   renderLayerOverlay();
 }
 
-// The points map (points.js) is a flat picture with dots placed in percent. It gets the same base map, the AOI
-// outline as an SVG line (longitude/latitude to percent in the Mercator projection of the picture) and the attribution.
+// The points map (points.js) is a flat picture (the base map) with dots placed in percent of the picture.
+// #map is the whole picture, #map-view the window on it: layoutPointsMap() sizes and moves the picture so the AOI outline
+// fills the window with START_PADDING px around it (the same start view as the Leaflet map). The outline is an SVG line.
+// The picture is in the Mercator projection, so a latitude is first converted with mercatorY().
 function mercatorY(latitude) { return Math.log(Math.tan(Math.PI / 4 + latitude * Math.PI / 360)); }
 
+// A longitude/latitude as percent of the base map picture: { left, top }.
+function basemapPercent(lon, lat) {
+  const b = vegLayers.basemapBounds;
+  const top = mercatorY(b.north);
+  return {
+    left: (lon - b.west) / (b.east - b.west) * 100,
+    top: (top - mercatorY(lat)) / (top - mercatorY(b.south)) * 100
+  };
+}
+
+// Where a point of points.js lies on the points map (percent of the picture).
+function pointMapPosition(p) {
+  if (!vegLayers) return { left: p.leftPct, top: p.topPct };   // layers.json is still loading: drawn again when it is there
+  return basemapPercent(p.lon, p.lat);
+}
+
+// Size and place the picture in its window: the outline fits with START_PADDING px on every side (never smaller than the window).
+function layoutPointsMap() {
+  const view = $('map-view');
+  const w = view.clientWidth;
+  const h = view.clientHeight;
+  if (!w || !h) return;
+  const b = vegLayers.basemapBounds;
+  const ratio = (mercatorY(b.north) - mercatorY(b.south)) / ((b.east - b.west) * Math.PI / 180);   // picture height / width
+  const corners = vegLayers.basemap.aoi.map(([lon, lat]) => basemapPercent(lon, lat));
+  const left = Math.min(...corners.map((c) => c.left)) / 100, right = Math.max(...corners.map((c) => c.left)) / 100;
+  const top = Math.min(...corners.map((c) => c.top)) / 100, bottom = Math.max(...corners.map((c) => c.top)) / 100;
+  // picture width in px: the outline (a share of the picture) must fit in the window minus the padding
+  let width = Math.min((w - 2 * START_PADDING) / (right - left), (h - 2 * START_PADDING) / ((bottom - top) * ratio));
+  width = Math.max(width, w, h / ratio);
+  const height = width * ratio;
+  // centre the outline, but keep the picture over the whole window
+  const x = Math.min(0, Math.max(w - width, w / 2 - (left + right) / 2 * width));
+  const y = Math.min(0, Math.max(h - height, h / 2 - (top + bottom) / 2 * height));
+  const stage = $('map');
+  stage.style.width = width + 'px';
+  stage.style.height = height + 'px';
+  stage.style.left = x + 'px';
+  stage.style.top = y + 'px';
+}
+
 function setupPointsMapBackground() {
-  const b = vegLayers.bounds;
   const map = $('map');
   $('map-image').src = vegLayers.basemap.image;
-  const top = mercatorY(b.north);
-  const height = top - mercatorY(b.south);
-  const points = vegLayers.basemap.aoi.map(([lon, lat]) =>
-    ((lon - b.west) / (b.east - b.west) * 100).toFixed(3) + ',' + ((top - mercatorY(lat)) / height * 100).toFixed(3)).join(' ');
+  const points = vegLayers.basemap.aoi.map(([lon, lat]) => {
+    const p = basemapPercent(lon, lat);
+    return p.left.toFixed(3) + ',' + p.top.toFixed(3);
+  }).join(' ');
   const svg = '<svg id="map-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
     '<polygon points="' + points + '" fill="none" stroke="' + vegColor('surface') + '" stroke-width="1.5" stroke-opacity="0.9" vector-effect="non-scaling-stroke"></polygon></svg>';
   map.insertAdjacentHTML('beforeend', svg);
   const credit = document.createElement('span');
   credit.id = 'map-attribution';
   credit.textContent = vegLayers.basemap.attribution;
-  map.appendChild(credit);
+  $('map-view').appendChild(credit);
+  // the window can only be measured when its card is on screen: place the picture whenever its size changes
+  new ResizeObserver(layoutPointsMap).observe($('map-view'));
 }
 
 // ---------- section 1: the layers ----------
@@ -200,7 +249,7 @@ function renderLayerOverlay() {
   message.innerHTML = '<span></span>';
   message.firstChild.textContent = vt('mapNotAvailable');
   if (!layer.image) return;
-  const b = layer.bounds || vegLayers.bounds;
+  const b = layer.bounds || vegLayers.layerBounds;
   vegOverlay = L.imageOverlay(layer.image, L.latLngBounds([b.south, b.west], [b.north, b.east]), { opacity: $('veg-opacity').value / 100, className: 'pixel-layer' }).addTo(vegMaps.layers);   // pixel-layer: sharp blocks, see vegetation.css
   // an image that cannot be loaded shows the same message
   vegOverlay.on('error', () => { message.hidden = false; });

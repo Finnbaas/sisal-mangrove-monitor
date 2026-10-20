@@ -1,13 +1,22 @@
 /* points.css: the Overview and Vegetation screens: site map with the points, year slider, tipping status,
    point chart, NDVI plot image, values, point info and trend signals. Also the narrow-screen rules of the research layout. */
 
-/* The map is the satellite photo as an <img> (see index.html), shown whole and never cropped, so the
-   positions in points.json (percent of the photo's width and height) land in the right place. */
-#map {
+/* The map is the satellite photo as an <img> (see index.html). #map-view is the window, #map the whole photo
+   inside it: vegetation.js sizes and moves #map so the study area outline fills the window with a margin
+   (setupPointsMapBackground). The dots, markers and ring lie in #map, at percent positions of the photo. */
+#map-view {
   position: relative;
   width: 100%;
+  aspect-ratio: 1800 / 1485;
   border-radius: 16px;
   overflow: hidden;
+  background-color: var(--color-map-bg);
+}
+#map {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
   background-color: var(--color-map-bg);
 }
 #map-image { display: block; width: 100%; height: auto; }
@@ -47,7 +56,7 @@
 }
 /* legend strip under the map, same look as #storm-map-legend (climatology.css) */
 #map-frame { border-radius: 16px; overflow: hidden; background-color: var(--color-map-bg); }
-#map-frame #map { border-radius: 0; }
+#map-frame #map-view { border-radius: 0; }
 #legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; padding: 9px 14px; background: var(--color-surface-subtle); }
 #legend-items { display: contents; }
 #legend .lg { margin-bottom: 0; }

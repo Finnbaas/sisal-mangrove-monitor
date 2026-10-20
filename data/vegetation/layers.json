@@ -1,6 +1,12 @@
 {
-  "_about": "The three map layers of the Vegetation page (Mangrove maps). Everything here is placeholder until the pipeline writes the real layers: set \"image\" to the map image path (e.g. data/vegetation/condition.png) and replace the texts and shares; remove \"placeholder\" when real. Colors are color names from css/base.css (without --color-). Layer ids must stay: condition, change, disturbance-recovery.",
-  "bounds": {
+  "_about": "The three map layers of the Vegetation page (Mangrove maps). Everything here is placeholder until the pipeline writes the real layers: set \"image\" to the map image path (e.g. data/vegetation/condition.png) and replace the texts and shares; remove \"placeholder\" when real. Colors are color names from css/base.css (without --color-). Layer ids must stay: condition, change, disturbance-recovery. basemapBounds: the extent of data/vegetation/basemap.png; layerBounds: the extent of the layer images (a layer can set its own \"bounds\").",
+  "basemapBounds": {
+    "west": -90.13500994306808,
+    "south": 21.064999279900693,
+    "east": -89.9247767050262,
+    "north": 21.226666332973572
+  },
+  "layerBounds": {
     "west": -90.12053053107839,
     "south": 21.07849757664358,
     "east": -89.93925611701589,
