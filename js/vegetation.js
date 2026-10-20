@@ -391,9 +391,22 @@ function renderAbout() {
   if (layer.legend.type === 'periods') {
     const list = document.createElement('div');
     list.className = 'period-list';
-    layer.legend.steps.forEach((st) => {
-      const line = document.createElement('span');
-      line.textContent = st.label + ' (' + st.range + ')' + (st.provisional ? ' – ' + layer.legend.provisionalNote : '');
+    layer.legend.steps.forEach((st, n) => {
+      // the period on the left, its colors (one block per legend row, e.g. loss and gain) on the right
+      const line = document.createElement('div');
+      line.className = 'period-line';
+      const text = document.createElement('span');
+      text.textContent = st.label + ' (' + st.range + ')' + (st.provisional ? ' – ' + layer.legend.provisionalNote : '');
+      const swatches = document.createElement('span');
+      swatches.className = 'period-swatches';
+      layer.legend.rows.forEach((row) => {
+        const swatch = document.createElement('span');
+        swatch.className = 'lg-swatch';
+        swatch.style.background = row.colors[n];
+        swatch.title = row.label;
+        swatches.appendChild(swatch);
+      });
+      line.append(text, swatches);
       list.appendChild(line);
     });
     colors.appendChild(list);
