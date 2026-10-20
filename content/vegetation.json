@@ -4,9 +4,6 @@
     "layers": "data/vegetation/layers.json",
     "points": "data/vegetation/points.json"
   },
-  "baseMap": {
-    "image": "img/site-map2.png"
-  },
   "defaultOpacity": 70,
   "layerSwitch": [
     {
@@ -22,16 +19,32 @@
       "label": "Disturbance & recovery"
     }
   ],
+  "viewSwitch": {
+    "change": [
+      {
+        "id": "classes",
+        "label": "Classes"
+      },
+      {
+        "id": "per-period",
+        "label": "Per period"
+      }
+    ]
+  },
   "texts": {
+    "chartPlaceholder": "Bar chart follows in a later step.",
     "mapNotAvailable": "Map layer not yet available",
     "opacity": "Opacity",
     "zoomIn": "+",
     "zoomOut": "−",
+    "reset": "Reset",
+    "resetTitle": "Show the whole area again",
     "aboutTitle": "About this layer",
     "aboutShows": "What it shows",
     "aboutComputed": "How it was computed",
     "aboutColors": "How to read the colors",
     "aboutShares": "Share of area per class",
+    "shareValue": "{ha} ha · {percent} %",
     "relatedStorms": "Related storms",
     "relatedStormsLink": "See on the Climatology page",
     "sourceTitle": "Where the data comes from",

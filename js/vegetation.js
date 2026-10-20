@@ -16,8 +16,10 @@ let vegLayers = null;          // contents of data/vegetation/layers.json
 let vegEws = [];               // the early warning signals per point id (data/vegetation/points.json)
 let vegLoaded = false;         // true when layers.json and points.json have loaded
 let vegLayerId = null;         // the layer shown in the map of section 1
+let vegViewIds = {};           // the chosen view per layer id (layers with "views", e.g. Change: classes | per-period)
 let vegOverlay = null;         // the Leaflet image of that layer
 let vegMaps = {};              // the Leaflet map of the layers: { layers }
+const START_PADDING = 40;      // px of base map around the outline in the start view of the maps
 
 // A text from content/vegetation.json "texts", e.g. vt('pointsMapSubtitle', { shown: 5, total: 10 }).
 function vt(key, values) {
@@ -30,7 +32,8 @@ function vt(key, values) {
   return text;
 }
 
-function vegColor(name) { return color(colorVarOf(name)); }
+// A color from a name in css/base.css ("class-loss") or, for map classes, a hex color as in the image ("#d7191c").
+function vegColor(name) { return String(name).startsWith('#') ? name : color(colorVarOf(name)); }
 function setText(id, text) { $(id).textContent = text; }
 
 // ---------- loading ----------
@@ -59,11 +62,14 @@ async function setupVegetation() {
 
   renderStaticTexts();
   renderLayerSwitch();
+  renderViewSwitch();
   setupOpacity();
   renderSource();
   renderLayer();
   setupMaps();
+  setupPointsMapBackground();
   vegLoaded = true;
+  if (allPoints.length) { renderMap(); renderAll(); }   // points.js: the dots, now on the new base map
   renderVegetationEws(getSelectedPoint());   // points.js: the selected point, none at the start
   window.addEventListener('hashchange', () => { if (location.hash.slice(1).split('/')[0] === 'satellite') renderAbout(); });
 }
@@ -76,6 +82,8 @@ function renderStaticTexts() {
   setText('veg-opacity-label', tx.opacity);
   setText('veg-map-zoom-in', tx.zoomIn);
   setText('veg-map-zoom-out', tx.zoomOut);
+  setText('veg-map-reset', tx.reset);
+  $('veg-map-reset').title = tx.resetTitle;
   [['veg-maps-link', tx.mapsLink, tx.mapsLinkTarget], ['veg-ews-link', tx.pointsLink, tx.pointsLinkTarget]].forEach(([id, label, target]) => {
     const link = $(id);
     link.href = target;
@@ -85,31 +93,43 @@ function renderStaticTexts() {
 }
 
 // ---------- maps (Leaflet) ----------
-// The two maps show the same base map (img/site-map2.png) over the same extent. The picture has no map
-// projection, so the map is flat (CRS.Simple): a point is placed at its [latitude, longitude].
+// Both maps show the Sentinel-2 base map (data/vegetation/basemap.png) over the same extent (layers.json "bounds").
+// The picture is in the Web Mercator projection (EPSG:3857), the same as Leaflet's default, so it is placed with
+// real longitude/latitude bounds. The AOI outline is a thin vector line from layers.json "basemap.aoi".
 
 function baseBounds() {
-  const b = vegLayers.bounds;
+  const b = vegLayers.basemapBounds;
   return L.latLngBounds([b.south, b.west], [b.north, b.east]);
 }
 
-function createMap(elementId, zoomInId, zoomOutId) {
-  const bounds = baseBounds();
-  const map = L.map(elementId, { crs: L.CRS.Simple, zoomControl: false, attributionControl: false, zoomSnap: 0, scrollWheelZoom: false });
-  L.imageOverlay(CONTENT.vegetation.baseMap.image, bounds).addTo(map);
+// The AOI outline as Leaflet latitude/longitude pairs (layers.json stores [longitude, latitude]).
+function aoiLatLngs() { return vegLayers.basemap.aoi.map(([lon, lat]) => [lat, lon]); }
+
+function createMap(elementId, zoomInId, zoomOutId, resetId) {
+  const bounds = baseBounds();                  // the whole base map: the map cannot be panned outside it
+  const aoi = L.latLngBounds(aoiLatLngs());     // the study area outline: the start view
+  const map = L.map(elementId, { zoomControl: false, attributionControl: false, zoomSnap: 0, scrollWheelZoom: false, maxBoundsViscosity: 1 });
+  // the start view: the outline with 40 px of base map on every side (the legend strip lies over the bottom of the map)
+  const legendHeight = () => $(elementId).parentElement.querySelector('.legend-strip').offsetHeight;
+  const showStart = () => map.fitBounds(aoi, { paddingTopLeft: [START_PADDING, START_PADDING], paddingBottomRight: [START_PADDING, START_PADDING + legendHeight()], animate: false });
+  // the attribution sits top left: the legend strip covers the bottom of the map
+  L.control.attribution({ position: 'topleft', prefix: false }).addTo(map);
+  L.imageOverlay(vegLayers.basemap.image, bounds, { attribution: vegLayers.basemap.attribution }).addTo(map);
+  L.polygon(aoiLatLngs(), { color: vegColor('surface'), weight: 1.5, opacity: 0.9, fill: false, interactive: false }).addTo(map);
   $(zoomInId).addEventListener('click', () => map.zoomIn());
   $(zoomOutId).addEventListener('click', () => map.zoomOut());
+  // reset: back to the start view
+  $(resetId).addEventListener('click', showStart);
   // the map can only be measured when its card is on screen: (re)fit the extent whenever its size changes
   let fitted = false;
   new ResizeObserver(() => {
     const box = $(elementId);
     if (!box.clientWidth) return;
     map.invalidateSize();
-    map.setMinZoom(-20);
-    map.fitBounds(bounds, { animate: false });
-    map.setMinZoom(map.getZoom());
-    map.setMaxZoom(map.getZoom() + 4);
-    map.setMaxBounds(bounds.pad(0.05));
+    map.setMinZoom(map.getBoundsZoom(bounds));   // the level at which the whole base map just fits
+    map.setMaxBounds(bounds);
+    map.setMaxZoom(map.getBoundsZoom(aoi, false, L.point(2 * START_PADDING, 2 * START_PADDING + legendHeight())) + 4);
+    showStart();
     if (!fitted) {
       fitted = true;
       renderAbout();   // related storms need the storm list, which has loaded by now
@@ -119,13 +139,84 @@ function createMap(elementId, zoomInId, zoomOutId) {
 }
 
 function setupMaps() {
-  vegMaps.layers = createMap('veg-map', 'veg-map-zoom-in', 'veg-map-zoom-out');
+  vegMaps.layers = createMap('veg-map', 'veg-map-zoom-in', 'veg-map-zoom-out', 'veg-map-reset');
   renderLayerOverlay();
+}
+
+// The points map (points.js) is a flat picture (the base map) with dots placed in percent of the picture.
+// #map is the whole picture, #map-view the window on it: layoutPointsMap() sizes and moves the picture so the AOI outline
+// fills the window with START_PADDING px around it (the same start view as the Leaflet map). The outline is an SVG line.
+// The picture is in the Mercator projection, so a latitude is first converted with mercatorY().
+function mercatorY(latitude) { return Math.log(Math.tan(Math.PI / 4 + latitude * Math.PI / 360)); }
+
+// A longitude/latitude as percent of the base map picture: { left, top }.
+function basemapPercent(lon, lat) {
+  const b = vegLayers.basemapBounds;
+  const top = mercatorY(b.north);
+  return {
+    left: (lon - b.west) / (b.east - b.west) * 100,
+    top: (top - mercatorY(lat)) / (top - mercatorY(b.south)) * 100
+  };
+}
+
+// Where a point of points.js lies on the points map (percent of the picture).
+function pointMapPosition(p) {
+  if (!vegLayers) return { left: p.leftPct, top: p.topPct };   // layers.json is still loading: drawn again when it is there
+  return basemapPercent(p.lon, p.lat);
+}
+
+// Size and place the picture in its window: the outline fits with START_PADDING px on every side (never smaller than the window).
+function layoutPointsMap() {
+  const view = $('map-view');
+  const w = view.clientWidth;
+  const h = view.clientHeight;
+  if (!w || !h) return;
+  const b = vegLayers.basemapBounds;
+  const ratio = (mercatorY(b.north) - mercatorY(b.south)) / ((b.east - b.west) * Math.PI / 180);   // picture height / width
+  const corners = vegLayers.basemap.aoi.map(([lon, lat]) => basemapPercent(lon, lat));
+  const left = Math.min(...corners.map((c) => c.left)) / 100, right = Math.max(...corners.map((c) => c.left)) / 100;
+  const top = Math.min(...corners.map((c) => c.top)) / 100, bottom = Math.max(...corners.map((c) => c.top)) / 100;
+  // picture width in px: the outline (a share of the picture) must fit in the window minus the padding
+  let width = Math.min((w - 2 * START_PADDING) / (right - left), (h - 2 * START_PADDING) / ((bottom - top) * ratio));
+  width = Math.max(width, w, h / ratio);
+  const height = width * ratio;
+  // centre the outline, but keep the picture over the whole window
+  const x = Math.min(0, Math.max(w - width, w / 2 - (left + right) / 2 * width));
+  const y = Math.min(0, Math.max(h - height, h / 2 - (top + bottom) / 2 * height));
+  const stage = $('map');
+  stage.style.width = width + 'px';
+  stage.style.height = height + 'px';
+  stage.style.left = x + 'px';
+  stage.style.top = y + 'px';
+}
+
+function setupPointsMapBackground() {
+  const map = $('map');
+  $('map-image').src = vegLayers.basemap.image;
+  const points = vegLayers.basemap.aoi.map(([lon, lat]) => {
+    const p = basemapPercent(lon, lat);
+    return p.left.toFixed(3) + ',' + p.top.toFixed(3);
+  }).join(' ');
+  const svg = '<svg id="map-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
+    '<polygon points="' + points + '" fill="none" stroke="' + vegColor('surface') + '" stroke-width="1.5" stroke-opacity="0.9" vector-effect="non-scaling-stroke"></polygon></svg>';
+  map.insertAdjacentHTML('beforeend', svg);
+  const credit = document.createElement('span');
+  credit.id = 'map-attribution';
+  credit.textContent = vegLayers.basemap.attribution;
+  $('map-view').appendChild(credit);
+  // the window can only be measured when its card is on screen: place the picture whenever its size changes
+  new ResizeObserver(layoutPointsMap).observe($('map-view'));
 }
 
 // ---------- section 1: the layers ----------
 
-function currentLayer() { return vegLayers.layers.find((l) => l.id === vegLayerId); }
+// The layer shown. A layer with "views" (layers.json) gets the fields of the chosen view (image, legend, about, ...) on top.
+function currentLayer() {
+  const layer = vegLayers.layers.find((l) => l.id === vegLayerId);
+  if (!layer.views) return layer;
+  const view = layer.views.find((v) => v.id === vegViewIds[layer.id]) || layer.views[0];
+  return Object.assign({}, layer, view, { id: layer.id });
+}
 
 function renderLayerSwitch() {
   const box = $('veg-layer-switch');
@@ -139,6 +230,32 @@ function renderLayerSwitch() {
     chip.addEventListener('click', () => {
       vegLayerId = item.id;
       renderLayerSwitch();
+      renderViewSwitch();
+      renderLayer();
+      renderLayerOverlay();
+    });
+    box.appendChild(chip);
+  });
+}
+
+// The small switch under the layer chips (e.g. Change: Classes | Per period): only for layers with views.
+function renderViewSwitch() {
+  const box = $('veg-view-switch');
+  const items = CONTENT.vegetation.viewSwitch[vegLayerId];
+  box.hidden = !items;
+  box.innerHTML = '';
+  if (!items) return;
+  const layer = vegLayers.layers.find((l) => l.id === vegLayerId);
+  const activeId = (vegViewIds[vegLayerId] || layer.views[0].id);
+  items.forEach((item) => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'layer-chip' + (item.id === activeId ? ' on' : '');
+    chip.textContent = item.label;
+    chip.setAttribute('aria-pressed', item.id === activeId);
+    chip.addEventListener('click', () => {
+      vegViewIds[vegLayerId] = item.id;
+      renderViewSwitch();
       renderLayer();
       renderLayerOverlay();
     });
@@ -167,8 +284,8 @@ function renderLayerOverlay() {
   message.innerHTML = '<span></span>';
   message.firstChild.textContent = vt('mapNotAvailable');
   if (!layer.image) return;
-  const b = layer.bounds || vegLayers.bounds;
-  vegOverlay = L.imageOverlay(layer.image, L.latLngBounds([b.south, b.west], [b.north, b.east]), { opacity: $('veg-opacity').value / 100 }).addTo(vegMaps.layers);
+  const b = layer.bounds || vegLayers.layerBounds;
+  vegOverlay = L.imageOverlay(layer.image, L.latLngBounds([b.south, b.west], [b.north, b.east]), { opacity: $('veg-opacity').value / 100, className: 'pixel-layer' }).addTo(vegMaps.layers);   // pixel-layer: sharp blocks, see vegetation.css
   // an image that cannot be loaded shows the same message
   vegOverlay.on('error', () => { message.hidden = false; });
 }
@@ -189,7 +306,30 @@ function renderLegend(legend) {
   title.className = 'legend-title';
   title.textContent = legend.title;
   box.appendChild(title);
-  if (legend.type === 'gradient') {
+  if (legend.type === 'periods') {
+    // two rows of color blocks (loss, gain), one block per period transition; the dates are in the tooltip
+    const grid = document.createElement('div');
+    grid.className = 'legend-periods';
+    legend.rows.forEach((row) => {
+      const name = document.createElement('span');
+      name.className = 'period-row-label';
+      name.textContent = row.label;
+      grid.appendChild(name);
+      row.colors.forEach((c, n) => {
+        const step = legend.steps[n];
+        const block = document.createElement('span');
+        block.className = 'period-block' + (n >= row.colors.length / 2 ? ' dark' : '');
+        block.style.background = c;
+        block.textContent = step.label + (step.provisional ? '*' : '');
+        block.title = step.label + ' (' + step.range + ')' + (step.provisional ? ' – ' + legend.provisionalNote : '');
+        grid.appendChild(block);
+      });
+    });
+    const note = document.createElement('span');
+    note.className = 'legend-note';
+    note.textContent = '* ' + legend.provisionalNote;
+    box.append(grid, note);
+  } else if (legend.type === 'gradient') {
     // low label, a bar from the first to the last color, high label
     const low = document.createElement('span');
     low.className = 'lg';
@@ -245,24 +385,58 @@ function renderAbout() {
   body.appendChild(aboutBlock(vt('aboutShows'), aboutText(layer.about.shows)));
   body.appendChild(aboutBlock(vt('aboutComputed'), aboutText(layer.about.computed)));
 
-  // how to read the colors: one color block per class
+  // how to read the colors: one color block per class (the per-period view lists its periods instead)
   const colors = document.createElement('div');
   colors.className = 'about-legend';
   layer.classes.forEach((c) => colors.appendChild(legendItem(c.label, vegColor(c.color))));
+  if (layer.legend.type === 'periods') {
+    const list = document.createElement('div');
+    list.className = 'period-list';
+    layer.legend.steps.forEach((st, n) => {
+      // like the classes of the other map: color blocks (loss, gain) in front of the label
+      const line = document.createElement('span');
+      line.className = 'lg';
+      layer.legend.rows.forEach((row) => {
+        const swatch = document.createElement('span');
+        swatch.className = 'lg-swatch';
+        swatch.style.background = row.colors[n];
+        swatch.title = row.label;
+        line.appendChild(swatch);
+      });
+      const text = document.createElement('span');
+      text.textContent = st.label + ' (' + st.range + ')' + (st.provisional ? ' – ' + layer.legend.provisionalNote : '');
+      line.appendChild(text);
+      list.appendChild(line);
+    });
+    colors.appendChild(list);
+  }
+  if (isFilled(layer.about.colors)) colors.appendChild(aboutText(layer.about.colors));   // a note on the colors
   body.appendChild(aboutBlock(vt('aboutColors'), colors));
 
-  // share of area per class: the value as stored, or "No data"
+  renderChartCard(layer);
+
+  // share of area per class: the hectares as stored and their share of the total (one decimal), or "No data"
+  if (layer.classes.length) {
   const shares = document.createElement('div');
+  const totalHa = layer.classes.reduce((sum, c) => sum + (isNumber(c.ha) ? c.ha : 0), 0);
   layer.classes.forEach((c) => {
     const row = document.createElement('div');
     row.className = 'value-row';
     row.innerHTML = '<span class="name"><span class="lg-dot"></span><span class="class-name"></span></span><span class="val"></span>';
     row.querySelector('.lg-dot').style.background = vegColor(c.color);
     row.querySelector('.class-name').textContent = c.label;
-    row.querySelector('.val').textContent = isNumber(c.share) ? c.share + ' %' : NO_DATA;
+    row.querySelector('.val').textContent = isNumber(c.ha) && totalHa > 0
+      ? vt('shareValue', { ha: c.ha.toFixed(1), percent: (c.ha / totalHa * 100).toFixed(1) })
+      : isNumber(c.share) ? c.share + ' %' : NO_DATA;
     shares.appendChild(row);
   });
+  if (isFilled(layer.about.sharesNote)) {
+    const note = aboutText(layer.about.sharesNote);
+    note.classList.add('about-note');
+    shares.appendChild(note);
+  }
   body.appendChild(aboutBlock(vt('aboutShares'), shares));
+  }
 
   // related storms (Disturbance & recovery): only when the list is not empty
   const storms = (layer.relatedStorms || []).map((id) => (typeof events !== 'undefined' ? events : []).find((e) => e.id === id)).filter(Boolean);
@@ -279,6 +453,18 @@ function renderAbout() {
     block.appendChild(link);
     body.appendChild(block);
   }
+}
+
+// The separate card under "About this layer" for a small chart that follows later (per-period view); hidden when the view has none.
+function renderChartCard(layer) {
+  const card = document.querySelector('[data-card="veg-chart"]');
+  const chart = layer.about.chart;
+  card.hidden = !chart;
+  if (!chart) return;
+  setText('veg-chart-title', chart.title);
+  showPlaceholderTag($('veg-chart-title').parentElement, layer.placeholder);
+  $('veg-chart-text').textContent = vt('chartPlaceholder');
+  $('veg-chart-note').textContent = chart.note;
 }
 
 // A storm as a row like the storm list of the Climatology page; clicking it selects that storm there.

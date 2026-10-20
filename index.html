@@ -58,9 +58,11 @@
           </div>
           <!-- the legend strip sits under the map, like the storm map -->
           <div id="map-frame">
-            <div id="map">
-              <img id="map-image" src="img/site-map2.png" alt="">
-              <div id="map-ring" hidden></div>
+            <div id="map-view">
+              <div id="map">
+                <img id="map-image" src="img/site-map2.png" alt="">
+                <div id="map-ring" hidden></div>
+              </div>
             </div>
             <div id="legend">
               <span id="legend-title" data-text="labels.mapLegend"></span>
@@ -267,12 +269,14 @@
         <div class="card" data-card="veg-map">
           <div class="card-title-row"><div class="card-title"><span id="veg-map-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div><div class="expand">&#8599;</div></div>
           <div id="veg-layer-switch" class="chip-row"></div>
+          <div id="veg-view-switch" class="chip-row chip-row-small" hidden></div>
           <div id="veg-map-frame" class="map-frame">
             <div id="veg-map" class="geo-map"></div>
             <div id="veg-map-message" class="map-message" hidden></div>
             <div class="map-buttons">
               <button type="button" id="veg-map-zoom-in" class="map-button"></button>
               <button type="button" id="veg-map-zoom-out" class="map-button"></button>
+              <button type="button" id="veg-map-reset" class="map-button"></button>
             </div>
             <div id="veg-legend" class="legend-strip"></div>
           </div>
@@ -288,6 +292,11 @@
         <div class="card" data-card="veg-about">
           <div class="card-title-row"><div class="card-title"><span id="veg-about-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div></div>
           <div id="veg-about-body" class="about-body"></div>
+        </div>
+
+        <div class="card" data-card="veg-chart" hidden>
+          <div class="card-title-row"><div class="card-title"><span id="veg-chart-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div></div>
+          <div class="chart-placeholder"><span id="veg-chart-text" class="about-text"></span><span id="veg-chart-note" class="about-note"></span></div>
         </div>
 
         <div class="card" data-card="veg-source">

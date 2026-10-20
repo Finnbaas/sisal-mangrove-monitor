@@ -131,8 +131,9 @@ function renderMap() {
   allPoints.filter((p) => !FEATURED[p.id]).forEach((p) => {
     const dot = document.createElement('div');
     dot.className = 'dot';
-    dot.style.left = p.leftPct + '%';
-    dot.style.top = p.topPct + '%';
+    const place = pointMapPosition(p);   // vegetation.js
+    dot.style.left = place.left + '%';
+    dot.style.top = place.top + '%';
     dot.style.background = color((CLASSES[p.changeClass] || UNKNOWN).colorVar);
     map.appendChild(dot);
   });
@@ -142,8 +143,9 @@ function renderMap() {
     btn.dataset.id = p.id;
     btn.title = p.name;
     btn.setAttribute('aria-label', p.name);
-    btn.style.left = p.leftPct + '%';
-    btn.style.top = p.topPct + '%';
+    const place = pointMapPosition(p);
+    btn.style.left = place.left + '%';
+    btn.style.top = place.top + '%';
     btn.style.background = color((CLASSES[p.changeClass] || UNKNOWN).colorVar);
     // click a marker to select its point; click the selected marker again to deselect it
     btn.addEventListener('click', () => {
@@ -219,8 +221,9 @@ function renderAll() {
   const ring = $('map-ring');
   ring.hidden = !point;
   if (point) {
-    ring.style.left = point.leftPct + '%';
-    ring.style.top = point.topPct + '%';
+    const place = pointMapPosition(point);
+    ring.style.left = place.left + '%';
+    ring.style.top = place.top + '%';
     ring.style.boxShadow = '0 0 0 2px ' + color(cls.colorVar);
   }
   document.querySelectorAll('.marker').forEach((m) => {

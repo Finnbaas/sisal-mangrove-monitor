@@ -12,11 +12,16 @@
 .layer-chip { padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--color-border); background: transparent; font-size: 12px; font-weight: 500; color: var(--color-text); }
 .layer-chip.on { background: var(--color-surface-subtle); }
 
+/* sub-switch under the layer switch (Change: Classes | Per period): a smaller version of the chips */
+.chip-row-small { margin-top: -4px; }
+.chip-row-small .layer-chip { padding: 3px 10px; font-size: 11px; }
+.chip-row[hidden] { display: none; }
+
 /* map with the legend strip under it, both in one rounded frame (like #storm-map-frame) */
 .map-frame { position: relative; border-radius: 16px; overflow: hidden; background: var(--color-surface-subtle); }
 /* isolation: the map's own layers stay under the legend strip and the buttons that lie on it */
-/* the map has the shape of the base map picture (2000:1486), so the whole extent fills it */
-.geo-map { width: 100%; aspect-ratio: 2000 / 1486; background: var(--color-map-bg); isolation: isolate; }
+/* the map has the shape of the base map picture (1800:1485), so the whole extent fills it */
+.geo-map { width: 100%; aspect-ratio: 1800 / 1485; background: var(--color-map-bg); isolation: isolate; }
 /* the zoom buttons sit on top of the map, top right (.map-button is in climatology.css) */
 .map-buttons { position: absolute; top: 10px; right: 10px; z-index: 500; display: flex; gap: 6px; }
 /* calm text on a map layer that is not available yet */
@@ -28,6 +33,16 @@
 .legend-strip .lg { margin-bottom: 0; }
 .legend-title { font-size: 11px; font-weight: 600; color: var(--color-text-muted); }
 .gradient-bar { width: 160px; height: 8px; border-radius: 4px; }
+/* legend of the per-period map: a row of color blocks for loss and one for gain (the strip grows to two lines) */
+.legend-periods { display: grid; grid-template-columns: auto repeat(6, 62px); gap: 3px; align-items: center; }
+.legend-periods .period-row-label { font-size: 11px; color: var(--color-text-muted); padding-right: 6px; }
+.legend-periods .period-block { height: 20px; border-radius: 4px; font-size: 10px; font-weight: 600; line-height: 20px; text-align: center; color: var(--color-text); }
+.legend-periods .period-block.dark { color: var(--color-surface); }
+.legend-note { font-size: 10px; color: var(--color-text-muted); }
+/* "About this layer": list of periods and the dashed place for the bar chart card that follows later */
+.period-list { display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--color-text-body); }
+.chart-placeholder { display: flex; flex-direction: column; gap: 4px; padding: 12px; min-height: 120px; justify-content: center; border: 1.5px dashed var(--color-border); border-radius: 12px; }
+[data-card="veg-chart"][hidden] { display: none; }
 
 /* opacity slider under the map */
 .opacity-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
@@ -57,8 +72,15 @@
 .info-row { display: flex; align-items: center; justify-content: space-between; min-height: 36px; border-top: 1px solid var(--color-divider); font-size: 12px; color: var(--color-text-body); }
 .info-row .val { font-size: 13px; font-weight: 700; color: var(--color-text); }
 
-/* Leaflet: no tiles, so no attribution; the zoom controls are our own buttons */
-.geo-map .leaflet-control-attribution { display: none; }
+/* Leaflet: the zoom controls are our own buttons; the attribution (top left) is small and calm */
+.geo-map .leaflet-control-attribution { margin: 8px 0 0 8px; padding: 2px 8px; border-radius: 6px; font-size: 10px; background: color-mix(in srgb, var(--color-surface) 80%, transparent); color: var(--color-text-muted); }
+/* the change layer is a 30 m pixel grid: keep sharp blocks when zoomed in, no smoothing */
+.pixel-layer { image-rendering: pixelated; }
+
+/* points map (points.js): the AOI outline over the base map and the attribution */
+#map-outline { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+#map-attribution { position: absolute; left: 8px; top: 8px; z-index: 4; padding: 2px 8px; border-radius: 6px; font-size: 10px; background: color-mix(in srgb, var(--color-surface) 80%, transparent); color: var(--color-text-muted); pointer-events: none; }
+.about-note { margin-top: 6px; font-size: 11px; color: var(--color-text-muted); }
 
 .chart-foot { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
 /* Kendall's tau and p between the early warning charts, centered over the plot */
