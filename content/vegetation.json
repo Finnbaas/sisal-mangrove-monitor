@@ -22,32 +22,6 @@
       "label": "Disturbance & recovery"
     }
   ],
-  "scenarios": {
-    "1": {
-      "label": "Abrupt transition (potential EWS)",
-      "color": "scenario-1",
-      "ndviTau": "<0",
-      "sdTau": ">0"
-    },
-    "2": {
-      "label": "Slowly transitioning (no EWS)",
-      "color": "scenario-2",
-      "ndviTau": "<0",
-      "sdTau": "<0"
-    },
-    "3": {
-      "label": "Recovering",
-      "color": "scenario-3",
-      "ndviTau": ">0",
-      "sdTau": ">0"
-    },
-    "4": {
-      "label": "Stable",
-      "color": "scenario-4",
-      "ndviTau": ">0",
-      "sdTau": "<0"
-    }
-  },
   "texts": {
     "mapNotAvailable": "Map layer not yet available",
     "opacity": "Opacity",
@@ -66,61 +40,15 @@
     "sourceArea": "Study area",
     "mapsLink": "Use this code for your area (adapt)",
     "mapsLinkTarget": "#method/change-map",
-    "pointsMapTitle": "Points map",
-    "pointsMapSubtitle": "{shown} of {total} points shown",
-    "pointsMapNote": "Click a dot to select a point. Larger dots are example points with detail.",
-    "scenarioLegend": "Scenario",
-    "noScenario": "No data",
     "pointsLink": "Run this analysis on your own data",
     "pointsLinkTarget": "#method/tipping-point-custom-location",
-    "noDetailTitle": "Detail available for example points only",
-    "noDetailText": "Pick a point from the Example points list to see its NDVI series and early warning signals.",
     "ndviSeries": "NDVI",
-    "breakpoint": "Breakpoint: {date}",
-    "noBreakpoint": "No breakpoint",
-    "summary": "{count} monthly values, {first} – {last}",
     "ewsTitle": "Early warning signals",
     "couldNotLoad": "Could not load {file}.",
-    "pointTitle": "Point {id}",
     "ewsSubtitle": "before the breakpoint",
     "ewsTau": "{label}: τ = {tau}, p = {p}",
-    "ewsNoData": "No data",
-    "download": "Download this series (CSV)",
-    "expand": "Expand",
-    "chartNoSeries": "No data for this variable"
+    "ewsNoData": "No data"
   },
-  "variables": [
-    {
-      "id": "ndvi",
-      "label": "NDVI",
-      "color": "data-ndvi",
-      "unit": "index"
-    },
-    {
-      "id": "temperature",
-      "label": "Temperature",
-      "color": "data-temperature",
-      "unit": "°C"
-    },
-    {
-      "id": "salinity",
-      "label": "Salinity",
-      "color": "data-salinity",
-      "unit": "PSU"
-    },
-    {
-      "id": "precipitation",
-      "label": "Precipitation",
-      "color": "data-precipitation",
-      "unit": "mm"
-    },
-    {
-      "id": "evapotranspiration",
-      "label": "Evapotranspiration",
-      "color": "data-evapotranspiration",
-      "unit": "mm"
-    }
-  ],
   "ewsCharts": [
     {
       "id": "residual",

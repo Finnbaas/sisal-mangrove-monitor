@@ -60,28 +60,7 @@
 /* Leaflet: no tiles, so no attribution; the zoom controls are our own buttons */
 .geo-map .leaflet-control-attribution { display: none; }
 
-/* Point card: one chip per variable (not .chip: points.js changes every .chip). A chip without data is disabled. */
-.var-chip { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--color-border); background: transparent; font-size: 12px; font-weight: 500; color: var(--color-text); }
-.var-chip.on { background: var(--color-surface-subtle); }
-.var-chip:disabled { opacity: 0.45; cursor: default; }
-.var-chip .chip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-#veg-chips { margin-bottom: 12px; }
-
-/* the "Selected point" message for points without detail, and the foot of the chart cards */
-.no-detail { height: 260px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px; text-align: center; border-radius: 12px; border: 1px solid var(--color-map-bg); background: var(--color-surface-subtle); }
-.no-detail-title { font-size: 13px; font-weight: 600; color: var(--color-text-body); }
-.no-detail-text { font-size: 12px; line-height: 18px; color: var(--color-text-faint); }
 .chart-foot { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-.breakpoint-note { font-size: 11px; color: var(--color-breakpoint); margin-top: 8px; }
-.breakpoint-note:empty { display: none; }
-.icon-button:disabled { opacity: 0.45; cursor: default; background: transparent; }
-
-/* breakpoint band and line in the chart (colors as in the NDVI plots of points.css: red for a drop, blue for a rise) */
-.veg-bp-window.drop { fill: var(--color-class-loss-tint); }
-.veg-bp-window.rise { fill: var(--color-class-gain-tint); }
-.veg-bp-line.drop { stroke: var(--color-class-loss); stroke-width: 1.5; }
-.veg-bp-line.rise { stroke: var(--color-class-gain); stroke-width: 1.5; }
-
 /* Kendall's tau and p between the early warning charts, centered over the plot */
 .ews-tau { margin: 4px 0 0 40px; text-align: center; font-size: 11px; color: var(--color-text-body); }
 

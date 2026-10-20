@@ -247,6 +247,8 @@ function renderAll() {
     c.style.borderColor = on ? color(v.colorVar) : '';
   });
   renderChart(point, idx);
+  // the card "Early warning signals" of the Vegetation page follows the selected point (vegetation.js)
+  if (typeof renderVegetationEws === 'function') renderVegetationEws(point);
 
   // values for year
   $('values-title').textContent = t('labels.valuesFor', { year: year });

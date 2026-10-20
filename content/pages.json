@@ -24,7 +24,7 @@
           "id": "tipping",
           "title": "Tipping points",
           "intro": "Tipping-point analysis at {total} monitoring points.",
-          "columns": [["veg-points-map"], ["veg-selected", "veg-ews"]]
+          "columns": [["point-map"], ["point-chart", "veg-ews"]]
         }
       ]
     },

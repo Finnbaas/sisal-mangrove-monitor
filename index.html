@@ -289,56 +289,6 @@
           <div id="veg-source-body"></div>
         </div>
 
-        <!-- Tipping points -->
-        <div class="card" data-card="veg-points-map">
-          <div class="card-title-row top">
-            <div>
-              <div class="card-title"><span id="veg-points-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div>
-              <div class="faint" id="veg-points-subtitle"></div>
-            </div>
-            <div class="expand">&#8599;</div>
-          </div>
-          <!-- the legend strip lies inside the bottom of the map -->
-          <div class="map-frame">
-            <div id="veg-points-map" class="geo-map"></div>
-            <div class="map-buttons">
-              <button type="button" id="veg-points-zoom-in" class="map-button"></button>
-              <button type="button" id="veg-points-zoom-out" class="map-button"></button>
-            </div>
-            <div id="veg-points-legend" class="legend-strip"></div>
-          </div>
-          <div class="fine" id="veg-points-note"></div>
-          <div class="card-actions card-actions-footer"><a id="veg-points-link" class="veg-link"></a></div>
-          <p class="fine" id="veg-points-status"></p>
-        </div>
-
-        <!-- the selected point: title with the point id, class, one chip per variable, the series of the chosen variable -->
-        <div class="card" data-card="veg-selected">
-          <div class="card-title-row top">
-            <div>
-              <div class="card-title"><span id="veg-selected-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div>
-              <div class="faint" id="veg-selected-class"></div>
-            </div>
-            <div class="expand">&#8599;</div>
-          </div>
-          <div id="veg-chips" class="chip-row"></div>
-          <div id="veg-selected-chart"></div>
-          <div id="veg-selected-nodetail" class="no-detail" hidden>
-            <div class="no-detail-title" id="veg-nodetail-title"></div>
-            <div class="no-detail-text" id="veg-nodetail-text"></div>
-          </div>
-          <div class="chart-foot">
-            <div class="faint xs" id="veg-selected-summary"></div>
-            <div class="card-actions">
-              <a id="veg-selected-link" class="veg-link"></a>
-              <button type="button" id="veg-download" class="icon-button">
-                <svg class="icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2V10.5M4.5 7.25L8 10.75L11.5 7.25M3 13.5H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-            </div>
-          </div>
-          <div id="veg-selected-breakpoint" class="breakpoint-note"></div>
-        </div>
-
         <!-- early warning signals before the breakpoint: residual, AR1 and SD with Kendall's tau and p, one shared year axis -->
         <div class="card" data-card="veg-ews">
           <div class="card-title-row top">
@@ -352,6 +302,7 @@
             <div></div>
             <div class="card-actions"><a id="veg-ews-link" class="veg-link"></a></div>
           </div>
+          <p class="fine" id="veg-ews-status"></p>
         </div>
 
         <!-- STAKEHOLDER CARDS (filled by stakeholders.js from content/stakeholders.json) -->

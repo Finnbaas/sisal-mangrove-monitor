@@ -1,25 +1,22 @@
 // vegetation.js: the Vegetation page ("Vegetation data"): Mangrove maps and Tipping points.
 //   Section 1: a zoomable map (Leaflet) with the layers Condition | Change | Disturbance & recovery, an opacity
 //   slider, a legend that switches per layer, "About this layer" and "Where the data comes from".
-//   Section 2: key numbers, the points map (dots colored by scenario), the scenario matrix (click a quadrant to
-//   filter), the selected point (NDVI series, breakpoint, early warning signals) and the example points.
-// Reads: data/vegetation/layers.json and points.json (what is shown); content/vegetation.json (texts, scenario
-//   names, layer switch). Nothing is typed in this file: every number is counted from the data.
-// Uses: helpers.js, content.js (CONTENT, t), climatology-storms.js (events, selectEvent, strengthText) and Leaflet (CDN).
-// Used by: main.js (setupVegetation).
+//   Section 2: the card "Early warning signals before the breakpoint" (residual, AR1 and SD with Kendall's tau and p).
+//   The points map and the Point card of this section are the original cards of points.js (data/points.json).
+// Reads: data/vegetation/layers.json (the map layers) and points.json (the early warning signals of the clickable points);
+//   content/vegetation.json (texts, layer switch, chart names). Nothing is typed in this file: every number comes from the data.
+// Uses: helpers.js, content.js (CONTENT, t), points.js (getSelectedPoint, pointXScale, allPoints), charts.js,
+//   climatology-storms.js (events, selectEvent, strengthText) and Leaflet (CDN).
+// Used by: main.js (setupVegetation); points.js calls renderVegetationEws() whenever the selected point changes.
 
 // ---------- state ----------
 
 let vegLayers = null;          // contents of data/vegetation/layers.json
-let vegPoints = [];            // the points of data/vegetation/points.json
+let vegEws = [];               // the early warning signals per point id (data/vegetation/points.json)
+let vegLoaded = false;         // true when layers.json and points.json have loaded
 let vegLayerId = null;         // the layer shown in the map of section 1
 let vegOverlay = null;         // the Leaflet image of that layer
-let vegSelectedId = null;      // the selected point
-let vegVariableId = null;      // the variable shown in the Point card (a chip)
-let vegMaps = {};              // the two Leaflet maps: { layers, points }
-let vegMarkers = {};           // point id -> its dot on the points map
-let vegRing = null;            // the ring around the selected point
-let vegCanvas = null;          // one drawing area for the 1138 dots (much faster than one element per dot)
+let vegMaps = {};              // the Leaflet map of the layers: { layers }
 
 // A text from content/vegetation.json "texts", e.g. vt('pointsMapSubtitle', { shown: 5, total: 10 }).
 function vt(key, values) {
@@ -33,10 +30,6 @@ function vt(key, values) {
 }
 
 function vegColor(name) { return color(colorVarOf(name)); }
-function vegScenario(id) { return CONTENT.vegetation.scenarios[id] || null; }
-function vegPointColor(p) { const s = vegScenario(p.scenario); return s ? vegColor(s.color) : color('--color-text-faint'); }
-function vegScenarioLabel(p) { const s = vegScenario(p.scenario); return s ? s.label : NO_DATA; }
-function vegPointById(id) { return vegPoints.find((p) => p.id === id) || null; }
 function setText(id, text) { $(id).textContent = text; }
 
 // ---------- loading ----------
@@ -52,26 +45,25 @@ async function setupVegetation() {
   const files = CONTENT.vegetation.files;
   try {
     vegLayers = await loadVegetationFile(files.layers);
-    vegPoints = (await loadVegetationFile(files.points)).points;
+    vegEws = (await loadVegetationFile(files.points)).points;
   } catch (err) {
     // name the file instead of a blank card
     const message = t('messages.couldNotLoadVegetation', { file: err.message });
     setText('veg-map-status', message);
-    setText('veg-points-status', message);
+    setText('veg-ews-status', message);
     console.error(err);
     return;
   }
   vegLayerId = vegLayers.layers[0].id;
-  const first = vegPoints.find((p) => p.isExample);   // the first example point is selected at the start
-  vegSelectedId = first ? first.id : null;
 
   renderStaticTexts();
   renderLayerSwitch();
   setupOpacity();
   renderSource();
   renderLayer();
-  renderSelectedPoint();
   setupMaps();
+  vegLoaded = true;
+  renderVegetationEws(getSelectedPoint());   // points.js: the selected point, none at the start
   window.addEventListener('hashchange', () => { if (location.hash.slice(1).split('/')[0] === 'satellite') renderAbout(); });
 }
 
@@ -80,28 +72,15 @@ function renderStaticTexts() {
   const tx = CONTENT.vegetation.texts;
   setText('veg-about-title', tx.aboutTitle);
   setText('veg-source-title', tx.sourceTitle);
-  setText('veg-points-title', tx.pointsMapTitle);
-  setText('veg-points-note', tx.pointsMapNote);
-  setText('veg-nodetail-title', tx.noDetailTitle);
-  setText('veg-nodetail-text', tx.noDetailText);
   setText('veg-opacity-label', tx.opacity);
   setText('veg-map-zoom-in', tx.zoomIn);
   setText('veg-map-zoom-out', tx.zoomOut);
-  setText('veg-points-zoom-in', tx.zoomIn);
-  setText('veg-points-zoom-out', tx.zoomOut);
-  [['veg-maps-link', tx.mapsLink, tx.mapsLinkTarget], ['veg-points-link', tx.pointsLink, tx.pointsLinkTarget], ['veg-selected-link', tx.pointsLink, tx.pointsLinkTarget], ['veg-ews-link', tx.pointsLink, tx.pointsLinkTarget]].forEach(([id, label, target]) => {
+  [['veg-maps-link', tx.mapsLink, tx.mapsLinkTarget], ['veg-ews-link', tx.pointsLink, tx.pointsLinkTarget]].forEach(([id, label, target]) => {
     const link = $(id);
     link.href = target;
     link.innerHTML = '<span></span><svg class="icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8H13M9 4L13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     link.firstChild.textContent = label;
   });
-  // the page intro and the intro of "Tipping points" have the number of points in them (content/pages.json): counted here
-  ['intro-page-satellite', 'intro-tipping'].forEach((id) => {
-    const intro = $(id);
-    if (intro && intro.dataset.template) intro.textContent = intro.dataset.template.split('{total}').join(vegPoints.length);
-  });
-  $('veg-download').addEventListener('click', downloadSeries);
-  $('veg-download').title = tx.download;
 }
 
 // ---------- maps (Leaflet) ----------
@@ -140,9 +119,7 @@ function createMap(elementId, zoomInId, zoomOutId) {
 
 function setupMaps() {
   vegMaps.layers = createMap('veg-map', 'veg-map-zoom-in', 'veg-map-zoom-out');
-  vegMaps.points = createMap('veg-points-map', 'veg-points-zoom-in', 'veg-points-zoom-out');
   renderLayerOverlay();
-  setupPointDots();
 }
 
 // ---------- section 1: the layers ----------
@@ -337,184 +314,72 @@ function renderSource() {
   });
 }
 
-const anyPlaceholder = (list) => list.some((x) => x.placeholder);
 
-// ---------- section 2: the points map ----------
+// ---------- section 2: Early warning signals before the breakpoint ----------
+// Three stacked charts (residual, AR1, SD) with Kendall's tau and p of AR1 and SD between them and one shared year
+// axis. The card follows the point selected in the points map and the Point card (points.js): renderAll() calls
+// renderVegetationEws(point). The charts are drawn like the NDVI chart of points.js: same x scale (pointXScale),
+// same year ticks, same grid and axis parts of charts.js.
 
-function setupPointDots() {
-  vegCanvas = L.canvas({ padding: 0.5 });
-  // ordinary points first, example points (the ones with detail) larger and on top of them
-  [false, true].forEach((examples) => {
-    vegPoints.filter((p) => !!p.isExample === examples).forEach((p) => {
-      const dot = L.circleMarker([p.lat, p.lon], {
-        renderer: vegCanvas,
-        radius: examples ? 6 : 3.5,
-        fillColor: vegPointColor(p),
-        fillOpacity: 0.9,
-        color: color('--color-surface'),
-        weight: examples ? 1.5 : 0
-      });
-      dot.on('click', () => selectVegPoint(p.id));
-      dot.addTo(vegMaps.points);
-      vegMarkers[p.id] = dot;
-    });
-  });
-  // the ring around the selected point
-  vegRing = L.circleMarker([0, 0], { renderer: vegCanvas, radius: 11, fill: false, color: color('--color-text'), weight: 2, interactive: false });
-  const legend = $('veg-points-legend');
-  const title = document.createElement('span');
-  title.className = 'legend-title';
-  title.textContent = vt('scenarioLegend');
-  legend.appendChild(title);
-  Object.values(CONTENT.vegetation.scenarios).forEach((s) => legend.appendChild(legendItem(s.label, vegColor(s.color))));
-  legend.appendChild(legendItem(vt('noScenario'), color('--color-text-faint')));
-  showPlaceholderTag($('veg-points-title').parentElement, anyPlaceholder(vegPoints));
-  setText('veg-points-subtitle', vt('pointsMapSubtitle', { shown: vegPoints.length, total: vegPoints.length }));
-  moveRing();
-}
 
-function moveRing() {
-  const p = vegPointById(vegSelectedId);
-  if (!vegRing || !vegMaps.points) return;
-  if (!p) { vegMaps.points.removeLayer(vegRing); return; }
-  vegRing.setLatLng([p.lat, p.lon]);
-  if (!vegMaps.points.hasLayer(vegRing)) vegRing.addTo(vegMaps.points);
-  vegRing.bringToFront();
-}
-
-// A dot is clicked: the ring, the Point card and the Early warning signals follow.
-function selectVegPoint(id) {
-  if (!vegPointById(id)) return;
-  vegSelectedId = id;
-  moveRing();
-  renderSelectedPoint();
-}
-
-// ---------- section 2: the Point card ----------
-
-// The variables of the chips (content/vegetation.json "variables"). A point has data for a variable when
-// p.series[id] exists with values; otherwise its chip is disabled (not hidden).
-const hasSeries = (p, id) => !!(p && p.series && p.series[id] && Array.isArray(p.series[id].values) && knownValues(p.series[id].values).length);
-
-function renderSelectedPoint() {
-  const p = vegPointById(vegSelectedId);
-  const detail = !!(p && p.isExample && p.dates);
-  const vars = CONTENT.vegetation.variables;
-  // the chosen variable stays while the next point has data for it, else the first one it has
-  if (!vars.some((v) => v.id === vegVariableId && hasSeries(p, v.id))) {
-    const first = vars.find((v) => hasSeries(p, v.id));
-    vegVariableId = first ? first.id : vars[0].id;
-  }
-  const v = vars.find((x) => x.id === vegVariableId);
-  const series = detail && hasSeries(p, v.id) ? p.series[v.id] : null;
-
-  setText('veg-selected-title', p ? vt('pointTitle', { id: p.id }) : NO_DATA);
-  setText('veg-selected-class', p && CLASSES[p.changeClass] ? CLASSES[p.changeClass].label : (p ? NO_DATA : ''));
-  showPlaceholderTag($('veg-selected-title').parentElement, p && (p.placeholder || (series && series.placeholder)));
-  renderVegChips(p, detail);
-
-  $('veg-selected-nodetail').hidden = detail;
-  $('veg-selected-chart').hidden = !detail;
-  $('veg-selected-chart').innerHTML = '';
-  if (detail) $('veg-selected-chart').appendChild(valueChart(p, v, series));
-  setText('veg-selected-summary', series ? vt('summary', { count: knownValues(series.values).length, first: p.dates[0], last: p.dates[p.dates.length - 1] }) : '');
-  setText('veg-selected-breakpoint', detail ? (p.breakpoint ? vt('breakpoint', { date: p.breakpoint.date }) : vt('noBreakpoint')) : '');
-  $('veg-download').disabled = !series;
-  renderEws(p, detail);
-}
-
-// One chip per variable: the chosen one is marked, one without data for this point is disabled.
-function renderVegChips(p, detail) {
-  const box = $('veg-chips');
-  box.innerHTML = '';
-  CONTENT.vegetation.variables.forEach((v) => {
-    const chip = document.createElement('button');
-    chip.type = 'button';
-    chip.className = 'var-chip' + (v.id === vegVariableId ? ' on' : '');
-    chip.disabled = !(detail && hasSeries(p, v.id));
-    chip.setAttribute('aria-pressed', v.id === vegVariableId);
-    chip.innerHTML = '<span class="chip-dot"></span><span class="chip-label"></span>';
-    chip.querySelector('.chip-dot').style.background = vegColor(v.color);
-    chip.querySelector('.chip-label').textContent = v.label;
-    chip.addEventListener('click', () => { vegVariableId = v.id; renderSelectedPoint(); });
-    box.appendChild(chip);
+// The intros with {total} (content/pages.json) get the number of points of data/points.json (points.js).
+function fillVegetationIntros() {
+  const total = typeof allPoints !== 'undefined' ? allPoints.length : 0;
+  if (!total) return;
+  ['intro-page-satellite', 'intro-tipping'].forEach((id) => {
+    const intro = $(id);
+    if (intro && intro.dataset.template) intro.textContent = intro.dataset.template.split('{total}').join(total);
   });
 }
 
-// ---------- charts (parts from charts.js: chartHead, chartScale, chartYAxis, segmentsOf, sharedAxis) ----------
-
-// x position (SVG units) of month i of n
-const vegX = (i, n) => PLOT.left + (i / (n - 1)) * (PLOT.right - PLOT.left);
-
-// One chart: the grid, y axis and line of a series over p.dates (gaps where a month has no value), clipped to the plot.
-// band = the breakpoint (a shaded 12-month window and a dashed line) or null. Returns the SVG text.
-function vegLineSvg(label, values, n, colorValue, size, band, clipId) {
+// One chart like the NDVI chart: grid with the year ticks, y axis, and the line (broken where a month has no value).
+function vegEwsChartSvg(label, values, colorValue, gridX, x, clipId) {
+  const head = chartHead({ label: label }, gridX, 'chart');
   const known = knownValues(values);
-  const head = chartHead({ label: label }, [], 'chart', size);
-  if (!known.length) return chartNoData(head, NO_DATA, '', size);
-  const scale = chartScale(known, false, 0, size);
-  let svg = head + chartYAxis(scale.t, scale.yOf, true, size);
-  svg += '<defs><clipPath id="' + clipId + '"><rect x="' + size.left + '" y="' + size.top + '" width="' + (size.right - size.left) + '" height="' + (size.bottom - size.top) + '"></rect></clipPath></defs><g clip-path="url(#' + clipId + ')">';
-  if (band) {
-    const x0 = vegX(Math.max(0, band.index - 6), n), x1 = vegX(Math.min(n - 1, band.index + 6), n);
-    svg += '<rect class="veg-bp-window ' + band.type + '" x="' + x0.toFixed(1) + '" y="' + size.top + '" width="' + (x1 - x0).toFixed(1) + '" height="' + (size.bottom - size.top) + '"></rect>';
-    svg += '<line class="veg-bp-line ' + band.type + '" x1="' + vegX(band.index, n).toFixed(1) + '" x2="' + vegX(band.index, n).toFixed(1) + '" y1="' + size.top + '" y2="' + size.bottom + '" stroke-dasharray="4,4"></line>';
-  }
+  if (!known.length) return chartNoData(head);
+  const scale = chartScale(known, false);
+  let svg = head + chartYAxis(scale.t, scale.yOf, true);
+  svg += '<defs><clipPath id="' + clipId + '"><rect x="' + PLOT.left + '" y="' + PLOT.top + '" width="' + (PLOT.right - PLOT.left) + '" height="' + (PLOT.bottom - PLOT.top) + '"></rect></clipPath></defs><g clip-path="url(#' + clipId + ')">';
   segmentsOf(values).forEach((seg) => {
-    if (seg.length === 1) svg += '<circle cx="' + vegX(seg[0].i, n).toFixed(1) + '" cy="' + scale.yOf(seg[0].val).toFixed(1) + '" r="1.8" fill="' + colorValue + '"></circle>';
-    else svg += '<polyline points="' + seg.map((pt) => vegX(pt.i, n).toFixed(1) + ',' + scale.yOf(pt.val).toFixed(1)).join(' ') + '" fill="none" stroke="' + colorValue + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"></polyline>';
+    if (seg.length === 1) svg += '<circle cx="' + x.xOf(seg[0].i).toFixed(1) + '" cy="' + scale.yOf(seg[0].val).toFixed(1) + '" r="1.8" fill="' + colorValue + '"></circle>';
+    else svg += '<polyline points="' + seg.map((pt) => x.xOf(pt.i).toFixed(1) + ',' + scale.yOf(pt.val).toFixed(1)).join(' ') + '" fill="none" stroke="' + colorValue + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"></polyline>';
   });
   return svg + '</g></svg>';
 }
 
-// Ticks of the shared year axis: a label every few years (content/vegetation.json "axisTickEveryYears").
-function vegYearTicks(dates) {
-  const step = CONTENT.vegetation.axisTickEveryYears;
-  const first = Number(dates[0].slice(0, 4)), last = Number(dates[dates.length - 1].slice(0, 4));
-  const ticks = [];
-  for (let yr = Math.ceil(first / step) * step; yr <= last; yr += step) {
-    const i = dates.findIndex((d) => d.startsWith(yr + '-'));
-    if (i >= 0) ticks.push({ x: vegX(i, dates.length), text: String(yr) });
-  }
-  return ticks;
-}
-
-// A chart row like the Climatology charts: the name on the left and the plot.
-function vegChartRow(label, unit, svg) {
+// A chart row like the others: the name on the left, the plot.
+function vegChartRow(label, svg) {
   const row = document.createElement('div');
   row.className = 'anomaly-chart';
-  row.innerHTML = '<div class="anomaly-label"><span class="anomaly-name"></span><span class="anomaly-unit"></span></div><div class="anomaly-plot">' + svg + '</div>';
+  row.innerHTML = '<div class="anomaly-label"><span class="anomaly-name"></span></div><div class="anomaly-plot">' + svg + '</div>';
   row.querySelector('.anomaly-name').textContent = label;
-  row.querySelector('.anomaly-unit').textContent = unit ? '(' + unit + ')' : '';
   return row;
 }
 
-// The chart of the Point card: the chosen variable with the breakpoint band, and the year axis under it.
-function valueChart(p, v, series) {
-  const n = p.dates.length;
-  const band = p.breakpoint && p.dates.indexOf(p.breakpoint.date) >= 0 ? { index: p.dates.indexOf(p.breakpoint.date), type: p.breakpoint.type } : null;
-  const box = document.createElement('div');
-  box.className = 'chart-stack';
-  const svg = series ? vegLineSvg(v.label, series.values, n, vegColor(v.color), POINT_PLOT, band, 'veg-clip-point')
-    : chartNoData(chartHead({ label: v.label }, [], 'chart', POINT_PLOT), vt('chartNoSeries'), '', POINT_PLOT);
-  box.appendChild(vegChartRow(v.label, v.unit, svg));
-  box.appendChild(sharedAxis(vegYearTicks(p.dates), ''));
-  return box;
-}
-
-// ---------- section 2: Early warning signals before the breakpoint ----------
-// Three stacked charts (residual, AR1, SD) with Kendall's tau and p of AR1 and SD between them, one shared year axis.
-
-function renderEws(p, detail) {
+// point = the selected point of points.js (or null: the charts show "No data", as the other cards do)
+function renderVegetationEws(point) {
+  if (!vegLoaded) return;   // the data of this card is still loading: setupVegetation draws the card once it is there
+  fillVegetationIntros();
   const box = $('veg-ews-charts');
   box.innerHTML = '';
   setText('veg-ews-title', vt('ewsTitle'));
   setText('veg-ews-subtitle', vt('ewsSubtitle'));
-  const ews = detail ? p.ews : null;
-  showPlaceholderTag($('veg-ews-title').parentElement, ews && ews.placeholder);
+  const entry = point ? vegEws.find((e) => e.id === point.id) : null;
+  showPlaceholderTag($('veg-ews-title').parentElement, entry && entry.placeholder);
+
+  // the months of the point and the year ticks: the same as in the NDVI chart (points.js)
+  const dates = point && Array.isArray(point.dates) ? point.dates : [];
+  const x = pointXScale(dates.length);
+  const ticks = [];
+  dates.forEach((d, i) => {
+    const year = parseInt(d, 10);
+    if (year % YEAR_TICK_STEP === 0 && (i === 0 || parseInt(dates[i - 1], 10) !== year)) ticks.push({ x: x.xOf(i), text: String(year) });
+  });
+  const gridX = ticks.map((tick) => tick.x);
+
   const num = (val) => (isNumber(val) ? formatLike(val, [val]) : NO_DATA);
   CONTENT.vegetation.ewsCharts.forEach((c) => {
-    const data = ews && ews[c.id];
+    const data = entry && entry.ews[c.id];
     // Kendall's tau and p as a line of text above the chart (the residual has none)
     if (data && 'tau' in data) {
       const text = document.createElement('div');
@@ -522,18 +387,9 @@ function renderEws(p, detail) {
       text.textContent = vt('ewsTau', { label: c.label, tau: num(data.tau), p: num(data.p) });
       box.appendChild(text);
     }
-    const svg = data ? vegLineSvg(c.label, data.values, p.dates.length, vegColor(c.color), PLOT, null, 'veg-clip-' + c.id)
-      : chartNoData(chartHead({ label: c.label }, [], 'chart'), vt('ewsNoData'));
-    box.appendChild(vegChartRow(c.label, '', svg));
+    const svg = data ? vegEwsChartSvg(c.label, data.values, vegColor(c.color), gridX, x, 'veg-clip-' + c.id)
+      : chartNoData(chartHead({ label: c.label }, gridX, 'chart'));
+    box.appendChild(vegChartRow(c.label, svg));
   });
-  if (detail) box.appendChild(sharedAxis(vegYearTicks(p.dates), ''));
-}
-
-// The shown series as a CSV file (the download icon of the Point card).
-function downloadSeries() {
-  const p = vegPointById(vegSelectedId);
-  const v = CONTENT.vegetation.variables.find((x) => x.id === vegVariableId);
-  if (!hasSeries(p, v.id)) return;
-  const rows = ['date,' + v.id].concat(p.dates.map((d, i) => d + ',' + (isNumber(p.series[v.id].values[i]) ? p.series[v.id].values[i] : '')));
-  download(p.id + '-' + v.id + '.csv', 'data:text/csv;charset=utf-8,' + encodeURIComponent(rows.join('\n')));
+  if (dates.length) box.appendChild(sharedAxis(ticks, t('labels.year')));
 }
