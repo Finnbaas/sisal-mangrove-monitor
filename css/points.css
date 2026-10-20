@@ -20,6 +20,9 @@
   margin: -3.5px 0 0 -3.5px;
   border-radius: 50%;
   opacity: 0.8;
+  /* thin light outline, so that dark dots (e.g. non-mangrove) stay visible on the dark satellite photo;
+     a box-shadow does not change the size, so the dot stays centred */
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6);
   pointer-events: none;
 }
 /* featured points: larger, clickable markers on top of the dots */
