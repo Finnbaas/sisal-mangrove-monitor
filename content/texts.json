@@ -17,6 +17,7 @@
     "stakeholder-panel": "Area details",
     "ews-verdict": "Early warning signal?",
     "ews-plots": "Rolling statistics before the loss",
+    "ews-guide": "How to read this",
     "climate-typical-year": "A typical year",
     "climate-change": "Change since 1950",
     "climate-detail": "In detail"
@@ -199,6 +200,40 @@
     "loss + recovery": "Loss and recovery. Mangrove (NDVI 0.3 or more) at the start and the end, but NDVI was below 0.3 for at least two years in between.",
     "high turnover": "High turnover. NDVI moves up and down strongly, with at least a whole year below 0.25 or a lot of back-and-forth change, without one clear direction.",
     "non-mangrove": "Non-mangrove. NDVI stays low: below 0.3 at the start and the end and below 0.25 on average, for example water, bare soil or salt flats."
+  },
+
+  "ewsGuide": {
+    "windowMonths": "{months} months (half of the period before the loss)",
+    "windowGeneral": "half the length of the period before the loss",
+    "groups": [
+      {
+        "title": "The plots",
+        "items": [
+          "Residual: the deseasonalised NDVI with its slow trend removed. What is left are the month-to-month fluctuations.",
+          "AR1 and standard deviation are calculated in a moving window of {window}. Each value describes the window that ends at that month.",
+          "The dashed line marks the start of the loss. Only the period before it is analysed, because the drop itself would make the statistics jump."
+        ]
+      },
+      {
+        "title": "The metrics",
+        "items": [
+          "AR1 (autocorrelation): how much each month's value resembles the month before. A rising AR1 means the vegetation recovers more slowly from disturbances, a classic sign of an approaching tipping point.",
+          "Standard deviation: how large the fluctuations are. A rising standard deviation means the system is becoming less stable.",
+          "Skewness and kurtosis: the shape of the fluctuations (asymmetry and how often extreme values occur). Shown for context; they are not part of the verdict."
+        ]
+      },
+      {
+        "title": "The numbers",
+        "items": [
+          "Kendall's tau: whether a metric keeps going up (towards +1) or down (towards −1) over time; around 0 means no clear trend.",
+          "p: how likely a rising trend this strong is by chance. We compare it with simulated series that have the same fluctuations but no trend (AR(1) surrogates). Below 0.05 counts as significant."
+        ]
+      },
+      {
+        "title": "The verdict",
+        "text": "An early warning signal needs a significant rise in both AR1 and standard deviation. No warning does not mean nothing happened: it suggests the loss came suddenly, for example after a storm, rather than after a gradual loss of resilience."
+      }
+    ]
   },
 
   "pointDescription": {

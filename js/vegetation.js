@@ -576,6 +576,7 @@ function renderVegetationEws(point) {
   verdictBox.innerHTML = '';
   box.innerHTML = '';
   const entry = ewsEntryFor(point);
+  renderEwsGuide(entry);   // "How to read this": for every point, also without a selected point
   // the subtitle names the start of the loss: the start of the 12-month window of the drop (lossStart), which lies
   // before the breakpoint date of the NDVI chart
   setText('ews-plots-subtitle', entry && entry.lossStart ? t('messages.ewsSubtitleWithDate', { lossStart: entry.lossStart }) : t('messages.ewsSubtitle'));
@@ -704,4 +705,44 @@ function renderEwsTable(box, entry) {
   });
   table.innerHTML = html;
   box.appendChild(table);
+}
+
+// ---------- "How to read this" (card ews-guide) ----------
+// General explanation from content/texts.json "ewsGuide": groups with a title and a list of items (or one text),
+// each group a <details> that is closed at the start. It is built once, so a group the visitor opened stays open
+// when another point is selected; only the window size is updated: {window} becomes the rolling window of the
+// selected point ("windowMonths" in its "ews", set by the EWS notebook), or a general text without one.
+function renderEwsGuide(entry) {
+  const body = $('ews-guide-body');
+  const guide = CONTENT.texts.ewsGuide || {};
+  if (!body.children.length) {
+    (guide.groups || []).forEach((g) => {
+      const group = document.createElement('details');
+      group.className = 'ews-guide-group';
+      const summary = document.createElement('summary');
+      summary.textContent = g.title;
+      group.appendChild(summary);
+      // a text with {window} gets a <span> for the window size, so that only that span changes later
+      const withWindow = (text, el) => {
+        const [before, after] = String(text).split('{window}');
+        el.appendChild(document.createTextNode(before));
+        if (after !== undefined) {
+          const span = document.createElement('span');
+          span.className = 'ews-guide-window';
+          el.appendChild(span);
+          el.appendChild(document.createTextNode(after));
+        }
+      };
+      if (Array.isArray(g.items)) {
+        const list = document.createElement('ul');
+        g.items.forEach((item) => { const li = document.createElement('li'); withWindow(item, li); list.appendChild(li); });
+        group.appendChild(list);
+      }
+      if (g.text) { const p = document.createElement('p'); withWindow(g.text, p); group.appendChild(p); }
+      body.appendChild(group);
+    });
+  }
+  const months = entry && isNumber(entry.windowMonths) ? entry.windowMonths : null;
+  const windowText = months !== null ? t('ewsGuide.windowMonths', { months: months }) : t('ewsGuide.windowGeneral');
+  body.querySelectorAll('.ews-guide-window').forEach((span) => { span.textContent = windowText; });
 }

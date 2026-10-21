@@ -96,6 +96,19 @@
 .ews-mark.no { font-weight: 600; color: var(--color-text-muted); }
 .ews-mark.none { font-size: 11px; color: var(--color-text-faint); }
 
+/* "How to read this" (card ews-guide): four groups that open and close (closed at the start, like the Method page toggles) */
+.ews-guide-group { border-top: 1px solid var(--color-border); }
+.ews-guide-group:first-child { border-top: none; }
+.ews-guide-group > summary { display: flex; align-items: center; gap: 8px; padding: 8px 0; cursor: pointer; list-style: none; font-size: 13px; font-weight: 600; color: var(--color-text); }
+.ews-guide-group > summary::-webkit-details-marker { display: none; }
+.ews-guide-group > summary::before { content: '\25B8'; font-size: 12px; color: var(--color-text-muted); transition: transform 0.15s; }
+.ews-guide-group[open] > summary::before { transform: rotate(90deg); }
+.ews-guide-group > summary:focus-visible { outline: 2px solid var(--color-text-body); outline-offset: 2px; border-radius: 3px; }
+.ews-guide-group ul { margin: 0 0 10px 0; padding-left: 18px; }
+.ews-guide-group li, .ews-guide-group p { font-size: 13px; line-height: 1.5; color: var(--color-text-body); }
+.ews-guide-group li + li { margin-top: 4px; }
+.ews-guide-group p { margin: 0 0 10px 0; }
+
 /* the links "Use this code..." and "Run this analysis..." (look of .diy-link in base.css; own class because method.js rebuilds every .diy-link) */
 .veg-link { display: flex; align-items: center; gap: 4px; padding: 6px 8px; border-radius: 8px; font-size: 12px; font-weight: 500; color: var(--color-accent); text-decoration: none; white-space: nowrap; width: fit-content; }
 .veg-link:hover, .veg-link:focus-visible { background: var(--color-surface-subtle); }

@@ -30,7 +30,7 @@
           "id": "tipping",
           "title": "Tipping points & Early Warning Signals",
           "intro": "Breakpoints and early warning signals. Click a larger marker to see whether that point had a lasting loss, and whether there was a warning before it.",
-          "columns": [["ews-plots"], ["ews-verdict"]]
+          "columns": [["ews-plots"], ["ews-verdict", "ews-guide"]]
         }
       ]
     },
