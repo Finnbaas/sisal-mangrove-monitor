@@ -137,7 +137,7 @@
           "id": "mangrove-maps",
           "title": "Mangrove maps",
           "useFor": "Maps of mangrove change, condition and disturbance for your own area.",
-          "badges": ["Runs in Google Earth Engine", "Beta"],
+          "image": "data/vegetation/change.png",
           "subCards": [
             { "id": "mangrove-change", "title": "Change" },
             { "title": "Condition", "comingSoon": true },

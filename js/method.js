@@ -340,11 +340,14 @@ function renderUseCases() {
       // a card with "subCards" (Mangrove maps) is twice as wide and holds its options itself; it has no steps of its own
       if (Array.isArray(u.subCards)) {
         const open = u.subCards.some((c) => c.id && c.id === openUseCase);
+        // left: the picture and title as on the other cards; right: what it is for and the options under each other
         return '<div class="example-card example-group' + (open ? ' selected' : '') + '" data-section="' + escapeHtml(section.id) + '">' +
-          '<span class="example-title">' + textOrPlaceholder('method-placeholder', u.title) + '</span>' +
-          (isFilled(u.useFor) ? '<span class="example-use"><b>' + escapeHtml(t('labels.useItFor')) + ':</b> ' + escapeHtml(u.useFor) + '</span>' : '') +
-          (badges.length ? '<span class="example-badges">' + badges.map((b) => '<span class="badge">' + escapeHtml(b) + '</span>').join('') + '</span>' : '') +
-          subCardsHtml(u) + '</div>';
+          '<div class="example-group-left">' +
+            '<span class="example-thumb">' + (isFilled(u.image) ? '<img src="' + escapeHtml(u.image) + '" alt="">' : '') + '</span>' +
+            '<span class="example-title">' + textOrPlaceholder('method-placeholder', u.title) + '</span></div>' +
+          '<div class="example-group-right">' +
+            (isFilled(u.useFor) ? '<span class="example-use"><b>' + escapeHtml(t('labels.useItFor')) + ':</b> ' + escapeHtml(u.useFor) + '</span>' : '') +
+            subCardsHtml(u) + '</div></div>';
       }
       const open = u.id === openUseCase;
       return '<button type="button" class="example-card' + (open ? ' selected' : '') + '" data-section="' + escapeHtml(section.id) + '" data-use-case="' + escapeHtml(u.id) + '"' +

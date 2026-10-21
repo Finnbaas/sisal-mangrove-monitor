@@ -128,11 +128,12 @@ a.file-github:hover, a.file-github:focus-visible { color: var(--color-text); }
 .badge { padding: 2px 8px; border-radius: 999px; border: 1px solid var(--color-border); background: var(--color-surface); font-size: 11px; font-weight: 600; color: var(--color-text-body); white-space: nowrap; }
 
 /* a card with sub-cards is as wide as two cards and holds its options itself */
-.example-group { grid-column: span 2; padding-top: 14px; }
-.example-group .example-title { padding-top: 0; font-weight: 600; }
-.example-group .sub-cards { margin: auto 14px 14px 14px; }
-/* the sub-cards: a smaller version of the example cards */
-.sub-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.example-group { grid-column: span 2; flex-direction: row; }
+.example-group-left { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.example-group-right { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 12px 14px 14px 0; }
+.example-group .example-use { padding: 0; }
+/* the sub-cards: a smaller version of the example cards, under each other */
+.sub-cards { display: flex; flex-direction: column; gap: 8px; }
 .sub-card { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--color-divider); background: var(--color-surface); box-shadow: 0 2px 8px rgba(28, 59, 46, 0.06); text-align: left; }
 button.sub-card:hover, button.sub-card:focus-visible { box-shadow: 0 10px 26px rgba(28, 59, 46, 0.07); }
 .sub-card.selected { border-color: var(--color-accent); box-shadow: 0 0 0 1px var(--color-accent), 0 10px 26px rgba(28, 59, 46, 0.07); }
