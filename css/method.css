@@ -121,6 +121,30 @@ a.file-github:hover, a.file-github:focus-visible { color: var(--color-text); }
 .file-row.unavailable .file-name { color: var(--color-text-muted); }
 .format-tag { padding: 3px 8px; border-radius: 999px; border: 1px solid var(--color-border); background: var(--color-surface); font-size: 11px; font-weight: 600; color: var(--color-text-body); white-space: nowrap; }
 
+/* a card with sub-cards (Mangrove maps): "Use it for" line and small badges on the card */
+.example-use { display: block; padding: 0 14px 8px 14px; font-size: 12px; line-height: 1.4; color: var(--color-text-muted); }
+.example-use b { font-weight: 600; }
+.example-badges { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 14px 14px; }
+.badge { padding: 2px 8px; border-radius: 999px; border: 1px solid var(--color-border); background: var(--color-surface); font-size: 11px; font-weight: 600; color: var(--color-text-body); white-space: nowrap; }
+
+/* the row of sub-cards: a smaller version of the example cards, between the gallery and the panel */
+.sub-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
+.sub-card { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--color-divider); background: var(--color-surface); box-shadow: 0 2px 8px rgba(28, 59, 46, 0.06); text-align: left; }
+button.sub-card:hover, button.sub-card:focus-visible { box-shadow: 0 10px 26px rgba(28, 59, 46, 0.07); }
+.sub-card.selected { border-color: var(--color-accent); box-shadow: 0 0 0 1px var(--color-accent), 0 10px 26px rgba(28, 59, 46, 0.07); }
+.sub-title { font-size: 14px; line-height: 1.4; color: var(--color-text); }
+.sub-card.selected .sub-title { color: var(--color-accent); }
+/* "Coming soon": greyed out, not clickable */
+.sub-card.coming-soon { opacity: 0.55; cursor: default; box-shadow: none; background: var(--color-background); }
+.sub-card.coming-soon .sub-title { color: var(--color-text-muted); }
+
+/* the route tabs in a panel (Quick | Accurate): two small tabs */
+.route-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.route-tab { padding: 5px 12px; border-radius: 999px; border: 1px solid var(--color-border); background: var(--color-surface); font-size: 12px; font-weight: 600; color: var(--color-text-body); }
+.route-tab:hover, .route-tab:focus-visible { border-color: var(--color-accent); }
+.route-tab.current { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-text-on-accent); }
+.use-case-instructions > .github-link.small { align-self: flex-start; }
+
 /* license and citation (Figma cite-block) */
 .cite-block { display: flex; align-items: flex-start; gap: 32px; padding: 20px 24px; border-radius: 22px; background: var(--color-surface-subtle); }
 .cite-license { flex: 0 0 240px; display: flex; flex-direction: column; gap: 4px; }

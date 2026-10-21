@@ -8,6 +8,8 @@
 //   written as {storms.total} and filled in from the data files. A use case can also have "keyChoices" (a list under
 //   "Key choices"), "howWeUsed" and "whatYouNeed". A section with "datasets" (Climatology, Vegetation) shows its data
 //   sources and limitations above the cards and the link to its folder on GitHub below them.
+//   A use case with "subCards" (Mangrove maps) shows no steps: it opens a row of sub-cards; a sub-card is a use case with
+//   a "parent" (#method/mangrove-change opens both). A use case can have "routes": tabs with their own steps.
 // Reads: content/method.json (written by the team) and, for the numbers in the texts, data/storms/storm-counts.json,
 //   data/events.json, data/climate/typical-year.json, data/climate/change.json and data/climate/wave-direction.json.
 // Uses: helpers.js, content.js, navigation.js (lastResearchSection). Used by: main.js, navigation.js.
@@ -18,6 +20,8 @@ let method = null;           // contents of content/method.json, or null if it c
 let activeTab = null;        // id of the section (tab) that is shown
 let openUseCase = null;      // id of the use case whose panel is open (only one on the whole page; none at the start)
 let methodFacts = {};        // the numbers that the texts can use, from the data files (see loadMethodFacts)
+let openGroup = null;         // id of the card (e.g. "Mangrove maps") whose row of sub-cards is shown; none at the start
+let routeChoice = {};        // the chosen route per use case id (use cases with "routes": tabs above the steps)
 let methodArrival = null;    // { useCase, from }: set when the visitor arrives through a link to one use case
 let methodCameFrom = null;   // the address of the research page (and part) on which a "Do this analysis yourself" link was clicked
 
@@ -80,14 +84,30 @@ function setupMethod() {
   $('method').addEventListener('click', (e) => {
     const tab = e.target.closest('.method-tab');
     if (tab) {
-      if (tab.dataset.section !== activeTab) { openUseCase = null; methodArrival = null; }   // the panel belongs to the old tab
+      if (tab.dataset.section !== activeTab) { openUseCase = null; openGroup = null; methodArrival = null; }   // the panel belongs to the old tab
       selectMethodTab(tab.dataset.section);
       return;
     }
-    const card = e.target.closest('.example-card');
+    // a route tab inside a panel (Quick | Accurate): shows the steps of that route
+    const route = e.target.closest('.route-tab');
+    if (route) {
+      routeChoice[route.dataset.useCase] = route.dataset.route;
+      renderUseCases();
+      return;
+    }
+    const card = e.target.closest('.example-card, .sub-card');
     const close = e.target.closest('.use-case-close');
     if (!card && !close) return;
-    openUseCase = close || openUseCase === card.dataset.useCase ? null : card.dataset.useCase;
+    if (close) openUseCase = null;
+    else if (card.dataset.group) {
+      // a card with sub-cards shows no steps: it opens or closes its row of sub-cards
+      openGroup = openGroup === card.dataset.group ? null : card.dataset.group;
+      openUseCase = null;
+    } else {
+      // a sub-card keeps its row open; a normal card closes any open row
+      if (!card.classList.contains('sub-card')) openGroup = null;
+      openUseCase = openUseCase === card.dataset.useCase ? null : card.dataset.useCase;
+    }
     methodArrival = null;   // the visitor is now browsing on their own
     renderUseCases();
     const panel = openUseCase && $('use-case-' + openUseCase);
@@ -323,15 +343,37 @@ function renderUseCases() {
   method.sections.forEach((section) => {
     const gallery = $('gallery-' + section.id);
     if (!gallery) return;
-    gallery.innerHTML = section.useCases.map((u) => {
-      const open = u.id === openUseCase;
-      return '<button type="button" class="example-card' + (open ? ' selected' : '') + '" data-section="' + escapeHtml(section.id) + '" data-use-case="' + escapeHtml(u.id) + '" aria-expanded="' + open + '">' +
+    // a use case with a "parent" is a sub-card of another card: it is not in the gallery itself
+    gallery.innerHTML = section.useCases.filter((u) => !u.parent).map((u) => {
+      const isGroup = Array.isArray(u.subCards);
+      const open = isGroup ? u.id === openGroup : u.id === openUseCase;
+      const badges = (u.badges || []).filter(isFilled);
+      return '<button type="button" class="example-card' + (open ? ' selected' : '') + '" data-section="' + escapeHtml(section.id) + '" data-use-case="' + escapeHtml(u.id) + '"' +
+        (isGroup ? ' data-group="' + escapeHtml(u.id) + '"' : '') + ' aria-expanded="' + open + '">' +
         '<span class="example-thumb">' + (isFilled(u.image) ? '<img src="' + escapeHtml(u.image) + '" alt="">' : '') + '</span>' +
-        '<span class="example-title">' + textOrPlaceholder('method-placeholder', u.title) + '</span></button>';
+        '<span class="example-title">' + textOrPlaceholder('method-placeholder', u.title) + '</span>' +
+        (isFilled(u.useFor) ? '<span class="example-use"><b>' + escapeHtml(t('labels.useItFor')) + ':</b> ' + escapeHtml(u.useFor) + '</span>' : '') +
+        (badges.length ? '<span class="example-badges">' + badges.map((b) => '<span class="badge">' + escapeHtml(b) + '</span>').join('') + '</span>' : '') +
+        '</button>';
     }).join('');
+    const group = section.useCases.find((u) => u.id === openGroup);
     const useCase = section.useCases.find((u) => u.id === openUseCase);
-    $('use-case-slot-' + section.id).innerHTML = useCase ? useCaseHtml(section, useCase) : '';
+    $('use-case-slot-' + section.id).innerHTML = (group ? subCardsHtml(group) : '') + (useCase ? useCaseHtml(section, useCase) : '');
   });
+}
+
+// The row of sub-cards under a card with "subCards" (Mangrove maps): a smaller version of the example cards.
+// A sub-card with "comingSoon" is greyed out and does nothing.
+function subCardsHtml(group) {
+  return '<div class="sub-cards">' + group.subCards.map((c) => {
+    if (c.comingSoon || !c.id) {
+      return '<div class="sub-card coming-soon" aria-disabled="true"><span class="sub-title">' + escapeHtml(c.title) + '</span>' +
+        '<span class="badge">' + escapeHtml(t('labels.comingSoon')) + '</span></div>';
+    }
+    const open = c.id === openUseCase;
+    return '<button type="button" class="sub-card' + (open ? ' selected' : '') + '" data-use-case="' + escapeHtml(c.id) + '" aria-expanded="' + open + '">' +
+      '<span class="sub-title">' + escapeHtml(c.title) + '</span></button>';
+  }).join('') + '</div>';
 }
 
 // The steps and files of one example (Figma use-case). It is highlighted when the visitor arrived
@@ -356,13 +398,24 @@ function useCaseHtml(section, useCase) {
   // optional: "How we used it" (one sentence, with a link to the page where the result is) and "What you need"
   const usedHtml = isFilled(useCase.howWeUsed) ?
     '<div class="use-case-made"><div class="method-label">' + escapeHtml(t('labels.howWeUsedIt')) + '</div><p class="method-text">' + escapeHtml(useCase.howWeUsed) +
-    (isFilled(useCase.howWeUsedLink) ? ' <a href="' + escapeHtml(useCase.howWeUsedLink) + '">' + escapeHtml(t('labels.seeOnClimatologyPage')) + ' &rarr;</a>' : '') + '</p></div>' : '';
+    (isFilled(useCase.howWeUsedLink) ? ' <a href="' + escapeHtml(useCase.howWeUsedLink) + '">' + escapeHtml(isFilled(useCase.howWeUsedLinkLabel) ? useCase.howWeUsedLinkLabel : t('labels.seeOnClimatologyPage')) + ' &rarr;</a>' : '') + '</p></div>' : '';
   const needs = (useCase.whatYouNeed || []).filter(isFilled);
   const needHtml = needs.length ?
     '<div class="use-case-made"><div class="method-label">' + escapeHtml(t('labels.whatYouNeed')) + '</div>' +
     needs.map((n) => '<p class="method-text">' + escapeHtml(n) + '</p>').join('') + '</div>' : '';
 
-  const steps = (useCase.steps || []).filter(isFilled);
+  // optional "routes": tabs (Quick | Accurate), each with a short description and its own steps
+  const routes = (useCase.routes || []).filter((r) => r && r.id && r.title);
+  const route = routes.find((r) => r.id === routeChoice[useCase.id]) || routes[0];
+  const routesHtml = route ?
+    '<div class="use-case-made"><div class="method-label">' + escapeHtml(t('labels.chooseYourRoute')) + '</div>' +
+    '<div class="route-tabs" role="tablist">' + routes.map((r) =>
+      '<button type="button" class="route-tab' + (r === route ? ' current' : '') + '" role="tab" aria-selected="' + (r === route) + '" data-use-case="' + escapeHtml(useCase.id) + '" data-route="' + escapeHtml(r.id) + '">' + escapeHtml(r.title) + '</button>').join('') + '</div>' +
+    (isFilled(route.description) ? '<p class="method-text">' + escapeHtml(route.description) + '</p>' : '') + '</div>' : '';
+  const readmeHtml = isFilled(useCase.readmeLink) ?
+    '<a class="github-link small" href="' + escapeHtml(useCase.readmeLink) + '" target="_blank" rel="noopener">' + METHOD_ICONS.github + '<span>' + escapeHtml(useCase.readmeLabel || useCase.readmeLink) + '</span></a>' : '';
+
+  const steps = ((route ? route.steps : useCase.steps) || []).filter(isFilled);
   const stepsHtml = steps.length ? '<ol class="use-case-steps">' + steps.map((s, i) =>
     '<li><span class="use-case-number">' + (i + 1) + '</span><span>' + escapeHtml(fillFacts(s)) + '</span></li>').join('') + '</ol>'
     : '<div class="method-text">' + textOrPlaceholder('method-placeholder', '', t('messages.stepsWillBeAdded')) + '</div>';
@@ -376,7 +429,7 @@ function useCaseHtml(section, useCase) {
     '<button type="button" class="use-case-close" aria-label="' + escapeHtml(t('labels.closePanel')) + '" title="' + escapeHtml(t('labels.closePanel')) + '">&times;</button>' +
     '<div class="use-case-body">' +
       '<div class="use-case-instructions"><div><div class="use-case-title">' + textOrPlaceholder('method-placeholder', useCase.title) + '</div>' +
-      '<div class="use-case-name mono">#method/' + escapeHtml(useCase.id) + '</div></div>' + madeHtml + choicesHtml + usedHtml + needHtml + stepsHtml + '</div>' +
+      '<div class="use-case-name mono">#method/' + escapeHtml(useCase.id) + '</div></div>' + madeHtml + choicesHtml + usedHtml + needHtml + routesHtml + stepsHtml + readmeHtml + '</div>' +
       '<div class="use-case-files">' + filesHtml + '</div>' +
     '</div></div>';
 }
@@ -397,12 +450,14 @@ function openMethodTarget() {
     methodCameFrom = null;
     // #method/<section id> opens that tab
     const tab = parts[0] === 'method' && parts[1] ? sectionById(parts[1]) : null;
-    if (tab) { if (tab.id !== activeTab) openUseCase = null; selectMethodTab(tab.id); }
+    if (tab) { if (tab.id !== activeTab) { openUseCase = null; openGroup = null; } selectMethodTab(tab.id); }
     else if (hadArrival) renderUseCases();
     return false;
   }
   methodArrival = { useCase: found.useCase.id, from: methodCameFrom };
   methodCameFrom = null;
+  // a sub-card (#method/mangrove-change) also opens the card it belongs to
+  openGroup = found.useCase.parent || null;
   openUseCase = found.useCase.id;
   selectMethodTab(found.section.id);                      // shows the tab and opens the panel
   const el = $('use-case-' + found.useCase.id);
