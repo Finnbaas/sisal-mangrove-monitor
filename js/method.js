@@ -19,7 +19,7 @@ let activeTab = null;        // id of the section (tab) that is shown
 let openUseCase = null;      // id of the use case whose panel is open (only one on the whole page; none at the start)
 let methodFacts = {};        // the numbers that the texts can use, from the data files (see loadMethodFacts)
 let methodArrival = null;    // { useCase, from }: set when the visitor arrives through a link to one use case
-let methodCameFrom = null;   // the research page on which a "Do this analysis yourself" link was clicked
+let methodCameFrom = null;   // the address of the research page (and part) on which a "Do this analysis yourself" link was clicked
 
 // Small icons, drawn in the text color of the place they are used in.
 const METHOD_ICONS = {
@@ -338,10 +338,11 @@ function renderUseCases() {
 // through a link to it; if they came from a research page, a bar on top offers the way back.
 function useCaseHtml(section, useCase) {
   const arrived = methodArrival && methodArrival.useCase === useCase.id;
-  const fromPage = arrived && methodArrival.from ? pageSections().find((p) => p.id === methodArrival.from) : null;
+  // "from" is an address such as "satellite/tipping": the page is the part before the slash
+  const fromPage = arrived && methodArrival.from ? pageSections().find((p) => p.id === methodArrival.from.split('/')[0]) : null;
   const bar = fromPage ?
     '<div class="use-case-bar"><span>' + escapeHtml(t('labels.cameFrom', { page: fromPage.label })) + '</span>' +
-    '<a href="#' + escapeHtml(fromPage.id) + '">&larr; ' + escapeHtml(t('labels.backTo', { page: fromPage.label })) + '</a></div>' : '';
+    '<a href="#' + escapeHtml(methodArrival.from) + '">&larr; ' + escapeHtml(t('labels.backTo', { page: fromPage.label })) + '</a></div>' : '';
 
   const madeHtml = isFilled(useCase.howMade) ?
     '<div class="use-case-made"><div class="method-label">' + escapeHtml(t('labels.howThisIsMade')) + '</div><p class="method-text">' + escapeHtml(fillFacts(useCase.howMade)) + '</p></div>' : '';
@@ -431,7 +432,7 @@ function placeCardLinks() {
     link.href = '#method/' + useCase.id;
     link.innerHTML = '<span>' + escapeHtml(t('labels.doItYourself')) + '</span>' + METHOD_ICONS.arrow;
     // remember which research page the visitor is on, for the "You came from ..." bar
-    link.addEventListener('click', () => { methodCameFrom = lastResearchSection; });
+    link.addEventListener('click', () => { methodCameFrom = lastResearchAddress; });
     actions.appendChild(link);
   })));
 
@@ -446,7 +447,7 @@ function placeCardLinks() {
     link.title = t('labels.openTopic');
     link.setAttribute('aria-label', t('labels.openTopic') + ': ' + title);
     link.textContent = '↗';
-    link.addEventListener('click', () => { methodCameFrom = lastResearchSection; });
+    link.addEventListener('click', () => { methodCameFrom = lastResearchAddress; });
     old.replaceWith(link);
   };
   method.sections.forEach((section) => {

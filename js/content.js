@@ -257,11 +257,17 @@ function buildParts(section, s, ready) {
   bar.className = 'section-nav-bar';
   bar.appendChild(nav);
   section.appendChild(bar);
+  // "partsAsTabs": true in content/pages.json: one part at a time, each with its own address (#satellite/ndvi);
+  // navigation.js (showPart) shows the part of the address. Otherwise all parts are shown below each other.
+  const asTabs = !!s.partsAsTabs;
+  if (asTabs) section.classList.add('parts-as-tabs');
   const partEls = [];
   s.parts.forEach((p, i) => {
+    const partId = p.id || 'part-' + (i + 1);
     const part = document.createElement('div');
     part.className = 'research-part';
-    part.id = s.id + '-' + (p.id || 'part-' + (i + 1));
+    part.id = s.id + '-' + partId;
+    part.dataset.part = partId;
 
     const headerRow = document.createElement('div');
     headerRow.className = 'part-header-row';
@@ -294,9 +300,15 @@ function buildParts(section, s, ready) {
     link.type = 'button';
     link.className = 'section-nav-item';
     link.textContent = p.title;
-    link.addEventListener('click', () => part.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    link.dataset.part = partId;
+    // as tabs: the link changes the address (#satellite/ndvi); otherwise it scrolls to the part
+    link.addEventListener('click', () => {
+      if (asTabs) location.hash = s.id + '/' + partId;
+      else part.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
     nav.appendChild(link);
   });
+  if (asTabs) return;   // the current part is marked by showPart (navigation.js), not by scrolling
 
   // the part in view is marked in the navigation: the last part whose top has passed the navigation
   const links = [...nav.children];

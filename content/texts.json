@@ -15,7 +15,8 @@
     "event-list": "Studied storms",
     "stakeholder-map": "Stakeholder observations",
     "stakeholder-panel": "Area details",
-    "veg-ews": "Early warning signals before the loss",
+    "ews-verdict": "Early warning signal?",
+    "ews-plots": "Rolling statistics before the loss",
     "climate-typical-year": "A typical year",
     "climate-change": "Change since 1950",
     "climate-detail": "In detail"
@@ -219,6 +220,7 @@
     "noPointDescription": "No description yet for this point.",
     "ewsSubtitle": "Rolling statistics of NDVI before the loss. An early warning would show a significant rise in AR1 and standard deviation.",
     "ewsSubtitleWithDate": "Rolling statistics of NDVI before the loss (from {lossStart}). An early warning would show a significant rise in AR1 and standard deviation.",
+    "ewsSelectPoint": "Click a larger marker to see whether that point had an early warning signal.",
     "ewsVerdictYes": "Early warning signal before this loss",
     "ewsVerdictNo": "No early warning signal before this loss",
     "ewsPartRose": "{metrics} rose significantly (p < {alpha})",

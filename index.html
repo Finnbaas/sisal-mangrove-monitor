@@ -304,20 +304,27 @@
           <div id="veg-source-body"></div>
         </div>
 
-        <!-- early warning signals before the breakpoint: residual, AR1 and SD with Kendall's tau and p, one shared year axis -->
-        <div class="card" data-card="veg-ews">
-          <div class="card-title-row top">
-            <div>
-              <div class="card-title"><span id="veg-ews-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div>
-              <div class="faint" id="veg-ews-subtitle"></div>
-            </div>
-          </div>
-          <div id="veg-ews-charts" class="chart-stack"></div>
+        <!-- early warning signals, part 1: the verdict of the EWS notebook with its reason and the metrics table
+             (filled by vegetation.js) -->
+        <div class="card" data-card="ews-verdict">
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.ews-verdict"></div></div>
+          <div id="ews-verdict-body"></div>
           <div class="chart-foot">
             <div></div>
             <div class="card-actions"><a id="veg-ews-link" class="veg-link"></a></div>
           </div>
           <p class="fine" id="veg-ews-status"></p>
+        </div>
+
+        <!-- early warning signals, part 2: rolling residual, AR1 and SD before the loss, one shared year axis -->
+        <div class="card" data-card="ews-plots">
+          <div class="card-title-row top">
+            <div>
+              <div class="card-title" data-text="cardTitles.ews-plots"></div>
+              <div class="faint" id="ews-plots-subtitle"></div>
+            </div>
+          </div>
+          <div id="ews-plots-charts" class="chart-stack"></div>
         </div>
 
         <!-- STAKEHOLDER CARDS (filled by stakeholders.js from content/stakeholders.json) -->

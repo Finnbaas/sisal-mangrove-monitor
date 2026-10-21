@@ -13,7 +13,9 @@
 
 let RESEARCH_SECTIONS = [];      // page ids from content/pages.json, in menu order
 let DEFAULT_SECTION = null;      // the first page in content/pages.json
-let lastResearchSection = null;  // where the "Research" tab takes you back to
+let lastResearchSection = null;  // the last research page (its id, e.g. "satellite")
+let lastResearchAddress = null;  // the full address of that page, with its part (e.g. "satellite/tipping"): where the
+                                 // "Research" tab and the "Back to ..." link of the Method page take you back to
 
 // The Overview theme colors are the default; pages without their own theme in css/base.css use them.
 const THEME_DEFAULT = 'overview';
@@ -23,6 +25,25 @@ function screenFromAddress() {
   // the part before a slash is the screen: #method/<use case> is still the Method screen (see method.js)
   const name = location.hash.slice(1).split('/')[0];
   return name === 'method' || RESEARCH_SECTIONS.includes(name) ? name : null;
+}
+
+// A page whose parts are tabs ("partsAsTabs" in content/pages.json) shows one part at a time: the part named after
+// the slash in the address (#satellite/ndvi), or the first part (#satellite). Its link in the section navigation is
+// marked. Returns the part that is shown, or null for other pages.
+function showPart(screenEl) {
+  if (!screenEl.classList.contains('parts-as-tabs')) return null;
+  const parts = [...screenEl.querySelectorAll('.research-part')];
+  if (!parts.length) return null;
+  const wanted = location.hash.slice(1).split('/')[1];
+  const shown = parts.find((p) => p.dataset.part === wanted) || parts[0];
+  parts.forEach((p) => { p.hidden = p !== shown; });
+  screenEl.querySelectorAll('.section-nav-item').forEach((link) => {
+    const current = link.dataset.part === shown.dataset.part;
+    link.classList.toggle('current', current);
+    if (current) link.setAttribute('aria-current', 'true');
+    else link.removeAttribute('aria-current');
+  });
+  return shown;
 }
 
 // Every research card exists once in index.html (data-card="map", ...). A section has empty slots
@@ -43,12 +64,16 @@ function showScreen() {
     history.replaceState(null, '', '#' + screen);
   }
   const isMethod = screen === 'method';
-  if (!isMethod) lastResearchSection = screen;
+  if (!isMethod) {
+    lastResearchSection = screen;
+    lastResearchAddress = location.hash.slice(1);
+  }
 
-  // show only the matching screen, and move the cards it needs into its slots
+  // show only the matching screen, and move the cards it needs into its slots (on a page with parts as tabs: only
+  // into the part that is shown, so a card that is used in several parts moves along to the visible one)
   document.querySelectorAll('[data-screen]').forEach((el) => {
     el.hidden = el.dataset.screen !== screen;
-    if (!el.hidden) placeCards(el);
+    if (!el.hidden) placeCards(showPart(el) || el);
   });
 
   // sub-navigation: only on research sections, with the current section marked
@@ -79,7 +104,7 @@ function setupNavigation() {
   // top bar tabs: "Research" goes back to the last research section you visited
   document.querySelectorAll('.tab').forEach((btn) => {
     btn.addEventListener('click', () => {
-      location.hash = btn.dataset.tab === 'method' ? 'method' : lastResearchSection;
+      location.hash = btn.dataset.tab === 'method' ? 'method' : (lastResearchAddress || lastResearchSection);
     });
   });
 

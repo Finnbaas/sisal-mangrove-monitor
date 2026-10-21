@@ -71,7 +71,12 @@ async function setupVegetation() {
   vegLoaded = true;
   if (allPoints.length) { renderMap(); renderAll(); }   // points.js: the dots, now on the new base map
   renderVegetationEws(getSelectedPoint());   // points.js: the selected point, none at the start
-  window.addEventListener('hashchange', () => { if (location.hash.slice(1).split('/')[0] === 'satellite') renderAbout(); });
+  window.addEventListener('hashchange', () => {
+    if (location.hash.slice(1).split('/')[0] !== 'satellite') return;
+    renderAbout();
+    // the parts of this page are tabs: a Leaflet map that was hidden must measure its size again when its part shows
+    setTimeout(() => { if (vegMaps.layers) vegMaps.layers.invalidateSize(); }, 0);
+  });
 }
 
 // The texts that do not depend on the data: titles, links, hints.
@@ -509,13 +514,15 @@ function renderSource() {
 // same year ticks, same grid and axis parts of charts.js.
 
 
-// The intros with {total} (content/pages.json) get the number of points of data/points.json (points.js).
+// The intros with {total} and {featured} (content/pages.json) get the number of points of data/points.json and the
+// number of clickable points of content/featured-points.json (both loaded by points.js).
 function fillVegetationIntros() {
   const total = typeof allPoints !== 'undefined' ? allPoints.length : 0;
   if (!total) return;
-  ['intro-page-satellite', 'intro-tipping'].forEach((id) => {
+  const featured = typeof FEATURED !== 'undefined' ? Object.keys(FEATURED).length : 0;
+  ['intro-page-satellite', 'intro-ndvi', 'intro-tipping'].forEach((id) => {
     const intro = $(id);
-    if (intro && intro.dataset.template) intro.textContent = intro.dataset.template.split('{total}').join(total);
+    if (intro && intro.dataset.template) intro.textContent = intro.dataset.template.split('{total}').join(total).split('{featured}').join(featured);
   });
 }
 
@@ -565,26 +572,39 @@ function ewsStatusMessage(entry) {
 // point = the selected point of points.js (or null: the charts show "No data", as the other cards do)
 // Only points with status "ok" have charts. They use the same timeline as the NDVI chart; the values exist only for
 // the months before the loss ("dates" of the entry), and a dashed line marks the start of the loss.
+// The early warning signals are two cards: "ews-verdict" (verdict, reason, metrics table) and "ews-plots" (the charts).
 function renderVegetationEws(point) {
-  if (!vegLoaded) return;   // the data of this card is still loading: setupVegetation draws the card once it is there
+  if (!vegLoaded) return;   // the data of these cards is still loading: setupVegetation draws them once it is there
   fillVegetationIntros();
-  const box = $('veg-ews-charts');
+  const verdictBox = $('ews-verdict-body');
+  const box = $('ews-plots-charts');
+  verdictBox.innerHTML = '';
   box.innerHTML = '';
-  setText('veg-ews-title', t('cardTitles.veg-ews'));
   const entry = ewsEntryFor(point);
   // the subtitle names the start of the loss: the start of the 12-month window of the drop (lossStart), which lies
   // before the breakpoint date of the NDVI chart
-  setText('veg-ews-subtitle', entry && entry.lossStart ? t('messages.ewsSubtitleWithDate', { lossStart: entry.lossStart }) : t('messages.ewsSubtitle'));
-  showPlaceholderTag($('veg-ews-title').parentElement, entry && entry.placeholder);
+  setText('ews-plots-subtitle', entry && entry.lossStart ? t('messages.ewsSubtitleWithDate', { lossStart: entry.lossStart }) : t('messages.ewsSubtitle'));
 
-  // a point without EWS (no loss breakpoint, or not enough data before it): a short message instead of charts
-  if (point && (!entry || entry.status !== 'ok')) {
+  // a short grey message in a card
+  const showMessage = (target, text) => {
     const message = document.createElement('p');
     message.className = 'placeholder-text';
-    message.textContent = ewsStatusMessage(entry);
-    box.appendChild(message);
+    message.textContent = text;
+    target.appendChild(message);
+  };
+  // a point without EWS (no loss breakpoint, or not enough data before it): the message in both cards, no charts
+  if (point && (!entry || entry.status !== 'ok')) {
+    showMessage(verdictBox, ewsStatusMessage(entry));
+    showMessage(box, ewsStatusMessage(entry));
     return;
   }
+  // the verdict card: the verdict and the metrics table; a hint without a selected point; "not available yet" for an
+  // older export without verdict (never an empty card)
+  if (entry) {
+    renderEwsVerdict(verdictBox, entry);
+    renderEwsTable(verdictBox, entry);
+  }
+  if (!verdictBox.children.length) showMessage(verdictBox, point ? t('messages.ewsNotAvailable') : t('messages.ewsSelectPoint'));
 
   // The same timeline as the NDVI chart (points.js): all months of the point ("dates" in data/points.json), the same
   // x scale and year ticks. The EWS only exist before the loss, so the months after it stay empty.
@@ -609,9 +629,6 @@ function renderVegetationEws(point) {
   const lossLine = lossX ? '<line x1="' + lossX + '" y1="' + PLOT.top + '" x2="' + lossX + '" y2="' + PLOT.bottom +
     '" stroke="' + color('--color-breakpoint') + '" stroke-width="1.5" stroke-dasharray="4,4"></line>' : '';
 
-  // the conclusion above the charts (only for an analysed point)
-  if (entry) renderEwsVerdict(box, entry);
-
   CONTENT.vegetation.ewsCharts.forEach((c) => {
     const data = entry && entry.metrics ? entry.metrics[c.id] : null;
     const svg = data ? vegEwsChartSvg(c.label, onTimeline(data.values), vegColor(c.color), gridX, x, 'veg-clip-' + c.id).replace('</svg>', lossLine + '</svg>')
@@ -619,8 +636,6 @@ function renderVegetationEws(point) {
     box.appendChild(vegChartRow(c.label, svg));
   });
   if (dates.length) box.appendChild(sharedAxis(ticks, t('labels.year')));
-  // the metrics table under the charts
-  if (entry) renderEwsTable(box, entry);
 }
 
 // ---------- the conclusion of the EWS card: verdict, reason and metrics table ----------
