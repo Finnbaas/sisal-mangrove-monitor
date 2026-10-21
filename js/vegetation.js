@@ -465,7 +465,7 @@ function renderChartCard(layer) {
   card.hidden = !chart;
   if (!chart) return;
   setText('veg-chart-title', chart.title);
-  showPlaceholderTag($('veg-chart-title').parentElement, layer.placeholder);
+  showPlaceholderTag($('veg-chart-title').parentElement, chart.placeholder);
   $('veg-chart-text').textContent = vt('chartPlaceholder');
   $('veg-chart-note').textContent = chart.note;
 }

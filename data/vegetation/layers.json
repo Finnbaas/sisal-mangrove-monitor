@@ -121,7 +121,7 @@
         {
           "id": "per-period",
           "title": "Confirmed loss and gain per period",
-          "image": null,
+          "image": "data/vegetation/change-per-period.png",
           "bounds": null,
           "legend": {
             "type": "periods",
@@ -190,12 +190,12 @@
             "colors": "Darker means more recent. P6→P7 is provisional: it is not yet confirmed by a later period.",
             "chart": {
               "title": "Loss and gain per period",
-              "note": "Periods differ in length; P7 covers only 2024-2025."
+              "note": "Periods differ in length; P7 covers only 2024-2025.",
+              "placeholder": true
             }
           },
           "classes": [],
-          "relatedStorms": [],
-          "placeholder": true
+          "relatedStorms": []
         }
       ]
     },
