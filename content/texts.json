@@ -15,6 +15,7 @@
     "event-list": "Studied storms",
     "stakeholder-map": "Stakeholder observations",
     "stakeholder-panel": "Area details",
+    "veg-ews": "Early warning signals before the loss",
     "climate-typical-year": "A typical year",
     "climate-change": "Change since 1950",
     "climate-detail": "In detail"
@@ -41,6 +42,17 @@
     "latitude": "Latitude",
     "metric": "Metric",
     "p": "p",
+    "and": "and",
+    "ewsMetric": "Metric",
+    "ewsExpected": "Expected",
+    "ewsFound": "Found",
+    "ewsWarning": "Warning sign",
+    "ewsUp": "↑",
+    "ewsDown": "↓",
+    "ewsYes": "✓",
+    "ewsNo": "✗",
+    "ewsNotInVerdict": "not part of the verdict",
+    "ewsTau": "Kendall's τ",
     "tau": "τ",
     "date": "Date",
     "anomalyExplanation": "Anomaly: difference from the mean of the same calendar day",
@@ -179,6 +191,24 @@
     "hurricane-5": { "near": "Hurricane cat. 5", "peak": "cat. 5" }
   },
 
+  "classDescriptions": {
+    "stable": "Stable mangrove. NDVI follows the seasons, but its long-term level stays high and does not change much.",
+    "gain": "Gain. NDVI rose by 0.3 or more between the first and the last 3 years of the record, for example through mangrove growth or regrowth.",
+    "loss": "Loss. NDVI fell by 0.3 or more between the first and the last 3 years of the record.",
+    "loss + recovery": "Loss and recovery. Mangrove (NDVI 0.3 or more) at the start and the end, but NDVI was below 0.3 for at least two years in between.",
+    "high turnover": "High turnover. NDVI moves up and down strongly, with at least a whole year below 0.25 or a lot of back-and-forth change, without one clear direction.",
+    "non-mangrove": "Non-mangrove. NDVI stays low: below 0.3 at the start and the end and below 0.25 on average, for example water, bare soil or salt flats."
+  },
+
+  "pointDescription": {
+    "breakpointRule": "A breakpoint is an abrupt change of at least {threshold} NDVI within 12 months, after which the new level persists for at least 2 years.",
+    "drop": "This point dropped in {date} (by {magnitude} NDVI).",
+    "rise": "This point rose in {date} (by {magnitude} NDVI).",
+    "ews": "Before the drop, we calculated the standard deviation, AR1, kurtosis and skewness of NDVI to look for early warning signals: {verdict}.",
+    "verdictEws": "an early warning signal was found (AR1 and standard deviation both rose significantly)",
+    "verdictNoEws": "no early warning signal was found"
+  },
+
   "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 
   "messages": {
@@ -187,6 +217,14 @@
     "couldNotLoadVegetation": "Could not load the Vegetation data: {file}",
     "pointDescriptionHint": "Click a larger marker to read about that point.",
     "noPointDescription": "No description yet for this point.",
+    "ewsSubtitle": "Rolling statistics of NDVI before the loss. An early warning would show a significant rise in AR1 and standard deviation.",
+    "ewsSubtitleWithDate": "Rolling statistics of NDVI before the loss (from {lossStart}). An early warning would show a significant rise in AR1 and standard deviation.",
+    "ewsVerdictYes": "Early warning signal before this loss",
+    "ewsVerdictNo": "No early warning signal before this loss",
+    "ewsPartRose": "{metrics} rose significantly (p < {alpha})",
+    "ewsPartFell": "{metrics} went down instead of up",
+    "ewsPartNotSignificant": "{metrics} went up, but not significantly (p ≥ {alpha})",
+    "ewsRule": "An early warning signal needs a significant rise (p < {alpha}) in both {metrics}.",
     "ewsNoBreakpoint": "No breakpoint detected, so no early warning signals.",
     "ewsTooShort": "Not enough data before the breakpoint (at least 5 years needed).",
     "ewsTooInterpolated": "Not enough data before the breakpoint (more than 25% of the months are interpolated).",

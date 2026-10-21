@@ -205,18 +205,18 @@ The file is one JSON array with one object per monitoring point (1138 points), m
 - `leftPct`, `topPct`: marker position on the site map image, in percent.
 
 Only the featured points (content/featured-points.json, the clickable markers) also have:
-- `scenario`: number 1-4 (tipping-point scenario, see above); `null` for now (shown as "No data").
+- `scenario`: number 1-4 (tipping-point scenario, see above), from the EWS notebook (sign of the NDVI tau and SD tau before the loss, no p-values); only for the analysed pre-loss points, `null` for all others. Not shown on the site for now (the scenario labels are pending a team decision).
 - `dates`: the months, "1993-01" to the last month of the data; `years`: the year of each month (used by the year slider).
 - `ndvi`: monthly maximum NDVI, one value per entry in `dates` (the grey "raw NDVI" line of the plots; gaps filled as in the notebook).
 - `ndviTrend` (featured points): the STL trend (deseasonalised) of the NDVI, one value per entry in `dates`; `null` in the months STL cuts off. `ndvi` and `ndviTrend` are the two lines of the notebook's NDVI plots, written by the notebook to analysis/satellite/featured_plot_lines.csv and featured_plot_breakpoints.csv, and copied into points.json by analysis/satellite/export_points.py.
 - `breakpoints` (featured points): list of `{ "type": "drop" or "rise", "index": position in dates, "label": "2001-08", "windowStart", "windowEnd": positions in dates of the 12-month window, "magnitude" }`; an empty list if none was detected.
+- `ews` (featured points): the early warning signals (EWS) of the point, for the "Early warning signals" card (Vegetation page) and the trend signals card (Overview). Copied by export_points.py from analysis/satellite/ews/featured_ews_stats.csv and featured_ews_series.csv, which the export cell (step 9) of analysis/satellite/ews/ews_monthly_new.ipynb writes; nothing is recalculated. Missing when that export was not found.
+  - `status`: "ok" (EWS computed), "noBreakpoint" (no loss breakpoint: a control, not an EWS result), "tooShort" (less than 5 years before the loss), "tooInterpolated" (more than 25% interpolated months before the loss) or "notAnalysed" (too few months with data).
+  - `ewsVerdict`: "ews" or "no-ews" (status "ok"), "not-analysed" (all other statuses). The notebook's rule: an EWS if AR1 and standard deviation both rise significantly (tau > 0 and p < `alpha`).
+  - `alpha` (0.05), `lossStart` ("2001-02", start of the 12-month loss window; `null` without a loss), `nSurrogates` (AR(1) surrogates of the significance test), `pMin` (1 / nSurrogates).
+  - Only with status "ok": `nMonths`, `windowMonths` (rolling window), `tauNdvi` (NDVI trend over the same pre-loss months, used for the scenario), `dates` (the months before `lossStart`), and `metrics`: `residual`, `ar1`, `sd`, `skewness`, `kurtosis`, each `{ "values": one per entry in ews.dates (null where the rolling window is not full yet), "tau", "p", "expected", "matches" }`. The residual has only values. `expected` is "up" for the metrics of the verdict (AR1, SD) and `null` for skewness and kurtosis (not part of the verdict); `matches` is true when the metric rose significantly (`null` when not part of the verdict).
+  - `p` is the share of the surrogates with a tau at least as high as the observed one (one-sided: it only tests for a rise). `p` = 0 means no surrogate reached it; the site then shows "p < pMin" (e.g. "p < 0.002").
 
-#### Structure of data/vegetation/points.json
-The early warning signals (EWS) of the featured points, for the "Early warning signals" card (Vegetation page) and the trend signals card (Overview). Made by analysis/satellite/export_points.py from analysis/satellite/ews/featured_ews_stats.csv and featured_ews_series.csv, which the export cell (step 9) of analysis/satellite/ews/ews_monthly_new.ipynb writes; never edit it by hand. `{ "_about": ..., "points": [...] }`, one object per featured point:
-- `id`: point code; `status`: "ok" (EWS computed), "noBreakpoint" (no loss breakpoint: a control, not an EWS result), "tooShort" (less than 5 years before the loss), "tooInterpolated" (more than 25% interpolated months before the loss) or "notAnalysed" (too few months with data).
-- `lossStart`: "2001-02", the start of the 12-month loss window (`null` without a loss); `nSurrogates`: number of AR(1) surrogates of the significance test; `pMin`: 1 / nSurrogates.
-- Only with status "ok": `dates` (the months before `lossStart`), `nMonths`, `windowMonths` (rolling window), and `ews`: `residual`, `ar1`, `sd`, `skewness`, `kurtosis`, each `{ "values": one per entry in dates (null where the rolling window is not full yet), "tau", "p" }` (the residual has no tau and p).
-- `p` is the share of the surrogates with a tau at least as high as the observed one (one-sided). `p` = 0 means no surrogate reached it; the site then shows "p < pMin" (e.g. "p < 0.002").
 
 #### Structure of data/events.json
 The file is one JSON array with one object per storm (Climatology screen), newest first. It is made by `export_storms()` in analysis/climatology/export_typical_year.py. Each object has:

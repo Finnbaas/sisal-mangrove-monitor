@@ -8,6 +8,8 @@
     { "id": "ndvi", "label": "NDVI", "lineLabel": "raw NDVI", "unit": "index, −1 to 1", "decimals": 4, "axisRange": [-1, 1], "color": "data-ndvi", "trend": { "id": "ndviTrend", "label": "STL trend (deseasonalised)" }, "shownAtStart": true }
   ],
 
+  "breakpointThreshold": 0.25,
+
   "trendMetrics": [
     { "label": "NDVI trend", "ews": null },
     { "label": "Std. deviation", "ews": "sd" },

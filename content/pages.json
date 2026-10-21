@@ -4,7 +4,7 @@
       "id": "overview",
       "label": "Overview",
       "columns": [
-        ["point-map", "year-slider", "point-description", "tipping-status"],
+        ["point-map", "year-slider", "point-description"],
         ["point-chart", "point-values", ["point-info", "trend-signals"]]
       ]
     },
