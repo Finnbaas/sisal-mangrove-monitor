@@ -32,9 +32,7 @@
         <button class="tab active" role="tab" aria-selected="true" data-tab="research" data-text="tabs.research"></button>
         <button class="tab" role="tab" aria-selected="false" data-tab="method" data-text="tabs.method"></button>
       </div>
-      <div id="topbar-right">
-        <div id="coords" class="mono"></div>
-      </div>
+      <div id="topbar-right"></div>
     </div>
 
     <!-- RESEARCH SUB-NAVIGATION: one link per page in content/pages.json (built by content.js) -->
@@ -47,6 +45,10 @@
     <!-- CARD LIBRARY: every ready-made card exists only once, here. The names (data-card) are the
          names used in content/pages.json. -->
     <div id="card-library" hidden>
+
+        <!-- coordinates of the selected point (filled by points.js): content.js moves this pill into the sticky bar
+             with the part links of a page that has parts with "showCoords" in content/pages.json (Vegetation) -->
+        <div id="coords" class="mono"></div>
 
         <div class="card" data-card="point-map">
           <div class="card-title-row top">
@@ -307,20 +309,34 @@
           <div id="veg-source-body"></div>
         </div>
 
-        <!-- early warning signals before the breakpoint: residual, AR1 and SD with Kendall's tau and p, one shared year axis -->
-        <div class="card" data-card="veg-ews">
-          <div class="card-title-row top">
-            <div>
-              <div class="card-title"><span id="veg-ews-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div>
-              <div class="faint" id="veg-ews-subtitle"></div>
-            </div>
-          </div>
-          <div id="veg-ews-charts" class="chart-stack"></div>
+        <!-- early warning signals, part 1: the verdict of the EWS notebook with its reason and the metrics table
+             (filled by vegetation.js) -->
+        <div class="card" data-card="ews-verdict">
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.ews-verdict"></div></div>
+          <div id="ews-verdict-body"></div>
           <div class="chart-foot">
             <div></div>
             <div class="card-actions"><a id="veg-ews-link" class="veg-link"></a></div>
           </div>
           <p class="fine" id="veg-ews-status"></p>
+        </div>
+
+        <!-- "How to read this": general explanation of the early warning cards, four collapsible groups
+             (filled by vegetation.js from content/texts.json "ewsGuide") -->
+        <div class="card" data-card="ews-guide">
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.ews-guide"></div></div>
+          <div id="ews-guide-body"></div>
+        </div>
+
+        <!-- early warning signals, part 2: rolling residual, AR1 and SD before the loss, one shared year axis -->
+        <div class="card" data-card="ews-plots">
+          <div class="card-title-row top">
+            <div>
+              <div class="card-title" data-text="cardTitles.ews-plots"></div>
+              <div class="faint" id="ews-plots-subtitle"></div>
+            </div>
+          </div>
+          <div id="ews-plots-charts" class="chart-stack"></div>
         </div>
 
         <!-- STAKEHOLDER CARDS (filled by stakeholders.js from content/stakeholders.json) -->

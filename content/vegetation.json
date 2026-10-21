@@ -1,8 +1,7 @@
 {
   "_about": "Texts and settings of the Vegetation page (Mangrove maps + Tipping points), read by js/vegetation.js. The numbers and layers themselves come from data/vegetation/. Scenario names and tau signs follow CLAUDE.md; do not rename them here without the team's decision.",
   "files": {
-    "layers": "data/vegetation/layers.json",
-    "points": "data/vegetation/points.json"
+    "layers": "data/vegetation/layers.json"
   },
   "defaultOpacity": 70,
   "layerSwitch": [
@@ -67,14 +66,15 @@
     "pointsLink": "Run this analysis on your own data",
     "pointsLinkTarget": "#method/ews",
     "ndviSeries": "NDVI",
-    "ewsTitle": "Early warning signals",
     "couldNotLoad": "Could not load {file}.",
-    "ewsSubtitle": "before the breakpoint",
-    "ewsSubtitleWithDate": "before the breakpoint (loss starts {date})",
-    "ewsTau": "{label}: τ = {tau}, p = {p}",
-    "ewsTauBelow": "{label}: τ = {tau}, p < {p}",
     "ewsNoData": "No data"
   },
+  "ewsMetrics": [
+    { "id": "ar1", "label": "AR1" },
+    { "id": "sd", "label": "Standard deviation", "sentenceLabel": "standard deviation" },
+    { "id": "skewness", "label": "Skewness", "sentenceLabel": "skewness" },
+    { "id": "kurtosis", "label": "Kurtosis", "sentenceLabel": "kurtosis" }
+  ],
   "ewsCharts": [
     {
       "id": "residual",

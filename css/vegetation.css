@@ -84,8 +84,37 @@
 .about-note { margin-top: 6px; font-size: 11px; color: var(--color-text-muted); }
 
 .chart-foot { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-/* Kendall's tau and p between the early warning charts, centered over the plot */
-.ews-tau { margin: 4px 0 0 40px; text-align: center; font-size: 11px; color: var(--color-text-body); }
+/* conclusion of the early warning card (vegetation.js renderEwsVerdict): verdict, reason, rule and the metrics table */
+.ews-verdict-box { margin-bottom: 12px; padding: 12px; border-radius: 8px; background: var(--color-surface-subtle); }
+.ews-verdict { font-size: 14px; font-weight: 600; color: var(--color-text); }
+.ews-verdict.ews { color: var(--color-class-loss); }
+.ews-reason { margin-top: 4px; font-size: 13px; line-height: 1.45; color: var(--color-text-body); }
+.ews-rule { margin-top: 2px; font-size: 11px; color: var(--color-text-muted); }
+.ews-basis { margin-top: 2px; font-size: 11px; color: var(--color-text-muted); }
+.ews-basis a, .ews-guide-sources a { color: var(--color-accent); }
+.ews-table { margin-top: 12px; font-size: 12px; }
+.ews-table-row { display: grid; grid-template-columns: 1.5fr 0.8fr 0.7fr 0.9fr 0.9fr 1.4fr; gap: 8px; padding: 4px 0; border-top: 1px solid var(--color-border); align-items: baseline; }
+.ews-table-row.head { border-top: none; font-size: 11px; font-weight: 600; color: var(--color-text-muted); }
+.ews-mark.yes { font-weight: 600; color: var(--color-class-loss); }
+.ews-mark.no { font-weight: 600; color: var(--color-text-muted); }
+.ews-mark.none { font-size: 11px; color: var(--color-text-faint); }
+
+/* "How to read this" (card ews-guide): four groups that open and close (closed at the start, like the Method page toggles) */
+.ews-guide-group { border-top: 1px solid var(--color-border); }
+.ews-guide-group:first-child { border-top: none; }
+.ews-guide-group > summary { display: flex; align-items: center; gap: 8px; padding: 8px 0; cursor: pointer; list-style: none; font-size: 13px; font-weight: 600; color: var(--color-text); }
+.ews-guide-group > summary::-webkit-details-marker { display: none; }
+.ews-guide-group > summary::before { content: '\25B8'; font-size: 12px; color: var(--color-text-muted); transition: transform 0.15s; }
+.ews-guide-group[open] > summary::before { transform: rotate(90deg); }
+.ews-guide-group > summary:focus-visible { outline: 2px solid var(--color-text-body); outline-offset: 2px; border-radius: 3px; }
+.ews-guide-group ul { margin: 0 0 10px 0; padding-left: 18px; }
+.ews-guide-group li, .ews-guide-group p { font-size: 13px; line-height: 1.5; color: var(--color-text-body); }
+.ews-guide-group li + li { margin-top: 4px; }
+.ews-guide-group p { margin: 0 0 10px 0; }
+/* "Sources" under "The verdict": the full references, smaller */
+.ews-guide-sources { margin: 0 0 10px 0; }
+.ews-guide-sources-label { font-size: 11px; font-weight: 600; color: var(--color-text-muted); margin-bottom: 2px; }
+.ews-guide-group .ews-guide-sources p { margin: 0 0 4px 0; font-size: 11px; line-height: 1.45; color: var(--color-text-muted); }
 
 /* the links "Use this code..." and "Run this analysis..." (look of .diy-link in base.css; own class because method.js rebuilds every .diy-link) */
 .veg-link { display: flex; align-items: center; gap: 4px; padding: 6px 8px; border-radius: 8px; font-size: 12px; font-weight: 500; color: var(--color-accent); text-decoration: none; white-space: nowrap; width: fit-content; }

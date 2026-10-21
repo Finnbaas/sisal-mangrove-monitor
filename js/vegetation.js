@@ -1,10 +1,12 @@
 // vegetation.js: the Vegetation page ("Vegetation data"): Mangrove maps and Tipping points.
 //   Section 1: a zoomable map (Leaflet) with the layers Condition | Change | Disturbance & recovery, an opacity
 //   slider, a legend that switches per layer, "About this layer" and "Where the data comes from".
-//   Section 2: the card "Early warning signals before the breakpoint" (residual, AR1 and SD with Kendall's tau and p),
-//   only for points with a loss breakpoint and enough data before it; other points get a short message.
+//   Section 2: the card "Early warning signals before the breakpoint": the verdict of the EWS notebook with its reason,
+//   a metrics table (expected and found direction, tau, p) and the charts (residual, AR1, SD), only for points with a
+//   loss breakpoint and enough data before it; other points get a short message.
 //   The points map and the Point card of this section are the original cards of points.js (data/points.json).
-// Reads: data/vegetation/layers.json (the map layers) and points.json (the early warning signals of the clickable points);
+// Reads: data/vegetation/layers.json (the map layers); the early warning signals come from the "ews" of the points in
+//   data/points.json (loaded by points.js);
 //   content/vegetation.json (texts, layer switch, chart names). Nothing is typed in this file: every number comes from the data.
 // Uses: helpers.js, content.js (CONTENT, t), points.js (getSelectedPoint, pointXScale, allPoints), charts.js,
 //   climatology-storms.js (events, selectEvent, strengthText) and Leaflet (CDN).
@@ -13,11 +15,10 @@
 // ---------- state ----------
 
 let vegLayers = null;          // contents of data/vegetation/layers.json
-let vegEws = [];               // the early warning signals per point id (data/vegetation/points.json)
 let vegBarSet = null;          // the bar chart of the per-period view as a set for the comparison line (see charts.js)
 let vegBarMode = 'perYear';    // 'perYear' or 'total' (content/vegetation.json "chartModes")
 let vegEwsSet = null;          // the EWS charts as a set for the comparison line (see charts.js)
-let vegLoaded = false;         // true when layers.json and points.json have loaded
+let vegLoaded = false;         // true when layers.json has loaded
 let vegLayerId = null;         // the layer shown in the map of section 1
 let vegViewIds = {};           // the chosen view per layer id (layers with "views", e.g. Change: classes | per-period)
 let vegOverlay = null;         // the Leaflet image of that layer
@@ -52,7 +53,6 @@ async function setupVegetation() {
   const files = CONTENT.vegetation.files;
   try {
     vegLayers = await loadVegetationFile(files.layers);
-    vegEws = (await loadVegetationFile(files.points)).points;
   } catch (err) {
     // name the file instead of a blank card
     const message = t('messages.couldNotLoadVegetation', { file: err.message });
@@ -73,7 +73,7 @@ async function setupVegetation() {
   setupPointsMapBackground();
   vegLoaded = true;
   // the comparison line on the EWS charts (mouse and arrow keys), the same as on the other charts, see js/charts.js
-  attachComparisonLine($('veg-ews-charts'), () => vegEwsSet);
+  attachComparisonLine($('ews-plots-charts'), () => vegEwsSet);
   attachComparisonLine($('veg-chart-body'), () => vegBarSet);
   if (allPoints.length) { renderMap(); renderAll(); }   // points.js: the dots, now on the new base map
   renderVegetationEws(getSelectedPoint());   // points.js: the selected point, none at the start
@@ -587,13 +587,15 @@ function renderSource() {
 // same year ticks, same grid and axis parts of charts.js.
 
 
-// The intros with {total} (content/pages.json) get the number of points of data/points.json (points.js).
+// The intros with {total} and {featured} (content/pages.json) get the number of points of data/points.json and the
+// number of clickable points of content/featured-points.json (both loaded by points.js).
 function fillVegetationIntros() {
   const total = typeof allPoints !== 'undefined' ? allPoints.length : 0;
   if (!total) return;
-  ['intro-page-satellite', 'intro-tipping'].forEach((id) => {
+  const featured = typeof FEATURED !== 'undefined' ? Object.keys(FEATURED).length : 0;
+  ['intro-page-satellite', 'intro-ndvi', 'intro-tipping'].forEach((id) => {
     const intro = $(id);
-    if (intro && intro.dataset.template) intro.textContent = intro.dataset.template.split('{total}').join(total);
+    if (intro && intro.dataset.template) intro.textContent = intro.dataset.template.split('{total}').join(total).split('{featured}').join(featured);
   });
 }
 
@@ -624,12 +626,13 @@ function vegChartRow(label, svg) {
   return row;
 }
 
-// The early warning signals of a point (data/vegetation/points.json), or null. Also used by the trend signals card (points.js).
+// The early warning signals of a point: its "ews" in data/points.json (loaded by points.js), or null.
+// Also used by the trend signals card (points.js).
 function ewsEntryFor(point) {
-  return point ? vegEws.find((e) => e.id === point.id) || null : null;
+  return point && point.ews ? point.ews : null;
 }
 
-// The message of a point without EWS charts (content/texts.json), by its status in data/vegetation/points.json:
+// The message of a point without EWS charts (content/texts.json), by its "ews.status" in data/points.json:
 // noBreakpoint (a control), tooShort, tooInterpolated or notAnalysed. A point that is missing from the file, or a file
 // without "status" (not exported yet by export_points.py), gets "not available yet". Also used by the trend signals card.
 const EWS_STATUS_MESSAGES = {
@@ -645,25 +648,41 @@ function ewsStatusMessage(entry) {
 // point = the selected point of points.js (or null: the charts show "No data", as the other cards do)
 // Only points with status "ok" have charts. They use the same timeline as the NDVI chart; the values exist only for
 // the months before the loss ("dates" of the entry), and a dashed line marks the start of the loss.
+// The early warning signals are two cards: "ews-verdict" (verdict, reason, metrics table) and "ews-plots" (the charts).
 function renderVegetationEws(point) {
-  if (!vegLoaded) return;   // the data of this card is still loading: setupVegetation draws the card once it is there
+  if (!vegLoaded) return;   // the data of these cards is still loading: setupVegetation draws them once it is there
   fillVegetationIntros();
-  const box = $('veg-ews-charts');
+  const verdictBox = $('ews-verdict-body');
+  const box = $('ews-plots-charts');
+  verdictBox.innerHTML = '';
   box.innerHTML = '';
   vegEwsSet = null;
-  setText('veg-ews-title', vt('ewsTitle'));
   const entry = ewsEntryFor(point);
-  setText('veg-ews-subtitle', entry && entry.lossStart ? vt('ewsSubtitleWithDate', { date: entry.lossStart }) : vt('ewsSubtitle'));
-  showPlaceholderTag($('veg-ews-title').parentElement, entry && entry.placeholder);
+  renderEwsGuide(entry);   // "How to read this": for every point, also without a selected point
+  // the subtitle names the start of the loss: the start of the 12-month window of the drop (lossStart), which lies
+  // before the breakpoint date of the NDVI chart
+  setText('ews-plots-subtitle', entry && entry.lossStart ? t('messages.ewsSubtitleWithDate', { lossStart: entry.lossStart }) : t('messages.ewsSubtitle'));
 
-  // a point without EWS (no loss breakpoint, or not enough data before it): a short message instead of charts
-  if (point && (!entry || entry.status !== 'ok')) {
+  // a short grey message in a card
+  const showMessage = (target, text) => {
     const message = document.createElement('p');
     message.className = 'placeholder-text';
-    message.textContent = ewsStatusMessage(entry);
-    box.appendChild(message);
+    message.textContent = text;
+    target.appendChild(message);
+  };
+  // a point without EWS (no loss breakpoint, or not enough data before it): the message in both cards, no charts
+  if (point && (!entry || entry.status !== 'ok')) {
+    showMessage(verdictBox, ewsStatusMessage(entry));
+    showMessage(box, ewsStatusMessage(entry));
     return;
   }
+  // the verdict card: the verdict and the metrics table; a hint without a selected point; "not available yet" for an
+  // older export without verdict (never an empty card)
+  if (entry) {
+    renderEwsVerdict(verdictBox, entry);
+    renderEwsTable(verdictBox, entry);
+  }
+  if (!verdictBox.children.length) showMessage(verdictBox, point ? t('messages.ewsNotAvailable') : t('messages.ewsSelectPoint'));
 
   // The same timeline as the NDVI chart (points.js): all months of the point ("dates" in data/points.json), the same
   // x scale and year ticks. The EWS only exist before the loss, so the months after it stay empty.
@@ -689,17 +708,8 @@ function renderVegetationEws(point) {
     '" stroke="' + color('--color-breakpoint') + '" stroke-width="1.5" stroke-dasharray="4,4"></line>' : '';
 
   const panels = [];
-  const num = (val) => (isNumber(val) ? formatLike(val, [val]) : NO_DATA);
   CONTENT.vegetation.ewsCharts.forEach((c) => {
-    const data = entry && entry.ews ? entry.ews[c.id] : null;
-    // Kendall's tau and p as a line of text above the chart (the residual has none)
-    if (data && 'tau' in data) {
-      const p = ewsP(data.p, entry.pMin);
-      const text = document.createElement('div');
-      text.className = 'ews-tau';
-      text.textContent = vt(p.below ? 'ewsTauBelow' : 'ewsTau', { label: c.label, tau: num(data.tau), p: p.text });
-      box.appendChild(text);
-    }
+    const data = entry && entry.metrics ? entry.metrics[c.id] : null;
     const drawn = data ? vegEwsChartSvg(c.label, onTimeline(data.values), vegColor(c.color), gridX, x, 'veg-clip-' + c.id)
       : { svg: chartNoData(chartHead({ label: c.label }, gridX, 'chart')), panel: null };
     box.appendChild(vegChartRow(c.label, data ? drawn.svg.replace('</svg>', lossLine + '</svg>') : drawn.svg));
@@ -711,4 +721,162 @@ function renderVegetationEws(point) {
     // the comparison line snaps to months, as on the point chart
     vegEwsSet = { count: dates.length, xOf: x.xOf, indexAt: x.indexAt, label: (i) => pointMonthLabel(dates[i]), panels: panels };
   }
+}
+
+// ---------- the conclusion of the EWS card: verdict, reason and metrics table ----------
+// Everything comes from the "ews" of the point (data/points.json), as the EWS notebook decided it: the verdict
+// ("ewsVerdict"), and per metric the expected direction ("expected": "up", or null = not part of the verdict), tau, p
+// and whether it matches an early warning signal ("matches" = right direction AND p < alpha). Nothing is decided here:
+// this code only picks the texts of content/texts.json that fit those values.
+
+// "AR1 and standard deviation": names joined with the word "and" of content/texts.json
+function joinNames(names) {
+  if (names.length < 2) return names.join('');
+  return names.slice(0, -1).join(', ') + ' ' + t('labels.and') + ' ' + names[names.length - 1];
+}
+
+// The metrics of the table (content/vegetation.json "ewsMetrics") with their data
+function ewsMetricRows(entry) {
+  return (CONTENT.vegetation.ewsMetrics || []).map((m) => ({ m: m, data: entry.metrics ? entry.metrics[m.id] : null }));
+}
+
+function renderEwsVerdict(box, entry) {
+  const verdict = entry.ewsVerdict;
+  if (verdict !== 'ews' && verdict !== 'no-ews') return;   // an older export without verdict: only the charts
+  const alpha = isNumber(entry.alpha) ? formatLike(entry.alpha, [entry.alpha]) : NO_DATA;
+  const rows = ewsMetricRows(entry);
+
+  // the reason: which metrics of the verdict rose significantly, went down, or went up without being significant
+  const inVerdict = rows.filter((r) => r.data && r.data.expected);
+  const names = (list) => joinNames(list.map((r) => r.m.sentenceLabel || r.m.label));
+  const wentDown = (r) => isNumber(r.data.tau) && r.data.tau < 0;
+  const rose = inVerdict.filter((r) => r.data.matches === true);
+  const fell = inVerdict.filter((r) => r.data.matches !== true && wentDown(r));
+  const notSignificant = inVerdict.filter((r) => r.data.matches !== true && !wentDown(r));
+  const parts = [];
+  if (rose.length) parts.push(t('messages.ewsPartRose', { metrics: names(rose), alpha: alpha }));
+  if (fell.length) parts.push(t('messages.ewsPartFell', { metrics: names(fell) }));
+  if (notSignificant.length) parts.push(t('messages.ewsPartNotSignificant', { metrics: names(notSignificant), alpha: alpha }));
+  const reason = parts.join('; ');
+
+  const block = document.createElement('div');
+  block.className = 'ews-verdict-box';
+  block.innerHTML = '<div class="ews-verdict ' + verdict + '"></div><div class="ews-reason"></div><div class="ews-rule"></div><div class="ews-basis"></div>';
+  block.querySelector('.ews-verdict').textContent = t(verdict === 'ews' ? 'messages.ewsVerdictYes' : 'messages.ewsVerdictNo');
+  block.querySelector('.ews-reason').textContent = reason ? reason.charAt(0).toUpperCase() + reason.slice(1) + '.' : '';
+  block.querySelector('.ews-rule').textContent = t('messages.ewsRule', { metrics: names(inVerdict), alpha: alpha });
+  // the scientific basis of the rule, with links to the papers (content/texts.json "references")
+  fillWithReferences(block.querySelector('.ews-basis'), t('messages.ewsBasis'));
+
+  box.appendChild(block);
+}
+
+// The metrics table: metric | expected | found (direction of tau) | Kendall's tau | p | warning sign. The warning sign is
+// ✓ / ✗ from "matches" (right direction AND p < alpha, as the notebook decides it); metrics that are not part of the
+// verdict (skewness, kurtosis) show "not part of the verdict" instead.
+function renderEwsTable(box, entry) {
+  if (entry.ewsVerdict !== 'ews' && entry.ewsVerdict !== 'no-ews') return;   // an older export without verdict
+  const table = document.createElement('div');
+  table.className = 'ews-table';
+  const cell = (text, cls) => '<div' + (cls ? ' class="' + cls + '"' : '') + '>' + escapeHtml(text) + '</div>';
+  let html = '<div class="ews-table-row head">' + cell(t('labels.ewsMetric')) + cell(t('labels.ewsExpected')) + cell(t('labels.ewsFound')) +
+    cell(t('labels.ewsTau')) + cell(t('labels.p')) + cell(t('labels.ewsWarning')) + '</div>';
+  ewsMetricRows(entry).forEach((r) => {
+    const d = r.data;
+    const expected = d && d.expected === 'up' ? t('labels.ewsUp') : '—';
+    const hasTau = d && isNumber(d.tau);
+    const found = !hasTau ? NO_DATA : d.tau > 0 ? t('labels.ewsUp') : d.tau < 0 ? t('labels.ewsDown') : '—';
+    const tau = hasTau ? formatLike(d.tau, [d.tau]) : NO_DATA;
+    // p as the notebook defines it; p = 0 becomes "< pMin" (never "0")
+    const p = d ? ewsP(d.p, entry.pMin) : { below: false, text: NO_DATA };
+    const mark = !d || d.matches === null || d.matches === undefined ? cell(t('labels.ewsNotInVerdict'), 'ews-mark none')
+      : d.matches ? cell(t('labels.ewsYes'), 'ews-mark yes') : cell(t('labels.ewsNo'), 'ews-mark no');
+    html += '<div class="ews-table-row">' + cell(r.m.label) + cell(expected, 'mono') + cell(found, 'mono') + cell(tau, 'mono') +
+      cell((p.below ? '< ' : '') + p.text, 'mono') + mark + '</div>';
+  });
+  table.innerHTML = html;
+  box.appendChild(table);
+}
+
+// ---------- "How to read this" (card ews-guide) ----------
+// General explanation from content/texts.json "ewsGuide": groups with a title and a list of items (or one text),
+// each group a <details> that is closed at the start. It is built once, so a group the visitor opened stays open
+// when another point is selected; only the window size is updated: {window} becomes the rolling window of the
+// selected point ("windowMonths" in its "ews", set by the EWS notebook), or a general text without one.
+function renderEwsGuide(entry) {
+  const body = $('ews-guide-body');
+  const guide = CONTENT.texts.ewsGuide || {};
+  if (!body.children.length) {
+    (guide.groups || []).forEach((g) => {
+      const group = document.createElement('details');
+      group.className = 'ews-guide-group';
+      const summary = document.createElement('summary');
+      summary.textContent = g.title;
+      group.appendChild(summary);
+      // a text with {window} gets a <span> for the window size, so that only that span changes later
+      const withWindow = (text, el) => {
+        const [before, after] = String(text).split('{window}');
+        el.appendChild(document.createTextNode(before));
+        if (after !== undefined) {
+          const span = document.createElement('span');
+          span.className = 'ews-guide-window';
+          el.appendChild(span);
+          el.appendChild(document.createTextNode(after));
+        }
+      };
+      if (Array.isArray(g.items)) {
+        const list = document.createElement('ul');
+        g.items.forEach((item) => { const li = document.createElement('li'); withWindow(item, li); list.appendChild(li); });
+        group.appendChild(list);
+      }
+      if (g.text) { const p = document.createElement('p'); withWindow(g.text, p); group.appendChild(p); }
+      // "Sources": the full references (content/texts.json "references"), each with its DOI link
+      if (Array.isArray(g.sources) && g.sources.length) {
+        const sources = document.createElement('div');
+        sources.className = 'ews-guide-sources';
+        const label = document.createElement('div');
+        label.className = 'ews-guide-sources-label';
+        label.textContent = guide.sourcesLabel || '';
+        sources.appendChild(label);
+        g.sources.forEach((key) => {
+          const ref = (CONTENT.texts.references || {})[key];
+          if (!ref) return;
+          const line = document.createElement('p');
+          line.appendChild(document.createTextNode(ref.full + ' '));
+          if (ref.doi) line.appendChild(referenceLink(ref, 'https://doi.org/' + ref.doi));
+          sources.appendChild(line);
+        });
+        group.appendChild(sources);
+      }
+      body.appendChild(group);
+    });
+  }
+  const months = entry && isNumber(entry.windowMonths) ? entry.windowMonths : null;
+  const windowText = months !== null ? t('ewsGuide.windowMonths', { months: months }) : t('ewsGuide.windowGeneral');
+  body.querySelectorAll('.ews-guide-window').forEach((span) => { span.textContent = windowText; });
+}
+
+// ---------- references (content/texts.json "references") ----------
+
+// A link to a paper that opens in a new tab; the text is "text", or the DOI link itself.
+function referenceLink(ref, text) {
+  const a = document.createElement('a');
+  a.href = 'https://doi.org/' + ref.doi;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.textContent = text;
+  return a;
+}
+
+// Fills an element with a text in which {key} stands for a reference: "Based on {dakos2012} and {martinez2024}."
+// Each {key} becomes the short name of that reference, as a link to its DOI (or plain text when it has no DOI).
+function fillWithReferences(el, text) {
+  const refs = CONTENT.texts.references || {};
+  el.textContent = '';
+  String(text).split(/(\{[a-zA-Z0-9]+\})/).forEach((piece) => {
+    const ref = piece.startsWith('{') ? refs[piece.slice(1, -1)] : null;
+    if (!ref) el.appendChild(document.createTextNode(piece));
+    else if (ref.doi) el.appendChild(referenceLink(ref, ref.short));
+    else el.appendChild(document.createTextNode(ref.short));
+  });
 }
