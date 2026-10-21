@@ -46,6 +46,19 @@ function showPart(screenEl) {
   return shown;
 }
 
+// On a page with parts below each other, an address with a part (#satellite/ndvi) scrolls to that part.
+// Returns true when it scrolled.
+function scrollToPart() {
+  const [screen, partId] = location.hash.slice(1).split('/');
+  if (!partId || screen === 'method') return false;
+  const screenEl = document.querySelector('[data-screen="' + screen + '"]');
+  if (!screenEl || screenEl.classList.contains('parts-as-tabs')) return false;
+  const part = screenEl.querySelector('.research-part[data-part="' + partId + '"]');
+  if (!part) return false;
+  part.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  return true;
+}
+
 // Every research card exists once in index.html (data-card="map", ...). A section has empty slots
 // (data-slot="map", ...). This moves each card into the matching slot of the section being shown,
 // so one card (with its data, selected point and year) can appear in several sections.
@@ -115,11 +128,13 @@ function setupNavigation() {
   });
 
   // the address changed (a link, a tab, or the back/forward button): show that screen from the top
-  // (a link to one use case on the Method page scrolls to that use case instead: method.js)
+  // (a link to one use case on the Method page scrolls to that use case instead: method.js; an address with a part,
+  // e.g. #satellite/ndvi, scrolls to that part)
   window.addEventListener('hashchange', () => {
     showScreen();
-    if (!openMethodTarget()) window.scrollTo(0, 0);
+    if (!openMethodTarget() && !scrollToPart()) window.scrollTo(0, 0);
   });
 
   showScreen();
+  scrollToPart();   // the page was opened with an address of a part
 }

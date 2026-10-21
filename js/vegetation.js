@@ -71,12 +71,7 @@ async function setupVegetation() {
   vegLoaded = true;
   if (allPoints.length) { renderMap(); renderAll(); }   // points.js: the dots, now on the new base map
   renderVegetationEws(getSelectedPoint());   // points.js: the selected point, none at the start
-  window.addEventListener('hashchange', () => {
-    if (location.hash.slice(1).split('/')[0] !== 'satellite') return;
-    renderAbout();
-    // the parts of this page are tabs: a Leaflet map that was hidden must measure its size again when its part shows
-    setTimeout(() => { if (vegMaps.layers) vegMaps.layers.invalidateSize(); }, 0);
-  });
+  window.addEventListener('hashchange', () => { if (location.hash.slice(1).split('/')[0] === 'satellite') renderAbout(); });
 }
 
 // The texts that do not depend on the data: titles, links, hints.

@@ -11,7 +11,6 @@
     {
       "id": "satellite",
       "label": "Vegetation data",
-      "partsAsTabs": true,
       "title": "Vegetation data",
       "intro": "Two analyses of the same mangrove: the condition of the whole area, and tipping points at {total} points.",
       "parts": [
@@ -31,7 +30,7 @@
           "id": "tipping",
           "title": "Tipping points & Early Warning Signals",
           "intro": "Breakpoints and early warning signals. Click a larger marker to see whether that point had a lasting loss, and whether there was a warning before it.",
-          "columns": [["point-map", "ews-plots"], ["point-chart", "ews-verdict", "point-description"]]
+          "columns": [["ews-plots"], ["ews-verdict"]]
         }
       ]
     },

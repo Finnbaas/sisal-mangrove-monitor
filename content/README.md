@@ -61,12 +61,13 @@ Tip: paste the file into https://jsonlint.com to find the mistake.
 
   `title` and `intro` are the heading of the part; `aside` (optional) is a small card shown next to
   the heading; `columns` and `wide` work as above.
-- `partsAsTabs` (optional, with `parts`): `true` shows one part at a time, like tabs (the Vegetation page).
-  Each part then has its own address, `#<page id>/<part id>` (e.g. `#satellite/ndvi`); `#satellite` alone
-  opens the first part. A card can then be used in several parts (e.g. the point map): it moves into the
-  part that is shown, and the selected point stays selected. Without `partsAsTabs` all parts are shown
-  below each other, and a card can only be used once per page. In an `intro`, `{total}` and `{featured}`
-  become the number of points and of clickable points (Vegetation page only).
+  Each part has its own address, `#<page id>/<part id>` (e.g. `#satellite/ndvi`): the link in the section
+  navigation changes the address and scrolls to the part, so the back button works per part. A card can
+  only be used once per page. In an `intro` of the Vegetation page, `{total}` and `{featured}` become the
+  number of points and of clickable points.
+- `partsAsTabs` (optional, with `parts`; not used at the moment): `true` shows one part at a time, like
+  tabs, instead of below each other; `#satellite` alone then opens the first part. A card can then be used
+  in several parts (e.g. the point map): it moves into the part that is shown.
 
 **A new page**: add a section with a new `id` and `label`. It gets the Overview colors.
 A page with `"columns": []` (or no cards) shows "This page has no content yet."

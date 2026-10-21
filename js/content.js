@@ -257,8 +257,9 @@ function buildParts(section, s, ready) {
   bar.className = 'section-nav-bar';
   bar.appendChild(nav);
   section.appendChild(bar);
-  // "partsAsTabs": true in content/pages.json: one part at a time, each with its own address (#satellite/ndvi);
-  // navigation.js (showPart) shows the part of the address. Otherwise all parts are shown below each other.
+  // Every part has its own address (#satellite/ndvi). Normally all parts are shown below each other and the address
+  // scrolls to its part (navigation.js, scrollToPart). With "partsAsTabs": true in content/pages.json only one part is
+  // shown at a time: the part of the address (navigation.js, showPart).
   const asTabs = !!s.partsAsTabs;
   if (asTabs) section.classList.add('parts-as-tabs');
   const partEls = [];
@@ -301,10 +302,12 @@ function buildParts(section, s, ready) {
     link.className = 'section-nav-item';
     link.textContent = p.title;
     link.dataset.part = partId;
-    // as tabs: the link changes the address (#satellite/ndvi); otherwise it scrolls to the part
+    // the link changes the address (#satellite/ndvi), so the back button works per part; navigation.js then shows
+    // (tabs) or scrolls to the part. Clicking the link of the address you are already on scrolls to the part again.
     link.addEventListener('click', () => {
-      if (asTabs) location.hash = s.id + '/' + partId;
-      else part.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const address = s.id + '/' + partId;
+      if (!asTabs && location.hash === '#' + address) part.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      else location.hash = address;
     });
     nav.appendChild(link);
   });
