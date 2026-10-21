@@ -14,6 +14,7 @@
 
 let vegLayers = null;          // contents of data/vegetation/layers.json
 let vegEws = [];               // the early warning signals per point id (data/vegetation/points.json)
+let vegEwsSet = null;          // the EWS charts as a set for the comparison line (see charts.js)
 let vegLoaded = false;         // true when layers.json and points.json have loaded
 let vegLayerId = null;         // the layer shown in the map of section 1
 let vegViewIds = {};           // the chosen view per layer id (layers with "views", e.g. Change: classes | per-period)
@@ -69,6 +70,8 @@ async function setupVegetation() {
   setupMaps();
   setupPointsMapBackground();
   vegLoaded = true;
+  // the comparison line on the EWS charts (mouse and arrow keys), the same as on the other charts, see js/charts.js
+  attachComparisonLine($('veg-ews-charts'), () => vegEwsSet);
   if (allPoints.length) { renderMap(); renderAll(); }   // points.js: the dots, now on the new base map
   renderVegetationEws(getSelectedPoint());   // points.js: the selected point, none at the start
   window.addEventListener('hashchange', () => { if (location.hash.slice(1).split('/')[0] === 'satellite') renderAbout(); });
@@ -520,10 +523,11 @@ function fillVegetationIntros() {
 }
 
 // One chart like the NDVI chart: grid with the year ticks, y axis, and the line (broken where a month has no value).
+// Returns the SVG text and what the comparison line needs ({ yOf, points }, null without values).
 function vegEwsChartSvg(label, values, colorValue, gridX, x, clipId) {
   const head = chartHead({ label: label }, gridX, 'chart');
   const known = knownValues(values);
-  if (!known.length) return chartNoData(head);
+  if (!known.length) return { svg: chartNoData(head), panel: null };
   const scale = chartScale(known, false);
   let svg = head + chartYAxis(scale.t, scale.yOf, true);
   svg += '<defs><clipPath id="' + clipId + '"><rect x="' + PLOT.left + '" y="' + PLOT.top + '" width="' + (PLOT.right - PLOT.left) + '" height="' + (PLOT.bottom - PLOT.top) + '"></rect></clipPath></defs><g clip-path="url(#' + clipId + ')">';
@@ -531,7 +535,9 @@ function vegEwsChartSvg(label, values, colorValue, gridX, x, clipId) {
     if (seg.length === 1) svg += '<circle cx="' + x.xOf(seg[0].i).toFixed(1) + '" cy="' + scale.yOf(seg[0].val).toFixed(1) + '" r="1.8" fill="' + colorValue + '"></circle>';
     else svg += '<polyline points="' + seg.map((pt) => x.xOf(pt.i).toFixed(1) + ',' + scale.yOf(pt.val).toFixed(1)).join(' ') + '" fill="none" stroke="' + colorValue + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"></polyline>';
   });
-  return svg + '</g></svg>';
+  // what the comparison line shows at month i: "AR1 0.42"
+  const points = (i) => [{ value: values[i], color: colorValue, text: label + ' ' + formatLike(values[i], values) }];
+  return { svg: svg + '</g></svg>', panel: { yOf: scale.yOf, points: points } };
 }
 
 // A chart row like the others: the name on the left, the plot.
@@ -569,6 +575,7 @@ function renderVegetationEws(point) {
   fillVegetationIntros();
   const box = $('veg-ews-charts');
   box.innerHTML = '';
+  vegEwsSet = null;
   setText('veg-ews-title', vt('ewsTitle'));
   const entry = ewsEntryFor(point);
   setText('veg-ews-subtitle', entry && entry.lossStart ? vt('ewsSubtitleWithDate', { date: entry.lossStart }) : vt('ewsSubtitle'));
@@ -606,6 +613,7 @@ function renderVegetationEws(point) {
   const lossLine = lossX ? '<line x1="' + lossX + '" y1="' + PLOT.top + '" x2="' + lossX + '" y2="' + PLOT.bottom +
     '" stroke="' + color('--color-breakpoint') + '" stroke-width="1.5" stroke-dasharray="4,4"></line>' : '';
 
+  const panels = [];
   const num = (val) => (isNumber(val) ? formatLike(val, [val]) : NO_DATA);
   CONTENT.vegetation.ewsCharts.forEach((c) => {
     const data = entry && entry.ews ? entry.ews[c.id] : null;
@@ -617,9 +625,15 @@ function renderVegetationEws(point) {
       text.textContent = vt(p.below ? 'ewsTauBelow' : 'ewsTau', { label: c.label, tau: num(data.tau), p: p.text });
       box.appendChild(text);
     }
-    const svg = data ? vegEwsChartSvg(c.label, onTimeline(data.values), vegColor(c.color), gridX, x, 'veg-clip-' + c.id).replace('</svg>', lossLine + '</svg>')
-      : chartNoData(chartHead({ label: c.label }, gridX, 'chart'));
-    box.appendChild(vegChartRow(c.label, svg));
+    const drawn = data ? vegEwsChartSvg(c.label, onTimeline(data.values), vegColor(c.color), gridX, x, 'veg-clip-' + c.id)
+      : { svg: chartNoData(chartHead({ label: c.label }, gridX, 'chart')), panel: null };
+    box.appendChild(vegChartRow(c.label, data ? drawn.svg.replace('</svg>', lossLine + '</svg>') : drawn.svg));
+    panels.push(drawn.panel);
   });
-  if (dates.length) box.appendChild(sharedAxis(ticks, t('labels.year')));
+  if (dates.length) {
+    box.appendChild(sharedAxis(ticks, t('labels.year')));
+    box.insertAdjacentHTML('beforeend', '<div class="comparison" hidden></div>');
+    // the comparison line snaps to months, as on the point chart
+    vegEwsSet = { count: dates.length, xOf: x.xOf, indexAt: x.indexAt, label: (i) => pointMonthLabel(dates[i]), panels: panels };
+  }
 }
