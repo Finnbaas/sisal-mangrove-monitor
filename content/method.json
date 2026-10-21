@@ -136,7 +136,6 @@
         {
           "id": "mangrove-maps",
           "title": "Mangrove maps",
-          "useFor": "Maps of mangrove change, condition and disturbance for your own area.",
           "image": "data/vegetation/change.png",
           "subCards": [
             { "id": "mangrove-change", "title": "Change" },
