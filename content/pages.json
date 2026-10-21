@@ -24,7 +24,7 @@
           "id": "tipping",
           "title": "Tipping points & Early Warning Signals",
           "intro": "Tipping-point analysis at {total} monitoring points.",
-          "columns": [["point-map", "point-description"], ["point-chart", "veg-ews"]]
+          "columns": [["point-map"], ["point-chart", "point-description", "veg-ews"]]
         }
       ]
     },
