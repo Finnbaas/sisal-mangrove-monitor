@@ -51,6 +51,16 @@
       ],
       "useCases": [
         {
+          "id": "mangrove-maps",
+          "title": "Mangrove maps",
+          "image": "data/vegetation/change.png",
+          "subCards": [
+            { "id": "mangrove-change", "title": "Change" },
+            { "title": "Condition", "comingSoon": true },
+            { "title": "Disturbance & recovery", "comingSoon": true }
+          ]
+        },
+        {
           "id": "ndvi-time-series",
           "title": "NDVI time series for your location",
           "image": "img/satellite/point_base_53.png",
@@ -132,16 +142,6 @@
           ],
           "files": ["shape-class-map/GEE_NDVI.js", "shape-class-map/ndvi_monthly_classification.ipynb", "shape-class-map/README.md", "shape-class-map/requirements.txt", "shape-class-map/monthly_max_NDVI_per_point.csv"],
           "cards": ["point-map"]
-        },
-        {
-          "id": "mangrove-maps",
-          "title": "Mangrove maps",
-          "image": "data/vegetation/change.png",
-          "subCards": [
-            { "id": "mangrove-change", "title": "Change" },
-            { "title": "Condition", "comingSoon": true },
-            { "title": "Disturbance & recovery", "comingSoon": true }
-          ]
         },
         {
           "id": "mangrove-change",
