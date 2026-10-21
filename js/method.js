@@ -8,7 +8,7 @@
 //   written as {storms.total} and filled in from the data files. A use case can also have "keyChoices" (a list under
 //   "Key choices"), "howWeUsed" and "whatYouNeed". A section with "datasets" (Climatology, Vegetation) shows its data
 //   sources and limitations above the cards and the link to its folder on GitHub below them.
-//   A use case with "subCards" (Mangrove maps) shows no steps: it opens a row of sub-cards; a sub-card is a use case with
+//   A use case with "subCards" (Mangrove maps) shows no steps: its sub-cards sit inside the card (twice as wide); a sub-card is a use case with
 //   a "parent" (#method/mangrove-change opens both). A use case can have "routes": tabs with their own steps.
 // Reads: content/method.json (written by the team) and, for the numbers in the texts, data/storms/storm-counts.json,
 //   data/events.json, data/climate/typical-year.json, data/climate/change.json and data/climate/wave-direction.json.
@@ -20,7 +20,6 @@ let method = null;           // contents of content/method.json, or null if it c
 let activeTab = null;        // id of the section (tab) that is shown
 let openUseCase = null;      // id of the use case whose panel is open (only one on the whole page; none at the start)
 let methodFacts = {};        // the numbers that the texts can use, from the data files (see loadMethodFacts)
-let openGroup = null;         // id of the card (e.g. "Mangrove maps") whose row of sub-cards is shown; none at the start
 let routeChoice = {};        // the chosen route per use case id (use cases with "routes": tabs above the steps)
 let methodArrival = null;    // { useCase, from }: set when the visitor arrives through a link to one use case
 let methodCameFrom = null;   // the address of the research page (and part) on which a "Do this analysis yourself" link was clicked
@@ -84,7 +83,7 @@ function setupMethod() {
   $('method').addEventListener('click', (e) => {
     const tab = e.target.closest('.method-tab');
     if (tab) {
-      if (tab.dataset.section !== activeTab) { openUseCase = null; openGroup = null; methodArrival = null; }   // the panel belongs to the old tab
+      if (tab.dataset.section !== activeTab) { openUseCase = null; methodArrival = null; }   // the panel belongs to the old tab
       selectMethodTab(tab.dataset.section);
       return;
     }
@@ -98,16 +97,8 @@ function setupMethod() {
     const card = e.target.closest('.example-card, .sub-card');
     const close = e.target.closest('.use-case-close');
     if (!card && !close) return;
-    if (close) openUseCase = null;
-    else if (card.dataset.group) {
-      // a card with sub-cards shows no steps: it opens or closes its row of sub-cards
-      openGroup = openGroup === card.dataset.group ? null : card.dataset.group;
-      openUseCase = null;
-    } else {
-      // a sub-card keeps its row open; a normal card closes any open row
-      if (!card.classList.contains('sub-card')) openGroup = null;
-      openUseCase = openUseCase === card.dataset.useCase ? null : card.dataset.useCase;
-    }
+    if (card && !card.dataset.useCase) return;   // a card with sub-cards (Mangrove maps) has no steps itself: only its sub-cards open a panel
+    openUseCase = close || openUseCase === card.dataset.useCase ? null : card.dataset.useCase;
     methodArrival = null;   // the visitor is now browsing on their own
     renderUseCases();
     const panel = openUseCase && $('use-case-' + openUseCase);
@@ -345,24 +336,31 @@ function renderUseCases() {
     if (!gallery) return;
     // a use case with a "parent" is a sub-card of another card: it is not in the gallery itself
     gallery.innerHTML = section.useCases.filter((u) => !u.parent).map((u) => {
-      const isGroup = Array.isArray(u.subCards);
-      const open = isGroup ? u.id === openGroup : u.id === openUseCase;
       const badges = (u.badges || []).filter(isFilled);
+      // a card with "subCards" (Mangrove maps) is twice as wide and holds its options itself; it has no steps of its own
+      if (Array.isArray(u.subCards)) {
+        const open = u.subCards.some((c) => c.id && c.id === openUseCase);
+        return '<div class="example-card example-group' + (open ? ' selected' : '') + '" data-section="' + escapeHtml(section.id) + '">' +
+          '<span class="example-title">' + textOrPlaceholder('method-placeholder', u.title) + '</span>' +
+          (isFilled(u.useFor) ? '<span class="example-use"><b>' + escapeHtml(t('labels.useItFor')) + ':</b> ' + escapeHtml(u.useFor) + '</span>' : '') +
+          (badges.length ? '<span class="example-badges">' + badges.map((b) => '<span class="badge">' + escapeHtml(b) + '</span>').join('') + '</span>' : '') +
+          subCardsHtml(u) + '</div>';
+      }
+      const open = u.id === openUseCase;
       return '<button type="button" class="example-card' + (open ? ' selected' : '') + '" data-section="' + escapeHtml(section.id) + '" data-use-case="' + escapeHtml(u.id) + '"' +
-        (isGroup ? ' data-group="' + escapeHtml(u.id) + '"' : '') + ' aria-expanded="' + open + '">' +
+        ' aria-expanded="' + open + '">' +
         '<span class="example-thumb">' + (isFilled(u.image) ? '<img src="' + escapeHtml(u.image) + '" alt="">' : '') + '</span>' +
         '<span class="example-title">' + textOrPlaceholder('method-placeholder', u.title) + '</span>' +
         (isFilled(u.useFor) ? '<span class="example-use"><b>' + escapeHtml(t('labels.useItFor')) + ':</b> ' + escapeHtml(u.useFor) + '</span>' : '') +
         (badges.length ? '<span class="example-badges">' + badges.map((b) => '<span class="badge">' + escapeHtml(b) + '</span>').join('') + '</span>' : '') +
         '</button>';
     }).join('');
-    const group = section.useCases.find((u) => u.id === openGroup);
     const useCase = section.useCases.find((u) => u.id === openUseCase);
-    $('use-case-slot-' + section.id).innerHTML = (group ? subCardsHtml(group) : '') + (useCase ? useCaseHtml(section, useCase) : '');
+    $('use-case-slot-' + section.id).innerHTML = (useCase ? useCaseHtml(section, useCase) : '');
   });
 }
 
-// The row of sub-cards under a card with "subCards" (Mangrove maps): a smaller version of the example cards.
+// The sub-cards inside a card with "subCards" (Mangrove maps): a smaller version of the example cards.
 // A sub-card with "comingSoon" is greyed out and does nothing.
 function subCardsHtml(group) {
   return '<div class="sub-cards">' + group.subCards.map((c) => {
@@ -450,14 +448,12 @@ function openMethodTarget() {
     methodCameFrom = null;
     // #method/<section id> opens that tab
     const tab = parts[0] === 'method' && parts[1] ? sectionById(parts[1]) : null;
-    if (tab) { if (tab.id !== activeTab) { openUseCase = null; openGroup = null; } selectMethodTab(tab.id); }
+    if (tab) { if (tab.id !== activeTab) openUseCase = null; selectMethodTab(tab.id); }
     else if (hadArrival) renderUseCases();
     return false;
   }
   methodArrival = { useCase: found.useCase.id, from: methodCameFrom };
   methodCameFrom = null;
-  // a sub-card (#method/mangrove-change) also opens the card it belongs to
-  openGroup = found.useCase.parent || null;
   openUseCase = found.useCase.id;
   selectMethodTab(found.section.id);                      // shows the tab and opens the panel
   const el = $('use-case-' + found.useCase.id);
