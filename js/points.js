@@ -38,7 +38,7 @@ function readPointContent() {
   VARS = v.pointVariables.map((x) => ({ id: x.id, label: x.label, lineLabel: x.lineLabel || x.label, unit: x.unit || '', decimals: x.decimals,
     axisRange: x.axisRange, colorVar: colorVarOf(x.color), trend: x.trend || null }));
   VARS.forEach((x, i) => { checked[x.id] = !!v.pointVariables[i].shownAtStart; });
-  // ews = the id of the early warning signal in data/vegetation/points.json (null: no data for this row yet)
+  // ews = the id of an early warning signal in the "ews" of a point in data/points.json (null: no data for this row yet)
   METRICS = v.trendMetrics.map((m) => ({ label: m.label, ews: m.ews || null }));
   COORD_DECIMALS = v.coordinateDecimals;
 }
@@ -263,32 +263,74 @@ function renderAll() {
   // no variables listed in content/variables.json: say so instead of an empty card
   if (VARS.length === 0) $('values').innerHTML = '<p class="placeholder-text">' + t('messages.notYetAvailable') + '</p>';
 
-  // description of the selected point (content/featured-points.json, plain text): a hint without a selected point,
-  // "no description yet" when its description is empty
-  const description = point && FEATURED[point.id] ? FEATURED[point.id].description.trim() : '';
-  $('point-description').textContent = point ? (description || t('messages.noPointDescription')) : t('messages.pointDescriptionHint');
-  $('point-description').className = description ? 'point-description' : 'placeholder-text';
+  // description of the selected point (see pointDescription), or a hint without a selected point
+  $('point-description').textContent = point ? pointDescription(point) : t('messages.pointDescriptionHint');
+  $('point-description').className = point ? 'point-description' : 'placeholder-text';
 
   // point info
   $('info-class').textContent = cls.label;
   $('info-lon').textContent = lonText(point);
   $('info-lat').textContent = latText(point);
 
-  // trend signals: p and Kendall's tau of the early warning signals before the loss (data/vegetation/points.json,
-  // read by vegetation.js). Only points with a loss breakpoint and enough data before it have them; other points
+  // trend signals: p and Kendall's tau of the early warning signals before the loss (the "ews" of the point in
+  // data/points.json). Only points with a loss breakpoint and enough data before it have them; other points
   // get the same message as the Early warning signals card of the Vegetation page.
   const ews = point && typeof ewsEntryFor === 'function' ? ewsEntryFor(point) : null;
   if (ews && ews.status !== 'ok') {
     $('metrics').innerHTML = '<p class="placeholder-text">' + escapeHtml(ewsStatusMessage(ews)) + '</p>';
   } else {
     $('metrics').innerHTML = METRICS.map((m) => {
-      const data = ews && ews.ews && m.ews ? ews.ews[m.ews] : null;
+      const data = ews && ews.metrics && m.ews ? ews.metrics[m.ews] : null;
       const p = ewsP(data ? data.p : null, ews ? ews.pMin : null);
       const tau = data && isNumber(data.tau) ? formatLike(data.tau, [data.tau]) : NO_DATA;
       return '<div class="trend-row"><div>' + escapeHtml(m.label) + '</div><div class="mono r">' + (p.below ? '&lt; ' : '') + p.text +
         '</div><div class="mono r tau">' + tau + '</div></div>';
     }).join('');
   }
+}
+
+// ---------- "About this point" ----------
+// The text of the card under the map, put together from content texts and the data of the point:
+//   1. the text of its shape class (content/texts.json "classDescriptions")
+//   2. for each breakpoint (data/points.json "breakpoints"): what a breakpoint is (once, with the threshold of
+//      content/variables.json "breakpointThreshold") and when the point dropped or rose, by how much
+//   3. after a drop: the early warning signals result of the point ("ews" in data/points.json)
+//   4. the point's own "description" of content/featured-points.json (optional)
+// Nothing is decided here: every number and every verdict comes from the data.
+function pointDescription(point) {
+  const parts = [];
+  const classTexts = CONTENT.texts.classDescriptions || {};
+  if (classTexts[point.changeClass]) parts.push(classTexts[point.changeClass]);
+
+  const breakpoints = Array.isArray(point.breakpoints) ? point.breakpoints : [];
+  if (breakpoints.length) {
+    const threshold = CONTENT.variables.breakpointThreshold;
+    parts.push(t('pointDescription.breakpointRule', { threshold: isNumber(threshold) ? formatLike(threshold, [threshold]) : NO_DATA }));
+    breakpoints.forEach((bp) => {
+      const size = isNumber(bp.magnitude) ? formatLike(Math.abs(bp.magnitude), [bp.magnitude]) : NO_DATA;
+      parts.push(t(bp.type === 'rise' ? 'pointDescription.rise' : 'pointDescription.drop', { date: monthYear(bp.label), magnitude: size }));
+    });
+    // early warning signals: only analysed before a drop
+    if (breakpoints.some((bp) => bp.type === 'drop')) {
+      const ews = point.ews;
+      if (ews && (ews.ewsVerdict === 'ews' || ews.ewsVerdict === 'no-ews')) {
+        parts.push(t('pointDescription.ews', { verdict: t(ews.ewsVerdict === 'ews' ? 'pointDescription.verdictEws' : 'pointDescription.verdictNoEws') }));
+      } else if (ews && ews.status && ews.status !== 'ok' && typeof ewsStatusMessage === 'function') {
+        parts.push(ewsStatusMessage(ews));       // e.g. not enough data before the breakpoint
+      }
+    }
+  }
+
+  const own = FEATURED[point.id] ? FEATURED[point.id].description.trim() : '';
+  if (own) parts.push(own);
+  return parts.length ? parts.join(' ') : t('messages.noPointDescription');
+}
+
+// "2001-08" -> "August 2001" (month names of content/texts.json "labels.monthsLong")
+function monthYear(label) {
+  const [year, month] = String(label || '').split('-');
+  const name = t('labels.monthsLong').split(',')[parseInt(month, 10) - 1];
+  return name && year ? name + ' ' + year : (label || NO_DATA);
 }
 
 // ---------- chart ----------

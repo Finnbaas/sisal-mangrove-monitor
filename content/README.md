@@ -61,6 +61,13 @@ Tip: paste the file into https://jsonlint.com to find the mistake.
 
   `title` and `intro` are the heading of the part; `aside` (optional) is a small card shown next to
   the heading; `columns` and `wide` work as above.
+  Each part has its own address, `#<page id>/<part id>` (e.g. `#satellite/ndvi`): the link in the section
+  navigation changes the address and scrolls to the part, so the back button works per part. A card can
+  only be used once per page. In an `intro` of the Vegetation page, `{total}` and `{featured}` become the
+  number of points and of clickable points.
+- `partsAsTabs` (optional, with `parts`; not used at the moment): `true` shows one part at a time, like
+  tabs, instead of below each other; `#satellite` alone then opens the first part. A card can then be used
+  in several parts (e.g. the point map): it moves into the part that is shown.
 
 **A new page**: add a section with a new `id` and `label`. It gets the Overview colors.
 A page with `"columns": []` (or no cards) shows "This page has no content yet."
@@ -150,7 +157,7 @@ of the charts and tabs. The unit and data source come from the data file. Option
 `{ "max": "max", "min": "min" }` for air temperature; such a variable gets one "In detail" tab per line.
 
 `trendMetrics`: the rows of the trend signals card. `ews` is the id of an early warning signal in
-`data/vegetation/points.json` (`ar1`, `sd`, `skewness`, `kurtosis`); the card shows its p and Kendall's tau.
+the "ews" of the points in `data/points.json` (`ar1`, `sd`, `skewness`, `kurtosis`); the card shows its p and Kendall's tau.
 `null` = no data for this row yet (shown as "No data").
 
 `scenarios`: the scenario labels are **pending a team decision**; change them only when the team

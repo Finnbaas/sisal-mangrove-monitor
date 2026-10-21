@@ -13,7 +13,9 @@
 
 let RESEARCH_SECTIONS = [];      // page ids from content/pages.json, in menu order
 let DEFAULT_SECTION = null;      // the first page in content/pages.json
-let lastResearchSection = null;  // where the "Research" tab takes you back to
+let lastResearchSection = null;  // the last research page (its id, e.g. "satellite")
+let lastResearchAddress = null;  // the full address of that page, with its part (e.g. "satellite/tipping"): where the
+                                 // "Research" tab and the "Back to ..." link of the Method page take you back to
 
 // The Overview theme colors are the default; pages without their own theme in css/base.css use them.
 const THEME_DEFAULT = 'overview';
@@ -23,6 +25,60 @@ function screenFromAddress() {
   // the part before a slash is the screen: #method/<use case> is still the Method screen (see method.js)
   const name = location.hash.slice(1).split('/')[0];
   return name === 'method' || RESEARCH_SECTIONS.includes(name) ? name : null;
+}
+
+// A page whose parts are tabs ("partsAsTabs" in content/pages.json) shows one part at a time: the part named after
+// the slash in the address (#satellite/ndvi), or the first part (#satellite). Its link in the section navigation is
+// marked. Returns the part that is shown, or null for other pages.
+function showPart(screenEl) {
+  if (!screenEl.classList.contains('parts-as-tabs')) return null;
+  const parts = [...screenEl.querySelectorAll('.research-part')];
+  if (!parts.length) return null;
+  const wanted = location.hash.slice(1).split('/')[1];
+  const shown = parts.find((p) => p.dataset.part === wanted) || parts[0];
+  parts.forEach((p) => { p.hidden = p !== shown; });
+  screenEl.querySelectorAll('.section-nav-item').forEach((link) => {
+    const current = link.dataset.part === shown.dataset.part;
+    link.classList.toggle('current', current);
+    if (current) link.setAttribute('aria-current', 'true');
+    else link.removeAttribute('aria-current');
+  });
+  return shown;
+}
+
+// On a page with parts below each other, an address with a part (#satellite/ndvi) scrolls to that part.
+// Returns true when it scrolled.
+function scrollToPart() {
+  const [screen, partId] = location.hash.slice(1).split('/');
+  if (!partId || screen === 'method') return false;
+  const screenEl = document.querySelector('[data-screen="' + screen + '"]');
+  if (!screenEl || screenEl.classList.contains('parts-as-tabs')) return false;
+  const part = screenEl.querySelector('.research-part[data-part="' + partId + '"]');
+  if (!part) return false;
+  part.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  return true;
+}
+
+// Opening or reloading the site on the address of a part (#satellite/tipping): at that moment the data and images
+// are still loading, so the parts above it grow afterwards and push it down. So the page jumps to the part again
+// every time the page changes size, until the visitor scrolls, clicks or types (or after 10 seconds).
+function scrollToPartWhileLoading() {
+  const [screen, partId] = location.hash.slice(1).split('/');
+  const screenEl = screen && partId ? document.querySelector('[data-screen="' + screen + '"]') : null;
+  if (!screenEl || screenEl.classList.contains('parts-as-tabs')) return;
+  const part = screenEl.querySelector('.research-part[data-part="' + partId + '"]');
+  if (!part) return;
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';   // a reload does not restore the old position
+  const jump = () => part.scrollIntoView({ block: 'start' });
+  const observer = new ResizeObserver(jump);
+  observer.observe(screenEl);
+  const stop = () => {
+    observer.disconnect();
+    ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach((type) => window.removeEventListener(type, stop));
+  };
+  ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach((type) => window.addEventListener(type, stop, { passive: true }));
+  setTimeout(stop, 10000);
+  jump();
 }
 
 // Every research card exists once in index.html (data-card="map", ...). A section has empty slots
@@ -43,12 +99,16 @@ function showScreen() {
     history.replaceState(null, '', '#' + screen);
   }
   const isMethod = screen === 'method';
-  if (!isMethod) lastResearchSection = screen;
+  if (!isMethod) {
+    lastResearchSection = screen;
+    lastResearchAddress = location.hash.slice(1);
+  }
 
-  // show only the matching screen, and move the cards it needs into its slots
+  // show only the matching screen, and move the cards it needs into its slots (on a page with parts as tabs: only
+  // into the part that is shown, so a card that is used in several parts moves along to the visible one)
   document.querySelectorAll('[data-screen]').forEach((el) => {
     el.hidden = el.dataset.screen !== screen;
-    if (!el.hidden) placeCards(el);
+    if (!el.hidden) placeCards(showPart(el) || el);
   });
 
   // sub-navigation: only on research sections, with the current section marked
@@ -66,9 +126,6 @@ function showScreen() {
     btn.classList.toggle('active', active);
     btn.setAttribute('aria-selected', active);
   });
-  // the coordinates belong to a selected point: only shown on pages with the point map
-  const cards = isMethod ? [] : cardsOnPage(screen);
-  $('coords').hidden = !cards.includes('point-map');
 
   // section colors (see the section themes in css/base.css): a page without its own theme, and the
   // Method page, use the Overview colors
@@ -79,7 +136,7 @@ function setupNavigation() {
   // top bar tabs: "Research" goes back to the last research section you visited
   document.querySelectorAll('.tab').forEach((btn) => {
     btn.addEventListener('click', () => {
-      location.hash = btn.dataset.tab === 'method' ? 'method' : lastResearchSection;
+      location.hash = btn.dataset.tab === 'method' ? 'method' : (lastResearchAddress || lastResearchSection);
     });
   });
 
@@ -90,11 +147,13 @@ function setupNavigation() {
   });
 
   // the address changed (a link, a tab, or the back/forward button): show that screen from the top
-  // (a link to one use case on the Method page scrolls to that use case instead: method.js)
+  // (a link to one use case on the Method page scrolls to that use case instead: method.js; an address with a part,
+  // e.g. #satellite/ndvi, scrolls to that part)
   window.addEventListener('hashchange', () => {
     showScreen();
-    if (!openMethodTarget()) window.scrollTo(0, 0);
+    if (!openMethodTarget() && !scrollToPart()) window.scrollTo(0, 0);
   });
 
   showScreen();
+  scrollToPartWhileLoading();   // the page was opened (or reloaded) with the address of a part
 }

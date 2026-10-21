@@ -256,12 +256,22 @@ function buildParts(section, s, ready) {
   const bar = document.createElement('div');
   bar.className = 'section-nav-bar';
   bar.appendChild(nav);
+  // the coordinates of the selected point (#coords) sit on the right of this bar, so they stay in view while
+  // scrolling; they are only shown while a part with "showCoords": true is the current part (see markCurrent)
+  if (s.parts.some((p) => p.showCoords) && $('coords')) bar.appendChild($('coords'));
   section.appendChild(bar);
+  // Every part has its own address (#satellite/ndvi). Normally all parts are shown below each other and the address
+  // scrolls to its part (navigation.js, scrollToPart). With "partsAsTabs": true in content/pages.json only one part is
+  // shown at a time: the part of the address (navigation.js, showPart).
+  const asTabs = !!s.partsAsTabs;
+  if (asTabs) section.classList.add('parts-as-tabs');
   const partEls = [];
   s.parts.forEach((p, i) => {
+    const partId = p.id || 'part-' + (i + 1);
     const part = document.createElement('div');
     part.className = 'research-part';
-    part.id = s.id + '-' + (p.id || 'part-' + (i + 1));
+    part.id = s.id + '-' + partId;
+    part.dataset.part = partId;
 
     const headerRow = document.createElement('div');
     headerRow.className = 'part-header-row';
@@ -294,9 +304,17 @@ function buildParts(section, s, ready) {
     link.type = 'button';
     link.className = 'section-nav-item';
     link.textContent = p.title;
-    link.addEventListener('click', () => part.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    link.dataset.part = partId;
+    // the link changes the address (#satellite/ndvi), so the back button works per part; navigation.js then shows
+    // (tabs) or scrolls to the part. Clicking the link of the address you are already on scrolls to the part again.
+    link.addEventListener('click', () => {
+      const address = s.id + '/' + partId;
+      if (!asTabs && location.hash === '#' + address) part.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      else location.hash = address;
+    });
     nav.appendChild(link);
   });
+  if (asTabs) return;   // the current part is marked by showPart (navigation.js), not by scrolling
 
   // the part in view is marked in the navigation: the last part whose top has passed the navigation
   const links = [...nav.children];
@@ -310,6 +328,7 @@ function buildParts(section, s, ready) {
     partEls.forEach((el, i) => { if (el.getBoundingClientRect().top <= line) current = i; });
     // at the very bottom of the page the last part counts as the one in view
     if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) current = partEls.length - 1;
+    section.classList.toggle('part-shows-coords', !!s.parts[current].showCoords);
     links.forEach((l, i) => {
       l.classList.toggle('current', i === current);
       if (i === current) l.setAttribute('aria-current', 'true');
