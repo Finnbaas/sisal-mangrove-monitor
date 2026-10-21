@@ -219,14 +219,20 @@ a.expand:hover, a.expand:focus-visible { background: var(--color-border); color:
 }
 .tab.active { background: var(--color-accent); color: var(--color-text-on-accent); }
 #topbar-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+/* coordinates of the selected point: a white pill on the right of the sticky bar with the part links (content.js),
+   only while a part with "showCoords" is the current part, and only with a selected point (empty = hidden) */
 #coords {
+  margin-left: auto;
   font-size: 12px;
+  white-space: nowrap;
   color: var(--color-text-muted);
   background: var(--color-surface);
-  border-radius: 12px;
+  border: 1px solid var(--color-divider);
+  border-radius: 999px;
   padding: 7px 14px;
 }
 #coords:empty { display: none; }
+.research-parts:not(.part-shows-coords) #coords { display: none; }
 
 /* research sub-navigation (Figma components Research-subnav and Subtab) */
 #subnav {
@@ -286,7 +292,7 @@ a.expand:hover, a.expand:focus-visible { background: var(--color-border); color:
 .research-parts { display: flex; flex-direction: column; gap: 28px; }
 /* the section navigation stays at the top while scrolling (Figma section-nav, section-nav-item); its bar has the page
    background, so content that scrolls underneath is hidden instead of showing around the pill */
-.section-nav-bar { position: sticky; top: 0; z-index: 20; margin: 0 -8px; padding: 12px 8px 10px; background: var(--color-background); }
+.section-nav-bar { position: sticky; top: 0; z-index: 20; margin: 0 -8px; padding: 12px 8px 10px; background: var(--color-background); display: flex; align-items: center; gap: 12px; }
 .section-nav {
   width: fit-content;
   display: flex;

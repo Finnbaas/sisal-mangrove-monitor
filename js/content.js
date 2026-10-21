@@ -256,6 +256,9 @@ function buildParts(section, s, ready) {
   const bar = document.createElement('div');
   bar.className = 'section-nav-bar';
   bar.appendChild(nav);
+  // the coordinates of the selected point (#coords) sit on the right of this bar, so they stay in view while
+  // scrolling; they are only shown while a part with "showCoords": true is the current part (see markCurrent)
+  if (s.parts.some((p) => p.showCoords) && $('coords')) bar.appendChild($('coords'));
   section.appendChild(bar);
   // Every part has its own address (#satellite/ndvi). Normally all parts are shown below each other and the address
   // scrolls to its part (navigation.js, scrollToPart). With "partsAsTabs": true in content/pages.json only one part is
@@ -325,6 +328,7 @@ function buildParts(section, s, ready) {
     partEls.forEach((el, i) => { if (el.getBoundingClientRect().top <= line) current = i; });
     // at the very bottom of the page the last part counts as the one in view
     if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) current = partEls.length - 1;
+    section.classList.toggle('part-shows-coords', !!s.parts[current].showCoords);
     links.forEach((l, i) => {
       l.classList.toggle('current', i === current);
       if (i === current) l.setAttribute('aria-current', 'true');

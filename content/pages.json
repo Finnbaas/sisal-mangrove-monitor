@@ -22,12 +22,14 @@
         },
         {
           "id": "ndvi",
+          "showCoords": true,
           "title": "NDVI",
           "intro": "Monthly NDVI of {total} monitoring points. Click one of the {featured} larger markers to see its raw NDVI and deseasonalised STL trend.",
           "columns": [["point-map"], ["point-chart", "point-description"]]
         },
         {
           "id": "tipping",
+          "showCoords": true,
           "title": "Tipping points & Early Warning Signals",
           "intro": "Breakpoints and early warning signals. Click a larger marker to see whether that point had a lasting loss, and whether there was a warning before it.",
           "columns": [["ews-plots"], ["ews-verdict", "ews-guide"]]

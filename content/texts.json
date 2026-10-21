@@ -53,7 +53,7 @@
     "ewsDown": "↓",
     "ewsYes": "✓",
     "ewsNo": "✗",
-    "ewsNotInVerdict": "not part of the verdict",
+    "ewsNotInVerdict": "context only",
     "ewsTau": "Kendall's τ",
     "tau": "τ",
     "date": "Date",
@@ -202,7 +202,21 @@
     "non-mangrove": "Non-mangrove. NDVI stays low: below 0.3 at the start and the end and below 0.25 on average, for example water, bare soil or salt flats."
   },
 
+  "references": {
+    "dakos2012": {
+      "short": "Dakos et al. (2012)",
+      "full": "Dakos, V., et al. (2012). Methods for detecting early warnings of critical transitions in time series illustrated using simulated ecological data. PLoS ONE, 7(7), e41010.",
+      "doi": "10.1371/journal.pone.0041010"
+    },
+    "martinez2024": {
+      "short": "Martínez et al. (2024)",
+      "full": "Martinez, M., Ardón, M., & Gray, J. (2024). Detecting trajectories of regime shifts and loss of resilience in coastal wetlands using remote sensing. Ecosystems.",
+      "doi": "10.1007/s10021-024-00938-5"
+    }
+  },
+
   "ewsGuide": {
+    "sourcesLabel": "Sources",
     "windowMonths": "{months} months (half of the period before the loss)",
     "windowGeneral": "half the length of the period before the loss",
     "groups": [
@@ -219,7 +233,7 @@
         "items": [
           "AR1 (autocorrelation): how much each month's value resembles the month before. A rising AR1 means the vegetation recovers more slowly from disturbances, a classic sign of an approaching tipping point.",
           "Standard deviation: how large the fluctuations are. A rising standard deviation means the system is becoming less stable.",
-          "Skewness and kurtosis: the shape of the fluctuations (asymmetry and how often extreme values occur). Shown for context; they are not part of the verdict."
+          "Skewness and kurtosis: the shape of the fluctuations (asymmetry, and how often extreme values occur). They can also signal an approaching tipping point, but their expected direction depends on the state the system moves towards, so they are shown for context and not used in the verdict."
         ]
       },
       {
@@ -231,6 +245,7 @@
       },
       {
         "title": "The verdict",
+        "sources": ["dakos2012", "martinez2024"],
         "text": "An early warning signal needs a significant rise in both AR1 and standard deviation. No warning does not mean nothing happened: it suggests the loss came suddenly, for example after a storm, rather than after a gradual loss of resilience."
       }
     ]
@@ -256,6 +271,7 @@
     "ewsSubtitle": "Rolling statistics of NDVI before the loss. An early warning would show a significant rise in AR1 and standard deviation.",
     "ewsSubtitleWithDate": "Rolling statistics of NDVI before the loss (from {lossStart}). An early warning would show a significant rise in AR1 and standard deviation.",
     "ewsSelectPoint": "Click a larger marker to see whether that point had an early warning signal.",
+    "ewsBasis": "Based on {dakos2012} and {martinez2024}.",
     "ewsVerdictYes": "Early warning signal before this loss",
     "ewsVerdictNo": "No early warning signal before this loss",
     "ewsPartRose": "{metrics} rose significantly (p < {alpha})",

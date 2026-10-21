@@ -32,9 +32,7 @@
         <button class="tab active" role="tab" aria-selected="true" data-tab="research" data-text="tabs.research"></button>
         <button class="tab" role="tab" aria-selected="false" data-tab="method" data-text="tabs.method"></button>
       </div>
-      <div id="topbar-right">
-        <div id="coords" class="mono"></div>
-      </div>
+      <div id="topbar-right"></div>
     </div>
 
     <!-- RESEARCH SUB-NAVIGATION: one link per page in content/pages.json (built by content.js) -->
@@ -47,6 +45,10 @@
     <!-- CARD LIBRARY: every ready-made card exists only once, here. The names (data-card) are the
          names used in content/pages.json. -->
     <div id="card-library" hidden>
+
+        <!-- coordinates of the selected point (filled by points.js): content.js moves this pill into the sticky bar
+             with the part links of a page that has parts with "showCoords" in content/pages.json (Vegetation) -->
+        <div id="coords" class="mono"></div>
 
         <div class="card" data-card="point-map">
           <div class="card-title-row top">

@@ -672,10 +672,12 @@ function renderEwsVerdict(box, entry) {
 
   const block = document.createElement('div');
   block.className = 'ews-verdict-box';
-  block.innerHTML = '<div class="ews-verdict ' + verdict + '"></div><div class="ews-reason"></div><div class="ews-rule"></div>';
+  block.innerHTML = '<div class="ews-verdict ' + verdict + '"></div><div class="ews-reason"></div><div class="ews-rule"></div><div class="ews-basis"></div>';
   block.querySelector('.ews-verdict').textContent = t(verdict === 'ews' ? 'messages.ewsVerdictYes' : 'messages.ewsVerdictNo');
   block.querySelector('.ews-reason').textContent = reason ? reason.charAt(0).toUpperCase() + reason.slice(1) + '.' : '';
   block.querySelector('.ews-rule').textContent = t('messages.ewsRule', { metrics: names(inVerdict), alpha: alpha });
+  // the scientific basis of the rule, with links to the papers (content/texts.json "references")
+  fillWithReferences(block.querySelector('.ews-basis'), t('messages.ewsBasis'));
 
   box.appendChild(block);
 }
@@ -739,10 +741,53 @@ function renderEwsGuide(entry) {
         group.appendChild(list);
       }
       if (g.text) { const p = document.createElement('p'); withWindow(g.text, p); group.appendChild(p); }
+      // "Sources": the full references (content/texts.json "references"), each with its DOI link
+      if (Array.isArray(g.sources) && g.sources.length) {
+        const sources = document.createElement('div');
+        sources.className = 'ews-guide-sources';
+        const label = document.createElement('div');
+        label.className = 'ews-guide-sources-label';
+        label.textContent = guide.sourcesLabel || '';
+        sources.appendChild(label);
+        g.sources.forEach((key) => {
+          const ref = (CONTENT.texts.references || {})[key];
+          if (!ref) return;
+          const line = document.createElement('p');
+          line.appendChild(document.createTextNode(ref.full + ' '));
+          if (ref.doi) line.appendChild(referenceLink(ref, 'https://doi.org/' + ref.doi));
+          sources.appendChild(line);
+        });
+        group.appendChild(sources);
+      }
       body.appendChild(group);
     });
   }
   const months = entry && isNumber(entry.windowMonths) ? entry.windowMonths : null;
   const windowText = months !== null ? t('ewsGuide.windowMonths', { months: months }) : t('ewsGuide.windowGeneral');
   body.querySelectorAll('.ews-guide-window').forEach((span) => { span.textContent = windowText; });
+}
+
+// ---------- references (content/texts.json "references") ----------
+
+// A link to a paper that opens in a new tab; the text is "text", or the DOI link itself.
+function referenceLink(ref, text) {
+  const a = document.createElement('a');
+  a.href = 'https://doi.org/' + ref.doi;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.textContent = text;
+  return a;
+}
+
+// Fills an element with a text in which {key} stands for a reference: "Based on {dakos2012} and {martinez2024}."
+// Each {key} becomes the short name of that reference, as a link to its DOI (or plain text when it has no DOI).
+function fillWithReferences(el, text) {
+  const refs = CONTENT.texts.references || {};
+  el.textContent = '';
+  String(text).split(/(\{[a-zA-Z0-9]+\})/).forEach((piece) => {
+    const ref = piece.startsWith('{') ? refs[piece.slice(1, -1)] : null;
+    if (!ref) el.appendChild(document.createTextNode(piece));
+    else if (ref.doi) el.appendChild(referenceLink(ref, ref.short));
+    else el.appendChild(document.createTextNode(ref.short));
+  });
 }

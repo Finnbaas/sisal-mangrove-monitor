@@ -59,6 +59,28 @@ function scrollToPart() {
   return true;
 }
 
+// Opening or reloading the site on the address of a part (#satellite/tipping): at that moment the data and images
+// are still loading, so the parts above it grow afterwards and push it down. So the page jumps to the part again
+// every time the page changes size, until the visitor scrolls, clicks or types (or after 10 seconds).
+function scrollToPartWhileLoading() {
+  const [screen, partId] = location.hash.slice(1).split('/');
+  const screenEl = screen && partId ? document.querySelector('[data-screen="' + screen + '"]') : null;
+  if (!screenEl || screenEl.classList.contains('parts-as-tabs')) return;
+  const part = screenEl.querySelector('.research-part[data-part="' + partId + '"]');
+  if (!part) return;
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';   // a reload does not restore the old position
+  const jump = () => part.scrollIntoView({ block: 'start' });
+  const observer = new ResizeObserver(jump);
+  observer.observe(screenEl);
+  const stop = () => {
+    observer.disconnect();
+    ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach((type) => window.removeEventListener(type, stop));
+  };
+  ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach((type) => window.addEventListener(type, stop, { passive: true }));
+  setTimeout(stop, 10000);
+  jump();
+}
+
 // Every research card exists once in index.html (data-card="map", ...). A section has empty slots
 // (data-slot="map", ...). This moves each card into the matching slot of the section being shown,
 // so one card (with its data, selected point and year) can appear in several sections.
@@ -104,9 +126,6 @@ function showScreen() {
     btn.classList.toggle('active', active);
     btn.setAttribute('aria-selected', active);
   });
-  // the coordinates belong to a selected point: only shown on pages with the point map
-  const cards = isMethod ? [] : cardsOnPage(screen);
-  $('coords').hidden = !cards.includes('point-map');
 
   // section colors (see the section themes in css/base.css): a page without its own theme, and the
   // Method page, use the Overview colors
@@ -136,5 +155,5 @@ function setupNavigation() {
   });
 
   showScreen();
-  scrollToPart();   // the page was opened with an address of a part
+  scrollToPartWhileLoading();   // the page was opened (or reloaded) with the address of a part
 }
