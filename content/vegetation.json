@@ -31,8 +31,19 @@
       }
     ]
   },
+  "chartModes": [
+    {
+      "id": "perYear",
+      "label": "per year",
+      "unit": "ha per year"
+    },
+    {
+      "id": "total",
+      "label": "total",
+      "unit": "ha"
+    }
+  ],
   "texts": {
-    "chartPlaceholder": "Bar chart follows in a later step.",
     "mapNotAvailable": "Map layer not yet available",
     "opacity": "Opacity",
     "zoomIn": "+",

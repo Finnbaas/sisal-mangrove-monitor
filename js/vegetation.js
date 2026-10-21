@@ -14,6 +14,8 @@
 
 let vegLayers = null;          // contents of data/vegetation/layers.json
 let vegEws = [];               // the early warning signals per point id (data/vegetation/points.json)
+let vegBarSet = null;          // the bar chart of the per-period view as a set for the comparison line (see charts.js)
+let vegBarMode = 'perYear';    // 'perYear' or 'total' (content/vegetation.json "chartModes")
 let vegEwsSet = null;          // the EWS charts as a set for the comparison line (see charts.js)
 let vegLoaded = false;         // true when layers.json and points.json have loaded
 let vegLayerId = null;         // the layer shown in the map of section 1
@@ -72,6 +74,7 @@ async function setupVegetation() {
   vegLoaded = true;
   // the comparison line on the EWS charts (mouse and arrow keys), the same as on the other charts, see js/charts.js
   attachComparisonLine($('veg-ews-charts'), () => vegEwsSet);
+  attachComparisonLine($('veg-chart-body'), () => vegBarSet);
   if (allPoints.length) { renderMap(); renderAll(); }   // points.js: the dots, now on the new base map
   renderVegetationEws(getSelectedPoint());   // points.js: the selected point, none at the start
   window.addEventListener('hashchange', () => { if (location.hash.slice(1).split('/')[0] === 'satellite') renderAbout(); });
@@ -328,10 +331,14 @@ function renderLegend(legend) {
         grid.appendChild(block);
       });
     });
-    const note = document.createElement('span');
-    note.className = 'legend-note';
-    note.textContent = '* ' + legend.provisionalNote;
-    box.append(grid, note);
+    grid.style.gridTemplateColumns = 'auto repeat(' + legend.steps.length + ', 62px)';
+    box.appendChild(grid);
+    if (isFilled(legend.note)) {
+      const note = document.createElement('span');
+      note.className = 'legend-note';
+      note.textContent = legend.note;
+      box.appendChild(note);
+    }
   } else if (legend.type === 'gradient') {
     // low label, a bar from the first to the last color, high label
     const low = document.createElement('span');
@@ -458,7 +465,9 @@ function renderAbout() {
   }
 }
 
-// The separate card under "About this layer" for a small chart that follows later (per-period view); hidden when the view has none.
+// The separate card under "About this layer": grouped bars of confirmed loss and gain per period (per-period view),
+// with a small toggle per year | total. Hidden when the view has no chart. Drawn with the parts of charts.js; the hover
+// values come from the comparison line. The bar colors are the darkest colors of the legend rows.
 function renderChartCard(layer) {
   const card = document.querySelector('[data-card="veg-chart"]');
   const chart = layer.about.chart;
@@ -466,8 +475,74 @@ function renderChartCard(layer) {
   if (!chart) return;
   setText('veg-chart-title', chart.title);
   showPlaceholderTag($('veg-chart-title').parentElement, chart.placeholder);
-  $('veg-chart-text').textContent = vt('chartPlaceholder');
-  $('veg-chart-note').textContent = chart.note;
+
+  const modes = CONTENT.vegetation.chartModes;
+  const mode = modes.find((m) => m.id === vegBarMode) || modes[0];
+  const toggle = $('veg-chart-toggle');
+  toggle.innerHTML = '';
+  modes.forEach((m) => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'layer-chip' + (m.id === mode.id ? ' on' : '');
+    chip.textContent = m.label;
+    chip.setAttribute('aria-pressed', m.id === mode.id);
+    chip.addEventListener('click', () => { vegBarMode = m.id; renderChartCard(currentLayer()); });
+    toggle.appendChild(chip);
+  });
+
+  // two series: loss and gain (the darkest color of each legend row)
+  const periods = chart.periods || [];
+  const keys = mode.id === 'perYear' ? ['lossHaPerYr', 'gainHaPerYr'] : ['lossHa', 'gainHa'];
+  const series = layer.legend.rows.map((row, k) => ({ label: row.label, color: row.colors[row.colors.length - 1], values: periods.map((p) => p[keys[k]]) }));
+  const known = knownValues([].concat(...series.map((s) => s.values)));
+  const body = $('veg-chart-body');
+  body.innerHTML = '';
+  vegBarSet = null;
+  if (!known.length) {
+    body.appendChild(vegChartRow(mode.unit, chartNoData(chartHead({ label: chart.title }, [], 'chart'))));
+  } else {
+    const n = periods.length;
+    const x = pointXScale(n);   // one group of bars per period, evenly spaced
+    const scale = chartScale(known, true);
+    const barWidth = (PLOT.right - PLOT.left) / n * 0.28;
+    let svg = chartHead({ label: chart.title }, [], 'chart') + chartYAxis(scale.t, scale.yOf, true);
+    const zeroY = scale.yOf(0);
+    series.forEach((s, k) => s.values.forEach((val, i) => {
+      if (!isNumber(val)) return;
+      const left = x.xOf(i) + (k === 0 ? -barWidth - 1 : 1);
+      const top = Math.min(zeroY, scale.yOf(val));
+      svg += '<rect x="' + left.toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + barWidth.toFixed(1) + '" height="' + Math.abs(zeroY - scale.yOf(val)).toFixed(1) + '" fill="' + vegColor(s.color) + '"></rect>';
+    }));
+    body.appendChild(vegChartRow(mode.unit, svg + '</svg>'));
+    body.appendChild(sharedAxis(periods.map((p, i) => ({ x: x.xOf(i), text: p.label })), ''));
+    body.insertAdjacentHTML('beforeend', '<div class="comparison" hidden></div>');
+    // the comparison line snaps to periods and shows loss and gain
+    vegBarSet = {
+      count: n, xOf: x.xOf, indexAt: x.indexAt, label: (i) => periods[i].label + ' (' + periods[i].range + ')',
+      panels: [{ yOf: scale.yOf, points: (i) => series.map((s) => ({ value: s.values[i], color: vegColor(s.color), text: s.label + ' ' + formatLike(s.values[i], s.values) + ' ' + mode.unit })) }]
+    };
+  }
+
+  const legend = $('veg-chart-legend');
+  legend.innerHTML = '';
+  series.forEach((s) => legend.appendChild(legendItem(s.label, vegColor(s.color))));
+
+  // the note; a word in it (e.g. "Isidore") can link to that storm on the Climatology page
+  const note = $('veg-chart-note');
+  note.textContent = '';
+  const link = chart.noteLink;
+  const storm = link && (typeof events !== 'undefined' ? events : []).find((e) => e.id === link.storm);
+  const at = link ? chart.note.indexOf(link.text) : -1;
+  if (storm && at >= 0) {
+    const a = document.createElement('a');
+    a.className = 'veg-link-inline';
+    a.href = '#climatology';
+    a.textContent = link.text;
+    a.addEventListener('click', () => { if (selectedEventId !== storm.id) selectEvent(storm.id); });
+    note.append(chart.note.slice(0, at), a, chart.note.slice(at + link.text.length));
+  } else {
+    note.textContent = chart.note;
+  }
 }
 
 // A storm as a row like the storm list of the Climatology page; clicking it selects that storm there.
