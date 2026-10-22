@@ -1,35 +1,95 @@
 {
-  "_about": "Texts and settings of the Vegetation page (Mangrove maps + Tipping points), read by js/vegetation.js. The numbers and layers themselves come from data/vegetation/. Scenario names and tau signs follow CLAUDE.md; do not rename them here without the team's decision.",
+  "_about": "Texts and settings of the Vegetation page (Mangrove maps + Tipping points), read by js/vegetation.js. The numbers and layers themselves come from data/vegetation/. Scenario names and tau signs follow CLAUDE.md; do not rename them here without the team's decision. \"mapMenu\" = the Maps menu (groups, rows and the address of each map: #satellite/maps/<slug>); the variants (years, storms) come from data/vegetation/layers.json.",
   "files": {
     "layers": "data/vegetation/layers.json"
   },
-  "defaultOpacity": 70,
-  "layerSwitch": [
-    {
-      "id": "condition",
-      "label": "Condition"
-    },
-    {
-      "id": "change",
-      "label": "Change"
-    },
-    {
-      "id": "disturbance-recovery",
-      "label": "Disturbance & recovery"
-    }
-  ],
-  "viewSwitch": {
-    "change": [
+  "defaultOpacity": 100,
+  "mapMenu": {
+    "groups": [
       {
-        "id": "classes",
-        "label": "Classes"
+        "id": "change",
+        "label": "Extent",
+        "items": [
+          {
+            "view": "classes",
+            "slug": "change-classes",
+            "label": "Change classes"
+          },
+          {
+            "view": "per-period",
+            "slug": "change-per-period",
+            "label": "Change per period"
+          },
+          {
+            "view": "dndvi",
+            "slug": "dndvi",
+            "label": "dNDVI 2014-2025"
+          }
+        ]
       },
       {
-        "id": "per-period",
-        "label": "Per period"
+        "id": "condition",
+        "label": "Condition",
+        "items": [
+          {
+            "view": "status",
+            "slug": "status",
+            "label": "Status"
+          },
+          {
+            "view": "trend",
+            "slug": "trend",
+            "label": "Trend"
+          },
+          {
+            "view": "canopy",
+            "slug": "canopy",
+            "label": "Canopy density 2019-2025"
+          }
+        ]
+      },
+      {
+        "id": "disturbance-recovery",
+        "label": "Disturbance & recovery",
+        "storm": {
+          "label": "Storm",
+          "view": "damage"
+        },
+        "items": [
+          {
+            "view": "damage",
+            "slug": "damage",
+            "label": "Damage classes"
+          },
+          {
+            "view": "lasting",
+            "slug": "lasting",
+            "label": "Lasting NDVI change"
+          },
+          {
+            "view": "acute-ndvi",
+            "slug": "acute-ndvi",
+            "label": "Acute NDVI change"
+          },
+          {
+            "view": "acute-wetness",
+            "slug": "acute-wetness",
+            "label": "Acute wetness"
+          }
+        ]
       }
     ]
   },
+  "detailSwitch": [
+    {
+      "id": "simplified",
+      "label": "Simplified"
+    },
+    {
+      "id": "detailed",
+      "label": "Detailed"
+    }
+  ],
   "chartModes": [
     {
       "id": "perYear",
@@ -45,6 +105,10 @@
   "texts": {
     "mapNotAvailable": "Map layer not yet available",
     "opacity": "Opacity",
+    "provisional": "provisional",
+    "basemap": "Base map",
+    "basemapBw": "Black and white",
+    "basemapColour": "Colour",
     "zoomIn": "+",
     "zoomOut": "−",
     "reset": "Reset",
@@ -62,18 +126,34 @@
     "sourcePeriod": "Period",
     "sourceArea": "Study area",
     "mapsLink": "Use this code for your area (adapt)",
-    "mapsLinkTarget": "#method/mangrove-change",
+    "mapsLinkTarget": "#method/mangrove-extent",
     "pointsLink": "Run this analysis on your own data",
     "pointsLinkTarget": "#method/ews",
     "ndviSeries": "NDVI",
     "couldNotLoad": "Could not load {file}.",
-    "ewsNoData": "No data"
+    "ewsNoData": "No data",
+    "menuTitle": "Maps"
   },
   "ewsMetrics": [
-    { "id": "ar1", "label": "AR1" },
-    { "id": "sd", "label": "Standard deviation", "sentenceLabel": "standard deviation" },
-    { "id": "skewness", "label": "Skewness", "sentenceLabel": "skewness" },
-    { "id": "kurtosis", "label": "Kurtosis", "sentenceLabel": "kurtosis" }
+    {
+      "id": "ar1",
+      "label": "AR1"
+    },
+    {
+      "id": "sd",
+      "label": "Standard deviation",
+      "sentenceLabel": "standard deviation"
+    },
+    {
+      "id": "skewness",
+      "label": "Skewness",
+      "sentenceLabel": "skewness"
+    },
+    {
+      "id": "kurtosis",
+      "label": "Kurtosis",
+      "sentenceLabel": "kurtosis"
+    }
   ],
   "ewsCharts": [
     {

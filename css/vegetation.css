@@ -7,9 +7,10 @@
 /* Mangrove maps: a wide map (2/3) next to a narrower column (1/3), as in Figma; Tipping points keeps the default columns */
 #satellite-maps .research-grid { grid-template-columns: 2fr 1fr; }
 
-/* layer switch: looks like the chips of the point card (.chip in points.css; own class because points.js changes every .chip) */
+/* chips: the small switches of the Base map row and the chart toggle; look like the chips of the point card (.chip in points.css; own class because points.js changes every .chip) */
 .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .layer-chip { padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--color-border); background: transparent; font-size: 12px; font-weight: 500; color: var(--color-text); }
+.layer-chip:disabled { opacity: 0.45; cursor: not-allowed; }
 .layer-chip.on { background: var(--color-surface-subtle); }
 
 /* sub-switch under the layer switch (Change: Classes | Per period): a smaller version of the chips */
@@ -22,6 +23,10 @@
 /* isolation: the map's own layers stay under the legend strip and the buttons that lie on it */
 /* the map has the shape of the base map picture (1800:1485), so the whole extent fills it */
 .geo-map { width: 100%; aspect-ratio: 1800 / 1485; background: var(--color-map-bg); isolation: isolate; }
+/* black and white base map (the visitor can switch it: the chips under the map); the data layers keep their colors */
+.basemap-bw .veg-basemap, .basemap-bw > #map-image { filter: grayscale(1); }
+.basemap-row { align-items: center; margin-top: 10px; }
+.map-buttons .map-button.on { background: var(--color-surface-subtle); border-color: var(--color-text-muted); }
 /* the zoom buttons sit on top of the map, top right (.map-button is in climatology.css) */
 .map-buttons { position: absolute; top: 10px; right: 10px; z-index: 500; display: flex; gap: 6px; }
 /* calm text on a map layer that is not available yet */
@@ -33,6 +38,10 @@
 .legend-strip .lg { margin-bottom: 0; }
 .legend-title { font-size: 11px; font-weight: 600; color: var(--color-text-muted); }
 .gradient-bar { width: 160px; height: 8px; border-radius: 4px; }
+/* the gradient with three labels under it (dNDVI): the bar is as wide as the labels need */
+.gradient-wrap { display: flex; flex-direction: column; gap: 3px; width: 420px; max-width: 100%; }
+.gradient-wrap .gradient-bar { width: 100%; }
+.gradient-labels { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--color-text-body); }
 /* legend of the per-period map: a row of color blocks for loss and one for gain (the strip grows to two lines) */
 .legend-periods { display: grid; grid-template-columns: auto repeat(4, 62px); gap: 3px; align-items: center; }
 .legend-periods .period-row-label { font-size: 11px; color: var(--color-text-muted); padding-right: 6px; }
@@ -52,6 +61,36 @@
 
 /* page title above the toggle (Figma "Top / Page title") */
 .page-title { margin-bottom: -8px; }
+
+/* the Maps menu (compact): tabs per theme, the storm line, one radio row per map of the active theme; the variants sit
+   on the line of the selected row */
+.map-menu { display: flex; flex-direction: column; gap: 6px; }
+.menu-tabs { display: flex; gap: 2px; padding: 2px; border-radius: 10px; background: var(--color-surface-subtle); }
+.menu-tab { flex: 1 1 auto; padding: 5px 8px; border-radius: 8px; border: 0; background: transparent; font-size: 12px; font-weight: 500; color: var(--color-text); cursor: pointer; white-space: nowrap; }
+.menu-tab:hover:not([aria-selected="true"]) { background: var(--color-divider); }
+.menu-tab[aria-selected="true"] { background: var(--color-accent); color: var(--color-text-on-accent); font-weight: 600; }
+.menu-rows { display: flex; flex-direction: column; gap: 1px; }
+.menu-item { display: flex; flex-wrap: wrap; align-items: center; column-gap: 8px; min-height: 28px; padding: 0 4px 0 0; border-radius: 8px; color: var(--color-text); }
+.menu-item:not(.selected):not(.disabled):hover { background: var(--color-surface-subtle); }
+.menu-item.selected { background: var(--color-accent); color: var(--color-text-on-accent); }
+.menu-item.disabled { opacity: 0.45; }
+.menu-row { flex: 1 1 auto; text-align: left; padding: 4px 10px; border: 0; background: transparent; font-size: 13px; font-weight: 500; line-height: 20px; color: inherit; cursor: pointer; }
+.menu-item.selected .menu-row { font-weight: 600; }
+.menu-row:disabled { cursor: not-allowed; }
+.menu-row:focus-visible, .menu-seg-btn:focus-visible, .menu-tab:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+/* the selected row is dark: its outline must show on it */
+.menu-item.selected .menu-row:focus-visible, .menu-item.selected .menu-seg-btn:focus-visible { outline-color: var(--color-text-on-accent); outline-offset: -2px; }
+.menu-seg { display: flex; align-items: center; gap: 2px; padding: 2px; border-radius: 8px; background: var(--color-surface-subtle); }
+.menu-seg-label { font-size: 11px; color: var(--color-text-muted); padding: 0 6px 0 8px; }
+.menu-seg-btn { padding: 2px 9px; border-radius: 6px; border: 0; background: transparent; font-size: 11px; font-weight: 500; line-height: 16px; color: var(--color-text); cursor: pointer; }
+.menu-seg-btn[aria-pressed="true"] { background: var(--color-accent); color: var(--color-text-on-accent); font-weight: 600; }
+/* the variants on the dark selected row: a light pressed button, so it differs from the row itself */
+.menu-item.selected .menu-seg { background: color-mix(in srgb, var(--color-text-on-accent) 18%, transparent); }
+.menu-item.selected .menu-seg-btn { color: var(--color-text-on-accent); }
+.menu-item.selected .menu-seg-btn[aria-pressed="true"] { background: var(--color-surface); color: var(--color-text); }
+/* the variants: right-aligned on the line of the name (they wrap under it when they do not fit) */
+.menu-item .menu-seg { margin: 0 0 0 auto; }
+.menu-storm { align-self: flex-start; }
 
 /* "Where the data comes from": a small table card, as wide as "About this layer" */
 [data-card="veg-source"] { max-width: 451px; }

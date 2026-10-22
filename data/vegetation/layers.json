@@ -1,5 +1,5 @@
 {
-  "_about": "The three map layers of the Vegetation page (Mangrove maps). Everything here is placeholder until the pipeline writes the real layers: set \"image\" to the map image path (e.g. data/vegetation/condition.png) and replace the texts and shares; remove \"placeholder\" when real. Colors are color names from css/base.css (without --color-). Layer ids must stay: condition, change, disturbance-recovery. basemapBounds: the extent of data/vegetation/basemap.png; layerBounds: the extent of the layer images (a layer can set its own \"bounds\"). The change layer has \"views\" (classes, per-period), each with its own image, bounds, legend, about and classes; the sub-switch labels are in content/vegetation.json \"viewSwitch\".",
+  "_about": "The three map layers of the Vegetation page (Mangrove maps). Everything here is placeholder until the pipeline writes the real layers: set \"image\" to the map image path (e.g. data/vegetation/condition.png) and replace the texts and shares; remove \"placeholder\" when real. Colors are color names from css/base.css (without --color-). Layer ids must stay: condition, change, disturbance-recovery. basemapBounds: the extent of data/vegetation/basemap.png; layerBounds: the extent of the layer images (a layer can set its own \"bounds\"). The change layer has \"views\" (classes, per-period), each with its own image, bounds, legend, about and classes; the rows of the Maps menu are in content/vegetation.json \"mapMenu\".",
   "basemapBounds": {
     "west": -90.13500994306808,
     "south": 21.064999279900693,
@@ -21,46 +21,278 @@
     {
       "id": "condition",
       "title": "Mangrove condition map",
-      "image": null,
-      "bounds": null,
-      "legend": {
-        "type": "gradient",
-        "title": "Condition",
-        "low": "low health",
-        "high": "high health",
-        "colors": [
-          "class-loss",
-          "class-recovery",
-          "scenario-4"
-        ]
-      },
-      "about": {
-        "shows": "Placeholder: one or two sentences on what the condition layer shows.",
-        "computed": "Placeholder: data, index and method in plain words."
-      },
-      "classes": [
+      "views": [
         {
-          "label": "Low condition",
-          "color": "class-loss",
-          "share": null
+          "id": "status",
+          "title": "Mangrove condition: status",
+          "bounds": null,
+          "defaultVariant": "2025",
+          "totalHa": 6974.9,
+          "legend": {
+            "type": "categories",
+            "title": "Condition",
+            "items": [
+              {
+                "label": "Improving",
+                "color": "#2c7bb6"
+              },
+              {
+                "label": "Stable",
+                "color": "#d9d9d9"
+              },
+              {
+                "label": "Recently stressed",
+                "color": "#fdae61"
+              },
+              {
+                "label": "Declining",
+                "color": "#d7191c"
+              }
+            ]
+          },
+          "about": {
+            "shows": "The condition of mangrove that was present during the whole period (persistent mangrove), for the chosen year.",
+            "computed": "Per pixel, the NDVI trend over the sensor period (Theil-Sen slope, Mann-Kendall test, p < 0.05) and how far the chosen year lies from that pixel's normal (Z-score). Patches smaller than 6 pixels count as Stable.",
+            "colors": "Improving = significant upward trend; Declining = significant downward trend; Recently stressed = the chosen year far below normal (Z < -2); Stable = none of these.",
+            "note": "Improving and Declining come from the trend over the whole period (1993-2012 or 2014-2025), so they are the same for years in the same period. Only 'Recently stressed' depends on the year. 1996 and 2003 are compared with 1993-2012 (Landsat 5/7), 2021 and 2025 with 2014-2025 (Landsat 8/9). About 2.5% of pixels per direction can come out as significant by chance: read patches, not single pixels."
+          },
+          "variants": [
+            {
+              "id": "1996",
+              "label": "1996",
+              "image": "data/vegetation/condition-status-1996.png",
+              "about": {
+                "sharesNote": "Share of persistent mangrove (6974.9 ha). Trend window 1993-2012."
+              },
+              "classes": [
+                {
+                  "label": "Improving",
+                  "color": "#2c7bb6",
+                  "ha": 1181.4
+                },
+                {
+                  "label": "Stable",
+                  "color": "#d9d9d9",
+                  "ha": 5487.8
+                },
+                {
+                  "label": "Recently stressed",
+                  "color": "#fdae61",
+                  "ha": 8.7
+                },
+                {
+                  "label": "Declining",
+                  "color": "#d7191c",
+                  "ha": 297
+                }
+              ],
+              "relatedStorms": []
+            },
+            {
+              "id": "2003",
+              "label": "2003",
+              "image": "data/vegetation/condition-status-2003.png",
+              "about": {
+                "sharesNote": "Share of persistent mangrove (6974.9 ha). Trend window 1993-2012."
+              },
+              "classes": [
+                {
+                  "label": "Improving",
+                  "color": "#2c7bb6",
+                  "ha": 1018.7
+                },
+                {
+                  "label": "Stable",
+                  "color": "#d9d9d9",
+                  "ha": 4282.9
+                },
+                {
+                  "label": "Recently stressed",
+                  "color": "#fdae61",
+                  "ha": 1376.3
+                },
+                {
+                  "label": "Declining",
+                  "color": "#d7191c",
+                  "ha": 297
+                }
+              ],
+              "relatedStorms": [
+                "isidore-2002"
+              ]
+            },
+            {
+              "id": "2021",
+              "label": "2021",
+              "image": "data/vegetation/condition-status-2021.png",
+              "about": {
+                "sharesNote": "Share of persistent mangrove (6974.9 ha). Trend window 2014-2025."
+              },
+              "classes": [
+                {
+                  "label": "Improving",
+                  "color": "#2c7bb6",
+                  "ha": 549.8
+                },
+                {
+                  "label": "Stable",
+                  "color": "#d9d9d9",
+                  "ha": 4252.6
+                },
+                {
+                  "label": "Recently stressed",
+                  "color": "#fdae61",
+                  "ha": 1069.5
+                },
+                {
+                  "label": "Declining",
+                  "color": "#d7191c",
+                  "ha": 1103.1
+                }
+              ],
+              "relatedStorms": [
+                "cristobal-2020",
+                "zeta-2020"
+              ]
+            },
+            {
+              "id": "2025",
+              "label": "2025",
+              "image": "data/vegetation/condition-status-2025.png",
+              "about": {
+                "sharesNote": "Share of persistent mangrove (6974.9 ha). Trend window 2014-2025."
+              },
+              "classes": [
+                {
+                  "label": "Improving",
+                  "color": "#2c7bb6",
+                  "ha": 571.9
+                },
+                {
+                  "label": "Stable",
+                  "color": "#d9d9d9",
+                  "ha": 5135.7
+                },
+                {
+                  "label": "Recently stressed",
+                  "color": "#fdae61",
+                  "ha": 164.2
+                },
+                {
+                  "label": "Declining",
+                  "color": "#d7191c",
+                  "ha": 1103.1
+                }
+              ],
+              "relatedStorms": []
+            }
+          ],
+          "classes": [],
+          "relatedStorms": []
         },
         {
-          "label": "Medium condition",
-          "color": "class-recovery",
-          "share": null
+          "id": "trend",
+          "title": "Mangrove condition: trend",
+          "bounds": null,
+          "defaultVariant": "2014-2025",
+          "legend": {
+            "type": "gradient",
+            "title": "NDVI per year",
+            "min": -0.01,
+            "max": 0.01,
+            "colors": [
+              "#b2182b",
+              "#ef8a62",
+              "#fddbc7",
+              "#f7f7f7",
+              "#d1e5f0",
+              "#67a9cf",
+              "#2166ac"
+            ],
+            "low": "declining",
+            "high": "increasing"
+          },
+          "about": {
+            "shows": "Where mangrove NDVI went up or down over the period.",
+            "computed": "Theil-Sen slope of yearly NDVI per pixel; only pixels with a significant trend (Mann-Kendall, p < 0.05) are colored.",
+            "colors": "Red = declining, blue = increasing; 0.01 per year = 0.1 per decade. Uncolored mangrove has no significant trend. These shares are slightly higher than Improving and Declining in the status map, because the status map treats patches under 6 pixels as Stable.",
+            "sharesNote": "Share of persistent mangrove with a significant trend."
+          },
+          "variants": [
+            {
+              "id": "2014-2025",
+              "label": "2014–2025",
+              "image": "data/vegetation/condition-trend-2014-2025.png",
+              "classes": [
+                {
+                  "label": "Significant increase",
+                  "color": "#2c7bb6",
+                  "share": 9.8
+                },
+                {
+                  "label": "Significant decrease",
+                  "color": "#d7191c",
+                  "share": 18.5
+                }
+              ]
+            },
+            {
+              "id": "1993-2012",
+              "label": "1993–2012",
+              "image": "data/vegetation/condition-trend-1993-2012.png",
+              "classes": [
+                {
+                  "label": "Significant increase",
+                  "color": "#2c7bb6",
+                  "share": 19.4
+                },
+                {
+                  "label": "Significant decrease",
+                  "color": "#d7191c",
+                  "share": 4.9
+                }
+              ]
+            }
+          ],
+          "classes": [],
+          "relatedStorms": []
         },
         {
-          "label": "High condition",
-          "color": "scenario-4",
-          "share": null
+          "id": "canopy",
+          "title": "Mangrove condition: canopy density",
+          "image": "data/vegetation/condition-canopy-2019-2025.png",
+          "bounds": null,
+          "legend": {
+            "type": "gradient",
+            "title": "NDVI (Sentinel-2)",
+            "min": 0.3,
+            "max": 0.9,
+            "colors": [
+              "#8c510a",
+              "#d8b365",
+              "#f6e8c3",
+              "#c7eae5",
+              "#5ab4ac",
+              "#01665e"
+            ],
+            "low": "sparse or dwarf canopy",
+            "high": "dense canopy"
+          },
+          "about": {
+            "shows": "How dense the mangrove canopy is, 2019-2025.",
+            "computed": "Median Sentinel-2 NDVI (10 m) of the dry seasons 2019-2025, for pixels that were mangrove in both 2019-2023 and 2024-2025.",
+            "colors": "Teal = dense canopy; brown = sparse canopy, dwarf mangrove or a wet background.",
+            "note": "This shows canopy structure, not health. Dwarf and basin mangrove are naturally low here. Sentinel-2 at 10 m: more detail than the Landsat maps (30 m), but a shorter record.",
+            "stats": "NDVI of mangrove 2019-2025: 10th percentile 0.59, median 0.76, 90th percentile 0.88."
+          },
+          "classes": [],
+          "relatedStorms": []
         }
-      ],
-      "relatedStorms": [],
-      "placeholder": true
+      ]
     },
     {
       "id": "change",
-      "title": "Mangrove change map",
+      "title": "Mangrove extent map",
       "views": [
         {
           "id": "classes",
@@ -68,7 +300,7 @@
           "bounds": null,
           "legend": {
             "type": "categories",
-            "title": "Change",
+            "title": "Extent",
             "items": [
               {
                 "label": "Stable mangrove",
@@ -116,68 +348,181 @@
               "ha": 1589.2
             }
           ],
-          "relatedStorms": []
+          "relatedStorms": [],
+          "totalHa": 9077.6,
+          "detailed": {
+            "image": "data/vegetation/extent-classes-detailed.png",
+            "legend": {
+              "type": "categories",
+              "title": "Extent",
+              "items": [
+                {
+                  "label": "Stable mangrove",
+                  "color": "#1b7837"
+                },
+                {
+                  "label": "Loss, confirmed",
+                  "color": "#d7191c"
+                },
+                {
+                  "label": "Loss, class change only",
+                  "color": "#fdae61"
+                },
+                {
+                  "label": "Gain, confirmed",
+                  "color": "#2c7bb6"
+                },
+                {
+                  "label": "Gain, class change only",
+                  "color": "#abd9e9"
+                },
+                {
+                  "label": "Fluctuating (uncertain)",
+                  "color": "#9e9e9e"
+                },
+                {
+                  "label": "Recent loss (provisional)",
+                  "color": "#762a83"
+                },
+                {
+                  "label": "Recent gain (provisional)",
+                  "color": "#c51b7d"
+                }
+              ]
+            },
+            "about": {
+              "colors": "Confirmed = land-cover maps and NDVI agree. Class change only = the land-cover maps changed, NDVI did not. Fluctuating = switched back and forth. Recent = change only in 2024-2025, not yet confirmed by a later period. Together the last five classes are the grey 'Uncertain change' of the simplified map."
+            },
+            "classes": [
+              {
+                "label": "Stable mangrove",
+                "color": "#1b7837",
+                "ha": 6974.9
+              },
+              {
+                "label": "Loss, confirmed",
+                "color": "#d7191c",
+                "ha": 64.2
+              },
+              {
+                "label": "Loss, class change only",
+                "color": "#fdae61",
+                "ha": 316.7
+              },
+              {
+                "label": "Gain, confirmed",
+                "color": "#2c7bb6",
+                "ha": 449.4
+              },
+              {
+                "label": "Gain, class change only",
+                "color": "#abd9e9",
+                "ha": 459.7
+              },
+              {
+                "label": "Fluctuating (uncertain)",
+                "color": "#9e9e9e",
+                "ha": 424
+              },
+              {
+                "label": "Recent loss (provisional)",
+                "color": "#762a83",
+                "ha": 114.1
+              },
+              {
+                "label": "Recent gain (provisional)",
+                "color": "#c51b7d",
+                "ha": 274.6
+              }
+            ]
+          }
         },
         {
           "id": "per-period",
           "title": "Confirmed loss and gain per period",
-          "image": "data/vegetation/change-per-period.png",
+          "image": "data/vegetation/extent-per-period.png",
           "bounds": null,
           "legend": {
             "type": "periods",
             "title": "Confirmed",
             "steps": [
               {
+                "label": "P1→P2",
+                "range": "1993-97 → 1998-2002",
+                "provisional": false
+              },
+              {
                 "label": "P2→P3",
-                "range": "1998-2002 → 2004-08"
+                "range": "1998-2002 → 2004-08",
+                "provisional": false
               },
               {
                 "label": "P3→P4",
-                "range": "2004-08 → 2009-13"
+                "range": "2004-08 → 2009-13",
+                "provisional": false
               },
               {
                 "label": "P4→P5",
-                "range": "2009-13 → 2014-18"
+                "range": "2009-13 → 2014-18",
+                "provisional": false
               },
               {
                 "label": "P5→P6",
-                "range": "2014-18 → 2019-23"
+                "range": "2014-18 → 2019-23",
+                "provisional": false
+              },
+              {
+                "label": "P6→P7",
+                "range": "2019-23 → 2024-25",
+                "provisional": true
               }
             ],
             "rows": [
               {
                 "label": "Loss",
                 "colors": [
+                  "#fee5d9",
                   "#fcbba1",
                   "#fc9272",
                   "#fb6a4a",
-                  "#de2d26"
+                  "#de2d26",
+                  "#a50f15"
                 ]
               },
               {
                 "label": "Gain",
                 "colors": [
+                  "#eff3ff",
                   "#c6dbef",
                   "#9ecae1",
                   "#6baed6",
-                  "#3182bd"
+                  "#3182bd",
+                  "#08519c"
                 ]
               }
             ],
-            "note": "No confirmed changes in P1→P2 and P6→P7."
+            "provisionalNote": "P6→P7 is provisional"
           },
           "about": {
             "shows": "When confirmed mangrove loss and gain happened, per period between 1993 and 2025.",
             "computed": "Same method as the change classes: each confirmed loss or gain pixel is colored by the period in which its new state started.",
-            "colors": "Darker means more recent.",
+            "colors": "Darker means more recent. P6→P7 is provisional: it is not yet confirmed by a later period.",
             "chart": {
               "title": "Loss and gain per period",
-              "note": "Periods differ in length. The P2→P3 period includes Hurricane Isidore (2002).",
+              "note": "Periods differ in length. The P2→P3 period includes Hurricane Isidore (2002). Light colors are provisional: P6→P7 has only the years 2024-2025.",
               "noteLink": {
                 "text": "Isidore",
                 "storm": "isidore-2002"
               },
               "periods": [
+                {
+                  "label": "P1→P2",
+                  "range": "1993-97 → 1998-2002",
+                  "lossHa": 0,
+                  "gainHa": 0,
+                  "lossHaPerYr": 0,
+                  "gainHaPerYr": 0
+                },
                 {
                   "label": "P2→P3",
                   "range": "1998-2002 → 2004-08",
@@ -209,9 +554,50 @@
                   "gainHa": 135.1,
                   "lossHaPerYr": 3.6,
                   "gainHaPerYr": 27
+                },
+                {
+                  "label": "P6→P7",
+                  "range": "2019-23 → 2024-25",
+                  "lossHa": 0,
+                  "gainHa": 0,
+                  "lossHaPerYr": 0,
+                  "gainHaPerYr": 0,
+                  "lossProvHa": 36.3,
+                  "gainProvHa": 58.2
                 }
               ]
             }
+          },
+          "classes": [],
+          "relatedStorms": []
+        },
+        {
+          "id": "dndvi",
+          "title": "Relative NDVI change 2014-2025",
+          "image": "data/vegetation/extent-dndvi-p5-p7.png",
+          "bounds": null,
+          "legend": {
+            "type": "gradient",
+            "title": "dNDVI",
+            "min": -0.3,
+            "max": 0.3,
+            "colors": [
+              "#b2182b",
+              "#ef8a62",
+              "#fddbc7",
+              "#f7f7f7",
+              "#d1e5f0",
+              "#67a9cf",
+              "#2166ac"
+            ],
+            "low": "dropped more",
+            "mid": "same as stable mangrove",
+            "high": "rose more"
+          },
+          "about": {
+            "shows": "How much NDVI changed between 2014-2018 and 2024-2025 compared with unchanged mangrove, for all mangrove.",
+            "computed": "The NDVI change of each pixel minus the median change of stable mangrove (-0.018), so site-wide effects of climate and sensor are removed.",
+            "colors": "White = changed like stable mangrove; red = dropped more; blue = rose more. Below -0.086 or above +0.105 is a larger change than in 95% of stable mangrove."
           },
           "classes": [],
           "relatedStorms": []
@@ -221,52 +607,542 @@
     {
       "id": "disturbance-recovery",
       "title": "Disturbance and recovery map",
-      "image": null,
-      "bounds": null,
-      "legend": {
-        "type": "categories",
-        "title": "Disturbance & recovery",
-        "items": [
-          {
-            "label": "Disturbed",
-            "color": "class-loss"
-          },
-          {
-            "label": "Partially recovered",
-            "color": "class-recovery"
-          },
-          {
-            "label": "Recovered",
-            "color": "scenario-4"
-          }
-        ]
-      },
-      "about": {
-        "shows": "Placeholder: one or two sentences on what the disturbance & recovery layer shows.",
-        "computed": "Placeholder: data, index and method in plain words."
-      },
-      "classes": [
+      "views": [
         {
-          "label": "Disturbed",
-          "color": "class-loss",
-          "share": null
+          "id": "damage",
+          "title": "Storm damage: damage classes",
+          "bounds": null,
+          "defaultVariant": "isidore",
+          "variantGroup": "storm",
+          "legend": {
+            "type": "categories",
+            "title": "Damage classes",
+            "items": [
+              {
+                "label": "No detectable impact",
+                "color": "#1a9850"
+              },
+              {
+                "label": "Moderate",
+                "color": "#fee08b"
+              },
+              {
+                "label": "Severe",
+                "color": "#d73027"
+              },
+              {
+                "label": "Cover lost",
+                "color": "#542788"
+              }
+            ]
+          },
+          "about": {
+            "shows": "How much the mangrove was damaged by the storm, as seen in the first dry season after it.",
+            "computed": "Dry-season (Jan-May) Landsat images; the year after the storm is compared with the normal of the same sensor period (Z-score of NDVI, storm years left out). Damage classes: moderate Z between -2 and -1, severe Z below -2; cover lost = mangrove before the storm that is no longer mangrove in the next period and has not recovered.",
+            "sharesNote": "Share of the mangrove before the storm."
+          },
+          "variants": [
+            {
+              "id": "opal",
+              "label": "Opal 1995",
+              "image": "data/vegetation/dr-opal-damage.png",
+              "about": {
+                "stats": "Opal 1995. Before 1995, after 1996.",
+                "note": "There is no period fully before Opal in our mangrove maps (1993-1997 contains 1995), so stands killed in 1995 may be missing. Read 'little impact' with care."
+              },
+              "relatedStorms": [
+                "opal-1995"
+              ],
+              "classes": [
+                {
+                  "label": "No detectable impact",
+                  "color": "#1a9850",
+                  "ha": 7452
+                },
+                {
+                  "label": "Moderate",
+                  "color": "#fee08b",
+                  "ha": 258.8
+                },
+                {
+                  "label": "Severe",
+                  "color": "#d73027",
+                  "ha": 22.6
+                },
+                {
+                  "label": "Cover lost",
+                  "color": "#542788",
+                  "ha": 0
+                }
+              ]
+            },
+            {
+              "id": "isidore",
+              "label": "Isidore 2002",
+              "image": "data/vegetation/dr-isidore-damage.png",
+              "about": {
+                "stats": "Isidore 2002. Before 2002, after 2003.",
+                "chart": {
+                  "type": "line",
+                  "title": "Recovery after Isidore",
+                  "unit": "NDVI (median)",
+                  "years": [
+                    1998,
+                    1999,
+                    2000,
+                    2001,
+                    2002,
+                    2003,
+                    2004,
+                    2005,
+                    2006,
+                    2007,
+                    2008
+                  ],
+                  "marker": {
+                    "year": 2002,
+                    "label": "Isidore"
+                  },
+                  "series": [
+                    {
+                      "label": "No detectable impact",
+                      "color": "#1a9850",
+                      "values": [
+                        0.596,
+                        0.631,
+                        0.639,
+                        0.639,
+                        0.678,
+                        0.623,
+                        0.693,
+                        0.647,
+                        0.643,
+                        0.65,
+                        0.686
+                      ]
+                    },
+                    {
+                      "label": "Moderate",
+                      "color": "#fee08b",
+                      "values": [
+                        0.635,
+                        0.65,
+                        0.658,
+                        0.666,
+                        0.689,
+                        0.607,
+                        0.709,
+                        0.658,
+                        0.666,
+                        0.682,
+                        0.705
+                      ]
+                    },
+                    {
+                      "label": "Severe",
+                      "color": "#d73027",
+                      "values": [
+                        0.645,
+                        0.653,
+                        0.655,
+                        0.669,
+                        0.687,
+                        0.583,
+                        0.698,
+                        0.67,
+                        0.662,
+                        0.687,
+                        0.702
+                      ]
+                    },
+                    {
+                      "label": "Cover lost",
+                      "color": "#542788",
+                      "values": [
+                        0.475,
+                        0.549,
+                        0.585,
+                        0.528,
+                        0.402,
+                        0.229,
+                        0.378,
+                        0.193,
+                        0.182,
+                        0.174,
+                        0.295
+                      ]
+                    }
+                  ],
+                  "note": "Moderate and severe damage recovered within about a year; where cover was lost, NDVI stayed low. The 2002 value is from January-May 2002, before the storm."
+                }
+              },
+              "relatedStorms": [
+                "isidore-2002"
+              ],
+              "classes": [
+                {
+                  "label": "No detectable impact",
+                  "color": "#1a9850",
+                  "ha": 3096.9
+                },
+                {
+                  "label": "Moderate",
+                  "color": "#fee08b",
+                  "ha": 2949.8
+                },
+                {
+                  "label": "Severe",
+                  "color": "#d73027",
+                  "ha": 1660.5
+                },
+                {
+                  "label": "Cover lost",
+                  "color": "#542788",
+                  "ha": 26.1
+                }
+              ]
+            },
+            {
+              "id": "2020",
+              "label": "2020 storms",
+              "image": "data/vegetation/dr-2020-damage.png",
+              "about": {
+                "stats": "2020 storms (Cristobal, Gamma, Delta). Before 2020, after 2021.",
+                "note": "Dry-season images show lasting damage, not the short flooding of June 2020; that is underestimated here."
+              },
+              "relatedStorms": [
+                "cristobal-2020"
+              ],
+              "classes": [
+                {
+                  "label": "No detectable impact",
+                  "color": "#1a9850",
+                  "ha": 4454.3
+                },
+                {
+                  "label": "Moderate",
+                  "color": "#fee08b",
+                  "ha": 1979.9
+                },
+                {
+                  "label": "Severe",
+                  "color": "#d73027",
+                  "ha": 1489.8
+                },
+                {
+                  "label": "Cover lost",
+                  "color": "#542788",
+                  "ha": 121.1
+                }
+              ]
+            }
+          ]
         },
         {
-          "label": "Partially recovered",
-          "color": "class-recovery",
-          "share": null
+          "id": "lasting",
+          "title": "Storm damage: lasting NDVI change",
+          "bounds": null,
+          "defaultVariant": "isidore",
+          "variantGroup": "storm",
+          "legend": {
+            "type": "gradient",
+            "title": "Lasting NDVI change (Z-score)",
+            "min": -3,
+            "max": 3,
+            "colors": [
+              "#b2182b",
+              "#ef8a62",
+              "#fddbc7",
+              "#f7f7f7",
+              "#d1e5f0",
+              "#67a9cf",
+              "#2166ac"
+            ],
+            "low": "far below normal",
+            "high": "far above normal"
+          },
+          "about": {
+            "shows": "How far the NDVI of the first dry season after the storm lies below or above the normal of the same sensor period.",
+            "computed": "Dry-season (Jan-May) Landsat images; the year after the storm is compared with the normal of the same sensor period (Z-score of NDVI, storm years left out)."
+          },
+          "classes": [],
+          "variants": [
+            {
+              "id": "opal",
+              "label": "Opal 1995",
+              "image": "data/vegetation/dr-opal-lasting-z.png",
+              "about": {
+                "stats": "Opal 1995. Before 1995, after 1996.",
+                "note": "There is no period fully before Opal in our mangrove maps (1993-1997 contains 1995), so stands killed in 1995 may be missing. Read 'little impact' with care."
+              },
+              "relatedStorms": [
+                "opal-1995"
+              ],
+              "classes": []
+            },
+            {
+              "id": "isidore",
+              "label": "Isidore 2002",
+              "image": "data/vegetation/dr-isidore-lasting-z.png",
+              "about": {
+                "stats": "Isidore 2002. Before 2002, after 2003.",
+                "chart": {
+                  "type": "line",
+                  "title": "Recovery after Isidore",
+                  "unit": "NDVI (median)",
+                  "years": [
+                    1998,
+                    1999,
+                    2000,
+                    2001,
+                    2002,
+                    2003,
+                    2004,
+                    2005,
+                    2006,
+                    2007,
+                    2008
+                  ],
+                  "marker": {
+                    "year": 2002,
+                    "label": "Isidore"
+                  },
+                  "series": [
+                    {
+                      "label": "No detectable impact",
+                      "color": "#1a9850",
+                      "values": [
+                        0.596,
+                        0.631,
+                        0.639,
+                        0.639,
+                        0.678,
+                        0.623,
+                        0.693,
+                        0.647,
+                        0.643,
+                        0.65,
+                        0.686
+                      ]
+                    },
+                    {
+                      "label": "Moderate",
+                      "color": "#fee08b",
+                      "values": [
+                        0.635,
+                        0.65,
+                        0.658,
+                        0.666,
+                        0.689,
+                        0.607,
+                        0.709,
+                        0.658,
+                        0.666,
+                        0.682,
+                        0.705
+                      ]
+                    },
+                    {
+                      "label": "Severe",
+                      "color": "#d73027",
+                      "values": [
+                        0.645,
+                        0.653,
+                        0.655,
+                        0.669,
+                        0.687,
+                        0.583,
+                        0.698,
+                        0.67,
+                        0.662,
+                        0.687,
+                        0.702
+                      ]
+                    },
+                    {
+                      "label": "Cover lost",
+                      "color": "#542788",
+                      "values": [
+                        0.475,
+                        0.549,
+                        0.585,
+                        0.528,
+                        0.402,
+                        0.229,
+                        0.378,
+                        0.193,
+                        0.182,
+                        0.174,
+                        0.295
+                      ]
+                    }
+                  ],
+                  "note": "Moderate and severe damage recovered within about a year; where cover was lost, NDVI stayed low. The 2002 value is from January-May 2002, before the storm."
+                }
+              },
+              "relatedStorms": [
+                "isidore-2002"
+              ],
+              "classes": []
+            },
+            {
+              "id": "2020",
+              "label": "2020 storms",
+              "image": "data/vegetation/dr-2020-lasting-z.png",
+              "about": {
+                "stats": "2020 storms (Cristobal, Gamma, Delta). Before 2020, after 2021.",
+                "note": "Dry-season images show lasting damage, not the short flooding of June 2020; that is underestimated here."
+              },
+              "relatedStorms": [
+                "cristobal-2020"
+              ],
+              "classes": []
+            }
+          ]
         },
         {
-          "label": "Recovered",
-          "color": "scenario-4",
-          "share": null
+          "id": "acute-ndvi",
+          "title": "Storm effect: acute NDVI change",
+          "bounds": null,
+          "defaultVariant": "isidore",
+          "variantGroup": "storm",
+          "legend": {
+            "type": "gradient",
+            "title": "Acute NDVI change (Z-score)",
+            "min": -3,
+            "max": 3,
+            "colors": [
+              "#b2182b",
+              "#ef8a62",
+              "#fddbc7",
+              "#f7f7f7",
+              "#d1e5f0",
+              "#67a9cf",
+              "#2166ac"
+            ],
+            "low": "far below normal",
+            "high": "far above normal"
+          },
+          "about": {
+            "shows": "The effect in the first weeks after the storm.",
+            "computed": "Landsat images from a short window right after the storm, compared with the same calendar window in other years (Z-score; storm-affected years left out). NDVI shows vegetation; MNDWI shows surface wetness (flooding)."
+          },
+          "classes": [],
+          "variants": [
+            {
+              "id": "opal",
+              "label": "Opal 1995",
+              "relatedStorms": [
+                "opal-1995"
+              ],
+              "about": {
+                "stats": "Window: 1 Nov - 15 Dec 1995 (vs. 1994 and other years). Whole area: NDVI -1.16 (below normal), wetness +1.55.",
+                "note": "Short windows mean few images; single pixels can be noisy. A clear short-term drop, while the lasting view shows little: the effect was mostly temporary, or stands killed in 1995 are missing from the mangrove mask (see Damage classes)."
+              },
+              "image": "data/vegetation/dr-opal-acute-ndvi-z.png",
+              "classes": []
+            },
+            {
+              "id": "isidore",
+              "label": "Isidore 2002",
+              "relatedStorms": [
+                "isidore-2002"
+              ],
+              "about": {
+                "stats": "Window: 1 Nov - 15 Dec 2002 (vs. 2001 and other years). Whole area: NDVI -2.84 (far below normal), wetness +0.60.",
+                "note": "Short windows mean few images; single pixels can be noisy."
+              },
+              "image": "data/vegetation/dr-isidore-acute-ndvi-z.png",
+              "classes": []
+            },
+            {
+              "id": "2020",
+              "label": "2020 storms",
+              "relatedStorms": [
+                "cristobal-2020"
+              ],
+              "about": {
+                "stats": "Window: 5 Jun - 31 Jul 2020, Cristobal (vs. 2019 and other years). Whole area: NDVI +1.83 (above normal), wetness +1.68.",
+                "note": "Short windows mean few images; single pixels can be noisy. Greener and wetter than normal right after the storm: flooding and rain, no acute vegetation loss. The damage in the lasting view (2021) reflects the whole 2020 season."
+              },
+              "mapLabel": "Acute: Cristobal, 5 June - 31 July 2020",
+              "image": "data/vegetation/dr-cristobal-acute-ndvi-z.png",
+              "classes": []
+            }
+          ]
+        },
+        {
+          "id": "acute-wetness",
+          "title": "Storm effect: acute wetness",
+          "bounds": null,
+          "defaultVariant": "isidore",
+          "variantGroup": "storm",
+          "legend": {
+            "type": "gradient",
+            "title": "Acute wetness, MNDWI (Z-score)",
+            "min": -3,
+            "max": 3,
+            "colors": [
+              "#b2182b",
+              "#ef8a62",
+              "#fddbc7",
+              "#f7f7f7",
+              "#d1e5f0",
+              "#67a9cf",
+              "#2166ac"
+            ],
+            "low": "drier than normal",
+            "high": "wetter than normal"
+          },
+          "about": {
+            "shows": "The effect in the first weeks after the storm.",
+            "computed": "Landsat images from a short window right after the storm, compared with the same calendar window in other years (Z-score; storm-affected years left out). NDVI shows vegetation; MNDWI shows surface wetness (flooding)."
+          },
+          "classes": [],
+          "variants": [
+            {
+              "id": "opal",
+              "label": "Opal 1995",
+              "relatedStorms": [
+                "opal-1995"
+              ],
+              "about": {
+                "stats": "Window: 1 Nov - 15 Dec 1995 (vs. 1994 and other years). Whole area: NDVI -1.16 (below normal), wetness +1.55.",
+                "note": "Short windows mean few images; single pixels can be noisy. A clear short-term drop, while the lasting view shows little: the effect was mostly temporary, or stands killed in 1995 are missing from the mangrove mask (see Damage classes)."
+              },
+              "unavailable": "Not available for Opal",
+              "classes": []
+            },
+            {
+              "id": "isidore",
+              "label": "Isidore 2002",
+              "relatedStorms": [
+                "isidore-2002"
+              ],
+              "about": {
+                "stats": "Window: 1 Nov - 15 Dec 2002 (vs. 2001 and other years). Whole area: NDVI -2.84 (far below normal), wetness +0.60.",
+                "note": "Short windows mean few images; single pixels can be noisy."
+              },
+              "image": "data/vegetation/dr-isidore-acute-mndwi-z.png",
+              "classes": []
+            },
+            {
+              "id": "2020",
+              "label": "2020 storms",
+              "relatedStorms": [
+                "cristobal-2020"
+              ],
+              "about": {
+                "stats": "Window: 5 Jun - 31 Jul 2020, Cristobal (vs. 2019 and other years). Whole area: NDVI +1.83 (above normal), wetness +1.68.",
+                "note": "Short windows mean few images; single pixels can be noisy. Greener and wetter than normal right after the storm: flooding and rain, no acute vegetation loss. The damage in the lasting view (2021) reflects the whole 2020 season."
+              },
+              "mapLabel": "Acute: Cristobal, 5 June - 31 July 2020",
+              "image": "data/vegetation/dr-cristobal-acute-mndwi-z.png",
+              "classes": []
+            }
+          ]
         }
-      ],
-      "relatedStorms": [
-        "milton-2024",
-        "beryl-2024"
-      ],
-      "placeholder": true
+      ]
     }
   ],
   "basemap": {

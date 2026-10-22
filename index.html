@@ -71,6 +71,7 @@
               <span id="legend-items"></span>
             </div>
           </div>
+          <div id="map-basemap-switch" class="chip-row chip-row-small basemap-row"></div>
           <div class="fine" id="map-note"></div>
         </div>
 
@@ -270,12 +271,14 @@
         <!-- Mangrove maps: the map with the layer switch, legend strip and opacity slider -->
         <div class="card" data-card="veg-map">
           <div class="card-title-row"><div class="card-title"><span id="veg-map-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div><div class="expand">&#8599;</div></div>
-          <div id="veg-layer-switch" class="chip-row"></div>
-          <div id="veg-view-switch" class="chip-row chip-row-small" hidden></div>
+          <!-- a short label above the map, e.g. the storm of the acute views (layers.json "mapLabel") -->
+          <p id="veg-map-label" class="fine" hidden></p>
           <div id="veg-map-frame" class="map-frame">
             <div id="veg-map" class="geo-map"></div>
             <div id="veg-map-message" class="map-message" hidden></div>
             <div class="map-buttons">
+              <!-- base map black and white or colour (vegetation.js: setupBasemapButton) -->
+              <button type="button" id="veg-basemap-button" class="map-button"></button>
               <button type="button" id="veg-map-zoom-in" class="map-button"></button>
               <button type="button" id="veg-map-zoom-out" class="map-button"></button>
               <button type="button" id="veg-map-reset" class="map-button"></button>
@@ -289,6 +292,11 @@
           </div>
           <div class="card-actions card-actions-footer"><a id="veg-maps-link" class="veg-link"></a></div>
           <p class="fine" id="veg-map-status"></p>
+        </div>
+
+        <!-- Maps: the menu to choose the map (vegetation.js: renderMapMenu, content/vegetation.json "mapMenu") -->
+        <div class="card" data-card="veg-menu">
+          <div id="veg-map-menu" class="map-menu"></div>
         </div>
 
         <div class="card" data-card="veg-about">

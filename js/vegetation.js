@@ -1,5 +1,5 @@
 // vegetation.js: the Vegetation page ("Vegetation data"): Mangrove maps and Tipping points.
-//   Section 1: a zoomable map (Leaflet) with the layers Condition | Change | Disturbance & recovery, an opacity
+//   Section 1: a zoomable map (Leaflet) chosen with the Maps menu (card "Maps": Extent | Condition | Disturbance & recovery, with variants), an opacity
 //   slider, a legend that switches per layer, "About this layer" and "Where the data comes from".
 //   Section 2: the card "Early warning signals before the breakpoint": the verdict of the EWS notebook with its reason,
 //   a metrics table (expected and found direction, tau, p) and the charts (residual, AR1, SD), only for points with a
@@ -16,10 +16,11 @@
 
 let vegLayers = null;          // contents of data/vegetation/layers.json
 let vegBarSet = null;          // the bar chart of the per-period view as a set for the comparison line (see charts.js)
-let vegBarMode = 'perYear';    // 'perYear' or 'total' (content/vegetation.json "chartModes")
+let vegBarMode = 'total';      // 'perYear' or 'total' (content/vegetation.json "chartModes")
 let vegEwsSet = null;          // the EWS charts as a set for the comparison line (see charts.js)
 let vegLoaded = false;         // true when layers.json has loaded
 let vegLayerId = null;         // the layer shown in the map of section 1
+let vegVariantIds = {};        // the chosen variant per view ("layer/view"): Simplified | Detailed, a year, a period or a storm (see variantsOf)
 let vegViewIds = {};           // the chosen view per layer id (layers with "views", e.g. Change: classes | per-period)
 let vegOverlay = null;         // the Leaflet image of that layer
 let vegMaps = {};              // the Leaflet map of the layers: { layers }
@@ -61,12 +62,17 @@ async function setupVegetation() {
     console.error(err);
     return;
   }
-  vegLayerId = vegLayers.layers[0].id;
+  // the first map of the menu is the start map; an address like #satellite/maps/status-2025 chooses another one
+  const firstGroup = CONTENT.vegetation.mapMenu.groups[0];
+  vegLayerId = firstGroup.id;
+  vegViewIds[firstGroup.id] = firstGroup.items[0].view;
+  selectFromSlug(mapSlugInAddress());
 
   renderStaticTexts();
-  renderLayerSwitch();
-  renderViewSwitch();
+  renderMapMenu();
   setupOpacity();
+  setupBasemapButton('veg-basemap-button', 'veg-map', true);   // the Mangrove maps map starts black and white
+  setupBasemapSwitch('map-basemap-switch', 'map', false);      // the points map starts in colour
   renderSource();
   renderLayer();
   setupMaps();
@@ -77,7 +83,11 @@ async function setupVegetation() {
   attachComparisonLine($('veg-chart-body'), () => vegBarSet);
   if (allPoints.length) { renderMap(); renderAll(); }   // points.js: the dots, now on the new base map
   renderVegetationEws(getSelectedPoint());   // points.js: the selected point, none at the start
-  window.addEventListener('hashchange', () => { if (location.hash.slice(1).split('/')[0] === 'satellite') renderAbout(); });
+  window.addEventListener('hashchange', () => {
+    if (location.hash.slice(1).split('/')[0] !== 'satellite') return;
+    if (selectFromSlug(mapSlugInAddress())) { renderMapMenu(); renderLayer(); renderLayerOverlay(); }   // a link or the back button
+    renderAbout();
+  });
 }
 
 // The texts that do not depend on the data: titles, links, hints.
@@ -120,7 +130,7 @@ function createMap(elementId, zoomInId, zoomOutId, resetId) {
   const showStart = () => map.fitBounds(aoi, { paddingTopLeft: [START_PADDING, START_PADDING], paddingBottomRight: [START_PADDING, START_PADDING + legendHeight()], animate: false });
   // the attribution sits top left: the legend strip covers the bottom of the map
   L.control.attribution({ position: 'topleft', prefix: false }).addTo(map);
-  L.imageOverlay(vegLayers.basemap.image, bounds, { attribution: vegLayers.basemap.attribution }).addTo(map);
+  L.imageOverlay(vegLayers.basemap.image, bounds, { attribution: vegLayers.basemap.attribution, className: 'veg-basemap' }).addTo(map);
   L.polygon(aoiLatLngs(), { color: vegColor('surface'), weight: 1.5, opacity: 0.9, fill: false, interactive: false }).addTo(map);
   $(zoomInId).addEventListener('click', () => map.zoomIn());
   $(zoomOutId).addEventListener('click', () => map.zoomOut());
@@ -221,52 +231,284 @@ function currentLayer() {
   const layer = vegLayers.layers.find((l) => l.id === vegLayerId);
   if (!layer.views) return layer;
   const view = layer.views.find((v) => v.id === vegViewIds[layer.id]) || layer.views[0];
-  return Object.assign({}, layer, view, { id: layer.id });
+  const merged = Object.assign({}, layer, view, { id: layer.id });
+  // the chosen variant of the view (own image, legend, classes, ...; its "about" texts replace the same texts of the view)
+  const variants = variantsOf(view);
+  if (variants) {
+    const { id, label, ...fields } = variants.find((v) => v.id === chosenVariantId(layer, view)) || variants[0];
+    Object.assign(merged, fields, { about: Object.assign({}, view.about, fields.about) });
+  }
+  return merged;
 }
 
-function renderLayerSwitch() {
-  const box = $('veg-layer-switch');
-  box.innerHTML = '';
-  CONTENT.vegetation.layerSwitch.forEach((item) => {
-    const chip = document.createElement('button');
-    chip.type = 'button';
-    chip.className = 'layer-chip' + (item.id === vegLayerId ? ' on' : '');
-    chip.textContent = item.label;
-    chip.setAttribute('aria-pressed', item.id === vegLayerId);
-    chip.addEventListener('click', () => {
-      vegLayerId = item.id;
-      renderLayerSwitch();
-      renderViewSwitch();
-      renderLayer();
-      renderLayerOverlay();
-    });
-    box.appendChild(chip);
-  });
+// The variants of a view, or null: "variants" in layers.json (a year, a period), or Simplified | Detailed for a view
+// with a "detailed" part (Change > Classes). A variant has an id, a label and the fields it replaces.
+function variantsOf(view) {
+  if (Array.isArray(view.variants)) return view.variants;
+  if (!view.detailed) return null;
+  return CONTENT.vegetation.detailSwitch.map((item) => (item.id === 'detailed' ? Object.assign({}, view.detailed, item) : item));
 }
 
-// The small switch under the layer chips (e.g. Change: Classes | Per period): only for layers with views.
-function renderViewSwitch() {
-  const box = $('veg-view-switch');
-  const items = CONTENT.vegetation.viewSwitch[vegLayerId];
-  box.hidden = !items;
-  box.innerHTML = '';
-  if (!items) return;
-  const layer = vegLayers.layers.find((l) => l.id === vegLayerId);
-  const activeId = (vegViewIds[vegLayerId] || layer.views[0].id);
+// The key of the chosen variant: per view, or shared by the views with the same "variantGroup" (the storm of Disturbance & recovery).
+function variantKey(layer, view) { return layer.id + '/' + (view.variantGroup || view.id); }
+
+function chosenVariantId(layer, view) {
+  const variants = variantsOf(view);
+  return vegVariantIds[variantKey(layer, view)] || view.defaultVariant || variants[0].id;
+}
+
+// Why a view cannot be shown for the chosen variant (e.g. no acute wetness for Opal): the text from layers.json "unavailable", or ''.
+function viewUnavailable(layer, view) {
+  const variants = variantsOf(view);
+  const chosen = variants && variants.find((v) => v.id === chosenVariantId(layer, view));
+  return (chosen && chosen.unavailable) || '';
+}
+
+// ---------- the Maps menu (card "Maps") ----------
+// One tab per theme (content/vegetation.json "mapMenu" groups) and under it one radio row per map of the active theme only.
+// The rows name a layer (group id) and a view of it (layers.json). The variants of a view (year, period, Simplified |
+// Detailed) are a small segmented control on the line of the selected row; the storm of Disturbance & recovery is one line
+// under the tabs (it applies to its four maps). A tab selects the map last used in that theme (vegViewIds). The chosen map is kept in vegLayerId, vegViewIds and vegVariantIds, and in the address (#satellite/maps/<slug>).
+
+function menuLayer(groupId) { return vegLayers.layers.find((l) => l.id === groupId); }
+function menuView(group, item) { return menuLayer(group.id).views.find((v) => v.id === item.view); }
+function menuGroups() { return CONTENT.vegetation.mapMenu.groups; }
+
+// The group, layer, view and row of the map that is shown.
+function currentMap() {
+  const group = menuGroups().find((g) => g.id === vegLayerId);
+  const layer = menuLayer(group.id);
+  const view = layer.views.find((v) => v.id === (vegViewIds[layer.id] || layer.views[0].id));
+  return { group: group, layer: layer, view: view, item: group.items.find((i) => i.view === view.id) };
+}
+
+// The title of the map card: "Change classes · Simplified", "Status · 2025", "Isidore 2002 · Damage classes".
+function mapTitle() {
+  const { group, layer, view, item } = currentMap();
+  const variants = variantsOf(view);
+  const chosen = variants && variants.find((v) => v.id === chosenVariantId(layer, view));
+  if (!chosen) return item.label;
+  return group.storm ? chosen.label + ' · ' + item.label : item.label + ' · ' + chosen.label;
+}
+
+// The address part of the map shown: "status-2025", "isidore-damage", "change-classes-detailed"
+function mapSlug() {
+  const { group, layer, view, item } = currentMap();
+  if (group.storm) return chosenVariantId(layer, view) + '-' + item.slug;
+  return item.slug + (variantsOf(view) ? '-' + chosenVariantId(layer, view) : '');
+}
+
+// The map named in the address (#satellite/maps/<slug>), or ''.
+function mapSlugInAddress() { return location.hash.slice(1).split('/')[2] || ''; }
+
+// Choose the map of an address part. Returns true when it was found (and is available); the caller draws.
+function selectFromSlug(slug) {
+  if (!slug) return false;
+  for (const group of menuGroups()) {
+    const layer = menuLayer(group.id);
+    for (const item of group.items) {
+      const view = menuView(group, item);
+      const variants = variantsOf(view);
+      let variantId = null;
+      if (group.storm) {
+        const storm = variants && variants.find((v) => slug === v.id + '-' + item.slug);
+        if (!storm) continue;
+        variantId = storm.id;
+      } else if (slug !== item.slug) {
+        const rest = slug.startsWith(item.slug + '-') ? slug.slice(item.slug.length + 1) : null;
+        if (!rest || !variants || !variants.some((v) => v.id === rest)) continue;
+        variantId = rest;
+      }
+      const key = variantKey(layer, view);
+      const before = vegVariantIds[key];
+      if (variantId) vegVariantIds[key] = variantId;
+      if (viewUnavailable(layer, view)) { vegVariantIds[key] = before; return false; }
+      vegLayerId = layer.id;
+      vegViewIds[layer.id] = view.id;
+      return true;
+    }
+  }
+  return false;
+}
+
+// Draw everything that depends on the chosen map, and put it in the address (replaceState: no hashchange, the page stays where it is).
+// focus = the data-focus of the control that keeps the keyboard focus (the menu is drawn again).
+function refreshMap(focus) {
+  renderMapMenu(focus);
+  renderLayer();
+  renderLayerOverlay();
+  history.replaceState(null, '', '#satellite/maps/' + mapSlug());
+}
+
+function selectMap(groupId, viewId, focus) {
+  vegLayerId = groupId;
+  vegViewIds[groupId] = viewId;
+  refreshMap(focus);
+}
+
+// A small segmented control: an optional label and buttons with aria-pressed. items = [{ id, label }].
+function menuSegment(label, items, activeId, focusKey, onPick) {
+  const seg = document.createElement('div');
+  seg.className = 'menu-seg';
+  seg.setAttribute('role', 'group');
+  if (label) {
+    const name = document.createElement('span');
+    name.className = 'menu-seg-label';
+    name.textContent = label;
+    seg.appendChild(name);
+    seg.setAttribute('aria-label', label);
+  }
   items.forEach((item) => {
-    const chip = document.createElement('button');
-    chip.type = 'button';
-    chip.className = 'layer-chip' + (item.id === activeId ? ' on' : '');
-    chip.textContent = item.label;
-    chip.setAttribute('aria-pressed', item.id === activeId);
-    chip.addEventListener('click', () => {
-      vegViewIds[vegLayerId] = item.id;
-      renderViewSwitch();
-      renderLayer();
-      renderLayerOverlay();
-    });
-    box.appendChild(chip);
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'menu-seg-btn';
+    button.textContent = item.label;
+    button.dataset.focus = focusKey + '-' + item.id;
+    button.setAttribute('aria-pressed', item.id === activeId);
+    button.addEventListener('click', () => onPick(item.id, button.dataset.focus));
+    seg.appendChild(button);
   });
+  return seg;
+}
+
+// The tabs, the storm line and the rows of the active theme (vegLayerId). focus = the data-focus of the control that keeps
+// the keyboard focus after the menu is drawn again.
+function renderMapMenu(focus) {
+  const box = $('veg-map-menu');
+  box.innerHTML = '';
+  const groups = menuGroups();
+  const group = groups.find((g) => g.id === vegLayerId);
+  const layer = menuLayer(group.id);
+
+  // the tabs: one per theme; a tab shows the map last used in that theme (the first one the first time)
+  const tabs = document.createElement('div');
+  tabs.className = 'menu-tabs';
+  tabs.setAttribute('role', 'tablist');
+  tabs.setAttribute('aria-label', CONTENT.vegetation.texts.menuTitle);
+  groups.forEach((g) => {
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.className = 'menu-tab';
+    tab.textContent = g.label;
+    tab.dataset.focus = 'tab-' + g.id;
+    tab.setAttribute('role', 'tab');
+    tab.setAttribute('aria-selected', g.id === group.id);
+    tab.tabIndex = g.id === group.id ? 0 : -1;   // one tab stop; the arrow keys move between the tabs
+    tab.addEventListener('click', () => selectMap(g.id, vegViewIds[g.id] || g.items[0].view, tab.dataset.focus));
+    tab.addEventListener('keydown', (e) => {
+      const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (!step) return;
+      e.preventDefault();
+      tabs.children[(groups.indexOf(g) + step + groups.length) % groups.length].click();   // arrow keys switch the tab
+    });
+    tabs.appendChild(tab);
+  });
+  box.appendChild(tabs);
+
+  // the storm choice: one line under the tabs; it applies to all maps of the theme
+  if (group.storm) {
+    const stormView = layer.views.find((v) => v.id === group.storm.view);
+    const storm = menuSegment(group.storm.label + ':', variantsOf(stormView), chosenVariantId(layer, stormView), 'storm', (id, key) => {
+      vegVariantIds[variantKey(layer, stormView)] = id;
+      // a map that does not exist for this storm (Acute wetness for Opal): back to the first map of the theme
+      const current = layer.views.find((v) => v.id === (vegViewIds[layer.id] || layer.views[0].id));
+      if (viewUnavailable(layer, current)) vegViewIds[layer.id] = layer.views[0].id;
+      refreshMap(key);
+    });
+    storm.classList.add('menu-storm');
+    box.appendChild(storm);
+  }
+
+  // the maps of the theme: one radio group
+  const list = document.createElement('div');
+  list.className = 'menu-rows';
+  list.setAttribute('role', 'radiogroup');
+  list.setAttribute('aria-label', group.label);
+  const rows = [];   // for the arrow keys
+  const currentViewId = vegViewIds[layer.id] || layer.views[0].id;
+  group.items.forEach((item) => {
+    const view = menuView(group, item);
+    const selected = view.id === currentViewId;
+    const unavailable = viewUnavailable(layer, view);
+    const line = document.createElement('div');
+    line.className = 'menu-item' + (selected ? ' selected' : '') + (unavailable ? ' disabled' : '');
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'menu-row';
+    row.textContent = item.label;
+    row.dataset.focus = 'row-' + group.id + '-' + item.view;
+    row.setAttribute('role', 'radio');
+    row.setAttribute('aria-checked', selected);
+    row.tabIndex = selected ? 0 : -1;   // one tab stop for the group; the arrow keys move inside it
+    if (unavailable) { row.disabled = true; row.title = unavailable; line.title = unavailable; }   // greyed out with the reason as tooltip
+    row.addEventListener('click', () => selectMap(group.id, item.view, row.dataset.focus));
+    row.addEventListener('keydown', (e) => {
+      const step = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : e.key === 'ArrowUp' || e.key === 'ArrowLeft' ? -1 : 0;
+      if (!step) return;
+      e.preventDefault();
+      const enabled = rows.filter((r) => !r.disabled);
+      enabled[(enabled.indexOf(row) + step + enabled.length) % enabled.length].click();   // arrow keys select, like a native radio group
+    });
+    rows.push(row);
+    line.appendChild(row);
+    // the variants of the selected map, on its line, right-aligned (they wrap under the name when they do not fit)
+    const variants = selected && !group.storm ? variantsOf(view) : null;
+    if (variants) {
+      line.appendChild(menuSegment('', variants, chosenVariantId(layer, view), 'variant', (id, key) => {
+        vegVariantIds[variantKey(layer, view)] = id;
+        refreshMap(key);
+      }));
+    }
+    list.appendChild(line);
+  });
+  box.appendChild(list);
+
+  if (focus) {
+    const target = [...box.querySelectorAll('[data-focus]')].find((el) => el.dataset.focus === focus);
+    if (target) target.focus();
+  }
+}
+
+// Two chips (Black and white | Colour) under a map: the visitor chooses how the base map looks. The class
+// "basemap-bw" on the map element turns its base map black and white (css/vegetation.css).
+function setupBasemapSwitch(boxId, mapId, blackAndWhite) {
+  const box = $(boxId);
+  const map = $(mapId);
+  if (!box || !map) return;
+  const tx = CONTENT.vegetation.texts;
+  const draw = () => {
+    map.classList.toggle('basemap-bw', blackAndWhite);
+    box.innerHTML = '';
+    const label = document.createElement('span');
+    label.className = 'label-xs';
+    label.textContent = tx.basemap;
+    box.appendChild(label);
+    [[true, tx.basemapBw], [false, tx.basemapColour]].forEach(([bw, text]) => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'layer-chip' + (bw === blackAndWhite ? ' on' : '');
+      chip.textContent = text;
+      chip.setAttribute('aria-pressed', bw === blackAndWhite);
+      chip.addEventListener('click', () => { blackAndWhite = bw; draw(); });
+      box.appendChild(chip);
+    });
+  };
+  draw();
+}
+
+// One button next to the zoom buttons of the Mangrove maps map: pressed = the base map is black and white.
+function setupBasemapButton(buttonId, mapId, blackAndWhite) {
+  const button = $(buttonId);
+  const map = $(mapId);
+  if (!button || !map) return;
+  button.textContent = CONTENT.vegetation.texts.basemapBw;
+  const draw = () => {
+    map.classList.toggle('basemap-bw', blackAndWhite);
+    button.classList.toggle('on', blackAndWhite);
+    button.setAttribute('aria-pressed', blackAndWhite);
+  };
+  button.addEventListener('click', () => { blackAndWhite = !blackAndWhite; draw(); });
+  draw();
 }
 
 function setupOpacity() {
@@ -299,7 +541,9 @@ function renderLayerOverlay() {
 // Title, legend strip and "About this layer" of the current layer.
 function renderLayer() {
   const layer = currentLayer();
-  setText('veg-map-title', layer.title);
+  setText('veg-map-title', mapTitle());
+  setText('veg-map-label', layer.mapLabel || '');
+  $('veg-map-label').hidden = !layer.mapLabel;
   showPlaceholderTag($('veg-map-title').parentElement, layer.placeholder);
   renderLegend(layer.legend);
   renderAbout();
@@ -339,6 +583,8 @@ function renderLegend(legend) {
       note.textContent = legend.note;
       box.appendChild(note);
     }
+  } else if (legend.type === 'gradient' && isFinite(legend.min)) {
+    box.appendChild(gradientLegend(legend));
   } else if (legend.type === 'gradient') {
     // low label, a bar from the first to the last color, high label
     const low = document.createElement('span');
@@ -354,6 +600,27 @@ function renderLegend(legend) {
   } else {
     legend.items.forEach((item) => box.appendChild(legendItem(item.label, vegColor(item.color))));
   }
+}
+
+// A bar from the first to the last color with three labels under it: left, middle and right (with the values at the ends).
+// Used in the legend strip and in "How to read the colors" of About this layer.
+function gradientLegend(legend) {
+  // a + sign only for a scale that has negative values (dNDVI, trend), not for NDVI itself
+  const signed = (v) => (legend.min < 0 ? (v > 0 ? '+' : v < 0 ? '−' : '') : '') + Math.abs(v);
+  const wrap = document.createElement('span');
+  wrap.className = 'gradient-wrap';
+  const bar = document.createElement('span');
+  bar.className = 'gradient-bar';
+  bar.style.background = 'linear-gradient(to right, ' + legend.colors.map(vegColor).join(', ') + ')';
+  const labels = document.createElement('span');
+  labels.className = 'gradient-labels';
+  [signed(legend.min) + ' ' + legend.low, legend.mid, legend.high + ' ' + signed(legend.max)].filter(isFilled).forEach((text) => {
+    const label = document.createElement('span');
+    label.textContent = text;
+    labels.appendChild(label);
+  });
+  wrap.append(bar, labels);
+  return wrap;
 }
 
 // One legend entry: a color block and a label (same look as the other legends).
@@ -398,7 +665,8 @@ function renderAbout() {
   // how to read the colors: one color block per class (the per-period view lists its periods instead)
   const colors = document.createElement('div');
   colors.className = 'about-legend';
-  layer.classes.forEach((c) => colors.appendChild(legendItem(c.label, vegColor(c.color))));
+  if (layer.legend.type !== 'gradient') layer.classes.forEach((c) => colors.appendChild(legendItem(c.label, vegColor(c.color))));
+  if (layer.legend.type === 'gradient' && isFinite(layer.legend.min)) colors.appendChild(gradientLegend(layer.legend));
   if (layer.legend.type === 'periods') {
     const list = document.createElement('div');
     list.className = 'period-list';
@@ -421,6 +689,16 @@ function renderAbout() {
     colors.appendChild(list);
   }
   if (isFilled(layer.about.colors)) colors.appendChild(aboutText(layer.about.colors));   // a note on the colors
+  if (isFilled(layer.about.note)) {                                                       // a note that is always visible (Condition > Status)
+    const note = aboutText(layer.about.note);
+    note.classList.add('about-note');
+    colors.appendChild(note);
+  }
+  if (isFilled(layer.about.stats)) {                                                      // a short line with numbers (Condition > Canopy density)
+    const stats = aboutText(layer.about.stats);
+    stats.classList.add('about-note');
+    colors.appendChild(stats);
+  }
   body.appendChild(aboutBlock(vt('aboutColors'), colors));
 
   renderChartCard(layer);
@@ -428,7 +706,8 @@ function renderAbout() {
   // share of area per class: the hectares as stored and their share of the total (one decimal), or "No data"
   if (layer.classes.length) {
   const shares = document.createElement('div');
-  const totalHa = layer.classes.reduce((sum, c) => sum + (isNumber(c.ha) ? c.ha : 0), 0);
+  // "totalHa" (layers.json): the same total for the simplified and the detailed version, so the shares can be compared
+  const totalHa = isNumber(layer.totalHa) ? layer.totalHa : layer.classes.reduce((sum, c) => sum + (isNumber(c.ha) ? c.ha : 0), 0);
   layer.classes.forEach((c) => {
     const row = document.createElement('div');
     row.className = 'value-row';
@@ -475,6 +754,8 @@ function renderChartCard(layer) {
   if (!chart) return;
   setText('veg-chart-title', chart.title);
   showPlaceholderTag($('veg-chart-title').parentElement, chart.placeholder);
+  $('veg-chart-toggle').hidden = chart.type === 'line';   // the per year | total toggle belongs to the bar chart
+  if (chart.type === 'line') { renderLineChart(chart); return; }
 
   const modes = CONTENT.vegetation.chartModes;
   const mode = modes.find((m) => m.id === vegBarMode) || modes[0];
@@ -493,8 +774,22 @@ function renderChartCard(layer) {
   // two series: loss and gain (the darkest color of each legend row)
   const periods = chart.periods || [];
   const keys = mode.id === 'perYear' ? ['lossHaPerYr', 'gainHaPerYr'] : ['lossHa', 'gainHa'];
-  const series = layer.legend.rows.map((row, k) => ({ label: row.label, color: row.colors[row.colors.length - 1], values: periods.map((p) => p[keys[k]]) }));
-  const known = knownValues([].concat(...series.map((s) => s.values)));
+  // the bars use the darkest color of the last confirmed period (the provisional period has its own, lighter color below)
+  const steps = layer.legend.steps;
+  const confirmedAt = steps.reduce((last, st, n) => (st.provisional ? last : n), 0);
+  const series = layer.legend.rows.map((row, k) => ({ label: row.label, color: row.colors[confirmedAt], values: periods.map((p) => p[keys[k]]) }));
+  // the totals are stacked bars (loss, gain, then the provisional loss and gain of the last period in a lighter color of
+  // the same row); "per year" stays two bars side by side, as the provisional values have no rate
+  const stacked = mode.id === 'total';
+  if (stacked && periods.some((p) => isNumber(p.lossProvHa) || isNumber(p.gainProvHa))) {
+    layer.legend.rows.forEach((row, k) => series.push({
+      label: row.label + ' (' + CONTENT.vegetation.texts.provisional + ')', color: row.colors[1],
+      values: periods.map((p) => p[['lossProvHa', 'gainProvHa'][k]]) }));
+  }
+  // the top of each segment of a stacked bar: the sum of its own value and all the segments under it
+  const tops = series.map((s, k) => s.values.map((val, i) => (isNumber(val)
+    ? series.slice(0, k + 1).reduce((sum, o) => sum + (isNumber(o.values[i]) ? o.values[i] : 0), 0) : null)));
+  const known = knownValues([].concat(...(stacked ? tops : series.map((s) => s.values))));
   const body = $('veg-chart-body');
   body.innerHTML = '';
   vegBarSet = null;
@@ -504,10 +799,16 @@ function renderChartCard(layer) {
     const n = periods.length;
     const x = pointXScale(n);   // one group of bars per period, evenly spaced
     const scale = chartScale(known, true);
-    const barWidth = (PLOT.right - PLOT.left) / n * 0.28;
+    const barWidth = (PLOT.right - PLOT.left) / n * (stacked ? 0.55 : 0.28);
     let svg = chartHead({ label: chart.title }, [], 'chart') + chartYAxis(scale.t, scale.yOf, true);
     const zeroY = scale.yOf(0);
-    series.forEach((s, k) => s.values.forEach((val, i) => {
+    // stacked: one bar per period, every segment on top of the one before; side by side: loss left, gain right
+    if (stacked) series.forEach((s, k) => s.values.forEach((val, i) => {
+      if (!isNumber(val) || val <= 0) return;
+      const top = scale.yOf(tops[k][i]);
+      svg += '<rect x="' + (x.xOf(i) - barWidth / 2).toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + barWidth.toFixed(1) + '" height="' + (scale.yOf(tops[k][i] - val) - top).toFixed(1) + '" fill="' + vegColor(s.color) + '"></rect>';
+    }));
+    else series.forEach((s, k) => s.values.forEach((val, i) => {
       if (!isNumber(val)) return;
       const left = x.xOf(i) + (k === 0 ? -barWidth - 1 : 1);
       const top = Math.min(zeroY, scale.yOf(val));
@@ -519,7 +820,7 @@ function renderChartCard(layer) {
     // the comparison line snaps to periods and shows loss and gain
     vegBarSet = {
       count: n, xOf: x.xOf, indexAt: x.indexAt, label: (i) => periods[i].label + ' (' + periods[i].range + ')',
-      panels: [{ yOf: scale.yOf, points: (i) => series.map((s) => ({ value: s.values[i], color: vegColor(s.color), text: s.label + ' ' + formatLike(s.values[i], s.values) + ' ' + mode.unit })) }]
+      panels: [{ yOf: scale.yOf, points: (i) => series.map((s, k) => ({ value: stacked ? tops[k][i] : s.values[i], color: vegColor(s.color), text: s.label + ' ' + formatLike(s.values[i], s.values) + ' ' + mode.unit })) }]
     };
   }
 
@@ -527,7 +828,11 @@ function renderChartCard(layer) {
   legend.innerHTML = '';
   series.forEach((s) => legend.appendChild(legendItem(s.label, vegColor(s.color))));
 
-  // the note; a word in it (e.g. "Isidore") can link to that storm on the Climatology page
+  renderChartNote(chart);
+}
+
+// The note under the chart; a word in it (e.g. "Isidore") can link to that storm on the Climatology page.
+function renderChartNote(chart) {
   const note = $('veg-chart-note');
   note.textContent = '';
   const link = chart.noteLink;
@@ -543,6 +848,49 @@ function renderChartCard(layer) {
   } else {
     note.textContent = chart.note;
   }
+}
+
+// A line chart of the card (Disturbance & recovery > Isidore): one line per series, one value per year, evenly spaced,
+// with a dashed vertical line at chart.marker.year. All numbers come from layers.json ("about.chart"). The hover values
+// come from the comparison line, as for the bar chart.
+function renderLineChart(chart) {
+  const years = chart.years;
+  const body = $('veg-chart-body');
+  body.innerHTML = '';
+  vegBarSet = null;
+  const known = knownValues([].concat(...chart.series.map((s) => s.values)));
+  if (!known.length) {
+    body.appendChild(vegChartRow(chart.unit, chartNoData(chartHead({ label: chart.title }, [], 'chart'))));
+  } else {
+    const x = pointXScale(years.length);
+    const scale = chartScale(known, false);
+    const gridX = years.map((y, i) => x.xOf(i));
+    let svg = chartHead({ label: chart.title }, gridX, 'chart') + chartYAxis(scale.t, scale.yOf, true);
+    chart.series.forEach((s) => {
+      segmentsOf(s.values).forEach((seg) => {
+        if (seg.length === 1) svg += '<circle cx="' + x.xOf(seg[0].i).toFixed(1) + '" cy="' + scale.yOf(seg[0].val).toFixed(1) + '" r="2" fill="' + vegColor(s.color) + '"></circle>';
+        else svg += '<polyline points="' + seg.map((pt) => x.xOf(pt.i).toFixed(1) + ',' + scale.yOf(pt.val).toFixed(1)).join(' ') + '" fill="none" stroke="' + vegColor(s.color) + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"></polyline>';
+      });
+    });
+    // the dashed line at the storm year, with its name at the top
+    const at = years.indexOf(chart.marker.year);
+    if (at >= 0) {
+      const mx = x.xOf(at).toFixed(1);
+      svg += '<line x1="' + mx + '" y1="' + PLOT.top + '" x2="' + mx + '" y2="' + PLOT.bottom + '" stroke="' + color('--color-breakpoint') + '" stroke-width="1.5" stroke-dasharray="4,4"></line>' +
+        '<text class="plot-tick-label" x="' + (Number(mx) + 4) + '" y="' + (PLOT.top + 10) + '">' + escapeHtml(chart.marker.label) + '</text>';
+    }
+    body.appendChild(vegChartRow(chart.unit, svg + '</svg>'));
+    body.appendChild(sharedAxis(years.map((y, i) => ({ x: x.xOf(i), text: String(y) })), t('labels.year')));
+    body.insertAdjacentHTML('beforeend', '<div class="comparison" hidden></div>');
+    vegBarSet = {
+      count: years.length, xOf: x.xOf, indexAt: x.indexAt, label: (i) => String(years[i]),
+      panels: [{ yOf: scale.yOf, points: (i) => chart.series.map((s) => ({ value: s.values[i], color: vegColor(s.color), text: s.label + ' ' + formatLike(s.values[i], s.values) })) }]
+    };
+  }
+  const legend = $('veg-chart-legend');
+  legend.innerHTML = '';
+  chart.series.forEach((s) => legend.appendChild(legendItem(s.label, vegColor(s.color))));
+  renderChartNote(chart);
 }
 
 // A storm as a row like the storm list of the Climatology page; clicking it selects that storm there.
