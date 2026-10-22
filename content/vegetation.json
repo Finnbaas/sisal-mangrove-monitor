@@ -80,7 +80,7 @@
     "sourcePeriod": "Period",
     "sourceArea": "Study area",
     "mapsLink": "Use this code for your area (adapt)",
-    "mapsLinkTarget": "#method/mangrove-change",
+    "mapsLinkTarget": "#method/mangrove-extent",
     "pointsLink": "Run this analysis on your own data",
     "pointsLinkTarget": "#method/ews",
     "ndviSeries": "NDVI",

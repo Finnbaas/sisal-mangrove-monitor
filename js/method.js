@@ -9,7 +9,7 @@
 //   "Key choices"), "howWeUsed" and "whatYouNeed". A section with "datasets" (Climatology, Vegetation) shows its data
 //   sources and limitations above the cards and the link to its folder on GitHub below them.
 //   A use case with "subCards" (Mangrove maps) shows no steps: its sub-cards sit inside the card (twice as wide); a sub-card is a use case with
-//   a "parent" (#method/mangrove-change opens both). A use case can have "routes": tabs with their own steps.
+//   a "parent" (#method/mangrove-extent opens both). A use case can have "routes": tabs with their own steps.
 // Reads: content/method.json (written by the team) and, for the numbers in the texts, data/storms/storm-counts.json,
 //   data/events.json, data/climate/typical-year.json, data/climate/change.json and data/climate/wave-direction.json.
 // Uses: helpers.js, content.js, navigation.js (lastResearchSection). Used by: main.js, navigation.js.
