@@ -349,9 +349,9 @@ function selectMap(groupId, viewId, focus) {
 }
 
 // A small segmented control: an optional label and buttons with aria-pressed. items = [{ id, label }].
-function menuSegment(label, items, activeId, focusKey, onPick) {
+function menuSegment(label, items, activeId, focusKey, onPick, muted) {
   const seg = document.createElement('div');
-  seg.className = 'menu-seg';
+  seg.className = 'menu-seg' + (muted ? ' muted' : '');   // muted: the storm of a group whose map is not shown
   seg.setAttribute('role', 'group');
   if (label) {
     const name = document.createElement('span');
@@ -394,7 +394,7 @@ function renderMapMenu(focus) {
         const current = layer.views.find((v) => v.id === (vegViewIds[layer.id] || layer.views[0].id));
         if (group.id === vegLayerId && viewUnavailable(layer, current)) vegViewIds[layer.id] = layer.views[0].id;
         refreshMap(key);
-      }));
+      }, group.id !== vegLayerId));
     }
     const currentViewId = vegViewIds[layer.id] || layer.views[0].id;
     group.items.forEach((item) => {
