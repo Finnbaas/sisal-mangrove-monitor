@@ -3,6 +3,7 @@
     {
       "id": "overview",
       "label": "Overview",
+      "title": "Overview",
       "columns": [
         ["point-map", "year-slider", "point-description"],
         ["point-chart", "point-values", ["point-info", "trend-signals"]]
@@ -40,6 +41,7 @@
     {
       "id": "climatology",
       "label": "Climatology",
+      "title": "Climatology",
       "parts": [
         {
           "id": "storms",
@@ -72,6 +74,7 @@
     {
       "id": "stakeholders",
       "label": "Stakeholders",
+      "title": "Stakeholders",
       "columns": [
         ["stakeholder-map", "stakeholder-time"],
         ["stakeholder-panel"]

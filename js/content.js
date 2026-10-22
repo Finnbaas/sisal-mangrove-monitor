@@ -172,6 +172,28 @@ function cardsOnPage(id) {
   return names;
 }
 
+// The image band at the top of a page: the page title and an optional intro in white on a dark page-color overlay.
+// "title", "intro" and "band" (the image; without it the band is the solid dark page color) come from content/pages.json.
+// Returns null for a page without a title. An intro with {placeholders} is filled in later (vegetation.js).
+function buildBand(s) {
+  if (!s.title) return null;
+  const top = document.createElement('div');
+  top.className = 'page-band page-title';
+  // full address: a url() in a CSS variable is read relative to the css file
+  if (s.band) top.style.setProperty('--band-image', 'url("' + new URL(s.band, location.href).href + '")');
+  const h1 = document.createElement('h2');
+  h1.textContent = s.title;
+  top.appendChild(h1);
+  if (s.intro) {
+    const intro = document.createElement('p');
+    intro.id = 'intro-page-' + s.id;
+    if (s.intro.includes('{')) intro.dataset.template = s.intro;
+    else intro.textContent = s.intro;
+    top.appendChild(intro);
+  }
+  return top;
+}
+
 // Builds the page navigation in the top bar (one link per page, a divider, "Method") and one <section> per page from pages.json.
 function buildPages() {
   const nav = $('subnav');
@@ -206,6 +228,8 @@ function buildPages() {
       buildParts(section, s, ready);
     } else {
       section.className = 'research-grid';
+      const band = buildBand(s);
+      if (band) section.appendChild(band);
       fillGrid(section, s, ready, s.id);
     }
     library.parentNode.insertBefore(section, library);
@@ -246,23 +270,8 @@ function buildParts(section, s, ready) {
   // the bar stays at the top in the page background color, so cards and axis labels never show behind the navigation
   // an optional page title (and intro) in an image band above the section navigation (Figma: v3 image band). An intro with
   // {placeholders} is filled in later, when the numbers have loaded (vegetation.js)
-  if (s.title) {
-    const top = document.createElement('div');
-    top.className = 'page-band page-title';
-    // the image of the band ("band" in content/pages.json); without it the band is the solid dark page color
-    if (s.band) top.style.setProperty('--band-image', 'url("' + new URL(s.band, location.href).href + '")');   // full address: a url() in a CSS variable is read relative to the css file
-    const h1 = document.createElement('h2');
-    h1.textContent = s.title;
-    top.appendChild(h1);
-    if (s.intro) {
-      const intro = document.createElement('p');
-      intro.id = 'intro-page-' + s.id;
-      if (s.intro.includes('{')) intro.dataset.template = s.intro;
-      else intro.textContent = s.intro;
-      top.appendChild(intro);
-    }
-    section.appendChild(top);
-  }
+  const band = buildBand(s);
+  if (band) section.appendChild(band);
   const bar = document.createElement('div');
   bar.className = 'section-nav-bar';
   bar.appendChild(nav);

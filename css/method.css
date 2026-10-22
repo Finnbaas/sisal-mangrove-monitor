@@ -2,18 +2,20 @@
    use-case, cite-block, content-tag).
    A section card has data-section="<page id>", so its panel and links take the theme colors
    of that research page (see the section themes in base.css). */
-#method { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+#method { display: flex; flex-direction: column; gap: var(--space-3); }
 .method-placeholder { color: var(--color-text-faint); font-weight: 400; }
 .method-text { margin: 0; font-size: var(--font-size-body); line-height: 1.5; color: var(--color-text-body); }
 .method-label { font-size: var(--font-size-small); font-weight: 600; color: var(--color-text-faint); }
 
 /* page header */
-.method-header { padding: 24px; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+/* the page header is the image band of the other pages (.page-band in base.css), here a solid band: title, intro and the GitHub button in white */
+.method-header { align-items: flex-start; gap: 12px; }
 .method-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
-.method-header h1 { margin: 0; font-family: var(--font-heading); font-weight: 600; letter-spacing: var(--letter-spacing-title); font-size: var(--font-size-section); line-height: 1.2; color: var(--color-text); }
-.method-intro { margin: 0; max-width: 760px; font-size: var(--font-size-body); line-height: 1.6; color: var(--color-text-body); }
+.method-header .github-link.large { background: var(--color-on-dark); color: var(--color-band-overlay); }
+.method-intro { margin: 0; max-width: 760px; font-size: var(--font-size-body); line-height: 1.6; color: var(--color-on-dark); }
 /* marks content as an example, not final (Figma content-tag) */
 .content-tag { padding: 4px 10px; border-radius: var(--radius-control); border: 1px dashed var(--color-text-faint); font-size: var(--font-size-small); font-weight: 600; color: var(--color-text-muted); }
+.method-header .content-tag { border-color: var(--color-on-dark); color: var(--color-on-dark); }
 /* link to GitHub (Figma github-link): large = button, small = text link */
 .github-link { display: inline-flex; align-items: center; text-decoration: none; font-size: var(--font-size-body); font-weight: 600; }
 .github-link.large { gap: 8px; padding: 10px 16px 10px 14px; border-radius: var(--radius-card); background: var(--color-accent); color: var(--color-text-on-accent); }
@@ -23,7 +25,7 @@
 
 /* the tabs: the same pills as the toggle of the Climatology page (.section-nav in base.css), not sticky.
    Each tab button has data-section, so its pill gets the color of its research page. */
-.method-tabs { margin-bottom: -6px; }
+.method-tabs { margin: 0; }
 
 /* the content of one tab: the gallery and its panel first, the background information collapsed below */
 .method-section { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }

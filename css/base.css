@@ -9,8 +9,8 @@
   /* THEME colors: these are the only colors that change per section (Figma Tokens modes).
      The values below are the Overview mode. */
   --color-background: #F2F6F0;   /* page background */
-  --color-header-bg: #F2F6F0;    /* top bar background */
-  --color-header-text: #1E2620;  /* text on the top bar */
+  --color-header-bg: #1C3B2E;    /* top bar background: the dark page color */
+  --color-header-text: #FFFFFF;  /* text on the top bar */
   --color-accent: #1C3B2E;       /* active tab, brand mark, badge text */
   --color-border: #DCE6D8;       /* outlines of buttons and chips */
   --color-footer-bg: #0f3d3e;
@@ -32,10 +32,6 @@
   /* shape */
   --radius-card: 8px;                /* cards, map frames, panels */
   --radius-control: 4px;             /* buttons, tabs, toggles, chips, inputs, tags (no pills) */
-  /* derived from the THEME colors, so every page keeps its own colors */
-  --color-card-border: color-mix(in srgb, var(--color-background) 88%, var(--color-text));   /* 1 px card border, slightly darker than the page */
-  --color-accent-tint: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface));   /* light tint of the page color: selected states */
-  --color-band-overlay: color-mix(in srgb, var(--color-accent) 60%, #000);                   /* dark page color over the image band */
   --color-on-dark: #FFFFFF;                                                                  /* text on the band */
   /* type: one family, four sizes per page (page title, section title, body, small label) */
   --font-body: 'Archivo', sans-serif;
@@ -147,7 +143,11 @@
 
 * { box-sizing: border-box; }
 
+/* the colors derived from the THEME colors are set here on <body> (where data-section sets the theme), so each page gets its own */
 body {
+  --color-card-border: color-mix(in srgb, var(--color-background) 88%, var(--color-text));   /* 1 px card border, slightly darker than the page */
+  --color-accent-tint: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface));   /* light tint of the page color: selected states */
+  --color-band-overlay: color-mix(in srgb, var(--color-accent) 60%, #000);                   /* dark page color over the image band */
   margin: 0;
   background: var(--color-background);
   color: var(--color-text);
@@ -307,6 +307,7 @@ a.expand:hover, a.expand:focus-visible { background: var(--color-border); color:
   overflow: hidden;
   background: linear-gradient(color-mix(in srgb, var(--color-band-overlay) 65%, transparent), color-mix(in srgb, var(--color-band-overlay) 65%, transparent)), var(--band-image, none) center / cover, var(--color-band-overlay);
 }
+.research-grid > .page-band { grid-column: 1 / -1; }
 .page-band h2 { margin: 0; font-family: var(--font-heading); font-weight: 600; font-size: var(--font-size-title); letter-spacing: var(--letter-spacing-title); line-height: normal; color: var(--color-on-dark); }
 .page-band p { margin: 0; font-size: var(--font-size-body); line-height: 1.6; color: var(--color-on-dark); }
 /* the section navigation stays at the top while scrolling (Figma section-nav): text tabs on the page background;
