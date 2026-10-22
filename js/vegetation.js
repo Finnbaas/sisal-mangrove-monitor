@@ -120,7 +120,7 @@ function createMap(elementId, zoomInId, zoomOutId, resetId) {
   const showStart = () => map.fitBounds(aoi, { paddingTopLeft: [START_PADDING, START_PADDING], paddingBottomRight: [START_PADDING, START_PADDING + legendHeight()], animate: false });
   // the attribution sits top left: the legend strip covers the bottom of the map
   L.control.attribution({ position: 'topleft', prefix: false }).addTo(map);
-  L.imageOverlay(vegLayers.basemap.image, bounds, { attribution: vegLayers.basemap.attribution }).addTo(map);
+  L.imageOverlay(vegLayers.basemap.image, bounds, { attribution: vegLayers.basemap.attribution, className: 'veg-basemap' }).addTo(map);
   L.polygon(aoiLatLngs(), { color: vegColor('surface'), weight: 1.5, opacity: 0.9, fill: false, interactive: false }).addTo(map);
   $(zoomInId).addEventListener('click', () => map.zoomIn());
   $(zoomOutId).addEventListener('click', () => map.zoomOut());
