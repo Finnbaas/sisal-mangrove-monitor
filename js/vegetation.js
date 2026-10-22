@@ -537,7 +537,10 @@ function renderChartCard(layer) {
   // two series: loss and gain (the darkest color of each legend row)
   const periods = chart.periods || [];
   const keys = mode.id === 'perYear' ? ['lossHaPerYr', 'gainHaPerYr'] : ['lossHa', 'gainHa'];
-  const series = layer.legend.rows.map((row, k) => ({ label: row.label, color: row.colors[row.colors.length - 1], values: periods.map((p) => p[keys[k]]) }));
+  // the bars use the darkest color of the last confirmed period (the provisional period has its own, lighter color below)
+  const steps = layer.legend.steps;
+  const confirmedAt = steps.reduce((last, st, n) => (st.provisional ? last : n), 0);
+  const series = layer.legend.rows.map((row, k) => ({ label: row.label, color: row.colors[confirmedAt], values: periods.map((p) => p[keys[k]]) }));
   // the totals are stacked bars (loss, gain, then the provisional loss and gain of the last period in a lighter color of
   // the same row); "per year" stays two bars side by side, as the provisional values have no rate
   const stacked = mode.id === 'total';

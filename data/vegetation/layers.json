@@ -128,48 +128,66 @@
             "title": "Confirmed",
             "steps": [
               {
+                "label": "P1→P2",
+                "range": "1993-97 → 1998-2002",
+                "provisional": false
+              },
+              {
                 "label": "P2→P3",
-                "range": "1998-2002 → 2004-08"
+                "range": "1998-2002 → 2004-08",
+                "provisional": false
               },
               {
                 "label": "P3→P4",
-                "range": "2004-08 → 2009-13"
+                "range": "2004-08 → 2009-13",
+                "provisional": false
               },
               {
                 "label": "P4→P5",
-                "range": "2009-13 → 2014-18"
+                "range": "2009-13 → 2014-18",
+                "provisional": false
               },
               {
                 "label": "P5→P6",
-                "range": "2014-18 → 2019-23"
+                "range": "2014-18 → 2019-23",
+                "provisional": false
+              },
+              {
+                "label": "P6→P7",
+                "range": "2019-23 → 2024-25",
+                "provisional": true
               }
             ],
             "rows": [
               {
                 "label": "Loss",
                 "colors": [
+                  "#fee5d9",
                   "#fcbba1",
                   "#fc9272",
                   "#fb6a4a",
-                  "#de2d26"
+                  "#de2d26",
+                  "#a50f15"
                 ]
               },
               {
                 "label": "Gain",
                 "colors": [
+                  "#eff3ff",
                   "#c6dbef",
                   "#9ecae1",
                   "#6baed6",
-                  "#3182bd"
+                  "#3182bd",
+                  "#08519c"
                 ]
               }
             ],
-            "note": "No confirmed changes in P1→P2 and P6→P7."
+            "provisionalNote": "P6→P7 is provisional"
           },
           "about": {
             "shows": "When confirmed mangrove loss and gain happened, per period between 1993 and 2025.",
             "computed": "Same method as the change classes: each confirmed loss or gain pixel is colored by the period in which its new state started.",
-            "colors": "Darker means more recent.",
+            "colors": "Darker means more recent. P6→P7 is provisional: it is not yet confirmed by a later period.",
             "chart": {
               "title": "Loss and gain per period",
               "note": "Periods differ in length. The P2→P3 period includes Hurricane Isidore (2002). Light colors are provisional: P6→P7 has only the years 2024-2025.",
