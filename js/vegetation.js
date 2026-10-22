@@ -1,5 +1,5 @@
 // vegetation.js: the Vegetation page ("Vegetation data"): Mangrove maps and Tipping points.
-//   Section 1: a zoomable map (Leaflet) with the layers Condition | Change | Disturbance & recovery, an opacity
+//   Section 1: a zoomable map (Leaflet) with the layers Condition | Extent | Disturbance & recovery (damage classes or lasting NDVI change per storm), an opacity
 //   slider, a legend that switches per layer, "About this layer" and "Where the data comes from".
 //   Section 2: the card "Early warning signals before the breakpoint": the verdict of the EWS notebook with its reason,
 //   a metrics table (expected and found direction, tau, p) and the charts (residual, AR1, SD), only for points with a
@@ -20,7 +20,7 @@ let vegBarMode = 'total';      // 'perYear' or 'total' (content/vegetation.json 
 let vegEwsSet = null;          // the EWS charts as a set for the comparison line (see charts.js)
 let vegLoaded = false;         // true when layers.json has loaded
 let vegLayerId = null;         // the layer shown in the map of section 1
-let vegVariantIds = {};        // the chosen variant per view ("layer/view"): Simplified | Detailed, a year or a period (see variantsOf)
+let vegVariantIds = {};        // the chosen variant per view ("layer/view"): Simplified | Detailed, a year, a period or a storm (see variantsOf)
 let vegViewIds = {};           // the chosen view per layer id (layers with "views", e.g. Change: classes | per-period)
 let vegOverlay = null;         // the Leaflet image of that layer
 let vegMaps = {};              // the Leaflet map of the layers: { layers }
@@ -242,9 +242,12 @@ function variantsOf(view) {
   return CONTENT.vegetation.detailSwitch.map((item) => (item.id === 'detailed' ? Object.assign({}, view.detailed, item) : item));
 }
 
+// The key of the chosen variant: per view, or shared by the views with the same "variantGroup" (the storm of Disturbance & recovery).
+function variantKey(layer, view) { return layer.id + '/' + (view.variantGroup || view.id); }
+
 function chosenVariantId(layer, view) {
   const variants = variantsOf(view);
-  return vegVariantIds[layer.id + '/' + view.id] || view.defaultVariant || variants[0].id;
+  return vegVariantIds[variantKey(layer, view)] || view.defaultVariant || variants[0].id;
 }
 
 function renderLayerSwitch() {
@@ -310,7 +313,7 @@ function renderDetailSwitch() {
     chip.textContent = item.label;
     chip.setAttribute('aria-pressed', item.id === active);
     chip.addEventListener('click', () => {
-      vegVariantIds[layer.id + '/' + view.id] = item.id;
+      vegVariantIds[variantKey(layer, view)] = item.id;
       renderDetailSwitch();
       renderLayer();
       renderLayerOverlay();
@@ -602,6 +605,8 @@ function renderChartCard(layer) {
   if (!chart) return;
   setText('veg-chart-title', chart.title);
   showPlaceholderTag($('veg-chart-title').parentElement, chart.placeholder);
+  $('veg-chart-toggle').hidden = chart.type === 'line';   // the per year | total toggle belongs to the bar chart
+  if (chart.type === 'line') { renderLineChart(chart); return; }
 
   const modes = CONTENT.vegetation.chartModes;
   const mode = modes.find((m) => m.id === vegBarMode) || modes[0];
@@ -674,7 +679,11 @@ function renderChartCard(layer) {
   legend.innerHTML = '';
   series.forEach((s) => legend.appendChild(legendItem(s.label, vegColor(s.color))));
 
-  // the note; a word in it (e.g. "Isidore") can link to that storm on the Climatology page
+  renderChartNote(chart);
+}
+
+// The note under the chart; a word in it (e.g. "Isidore") can link to that storm on the Climatology page.
+function renderChartNote(chart) {
   const note = $('veg-chart-note');
   note.textContent = '';
   const link = chart.noteLink;
@@ -690,6 +699,49 @@ function renderChartCard(layer) {
   } else {
     note.textContent = chart.note;
   }
+}
+
+// A line chart of the card (Disturbance & recovery > Isidore): one line per series, one value per year, evenly spaced,
+// with a dashed vertical line at chart.marker.year. All numbers come from layers.json ("about.chart"). The hover values
+// come from the comparison line, as for the bar chart.
+function renderLineChart(chart) {
+  const years = chart.years;
+  const body = $('veg-chart-body');
+  body.innerHTML = '';
+  vegBarSet = null;
+  const known = knownValues([].concat(...chart.series.map((s) => s.values)));
+  if (!known.length) {
+    body.appendChild(vegChartRow(chart.unit, chartNoData(chartHead({ label: chart.title }, [], 'chart'))));
+  } else {
+    const x = pointXScale(years.length);
+    const scale = chartScale(known, false);
+    const gridX = years.map((y, i) => x.xOf(i));
+    let svg = chartHead({ label: chart.title }, gridX, 'chart') + chartYAxis(scale.t, scale.yOf, true);
+    chart.series.forEach((s) => {
+      segmentsOf(s.values).forEach((seg) => {
+        if (seg.length === 1) svg += '<circle cx="' + x.xOf(seg[0].i).toFixed(1) + '" cy="' + scale.yOf(seg[0].val).toFixed(1) + '" r="2" fill="' + vegColor(s.color) + '"></circle>';
+        else svg += '<polyline points="' + seg.map((pt) => x.xOf(pt.i).toFixed(1) + ',' + scale.yOf(pt.val).toFixed(1)).join(' ') + '" fill="none" stroke="' + vegColor(s.color) + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"></polyline>';
+      });
+    });
+    // the dashed line at the storm year, with its name at the top
+    const at = years.indexOf(chart.marker.year);
+    if (at >= 0) {
+      const mx = x.xOf(at).toFixed(1);
+      svg += '<line x1="' + mx + '" y1="' + PLOT.top + '" x2="' + mx + '" y2="' + PLOT.bottom + '" stroke="' + color('--color-breakpoint') + '" stroke-width="1.5" stroke-dasharray="4,4"></line>' +
+        '<text class="plot-tick-label" x="' + (Number(mx) + 4) + '" y="' + (PLOT.top + 10) + '">' + escapeHtml(chart.marker.label) + '</text>';
+    }
+    body.appendChild(vegChartRow(chart.unit, svg + '</svg>'));
+    body.appendChild(sharedAxis(years.map((y, i) => ({ x: x.xOf(i), text: String(y) })), t('labels.year')));
+    body.insertAdjacentHTML('beforeend', '<div class="comparison" hidden></div>');
+    vegBarSet = {
+      count: years.length, xOf: x.xOf, indexAt: x.indexAt, label: (i) => String(years[i]),
+      panels: [{ yOf: scale.yOf, points: (i) => chart.series.map((s) => ({ value: s.values[i], color: vegColor(s.color), text: s.label + ' ' + formatLike(s.values[i], s.values) })) }]
+    };
+  }
+  const legend = $('veg-chart-legend');
+  legend.innerHTML = '';
+  chart.series.forEach((s) => legend.appendChild(legendItem(s.label, vegColor(s.color))));
+  renderChartNote(chart);
 }
 
 // A storm as a row like the storm list of the Climatology page; clicking it selects that storm there.

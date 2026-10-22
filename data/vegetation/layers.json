@@ -607,52 +607,400 @@
     {
       "id": "disturbance-recovery",
       "title": "Disturbance and recovery map",
-      "image": null,
-      "bounds": null,
-      "legend": {
-        "type": "categories",
-        "title": "Disturbance & recovery",
-        "items": [
-          {
-            "label": "Disturbed",
-            "color": "class-loss"
-          },
-          {
-            "label": "Partially recovered",
-            "color": "class-recovery"
-          },
-          {
-            "label": "Recovered",
-            "color": "scenario-4"
-          }
-        ]
-      },
-      "about": {
-        "shows": "Placeholder: one or two sentences on what the disturbance & recovery layer shows.",
-        "computed": "Placeholder: data, index and method in plain words."
-      },
-      "classes": [
+      "views": [
         {
-          "label": "Disturbed",
-          "color": "class-loss",
-          "share": null
+          "id": "damage",
+          "title": "Storm damage: damage classes",
+          "bounds": null,
+          "defaultVariant": "isidore",
+          "variantGroup": "storm",
+          "legend": {
+            "type": "categories",
+            "title": "Damage classes",
+            "items": [
+              {
+                "label": "No detectable impact",
+                "color": "#1a9850"
+              },
+              {
+                "label": "Moderate",
+                "color": "#fee08b"
+              },
+              {
+                "label": "Severe",
+                "color": "#d73027"
+              },
+              {
+                "label": "Cover lost",
+                "color": "#542788"
+              }
+            ]
+          },
+          "about": {
+            "shows": "How much the mangrove was damaged by the storm, as seen in the first dry season after it.",
+            "computed": "Dry-season (Jan-May) Landsat images; the year after the storm is compared with the normal of the same sensor period (Z-score of NDVI, storm years left out). Damage classes: moderate Z between -2 and -1, severe Z below -2; cover lost = mangrove before the storm that is no longer mangrove in the next period and has not recovered.",
+            "sharesNote": "Share of the mangrove before the storm."
+          },
+          "variants": [
+            {
+              "id": "opal",
+              "label": "Opal 1995",
+              "image": "data/vegetation/dr-opal-damage.png",
+              "about": {
+                "stats": "Opal 1995. Before 1995, after 1996.",
+                "note": "There is no period fully before Opal in our mangrove maps (1993-1997 contains 1995), so stands killed in 1995 may be missing. Read 'little impact' with care."
+              },
+              "relatedStorms": [
+                "opal-1995"
+              ],
+              "classes": [
+                {
+                  "label": "No detectable impact",
+                  "color": "#1a9850",
+                  "ha": 7452
+                },
+                {
+                  "label": "Moderate",
+                  "color": "#fee08b",
+                  "ha": 258.8
+                },
+                {
+                  "label": "Severe",
+                  "color": "#d73027",
+                  "ha": 22.6
+                },
+                {
+                  "label": "Cover lost",
+                  "color": "#542788",
+                  "ha": 0
+                }
+              ]
+            },
+            {
+              "id": "isidore",
+              "label": "Isidore 2002",
+              "image": "data/vegetation/dr-isidore-damage.png",
+              "about": {
+                "stats": "Isidore 2002. Before 2002, after 2003.",
+                "chart": {
+                  "type": "line",
+                  "title": "Recovery after Isidore",
+                  "unit": "NDVI (median)",
+                  "years": [
+                    1998,
+                    1999,
+                    2000,
+                    2001,
+                    2002,
+                    2003,
+                    2004,
+                    2005,
+                    2006,
+                    2007,
+                    2008
+                  ],
+                  "marker": {
+                    "year": 2002,
+                    "label": "Isidore"
+                  },
+                  "series": [
+                    {
+                      "label": "No detectable impact",
+                      "color": "#1a9850",
+                      "values": [
+                        0.596,
+                        0.631,
+                        0.639,
+                        0.639,
+                        0.678,
+                        0.623,
+                        0.693,
+                        0.647,
+                        0.643,
+                        0.65,
+                        0.686
+                      ]
+                    },
+                    {
+                      "label": "Moderate",
+                      "color": "#fee08b",
+                      "values": [
+                        0.635,
+                        0.65,
+                        0.658,
+                        0.666,
+                        0.689,
+                        0.607,
+                        0.709,
+                        0.658,
+                        0.666,
+                        0.682,
+                        0.705
+                      ]
+                    },
+                    {
+                      "label": "Severe",
+                      "color": "#d73027",
+                      "values": [
+                        0.645,
+                        0.653,
+                        0.655,
+                        0.669,
+                        0.687,
+                        0.583,
+                        0.698,
+                        0.67,
+                        0.662,
+                        0.687,
+                        0.702
+                      ]
+                    },
+                    {
+                      "label": "Cover lost",
+                      "color": "#542788",
+                      "values": [
+                        0.475,
+                        0.549,
+                        0.585,
+                        0.528,
+                        0.402,
+                        0.229,
+                        0.378,
+                        0.193,
+                        0.182,
+                        0.174,
+                        0.295
+                      ]
+                    }
+                  ],
+                  "note": "Moderate and severe damage recovered within about a year; where cover was lost, NDVI stayed low. The 2002 value is from January-May 2002, before the storm."
+                }
+              },
+              "relatedStorms": [
+                "isidore-2002"
+              ],
+              "classes": [
+                {
+                  "label": "No detectable impact",
+                  "color": "#1a9850",
+                  "ha": 3096.9
+                },
+                {
+                  "label": "Moderate",
+                  "color": "#fee08b",
+                  "ha": 2949.8
+                },
+                {
+                  "label": "Severe",
+                  "color": "#d73027",
+                  "ha": 1660.5
+                },
+                {
+                  "label": "Cover lost",
+                  "color": "#542788",
+                  "ha": 26.1
+                }
+              ]
+            },
+            {
+              "id": "2020",
+              "label": "2020 storms",
+              "image": "data/vegetation/dr-2020-damage.png",
+              "about": {
+                "stats": "2020 storms (Cristobal, Gamma, Delta). Before 2020, after 2021.",
+                "note": "Dry-season images show lasting damage, not the short flooding of June 2020; that is underestimated here."
+              },
+              "relatedStorms": [
+                "cristobal-2020"
+              ],
+              "classes": [
+                {
+                  "label": "No detectable impact",
+                  "color": "#1a9850",
+                  "ha": 4454.3
+                },
+                {
+                  "label": "Moderate",
+                  "color": "#fee08b",
+                  "ha": 1979.9
+                },
+                {
+                  "label": "Severe",
+                  "color": "#d73027",
+                  "ha": 1489.8
+                },
+                {
+                  "label": "Cover lost",
+                  "color": "#542788",
+                  "ha": 121.1
+                }
+              ]
+            }
+          ]
         },
         {
-          "label": "Partially recovered",
-          "color": "class-recovery",
-          "share": null
-        },
-        {
-          "label": "Recovered",
-          "color": "scenario-4",
-          "share": null
+          "id": "lasting",
+          "title": "Storm damage: lasting NDVI change",
+          "bounds": null,
+          "defaultVariant": "isidore",
+          "variantGroup": "storm",
+          "legend": {
+            "type": "gradient",
+            "title": "Lasting NDVI change (Z-score)",
+            "min": -3,
+            "max": 3,
+            "colors": [
+              "#b2182b",
+              "#ef8a62",
+              "#fddbc7",
+              "#f7f7f7",
+              "#d1e5f0",
+              "#67a9cf",
+              "#2166ac"
+            ],
+            "low": "far below normal",
+            "high": "far above normal"
+          },
+          "about": {
+            "shows": "How far the NDVI of the first dry season after the storm lies below or above the normal of the same sensor period.",
+            "computed": "Dry-season (Jan-May) Landsat images; the year after the storm is compared with the normal of the same sensor period (Z-score of NDVI, storm years left out)."
+          },
+          "classes": [],
+          "variants": [
+            {
+              "id": "opal",
+              "label": "Opal 1995",
+              "image": "data/vegetation/dr-opal-lasting-z.png",
+              "about": {
+                "stats": "Opal 1995. Before 1995, after 1996.",
+                "note": "There is no period fully before Opal in our mangrove maps (1993-1997 contains 1995), so stands killed in 1995 may be missing. Read 'little impact' with care."
+              },
+              "relatedStorms": [
+                "opal-1995"
+              ],
+              "classes": []
+            },
+            {
+              "id": "isidore",
+              "label": "Isidore 2002",
+              "image": "data/vegetation/dr-isidore-lasting-z.png",
+              "about": {
+                "stats": "Isidore 2002. Before 2002, after 2003.",
+                "chart": {
+                  "type": "line",
+                  "title": "Recovery after Isidore",
+                  "unit": "NDVI (median)",
+                  "years": [
+                    1998,
+                    1999,
+                    2000,
+                    2001,
+                    2002,
+                    2003,
+                    2004,
+                    2005,
+                    2006,
+                    2007,
+                    2008
+                  ],
+                  "marker": {
+                    "year": 2002,
+                    "label": "Isidore"
+                  },
+                  "series": [
+                    {
+                      "label": "No detectable impact",
+                      "color": "#1a9850",
+                      "values": [
+                        0.596,
+                        0.631,
+                        0.639,
+                        0.639,
+                        0.678,
+                        0.623,
+                        0.693,
+                        0.647,
+                        0.643,
+                        0.65,
+                        0.686
+                      ]
+                    },
+                    {
+                      "label": "Moderate",
+                      "color": "#fee08b",
+                      "values": [
+                        0.635,
+                        0.65,
+                        0.658,
+                        0.666,
+                        0.689,
+                        0.607,
+                        0.709,
+                        0.658,
+                        0.666,
+                        0.682,
+                        0.705
+                      ]
+                    },
+                    {
+                      "label": "Severe",
+                      "color": "#d73027",
+                      "values": [
+                        0.645,
+                        0.653,
+                        0.655,
+                        0.669,
+                        0.687,
+                        0.583,
+                        0.698,
+                        0.67,
+                        0.662,
+                        0.687,
+                        0.702
+                      ]
+                    },
+                    {
+                      "label": "Cover lost",
+                      "color": "#542788",
+                      "values": [
+                        0.475,
+                        0.549,
+                        0.585,
+                        0.528,
+                        0.402,
+                        0.229,
+                        0.378,
+                        0.193,
+                        0.182,
+                        0.174,
+                        0.295
+                      ]
+                    }
+                  ],
+                  "note": "Moderate and severe damage recovered within about a year; where cover was lost, NDVI stayed low. The 2002 value is from January-May 2002, before the storm."
+                }
+              },
+              "relatedStorms": [
+                "isidore-2002"
+              ],
+              "classes": []
+            },
+            {
+              "id": "2020",
+              "label": "2020 storms",
+              "image": "data/vegetation/dr-2020-lasting-z.png",
+              "about": {
+                "stats": "2020 storms (Cristobal, Gamma, Delta). Before 2020, after 2021.",
+                "note": "Dry-season images show lasting damage, not the short flooding of June 2020; that is underestimated here."
+              },
+              "relatedStorms": [
+                "cristobal-2020"
+              ],
+              "classes": []
+            }
+          ]
         }
-      ],
-      "relatedStorms": [
-        "milton-2024",
-        "beryl-2024"
-      ],
-      "placeholder": true
+      ]
     }
   ],
   "basemap": {
