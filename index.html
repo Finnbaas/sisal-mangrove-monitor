@@ -271,10 +271,6 @@
         <!-- Mangrove maps: the map with the layer switch, legend strip and opacity slider -->
         <div class="card" data-card="veg-map">
           <div class="card-title-row"><div class="card-title"><span id="veg-map-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div><div class="expand">&#8599;</div></div>
-          <div id="veg-layer-switch" class="chip-row"></div>
-          <div id="veg-view-switch" class="chip-row chip-row-small" hidden></div>
-          <!-- Simplified | Detailed: only for a view that has a detailed version (Change > Classes) -->
-          <div id="veg-detail-switch" class="chip-row chip-row-small" hidden></div>
           <!-- a short label above the map, e.g. the storm of the acute views (layers.json "mapLabel") -->
           <p id="veg-map-label" class="fine" hidden></p>
           <div id="veg-map-frame" class="map-frame">
@@ -296,6 +292,12 @@
           </div>
           <div class="card-actions card-actions-footer"><a id="veg-maps-link" class="veg-link"></a></div>
           <p class="fine" id="veg-map-status"></p>
+        </div>
+
+        <!-- Maps: the menu to choose the map (vegetation.js: renderMapMenu, content/vegetation.json "mapMenu") -->
+        <div class="card" data-card="veg-menu">
+          <div class="card-title-row"><div class="card-title"><span id="veg-menu-title"></span></div></div>
+          <div id="veg-map-menu" class="map-menu" role="radiogroup"></div>
         </div>
 
         <div class="card" data-card="veg-about">

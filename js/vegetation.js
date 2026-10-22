@@ -1,5 +1,5 @@
 // vegetation.js: the Vegetation page ("Vegetation data"): Mangrove maps and Tipping points.
-//   Section 1: a zoomable map (Leaflet) with the layers Condition | Extent | Disturbance & recovery (damage classes or lasting NDVI change per storm), an opacity
+//   Section 1: a zoomable map (Leaflet) chosen with the Maps menu (card "Maps": Extent | Condition | Disturbance & recovery, with variants), an opacity
 //   slider, a legend that switches per layer, "About this layer" and "Where the data comes from".
 //   Section 2: the card "Early warning signals before the breakpoint": the verdict of the EWS notebook with its reason,
 //   a metrics table (expected and found direction, tau, p) and the charts (residual, AR1, SD), only for points with a
@@ -62,11 +62,14 @@ async function setupVegetation() {
     console.error(err);
     return;
   }
-  vegLayerId = vegLayers.layers[0].id;
+  // the first map of the menu is the start map; an address like #satellite/maps/status-2025 chooses another one
+  const firstGroup = CONTENT.vegetation.mapMenu.groups[0];
+  vegLayerId = firstGroup.id;
+  vegViewIds[firstGroup.id] = firstGroup.items[0].view;
+  selectFromSlug(mapSlugInAddress());
 
   renderStaticTexts();
-  renderLayerSwitch();
-  renderViewSwitch();
+  renderMapMenu();
   setupOpacity();
   setupBasemapButton('veg-basemap-button', 'veg-map', true);   // the Mangrove maps map starts black and white
   setupBasemapSwitch('map-basemap-switch', 'map', false);      // the points map starts in colour
@@ -80,7 +83,11 @@ async function setupVegetation() {
   attachComparisonLine($('veg-chart-body'), () => vegBarSet);
   if (allPoints.length) { renderMap(); renderAll(); }   // points.js: the dots, now on the new base map
   renderVegetationEws(getSelectedPoint());   // points.js: the selected point, none at the start
-  window.addEventListener('hashchange', () => { if (location.hash.slice(1).split('/')[0] === 'satellite') renderAbout(); });
+  window.addEventListener('hashchange', () => {
+    if (location.hash.slice(1).split('/')[0] !== 'satellite') return;
+    if (selectFromSlug(mapSlugInAddress())) { renderMapMenu(); renderLayer(); renderLayerOverlay(); }   // a link or the back button
+    renderAbout();
+  });
 }
 
 // The texts that do not depend on the data: titles, links, hints.
@@ -88,6 +95,8 @@ function renderStaticTexts() {
   const tx = CONTENT.vegetation.texts;
   setText('veg-about-title', tx.aboutTitle);
   setText('veg-source-title', tx.sourceTitle);
+  setText('veg-menu-title', tx.menuTitle);
+  $('veg-map-menu').setAttribute('aria-label', tx.menuTitle);
   setText('veg-opacity-label', tx.opacity);
   setText('veg-map-zoom-in', tx.zoomIn);
   setText('veg-map-zoom-out', tx.zoomOut);
@@ -250,26 +259,6 @@ function chosenVariantId(layer, view) {
   return vegVariantIds[variantKey(layer, view)] || view.defaultVariant || variants[0].id;
 }
 
-function renderLayerSwitch() {
-  const box = $('veg-layer-switch');
-  box.innerHTML = '';
-  CONTENT.vegetation.layerSwitch.forEach((item) => {
-    const chip = document.createElement('button');
-    chip.type = 'button';
-    chip.className = 'layer-chip' + (item.id === vegLayerId ? ' on' : '');
-    chip.textContent = item.label;
-    chip.setAttribute('aria-pressed', item.id === vegLayerId);
-    chip.addEventListener('click', () => {
-      vegLayerId = item.id;
-      renderLayerSwitch();
-      renderViewSwitch();
-      renderLayer();
-      renderLayerOverlay();
-    });
-    box.appendChild(chip);
-  });
-}
-
 // Why a view cannot be shown for the chosen variant (e.g. no acute wetness for Opal): the text from layers.json "unavailable", or ''.
 function viewUnavailable(layer, view) {
   const variants = variantsOf(view);
@@ -277,60 +266,176 @@ function viewUnavailable(layer, view) {
   return (chosen && chosen.unavailable) || '';
 }
 
-// The small switch under the layer chips (e.g. Change: Classes | Per period): only for layers with views.
-function renderViewSwitch() {
-  renderDetailSwitch();
-  const box = $('veg-view-switch');
-  const items = CONTENT.vegetation.viewSwitch[vegLayerId];
-  box.hidden = !items;
-  box.innerHTML = '';
-  if (!items) return;
-  const layer = vegLayers.layers.find((l) => l.id === vegLayerId);
-  const activeId = (vegViewIds[vegLayerId] || layer.views[0].id);
-  items.forEach((item) => {
-    const chip = document.createElement('button');
-    chip.type = 'button';
-    chip.className = 'layer-chip' + (item.id === activeId ? ' on' : '');
-    chip.textContent = item.label;
-    chip.setAttribute('aria-pressed', item.id === activeId);
-    const unavailable = viewUnavailable(layer, layer.views.find((v) => v.id === item.id));
-    if (unavailable) { chip.disabled = true; chip.title = unavailable; }   // greyed out, see vegetation.css
-    chip.addEventListener('click', () => {
-      vegViewIds[vegLayerId] = item.id;
-      renderViewSwitch();
-      renderLayer();
-      renderLayerOverlay();
-    });
-    box.appendChild(chip);
-  });
+// ---------- the Maps menu (card "Maps") ----------
+// One radio group with a row per map, in groups (content/vegetation.json "mapMenu"). The rows name a layer (group id) and
+// a view of it (layers.json). The variants of a view (year, period, Simplified | Detailed) are a small segmented control
+// under the selected row; the storm of Disturbance & recovery is one control at the top of its group (it applies to its
+// four maps). The chosen map is kept in vegLayerId, vegViewIds and vegVariantIds, and in the address (#satellite/maps/<slug>).
+
+function menuLayer(groupId) { return vegLayers.layers.find((l) => l.id === groupId); }
+function menuView(group, item) { return menuLayer(group.id).views.find((v) => v.id === item.view); }
+function menuGroups() { return CONTENT.vegetation.mapMenu.groups; }
+
+// The group, layer, view and row of the map that is shown.
+function currentMap() {
+  const group = menuGroups().find((g) => g.id === vegLayerId);
+  const layer = menuLayer(group.id);
+  const view = layer.views.find((v) => v.id === (vegViewIds[layer.id] || layer.views[0].id));
+  return { group: group, layer: layer, view: view, item: group.items.find((i) => i.view === view.id) };
 }
 
-// The small switch under the view switch (Simplified | Detailed, a year, a period): only when the current view has variants.
-function renderDetailSwitch() {
-  const box = $('veg-detail-switch');
-  const layer = vegLayers.layers.find((l) => l.id === vegLayerId);
-  const view = layer && layer.views && (layer.views.find((v) => v.id === vegViewIds[layer.id]) || layer.views[0]);
-  const variants = view && variantsOf(view);
-  box.hidden = !variants;
-  box.innerHTML = '';
-  if (box.hidden) return;
-  const active = chosenVariantId(layer, view);
-  variants.forEach((item) => {
-    const chip = document.createElement('button');
-    chip.type = 'button';
-    chip.className = 'layer-chip' + (item.id === active ? ' on' : '');
-    chip.textContent = item.label;
-    chip.setAttribute('aria-pressed', item.id === active);
-    chip.addEventListener('click', () => {
-      vegVariantIds[variantKey(layer, view)] = item.id;
-      if (viewUnavailable(layer, view)) vegViewIds[layer.id] = layer.views[0].id;   // e.g. Acute wetness is not there for Opal
-      renderViewSwitch();
-      renderDetailSwitch();
-      renderLayer();
-      renderLayerOverlay();
-    });
-    box.appendChild(chip);
+// The title of the map card: "Change classes · Simplified", "Status · 2025", "Isidore 2002 · Damage classes".
+function mapTitle() {
+  const { group, layer, view, item } = currentMap();
+  const variants = variantsOf(view);
+  const chosen = variants && variants.find((v) => v.id === chosenVariantId(layer, view));
+  if (!chosen) return item.label;
+  return group.storm ? chosen.label + ' · ' + item.label : item.label + ' · ' + chosen.label;
+}
+
+// The address part of the map shown: "status-2025", "isidore-damage", "change-classes-detailed"
+function mapSlug() {
+  const { group, layer, view, item } = currentMap();
+  if (group.storm) return chosenVariantId(layer, view) + '-' + item.slug;
+  return item.slug + (variantsOf(view) ? '-' + chosenVariantId(layer, view) : '');
+}
+
+// The map named in the address (#satellite/maps/<slug>), or ''.
+function mapSlugInAddress() { return location.hash.slice(1).split('/')[2] || ''; }
+
+// Choose the map of an address part. Returns true when it was found (and is available); the caller draws.
+function selectFromSlug(slug) {
+  if (!slug) return false;
+  for (const group of menuGroups()) {
+    const layer = menuLayer(group.id);
+    for (const item of group.items) {
+      const view = menuView(group, item);
+      const variants = variantsOf(view);
+      let variantId = null;
+      if (group.storm) {
+        const storm = variants && variants.find((v) => slug === v.id + '-' + item.slug);
+        if (!storm) continue;
+        variantId = storm.id;
+      } else if (slug !== item.slug) {
+        const rest = slug.startsWith(item.slug + '-') ? slug.slice(item.slug.length + 1) : null;
+        if (!rest || !variants || !variants.some((v) => v.id === rest)) continue;
+        variantId = rest;
+      }
+      const key = variantKey(layer, view);
+      const before = vegVariantIds[key];
+      if (variantId) vegVariantIds[key] = variantId;
+      if (viewUnavailable(layer, view)) { vegVariantIds[key] = before; return false; }
+      vegLayerId = layer.id;
+      vegViewIds[layer.id] = view.id;
+      return true;
+    }
+  }
+  return false;
+}
+
+// Draw everything that depends on the chosen map, and put it in the address (replaceState: no hashchange, the page stays where it is).
+// focus = the data-focus of the control that keeps the keyboard focus (the menu is drawn again).
+function refreshMap(focus) {
+  renderMapMenu(focus);
+  renderLayer();
+  renderLayerOverlay();
+  history.replaceState(null, '', '#satellite/maps/' + mapSlug());
+}
+
+function selectMap(groupId, viewId, focus) {
+  vegLayerId = groupId;
+  vegViewIds[groupId] = viewId;
+  refreshMap(focus);
+}
+
+// A small segmented control: an optional label and buttons with aria-pressed. items = [{ id, label }].
+function menuSegment(label, items, activeId, focusKey, onPick) {
+  const seg = document.createElement('div');
+  seg.className = 'menu-seg';
+  seg.setAttribute('role', 'group');
+  if (label) {
+    const name = document.createElement('span');
+    name.className = 'menu-seg-label';
+    name.textContent = label;
+    seg.appendChild(name);
+    seg.setAttribute('aria-label', label);
+  }
+  items.forEach((item) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'menu-seg-btn';
+    button.textContent = item.label;
+    button.dataset.focus = focusKey + '-' + item.id;
+    button.setAttribute('aria-pressed', item.id === activeId);
+    button.addEventListener('click', () => onPick(item.id, button.dataset.focus));
+    seg.appendChild(button);
   });
+  return seg;
+}
+
+function renderMapMenu(focus) {
+  const box = $('veg-map-menu');
+  box.innerHTML = '';
+  const rows = [];   // every row in order, for the arrow keys
+  menuGroups().forEach((group) => {
+    const layer = menuLayer(group.id);
+    const section = document.createElement('div');
+    section.className = 'menu-group';
+    const heading = document.createElement('div');
+    heading.className = 'menu-heading';
+    heading.textContent = group.label;
+    section.appendChild(heading);
+    // the storm choice: always visible at the top of its group; it applies to all maps of the group
+    if (group.storm) {
+      const stormView = layer.views.find((v) => v.id === group.storm.view);
+      section.appendChild(menuSegment(group.storm.label, variantsOf(stormView), chosenVariantId(layer, stormView), 'storm', (id, key) => {
+        vegVariantIds[variantKey(layer, stormView)] = id;
+        // a map that does not exist for this storm (Acute wetness for Opal): back to the first map of the group
+        const current = layer.views.find((v) => v.id === (vegViewIds[layer.id] || layer.views[0].id));
+        if (group.id === vegLayerId && viewUnavailable(layer, current)) vegViewIds[layer.id] = layer.views[0].id;
+        refreshMap(key);
+      }));
+    }
+    const currentViewId = vegViewIds[layer.id] || layer.views[0].id;
+    group.items.forEach((item) => {
+      const view = menuView(group, item);
+      const selected = group.id === vegLayerId && view.id === currentViewId;
+      const unavailable = viewUnavailable(layer, view);
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'menu-row';
+      row.textContent = item.label;
+      row.dataset.focus = 'row-' + group.id + '-' + item.view;
+      row.setAttribute('role', 'radio');
+      row.setAttribute('aria-checked', selected);
+      row.tabIndex = selected ? 0 : -1;   // one tab stop for the whole group; the arrow keys move inside it
+      if (unavailable) { row.disabled = true; row.title = unavailable; }   // greyed out with the reason as tooltip
+      row.addEventListener('click', () => selectMap(group.id, item.view, row.dataset.focus));
+      row.addEventListener('keydown', (e) => {
+        const step = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : e.key === 'ArrowUp' || e.key === 'ArrowLeft' ? -1 : 0;
+        if (!step) return;
+        e.preventDefault();
+        const enabled = rows.filter((r) => !r.disabled);
+        const next = enabled[(enabled.indexOf(row) + step + enabled.length) % enabled.length];
+        next.click();   // arrow keys select, like a native radio group
+      });
+      rows.push(row);
+      section.appendChild(row);
+      // the variants of the selected map, under its row (the storm of Disturbance & recovery is at the top of its group)
+      const variants = selected && !group.storm ? variantsOf(view) : null;
+      if (variants) {
+        section.appendChild(menuSegment('', variants, chosenVariantId(layer, view), 'variant', (id, key) => {
+          vegVariantIds[variantKey(layer, view)] = id;
+          refreshMap(key);
+        }));
+      }
+    });
+    box.appendChild(section);
+  });
+  if (focus) {
+    const target = [...box.querySelectorAll('[data-focus]')].find((el) => el.dataset.focus === focus);
+    if (target) target.focus();
+  }
 }
 
 // Two chips (Black and white | Colour) under a map: the visitor chooses how the base map looks. The class
@@ -405,7 +510,7 @@ function renderLayerOverlay() {
 // Title, legend strip and "About this layer" of the current layer.
 function renderLayer() {
   const layer = currentLayer();
-  setText('veg-map-title', layer.title);
+  setText('veg-map-title', mapTitle());
   setText('veg-map-label', layer.mapLabel || '');
   $('veg-map-label').hidden = !layer.mapLabel;
   showPlaceholderTag($('veg-map-title').parentElement, layer.placeholder);

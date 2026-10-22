@@ -7,7 +7,7 @@
 /* Mangrove maps: a wide map (2/3) next to a narrower column (1/3), as in Figma; Tipping points keeps the default columns */
 #satellite-maps .research-grid { grid-template-columns: 2fr 1fr; }
 
-/* layer switch: looks like the chips of the point card (.chip in points.css; own class because points.js changes every .chip) */
+/* chips: the small switches of the Base map row and the chart toggle; look like the chips of the point card (.chip in points.css; own class because points.js changes every .chip) */
 .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .layer-chip { padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--color-border); background: transparent; font-size: 12px; font-weight: 500; color: var(--color-text); }
 .layer-chip:disabled { opacity: 0.45; cursor: not-allowed; }
@@ -61,6 +61,20 @@
 
 /* page title above the toggle (Figma "Top / Page title") */
 .page-title { margin-bottom: -8px; }
+
+/* the Maps menu: groups with a small heading, one radio row per map, a small segmented control for the variants */
+.map-menu { display: flex; flex-direction: column; gap: 14px; }
+.menu-group { display: flex; flex-direction: column; gap: 2px; }
+.menu-heading { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 4px; }
+.menu-row { text-align: left; padding: 7px 10px; border-radius: 8px; border: 0; background: transparent; font-size: 13px; font-weight: 500; color: var(--color-text); cursor: pointer; }
+.menu-row:hover:not(:disabled) { background: var(--color-surface-subtle); }
+.menu-row[aria-checked="true"] { background: var(--color-accent); color: var(--color-text-on-accent); font-weight: 600; }
+.menu-row:disabled { opacity: 0.45; cursor: not-allowed; }
+.menu-row:focus-visible, .menu-seg-btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.menu-seg { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; margin: 4px 0 6px 10px; padding: 2px; border-radius: 8px; background: var(--color-surface-subtle); align-self: flex-start; }
+.menu-seg-label { font-size: 11px; color: var(--color-text-muted); padding: 0 6px 0 8px; }
+.menu-seg-btn { padding: 3px 10px; border-radius: 6px; border: 0; background: transparent; font-size: 11px; font-weight: 500; color: var(--color-text); cursor: pointer; }
+.menu-seg-btn[aria-pressed="true"] { background: var(--color-accent); color: var(--color-text-on-accent); font-weight: 600; }
 
 /* "Where the data comes from": a small table card, as wide as "About this layer" */
 [data-card="veg-source"] { max-width: 451px; }
