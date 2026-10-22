@@ -124,7 +124,7 @@ function showContentError(err) {
   box.appendChild(title);
   box.appendChild(detail);
   document.querySelectorAll('#subnav, #card-library, [data-screen]').forEach((el) => { el.hidden = true; });
-  $('page').insertBefore(box, $('subnav'));
+  $('topbar').after(box);
   console.error(err);
 }
 
@@ -172,7 +172,7 @@ function cardsOnPage(id) {
   return names;
 }
 
-// Builds the sub-navigation and one <section> per page from pages.json.
+// Builds the page navigation in the top bar (one link per page, a divider, "Method") and one <section> per page from pages.json.
 function buildPages() {
   const nav = $('subnav');
   nav.innerHTML = '';
@@ -180,11 +180,19 @@ function buildPages() {
     const link = document.createElement('a');
     link.className = 'subtab';
     link.href = '#' + s.id;
-    const span = document.createElement('span');
-    span.textContent = s.label;
-    link.appendChild(span);
+    link.textContent = s.label;
     nav.appendChild(link);
   });
+  // a thin divider, then the Method page
+  const divider = document.createElement('span');
+  divider.className = 'nav-divider';
+  divider.setAttribute('aria-hidden', 'true');
+  nav.appendChild(divider);
+  const methodLink = document.createElement('a');
+  methodLink.className = 'subtab';
+  methodLink.href = '#method';
+  methodLink.textContent = t('tabs.method');
+  nav.appendChild(methodLink);
 
   const ready = readyCardNames();
   const library = $('card-library');
@@ -236,11 +244,13 @@ function buildParts(section, s, ready) {
   nav.className = 'section-nav';
   nav.setAttribute('aria-label', s.label);
   // the bar stays at the top in the page background color, so cards and axis labels never show behind the navigation
-  // an optional page title (and intro) above the section navigation (Figma: "Top / Page title"). An intro with
+  // an optional page title (and intro) in an image band above the section navigation (Figma: v3 image band). An intro with
   // {placeholders} is filled in later, when the numbers have loaded (vegetation.js)
   if (s.title) {
     const top = document.createElement('div');
-    top.className = 'part-header page-title';
+    top.className = 'page-band page-title';
+    // the image of the band ("band" in content/pages.json); without it the band is the solid dark page color
+    if (s.band) top.style.setProperty('--band-image', 'url("' + new URL(s.band, location.href).href + '")');   // full address: a url() in a CSS variable is read relative to the css file
     const h1 = document.createElement('h2');
     h1.textContent = s.title;
     top.appendChild(h1);

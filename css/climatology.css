@@ -3,12 +3,12 @@
    The stacked charts themselves are styled in charts.css. */
 
 /* storm map card: the map with the legend strip under it, both in one rounded frame */
-#storm-map-frame { border-radius: 16px; overflow: hidden; background: var(--color-storm-sea); }
+#storm-map-frame { border-radius: var(--radius-card); overflow: hidden; background: var(--color-storm-sea); }
 #storm-map { position: relative; width: 100%; height: 440px; }
 #storm-map-canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; touch-action: none; }
 #storm-map-canvas.over-track { cursor: pointer; }
 #storm-map-buttons { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; }
-.map-button { min-width: 32px; height: 32px; padding: 0 10px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-surface); font-size: 13px; color: var(--color-text-body); }
+.map-button { min-width: 32px; height: 32px; padding: 0 10px; border: 1px solid var(--color-border); border-radius: var(--radius-control); background: var(--color-surface); font-size: var(--font-size-body); color: var(--color-text-body); }
 .map-button:hover { background: var(--color-surface-subtle); }
 #storm-map-tip { position: absolute; pointer-events: none; }
 /* the legend strip under the map: same text style as the other legends (.lg) */
@@ -23,7 +23,7 @@
 #wave-rose svg { width: 100%; height: 100%; display: block; overflow: visible; }
 #wave-rose-tip { position: absolute; pointer-events: none; }
 .rose-ring { fill: none; stroke: var(--color-divider); stroke-width: 1; }
-.rose-label { font-family: 'Archivo', sans-serif; font-size: 11px; font-weight: 600; fill: var(--color-text-body); }
+.rose-label { font-family: 'Archivo', sans-serif; font-size: var(--font-size-small); font-weight: 600; fill: var(--color-text-body); }
 .rose-hit { fill-opacity: 0; }
 .rose-hit:hover { fill-opacity: 0.14; }
 #wave-rose-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 18px; margin-top: 12px; }
@@ -52,7 +52,7 @@
   width: 100%;
   padding: 9px 12px;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   background: transparent;
   color: inherit;
   text-align: left;
@@ -62,46 +62,46 @@
 .event-row-dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--color-text); background: var(--color-surface); flex-shrink: 0; }
 .event-row.selected .event-row-dot { background: var(--color-accent); border-color: var(--color-accent); }
 .event-row-text { flex: 1; display: flex; flex-direction: column; gap: 1px; }
-.event-row-name { font-size: 13px; font-weight: 600; color: var(--color-text); }
+.event-row-name { font-size: var(--font-size-body); font-weight: 600; color: var(--color-text); }
 .event-row.selected .event-row-name { color: var(--color-accent); }
-.event-row-date { font-size: 11px; color: var(--color-text-muted); }
-.event-type { display: flex; flex-direction: column; align-items: flex-end; font-size: 11px; color: var(--color-text-body); background: var(--color-surface-subtle); border-radius: 12px; padding: 3px 10px; white-space: nowrap; }
+.event-row-date { font-size: var(--font-size-small); color: var(--color-text-muted); }
+.event-type { display: flex; flex-direction: column; align-items: flex-end; font-size: var(--font-size-small); color: var(--color-text-body); background: var(--color-surface-subtle); border-radius: var(--radius-card); padding: 3px 10px; white-space: nowrap; }
 .event-type-peak { color: var(--color-text-muted); }
 .event-type-peak:empty { display: none; }
 .event-row.selected .event-type { background: var(--color-surface); }
 /* under the list: "11 storms since 1988" (Figma list-note-wrap) */
 #event-list-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px 0 12px; }
-#event-list-note { font-size: 11px; color: var(--color-text-muted); }
+#event-list-note { font-size: var(--font-size-small); color: var(--color-text-muted); }
 #event-list-note:empty { display: none; }
 
 /* event charts card */
-#event-charts-empty { min-height: 320px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 14px; color: var(--color-text-muted); }
+#event-charts-empty { min-height: 320px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: var(--font-size-body); color: var(--color-text-muted); }
 
 /* ---------- Climate at Sisal on the Climatology page ----------
    The charts use the storm chart styles above (.anomaly-chart, .date-axis, .comparison). */
 /* the small "Where the data comes from" card next to the heading (Figma card-data-sources) */
 .climate-sources-card { flex: 0 0 520px; padding: 18px; display: flex; flex-direction: column; gap: 8px; }
-.climate-sources-card img { width: 100%; height: 250px; object-fit: cover; object-position: left center; border-radius: 12px; border: 1px solid var(--color-map-bg); display: block; }
+.climate-sources-card img { width: 100%; height: 250px; object-fit: cover; object-position: left center; border-radius: var(--radius-card); border: 1px solid var(--color-map-bg); display: block; }
 .climate-sources-card img.enlargeable { cursor: zoom-in; }
 /* the enlarged image: over the whole page, on a dark background */
 .image-overlay { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 32px; background: rgba(20, 26, 22, 0.8); cursor: zoom-out; }
-.image-overlay img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 12px; background: var(--color-surface); }
-.image-overlay-close { position: absolute; top: 16px; right: 20px; width: 36px; height: 36px; border: none; border-radius: 50%; background: var(--color-surface); font-size: 22px; line-height: 1; color: var(--color-text); }
+.image-overlay img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: var(--radius-card); background: var(--color-surface); }
+.image-overlay-close { position: absolute; top: 16px; right: 20px; width: 36px; height: 36px; border: none; border-radius: 50%; background: var(--color-surface); font-size: var(--font-size-section); line-height: 1; color: var(--color-text); }
 /* "In detail": tabs (Figma detail-tab), a header line and the two stacked charts (the chart styles are in charts.css) */
 [data-card="climate-detail"] { padding: 24px; scroll-margin-top: 80px; width: fit-content; max-width: 100%; box-sizing: border-box; }   /* space above when scrolled to */
 [data-card="climate-detail"] > .card-title-row { margin-bottom: 14px; }
 .detail-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
-.detail-tab { display: flex; align-items: center; gap: 7px; padding: 7px 13px 7px 11px; border-radius: 999px; border: 1.5px solid var(--color-divider); background: transparent; font-size: 12px; color: var(--color-text-muted); }
+.detail-tab { display: flex; align-items: center; gap: 7px; padding: 7px 13px 7px 11px; border-radius: var(--radius-control); border: 1.5px solid var(--color-divider); background: transparent; font-size: var(--font-size-small); color: var(--color-text-muted); }
 .detail-tab:hover { background: var(--color-surface-subtle); color: var(--color-text); }
 .detail-tab.selected { background: var(--color-surface-subtle); border-color: var(--color-text-body); color: var(--color-text); font-weight: 600; }
 .detail-swatch { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
 .detail-header { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-.detail-name { font-size: 15px; font-weight: 700; color: var(--color-text); }
+.detail-name { font-size: var(--font-size-body); font-weight: 700; color: var(--color-text); }
 .detail-note { margin: 8px 0 0; }
-.detail-facts { font-size: 14px; color: var(--color-text-muted); }
+.detail-facts { font-size: var(--font-size-body); color: var(--color-text-muted); }
 
 /* "In detail": the two charts and the axis on the left, the trend box next to chart (b) */
 .detail-stack { display: grid; grid-template-columns: minmax(0, min(900px, 112vh)) 320px; justify-content: start; column-gap: 20px; row-gap: 4px; }
 .detail-stack > :not(.detail-trend):not(.comparison) { grid-column: 1; }
 .detail-stack > .detail-trend { grid-column: 2; grid-row: 2; align-self: stretch; }
-.detail-trend { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px 16px; border-radius: 12px; background: var(--color-surface-subtle); }
+.detail-trend { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px 16px; border-radius: var(--radius-card); background: var(--color-surface-subtle); }

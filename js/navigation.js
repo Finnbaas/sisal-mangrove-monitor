@@ -111,20 +111,12 @@ function showScreen() {
     if (!el.hidden) placeCards(showPart(el) || el);
   });
 
-  // sub-navigation: only on research sections, with the current section marked
-  $('subnav').hidden = isMethod;
+  // page navigation in the top bar, with the current page marked (the Method page too)
   document.querySelectorAll('.subtab').forEach((link) => {
     const current = link.getAttribute('href') === '#' + screen;
     link.classList.toggle('active', current);
     if (current) link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');
-  });
-
-  // top bar tabs: Research or Method
-  document.querySelectorAll('.tab').forEach((btn) => {
-    const active = (btn.dataset.tab === 'method') === isMethod;
-    btn.classList.toggle('active', active);
-    btn.setAttribute('aria-selected', active);
   });
 
   // section colors (see the section themes in css/base.css): a page without its own theme, and the
@@ -133,13 +125,6 @@ function showScreen() {
 }
 
 function setupNavigation() {
-  // top bar tabs: "Research" goes back to the last research section you visited
-  document.querySelectorAll('.tab').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      location.hash = btn.dataset.tab === 'method' ? 'method' : (lastResearchAddress || lastResearchSection);
-    });
-  });
-
   // footer link "Read the method": opens the Method page at the top
   $('footer-method-link').addEventListener('click', () => {
     location.hash = 'method';

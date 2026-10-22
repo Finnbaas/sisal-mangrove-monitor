@@ -18,15 +18,39 @@
 
   /* FIXED colors: the same in every section */
   --color-surface: #FFFFFF;          /* card backgrounds */
-  --color-surface-subtle: #EEF4EC;   /* small light backgrounds (expand button, active chip) */
-  --color-divider: #EEF4EC;          /* lines between rows */
-  --color-text: #1E2620;
-  --color-text-body: #3A4640;
-  --color-text-muted: #6E7C71;
-  --color-text-faint: #9AA69C;
-  --color-text-on-accent: #EEF4EC;
+  --color-surface-subtle: #F0F2F4;   /* small light backgrounds (expand button, menu, panels): neutral grey */
+  --color-divider: #E3E6E9;          /* lines between rows */
+  --color-text: #1F2328;
+  --color-text-body: #3D434A;
+  --color-text-muted: #5F666D;
+  --color-text-faint: #8A9097;
+  --color-text-on-accent: #FFFFFF;
   --color-map-bg: #CFD8CC;           /* shown while the map image loads */
   --color-error: #D93A2B;            /* border of the content error message; not yet a Figma variable */
+
+  /* STYLE SYSTEM (Figma "Vegetation – research style v3", variables "Research style"). One place for the look of every page. */
+  /* shape */
+  --radius-card: 8px;                /* cards, map frames, panels */
+  --radius-control: 4px;             /* buttons, tabs, toggles, chips, inputs, tags (no pills) */
+  /* derived from the THEME colors, so every page keeps its own colors */
+  --color-card-border: color-mix(in srgb, var(--color-background) 88%, var(--color-text));   /* 1 px card border, slightly darker than the page */
+  --color-accent-tint: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface));   /* light tint of the page color: selected states */
+  --color-band-overlay: color-mix(in srgb, var(--color-accent) 60%, #000);                   /* dark page color over the image band */
+  --color-on-dark: #FFFFFF;                                                                  /* text on the band */
+  /* type: one family, four sizes per page (page title, section title, body, small label) */
+  --font-body: 'Archivo', sans-serif;
+  --font-heading: var(--font-body);
+  --font-size-title: 28px;
+  --font-size-section: 20px;
+  --font-size-body: 14px;
+  --font-size-small: 12px;
+  --letter-spacing-title: -0.01em;   /* big titles */
+  --letter-spacing-label: 0.04em;    /* small uppercase labels */
+  /* spacing: 8 px grid */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
 
   /* DATA colors: never change between sections */
   --color-data-slider: #1C3B2E;      /* year slider and year number */
@@ -127,157 +151,137 @@ body {
   margin: 0;
   background: var(--color-background);
   color: var(--color-text);
-  font-family: 'Archivo', sans-serif;
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  font-variant-numeric: tabular-nums;   /* numbers in tables and shares line up */
 }
 
 button { font-family: inherit; cursor: pointer; }
 .mono, pre { font-family: 'Space Mono', monospace; }
 [hidden] { display: none !important; }
 
-#page { width: 100%; min-height: 100vh; padding: 26px 34px; }
+#page { width: 100%; min-height: 100vh; padding: var(--space-3) var(--space-4); }
 
 .card {
   background: var(--color-surface);
-  border-radius: 22px;
-  border: 1px solid var(--color-divider);
-  box-shadow: 0 10px 26px rgba(28, 59, 46, 0.07);
-  padding: 20px;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-card-border);
+  box-shadow: none;
+  padding: var(--space-3);
   min-width: 0;
 }
 .card-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .card-title-row.top { align-items: flex-start; }
-.card-title { font-size: 13px; font-weight: 600; color: var(--color-text-muted); }
+.card-title { font-size: var(--font-size-body); font-weight: 600; color: var(--color-text-muted); }
 a.expand { text-decoration: none; }
 a.expand:hover, a.expand:focus-visible { background: var(--color-border); color: var(--color-text); }
 .expand {
   width: 26px;
   height: 26px;
-  border-radius: 50%;
+  border-radius: var(--radius-control);
   background: var(--color-surface-subtle);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: var(--font-size-small);
   color: var(--color-text-muted);
   flex-shrink: 0;
 }
-.faint { color: var(--color-text-faint); font-size: 11px; }
-.faint.xs { font-size: 11px; }
-.label-xs { font-size: 11px; color: var(--color-text-muted); }
-.fine { font-size: 11px; color: var(--color-text-muted); margin: 10px 0 0 0; }
+.faint { color: var(--color-text-faint); font-size: var(--font-size-small); }
+.faint.xs { font-size: var(--font-size-small); }
+.label-xs { font-size: var(--font-size-small); color: var(--color-text-muted); }
+/* small section labels ("What it shows", "Share of area per class", legend titles, table heads): small uppercase, grey */
+.about-label, .legend-title, #legend-title, .label-xs, .trend-row.head, .ews-table-row.head, .ews-guide-sources-label, #sh-legend-title {
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-label);
+  color: var(--color-text-muted);
+}
+.fine { font-size: var(--font-size-small); color: var(--color-text-muted); margin: 10px 0 0 0; }
 .fine:empty { display: none; }
 
-/* top bar */
+/* top bar (Figma v3 "header"): one bar in the dark page color: logo and name on the left, the page navigation on the right.
+   Text colors come from the theme (--color-header-text), so the bar works on every page color. */
 #topbar {
-  position: relative;          /* the Research/Method pill is centered on this bar */
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: var(--space-4);
   flex-wrap: wrap;
-  min-height: 42px;
-  margin-bottom: 22px;
-  padding: 5px 11px;
-  border-radius: 10px;
+  min-height: 56px;
+  margin-bottom: var(--space-3);
+  padding: 12px var(--space-2);
+  border-radius: var(--radius-card);
   background: var(--color-header-bg);
 }
-#brand { display: flex; align-items: center; gap: 9px; }
+#brand { display: flex; align-items: center; gap: var(--space-1); }
 #brand-mark {
   width: 32px;
   height: 32px;
-  border-radius: 9px;
-  /* the light outline keeps the mark visible when the accent color equals the top bar color */
-  border: 2px solid var(--color-text-on-accent);
-  background: var(--color-accent);
+  border-radius: var(--radius-control);
+  background: var(--color-header-text);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-text-on-accent);
-  font-family: 'Newsreader', serif;
-  font-weight: 700;
-  font-size: 15px;
-}
-#brand-name { font-family: 'Newsreader', serif; font-weight: 700; font-size: 17px; color: var(--color-header-text); }
-#tabs {
-  display: flex;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  /* always in the exact middle of the bar, whether or not the coordinates are shown */
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-}
-.tab {
-  border: none;
-  border-radius: 12px;
-  padding: 9px 22px;
-  font-size: 13px;
+  color: var(--color-header-bg);
+  font-family: var(--font-heading);
   font-weight: 600;
-  background: transparent;
-  color: var(--color-text-muted);
+  font-size: var(--font-size-section);
 }
-.tab.active { background: var(--color-accent); color: var(--color-text-on-accent); }
-#topbar-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
-/* coordinates of the selected point: a white pill on the right of the sticky bar with the part links (content.js),
+#brand-name { font-family: var(--font-heading); font-weight: 600; font-size: var(--font-size-section); letter-spacing: var(--letter-spacing-title); color: var(--color-header-text); }
+#topbar-right { display: flex; align-items: center; gap: 10px; }
+#topbar-right:empty { display: none; }
+/* coordinates of the selected point: a small box on the right of the sticky bar with the part links (content.js),
    only while a part with "showCoords" is the current part, and only with a selected point (empty = hidden) */
 #coords {
   margin-left: auto;
-  font-size: 12px;
+  font-size: var(--font-size-small);
   white-space: nowrap;
   color: var(--color-text-muted);
   background: var(--color-surface);
-  border: 1px solid var(--color-divider);
-  border-radius: 999px;
-  padding: 7px 14px;
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-control);
+  padding: 6px 12px;
 }
 #coords:empty { display: none; }
 .research-parts:not(.part-shows-coords) #coords { display: none; }
 
-/* research sub-navigation (Figma components Research-subnav and Subtab) */
-#subnav {
-  display: flex;
-  align-items: flex-end;
-  gap: 24px;
-  padding: 0 12px;
-  margin-bottom: 22px;
-  background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-  border-radius: 22px;
-}
+/* page navigation in the top bar (built by content.js): one text tab per page, a thin divider, then "Method".
+   Active tab: full color with a 2 px underline; the others at 75 %. */
+#subnav { display: flex; align-items: center; gap: var(--space-3); margin-left: auto; }
 .subtab {
-  padding: 8px 8px 0 8px;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 14px;
-  color: var(--color-text-muted);
+  padding: 8px 0;
+  font-size: var(--font-size-body);
+  font-weight: 500;
+  line-height: 20px;
+  color: color-mix(in srgb, var(--color-header-text) 75%, transparent);
   text-decoration: none;
+  border-bottom: 2px solid transparent;
 }
-/* the span holds the label and the 2px line under it */
-.subtab span { display: block; padding-bottom: 6px; border-bottom: 2px solid transparent; }
-.subtab:hover { color: var(--color-text); }
-.subtab.active { color: var(--color-accent); }
-.subtab.active span { border-bottom-color: var(--color-accent); }
+.subtab:hover { color: var(--color-header-text); }
+.subtab.active { color: var(--color-header-text); font-weight: 600; border-bottom-color: var(--color-header-text); }
+.subtab:focus-visible { outline: 2px solid var(--color-header-text); outline-offset: 4px; }
+.nav-divider { width: 1px; height: 20px; background: color-mix(in srgb, var(--color-header-text) 35%, transparent); }
 
 /* image card (content/pages.json { "type": "image" }): the image fills the card width.
    With a fixed "height" the image is cropped (object-position = the "keepVisible" side). */
 .image-card > img { width: 100%; height: auto; display: block; }
-.image-frame { border-radius: 16px; overflow: hidden; background: var(--color-map-bg); }
+.image-frame { border-radius: var(--radius-card); overflow: hidden; background: var(--color-map-bg); }
 .image-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* text card (content/pages.json { "type": "text" }) */
-.text-card p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--color-text-body); }
+.text-card p { margin: 0; font-size: var(--font-size-body); line-height: 1.6; color: var(--color-text-body); }
 
 /* text on a screen whose content is not there yet */
 /* placeholders (Figma: placeholder-card and page-placeholder) */
-.placeholder-text { margin: 0; font-size: 14px; color: var(--color-text-faint); }
+.placeholder-text { margin: 0; font-size: var(--font-size-body); color: var(--color-text-faint); }
 .placeholder-title { margin-bottom: 8px; }
 /* a page without cards: one card over the full width, message in the middle */
 .page-placeholder { grid-column: 1 / -1; min-height: 360px; display: flex; align-items: center; justify-content: center; text-align: center; }
 .page-placeholder .placeholder-text { color: var(--color-text-muted); }
 
 /* shown instead of the site when a content/ file has a mistake (see content.js) */
-.content-error { margin-bottom: 22px; padding: 18px 22px; border-radius: 16px; border: 2px solid var(--color-error); background: var(--color-surface); color: var(--color-text); font-size: 14px; line-height: 1.5; }
+.content-error { margin-bottom: 22px; padding: 18px 22px; border-radius: var(--radius-card); border: 2px solid var(--color-error); background: var(--color-surface); color: var(--color-text); font-size: var(--font-size-body); line-height: 1.5; }
 .content-error p { margin: 6px 0 0 0; color: var(--color-text-body); }
 
 /* research layout */
@@ -289,44 +293,51 @@ a.expand:hover, a.expand:focus-visible { background: var(--color-border); color:
 [data-slot] { display: contents; }
 
 /* a long page in parts (content/pages.json "parts"), e.g. Climatology: "Storms at Sisal", "Climate at Sisal" */
-.research-parts { display: flex; flex-direction: column; gap: 28px; }
-/* the section navigation stays at the top while scrolling (Figma section-nav, section-nav-item); its bar has the page
-   background, so content that scrolls underneath is hidden instead of showing around the pill */
-.section-nav-bar { position: sticky; top: 0; z-index: 20; margin: 0 -8px; padding: 12px 8px 10px; background: var(--color-background); display: flex; align-items: center; gap: 12px; }
-.section-nav {
-  width: fit-content;
+.research-parts { display: flex; flex-direction: column; gap: var(--space-3); }
+/* image band at the top of a page (content/pages.json "title", "intro" and "band"): a crop of an image under a dark
+   page-color overlay, with the page title and intro in white on top. Without "band" the band is the solid overlay color. */
+.page-band {
+  min-height: 200px;
+  padding: var(--space-4);
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   gap: 4px;
-  padding: 5px;
-  border-radius: 999px;
-  border: 1px solid var(--color-divider);
-  background: var(--color-surface);
-  box-shadow: 0 6px 18px rgba(28, 59, 46, 0.06);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: linear-gradient(color-mix(in srgb, var(--color-band-overlay) 65%, transparent), color-mix(in srgb, var(--color-band-overlay) 65%, transparent)), var(--band-image, none) center / cover, var(--color-band-overlay);
 }
-.section-nav-item { padding: 7px 14px; border: none; border-radius: 999px; background: transparent; font-size: 13px; font-weight: 600; color: var(--color-text-muted); }
+.page-band h2 { margin: 0; font-family: var(--font-heading); font-weight: 600; font-size: var(--font-size-title); letter-spacing: var(--letter-spacing-title); line-height: normal; color: var(--color-on-dark); }
+.page-band p { margin: 0; font-size: var(--font-size-body); line-height: 1.6; color: var(--color-on-dark); }
+/* the section navigation stays at the top while scrolling (Figma section-nav): text tabs on the page background;
+   the bar has the page background, so content that scrolls underneath is hidden */
+.section-nav-bar { position: sticky; top: 0; z-index: 20; margin: 0; padding: 0; background: var(--color-background); display: flex; align-items: center; gap: var(--space-2); }
+.section-nav { display: flex; gap: var(--space-3); }
+.section-nav-item { padding: 12px 0 10px; border: none; border-bottom: 2px solid transparent; background: transparent; font-size: var(--font-size-body); font-weight: 500; color: var(--color-text-muted); }
 .section-nav-item:hover { color: var(--color-text); }
-.section-nav-item.current { background: var(--color-accent); color: var(--color-text-on-accent); }
+.section-nav-item.current { color: var(--color-accent); font-weight: 600; border-bottom-color: var(--color-accent); }
+.section-nav-item:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 /* when a part is scrolled to, its heading lands under the section navigation */
-.research-part { scroll-margin-top: 68px; display: flex; flex-direction: column; gap: 16px; }
+.research-part { scroll-margin-top: 56px; display: flex; flex-direction: column; gap: var(--space-2); }
 /* the heading of a part, with an optional small card on the right */
-.part-header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 32px; }
-.part-header h2 { margin: 0; font-family: 'Newsreader', serif; font-weight: 600; font-size: 24px; line-height: normal; color: var(--color-text); }
-.part-header p { margin: 4px 0 0 0; font-size: 14px; line-height: 1.6; color: var(--color-text-body); }
+.part-header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); }
+.part-header h2 { margin: 0; font-family: var(--font-heading); font-weight: 600; font-size: var(--font-size-section); letter-spacing: var(--letter-spacing-title); line-height: normal; color: var(--color-text); }
+.part-header p { margin: 4px 0 0 0; font-size: var(--font-size-body); line-height: 1.6; color: var(--color-text-body); }
 
 /* a card with graphs that are not built yet (content/pages.json { "type": "planned" }; Figma graph-placeholder) */
 .planned-card { display: flex; flex-direction: column; gap: 12px; }
 .planned-card.no-expand .card-title-row { margin-bottom: 0; }
 .planned-row { display: flex; gap: 12px; }
-.graph-placeholder { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; padding: 10px 12px 12px 12px; border-radius: 12px; border: 1px solid var(--color-map-bg); background: var(--color-surface-subtle); }
-.graph-placeholder-title { font-size: 13px; font-weight: 600; color: var(--color-text-body); }
-.graph-placeholder-label { flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; line-height: 1.5; color: var(--color-text-faint); }
+.graph-placeholder { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; padding: 10px 12px 12px 12px; border-radius: var(--radius-card); border: 1px solid var(--color-map-bg); background: var(--color-surface-subtle); }
+.graph-placeholder-title { font-size: var(--font-size-body); font-weight: 600; color: var(--color-text-body); }
+.graph-placeholder-label { flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; font-size: var(--font-size-small); line-height: 1.5; color: var(--color-text-faint); }
 
 /* one card holding ready-made cards side by side (content/pages.json { "type": "group" }), e.g. "Climate overview".
    The inner cards get a light border instead of a shadow. Each inner card shares the rows of the group
    (title row, charts, note), so the first chart and the axis at the bottom line up in both. */
 .group-card { padding: 24px; }
 .group-card > .card-title-row { margin-bottom: 14px; }
-.group-note { margin: 12px 0 0; font-size: 11px; color: var(--color-text-faint); }
+.group-note { margin: 12px 0 0; font-size: var(--font-size-small); color: var(--color-text-faint); }
 .group-row { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto auto; column-gap: 16px; }
 .group-row > [data-slot] > .card {
   grid-row: span 3;
@@ -335,7 +346,7 @@ a.expand:hover, a.expand:focus-visible { background: var(--color-border); color:
   row-gap: 0;
   align-content: start;
   padding: 16px;
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   border: 1px solid var(--color-map-bg);
   box-shadow: none;
 }
@@ -347,13 +358,13 @@ a.expand:hover, a.expand:focus-visible { background: var(--color-border); color:
 .card-actions-footer { justify-content: flex-end; margin-top: 10px; }
 .icon { flex-shrink: 0; display: block; }
 .download-wrap { position: relative; }
-.icon-button { display: flex; align-items: center; justify-content: center; padding: 7px; border: none; border-radius: 8px; background: transparent; color: var(--color-text-muted); }
+.icon-button { display: flex; align-items: center; justify-content: center; padding: 7px; border: none; border-radius: var(--radius-control); background: transparent; color: var(--color-text-muted); }
 .icon-button:hover, .icon-button[aria-expanded="true"] { background: var(--color-surface-subtle); color: var(--color-text); }
-.download-menu { position: absolute; left: 0; top: calc(100% + 4px); z-index: 10; display: flex; flex-direction: column; gap: 2px; padding: 6px; border-radius: 12px; border: 1px solid var(--color-divider); background: var(--color-surface); box-shadow: 0 10px 26px rgba(28, 59, 46, 0.07); }
-.menu-item { padding: 8px 28px 8px 10px; border: none; border-radius: 8px; background: transparent; font-size: 13px; font-weight: 600; color: var(--color-text-body); text-align: left; white-space: nowrap; }
+.download-menu { position: absolute; left: 0; top: calc(100% + 4px); z-index: 10; display: flex; flex-direction: column; gap: 2px; padding: 6px; border-radius: var(--radius-card); border: 1px solid var(--color-divider); background: var(--color-surface); box-shadow: none; }
+.menu-item { padding: 8px 28px 8px 10px; border: none; border-radius: var(--radius-control); background: transparent; font-size: var(--font-size-body); font-weight: 600; color: var(--color-text-body); text-align: left; white-space: nowrap; }
 .menu-item:hover { background: var(--color-surface-subtle); }
 .menu-item:disabled { opacity: 0.45; cursor: default; background: transparent; }
-.diy-link { display: flex; align-items: center; gap: 4px; padding: 6px 8px; border-radius: 8px; font-size: 12px; font-weight: 500; color: var(--color-accent); text-decoration: none; white-space: nowrap; }
+.diy-link { display: flex; align-items: center; gap: 4px; padding: 6px 8px; border-radius: var(--radius-control); font-size: var(--font-size-small); font-weight: 500; color: var(--color-accent); text-decoration: none; white-space: nowrap; }
 .diy-link:hover, .diy-link:focus-visible { background: var(--color-surface-subtle); }
 .diy-link:hover .icon { transform: translateX(2px); }
 
@@ -366,7 +377,7 @@ a.expand:hover, a.expand:focus-visible { background: var(--color-border); color:
   padding: 16px 80px;
   background: var(--color-footer-bg);
   color: var(--color-footer-text);
-  font-size: 13px;
+  font-size: var(--font-size-body);
   font-weight: 600;
 }
 #footer p { margin: 0; }
@@ -380,4 +391,4 @@ a.expand:hover, a.expand:focus-visible { background: var(--color-border); color:
 
 /* small "Placeholder" label next to the title of a card or row whose data is not real yet. Shown by
    showPlaceholderTag() (helpers.js) when the data has "placeholder": true; the same style everywhere. */
-.placeholder-tag { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; border: 1px dashed var(--color-text-faint); background: var(--color-surface-subtle); font-size: 10px; font-weight: 600; letter-spacing: 0.02em; color: var(--color-text-muted); vertical-align: 1px; white-space: nowrap; }
+.placeholder-tag { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: var(--radius-control); border: 1px dashed var(--color-text-faint); background: var(--color-surface-subtle); font-size: var(--font-size-small); font-weight: 600; letter-spacing: 0.02em; color: var(--color-text-muted); vertical-align: 1px; white-space: nowrap; }

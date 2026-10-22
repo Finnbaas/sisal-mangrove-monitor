@@ -5,7 +5,7 @@
    --c = the class color (loss, recovery or gain) and --c-tint = its light background. */
 
 /* map card: the image of the year, the areas on top of it, and the labels */
-#sh-map { position: relative; width: 100%; aspect-ratio: 681 / 380; border-radius: 16px; overflow: hidden; background: var(--color-map-bg); }
+#sh-map { position: relative; width: 100%; aspect-ratio: 681 / 380; border-radius: var(--radius-card); overflow: hidden; background: var(--color-map-bg); }
 #sh-map-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 #sh-map-image:not([src]), #sh-map-image[src=""] { display: none; }
 #sh-areas { position: absolute; inset: 0; }
@@ -31,25 +31,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--color-text);
 }
 .sh-area.selected .sh-area-number { border-width: 2.5px; }
 /* "Imagery: 1988" in the corner of the map (Figma imagery-label) */
-#sh-imagery-label { position: absolute; left: 12px; top: 12px; padding: 4px 9px; border-radius: 999px; background: color-mix(in srgb, var(--color-surface) 92%, transparent); font-size: 11px; font-weight: 600; color: var(--color-text-body); }
+#sh-imagery-label { position: absolute; left: 12px; top: 12px; padding: 4px 9px; border-radius: var(--radius-control); background: color-mix(in srgb, var(--color-surface) 92%, transparent); font-size: var(--font-size-small); font-weight: 600; color: var(--color-text-body); }
 #sh-imagery-label:empty { display: none; }
 /* "No observations in 1993" in the middle of the map (Figma map-message) */
-#sh-map-message { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 10px 16px; border-radius: 999px; background: var(--color-surface); box-shadow: 0 10px 26px rgba(28, 59, 46, 0.07); font-size: 13px; font-weight: 600; color: var(--color-text-body); white-space: nowrap; }
+#sh-map-message { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 10px 16px; border-radius: var(--radius-control); background: var(--color-surface); box-shadow: none; font-size: var(--font-size-body); font-weight: 600; color: var(--color-text-body); white-space: nowrap; }
 #sh-legend { display: flex; flex-wrap: wrap; gap: 6px 20px; padding-top: 12px; }
 #sh-legend:empty { display: none; }
 #sh-legend .lg { margin-bottom: 0; }
 
 /* Time card, top row (Figma year-filter): All years button, year display, back / forward */
 #sh-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
-#sh-all-years { border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text-body); border-radius: 999px; padding: 7px 12px; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+#sh-all-years { border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text-body); border-radius: var(--radius-control); padding: 7px 12px; font-size: var(--font-size-body); font-weight: 600; flex-shrink: 0; }
 #sh-all-years.on { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-text-on-accent); }
-#sh-year-big { font-family: 'Newsreader', serif; font-weight: 600; font-size: 24px; line-height: 1.1; color: var(--color-text); white-space: nowrap; }
+#sh-year-big { font-family: var(--font-heading); font-weight: 600; letter-spacing: var(--letter-spacing-title); font-size: var(--font-size-section); line-height: 1.1; color: var(--color-text); white-space: nowrap; }
 
 /* The track and the observation rows share one scale: both start 28px from the left (after the
    column with the area numbers) and end 8px from the right. Everything on the scale is placed in
@@ -58,7 +58,7 @@
 #sh-track { position: relative; height: 30px; margin: 0 8px 10px 28px; }
 #sh-track-line { position: absolute; left: 0; right: 0; top: 5px; height: 4px; border-radius: 2px; background: var(--color-data-slider); }
 .sh-tick { position: absolute; top: 12px; width: 1px; height: 4px; background: var(--color-border); }
-.sh-year-label { position: absolute; top: 17px; transform: translateX(-50%); font-size: 11px; color: var(--color-text-muted); }
+.sh-year-label { position: absolute; top: 17px; transform: translateX(-50%); font-size: var(--font-size-small); color: var(--color-text-muted); }
 /* the handle (Figma year-handle): a native slider with only its round thumb visible. It is 7px wider
    on both sides, so the middle of the 14px thumb reaches exactly the first and the last year. */
 #sh-slider { position: absolute; left: -7px; top: 0; width: calc(100% + 14px); height: 14px; margin: 0; background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer; z-index: 2; }
@@ -74,7 +74,7 @@
 
 /* one row per observation: area number on the left, bar on the scale (Figma observation-bar) */
 .sh-row { position: relative; height: 14px; }
-.sh-row-number { position: absolute; left: 0; width: 22px; text-align: center; font-size: 11px; font-weight: 600; line-height: 14px; color: var(--color-text-muted); }
+.sh-row-number { position: absolute; left: 0; width: 22px; text-align: center; font-size: var(--font-size-small); font-weight: 600; line-height: 14px; color: var(--color-text-muted); }
 .sh-row.selected .sh-row-number { color: var(--color-text); }
 .sh-row.dimmed .sh-row-number { opacity: 0.35; }
 .sh-row-scale { position: relative; height: 100%; margin: 0 8px 0 28px; }
@@ -107,44 +107,44 @@
   align-items: flex-start;
   gap: 2px;
   padding: 8px 10px;
-  border-radius: 10px;
+  border-radius: var(--radius-card);
   border: 1px solid var(--color-divider);
   background: var(--color-surface);
-  box-shadow: 0 10px 26px rgba(28, 59, 46, 0.07);
-  font-size: 11px;
+  box-shadow: none;
+  font-size: var(--font-size-small);
   color: var(--color-text-muted);
   white-space: nowrap;
 }
 .sh-tooltip.flip { left: auto; right: 0; }
-.sh-tooltip b { font-size: 13px; font-weight: 600; color: var(--color-text); }
+.sh-tooltip b { font-size: var(--font-size-body); font-weight: 600; color: var(--color-text); }
 .sh-tooltip .lg { margin-bottom: 0; }
 .sh-bar:hover .sh-tooltip, .sh-bar:focus-visible .sh-tooltip { display: flex; }
 /* legend of the four bar styles (Figma certainty-legend), in a neutral grey */
-#sh-certainty-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; padding: 4px 0 0 28px; font-size: 11px; color: var(--color-text-muted); --c: var(--color-text-muted); --c-tint: var(--color-surface-subtle); }
+#sh-certainty-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; padding: 4px 0 0 28px; font-size: var(--font-size-small); color: var(--color-text-muted); --c: var(--color-text-muted); --c-tint: var(--color-surface-subtle); }
 .sh-certainty { display: flex; align-items: center; gap: 6px; }
 .sh-sample { width: 26px; display: flex; }
 
 /* area panel */
-#sh-panel-empty { min-height: 480px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 14px; color: var(--color-text-faint); }
+#sh-panel-empty { min-height: 480px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: var(--font-size-body); color: var(--color-text-faint); }
 #sh-panel-content { display: flex; flex-direction: column; gap: 12px; }
 .sh-placeholder { color: var(--color-text-faint); font-weight: 400; }
 /* header (Figma area-header): class tint behind it, class color as left border */
-.area-header { display: flex; flex-direction: column; gap: 10px; padding: 16px 18px 16px 20px; border-radius: 14px; border-left: 4px solid var(--c); background: var(--c-tint); }
-.area-number { font-size: 12px; font-weight: 500; color: var(--color-text-muted); margin-bottom: 2px; }
-.area-zone { font-size: 15px; font-weight: 700; color: var(--color-text); }
+.area-header { display: flex; flex-direction: column; gap: 10px; padding: 16px 18px 16px 20px; border-radius: var(--radius-card); border-left: 4px solid var(--c); background: var(--c-tint); }
+.area-number { font-size: var(--font-size-small); font-weight: 500; color: var(--color-text-muted); margin-bottom: 2px; }
+.area-zone { font-size: var(--font-size-body); font-weight: 700; color: var(--color-text); }
 .area-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; }
-.class-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--color-surface); font-size: 13px; font-weight: 600; color: var(--color-text); }
-.area-count { font-size: 12px; color: var(--color-text-muted); }
-.sh-other-years { font-size: 11px; color: var(--color-text-muted); }
+.class-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--radius-control); background: var(--color-surface); font-size: var(--font-size-body); font-weight: 600; color: var(--color-text); }
+.area-count { font-size: var(--font-size-small); color: var(--color-text-muted); }
+.sh-other-years { font-size: var(--font-size-small); color: var(--color-text-muted); }
 /* "Observation 1 of 2" with its arrows (Figma entry-switcher) */
 .entry-switcher { display: flex; align-items: center; gap: 8px; }
-.entry-label { flex: 1; font-size: 13px; font-weight: 600; }
+.entry-label { flex: 1; font-size: var(--font-size-body); font-weight: 600; }
 .entry-switcher .step:disabled { opacity: 0.45; cursor: default; }
 /* one observation: a box per column of the interview table (Figma observation-box) */
 .observation { display: flex; flex-direction: column; gap: 8px; }
 .observation-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.observation-box { display: flex; flex-direction: column; gap: 6px; min-width: 0; padding: 12px 14px 12px 16px; border-radius: 12px; border-left: 3px solid var(--c); background: var(--color-background); }
-.observation-title { font-size: 11px; font-weight: 600; color: var(--color-text-muted); }
-.observation-text { font-size: 14px; line-height: 1.4; color: var(--color-text-body); }
+.observation-box { display: flex; flex-direction: column; gap: 6px; min-width: 0; padding: 12px 14px 12px 16px; border-radius: var(--radius-card); border-left: 3px solid var(--c); background: var(--color-background); }
+.observation-title { font-size: var(--font-size-small); font-weight: 600; color: var(--color-text-muted); }
+.observation-text { font-size: var(--font-size-body); line-height: 1.4; color: var(--color-text-body); }
 .sh-quote { display: flex; flex-direction: column; gap: 2px; padding-left: 10px; border-left: 2px solid var(--color-divider); }
-.sh-quote-name { font-size: 11px; color: var(--color-text-muted); }
+.sh-quote-name { font-size: var(--font-size-small); color: var(--color-text-muted); }

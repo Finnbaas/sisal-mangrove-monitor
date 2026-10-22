@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sisal Mangrove Monitor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <!-- Leaflet (map library, from a CDN) for the two maps of the Vegetation page (vegetation.js) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <!-- styles: base.css first (colors, themes, layout, cards), then one file per screen; charts.css is shared by the storm and climate charts -->
@@ -22,21 +22,16 @@
        Which pages and cards are shown is set in content/pages.json. -->
   <div id="page">
 
-    <!-- TOP BAR -->
+    <!-- TOP BAR: logo and name, then the page navigation (one link per page in content/pages.json, a divider and
+         "Method"; built by content.js) -->
     <div id="topbar">
       <div id="brand">
         <div id="brand-mark">S</div>
         <div id="brand-name" data-text="siteName"></div>
       </div>
-      <div id="tabs" role="tablist">
-        <button class="tab active" role="tab" aria-selected="true" data-tab="research" data-text="tabs.research"></button>
-        <button class="tab" role="tab" aria-selected="false" data-tab="method" data-text="tabs.method"></button>
-      </div>
+      <nav id="subnav" aria-label="Pages"></nav>
       <div id="topbar-right"></div>
     </div>
-
-    <!-- RESEARCH SUB-NAVIGATION: one link per page in content/pages.json (built by content.js) -->
-    <nav id="subnav" aria-label="Research sections"></nav>
 
     <!-- The research sections (one per page in content/pages.json) are built by content.js and placed
          here, before the card library. Each section has empty slots (data-slot="..."); when the section
