@@ -121,81 +121,100 @@
         {
           "id": "per-period",
           "title": "Confirmed loss and gain per period",
-          "image": null,
+          "image": "data/vegetation/change-per-period.png",
           "bounds": null,
           "legend": {
             "type": "periods",
             "title": "Confirmed",
             "steps": [
               {
-                "label": "P1→P2",
-                "range": "1993-97 → 1998-2002",
-                "provisional": false
-              },
-              {
                 "label": "P2→P3",
-                "range": "1998-2002 → 2004-08",
-                "provisional": false
+                "range": "1998-2002 → 2004-08"
               },
               {
                 "label": "P3→P4",
-                "range": "2004-08 → 2009-13",
-                "provisional": false
+                "range": "2004-08 → 2009-13"
               },
               {
                 "label": "P4→P5",
-                "range": "2009-13 → 2014-18",
-                "provisional": false
+                "range": "2009-13 → 2014-18"
               },
               {
                 "label": "P5→P6",
-                "range": "2014-18 → 2019-23",
-                "provisional": false
-              },
-              {
-                "label": "P6→P7",
-                "range": "2019-23 → 2024-25",
-                "provisional": true
+                "range": "2014-18 → 2019-23"
               }
             ],
             "rows": [
               {
                 "label": "Loss",
                 "colors": [
-                  "#fee5d9",
                   "#fcbba1",
                   "#fc9272",
                   "#fb6a4a",
-                  "#de2d26",
-                  "#a50f15"
+                  "#de2d26"
                 ]
               },
               {
                 "label": "Gain",
                 "colors": [
-                  "#eff3ff",
                   "#c6dbef",
                   "#9ecae1",
                   "#6baed6",
-                  "#3182bd",
-                  "#08519c"
+                  "#3182bd"
                 ]
               }
             ],
-            "provisionalNote": "P6→P7 is provisional"
+            "note": "No confirmed changes in P1→P2 and P6→P7."
           },
           "about": {
             "shows": "When confirmed mangrove loss and gain happened, per period between 1993 and 2025.",
             "computed": "Same method as the change classes: each confirmed loss or gain pixel is colored by the period in which its new state started.",
-            "colors": "Darker means more recent. P6→P7 is provisional: it is not yet confirmed by a later period.",
+            "colors": "Darker means more recent.",
             "chart": {
               "title": "Loss and gain per period",
-              "note": "Periods differ in length; P7 covers only 2024-2025."
+              "note": "Periods differ in length. The P2→P3 period includes Hurricane Isidore (2002).",
+              "noteLink": {
+                "text": "Isidore",
+                "storm": "isidore-2002"
+              },
+              "periods": [
+                {
+                  "label": "P2→P3",
+                  "range": "1998-2002 → 2004-08",
+                  "lossHa": 34.3,
+                  "gainHa": 35.9,
+                  "lossHaPerYr": 5.7,
+                  "gainHaPerYr": 6
+                },
+                {
+                  "label": "P3→P4",
+                  "range": "2004-08 → 2009-13",
+                  "lossHa": 2.2,
+                  "gainHa": 134.3,
+                  "lossHaPerYr": 0.4,
+                  "gainHaPerYr": 26.9
+                },
+                {
+                  "label": "P4→P5",
+                  "range": "2009-13 → 2014-18",
+                  "lossHa": 9.5,
+                  "gainHa": 144.1,
+                  "lossHaPerYr": 1.9,
+                  "gainHaPerYr": 28.8
+                },
+                {
+                  "label": "P5→P6",
+                  "range": "2014-18 → 2019-23",
+                  "lossHa": 18.1,
+                  "gainHa": 135.1,
+                  "lossHaPerYr": 3.6,
+                  "gainHaPerYr": 27
+                }
+              ]
             }
           },
           "classes": [],
-          "relatedStorms": [],
-          "placeholder": true
+          "relatedStorms": []
         }
       ]
     },

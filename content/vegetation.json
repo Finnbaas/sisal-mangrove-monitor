@@ -30,8 +30,19 @@
       }
     ]
   },
+  "chartModes": [
+    {
+      "id": "perYear",
+      "label": "per year",
+      "unit": "ha per year"
+    },
+    {
+      "id": "total",
+      "label": "total",
+      "unit": "ha"
+    }
+  ],
   "texts": {
-    "chartPlaceholder": "Bar chart follows in a later step.",
     "mapNotAvailable": "Map layer not yet available",
     "opacity": "Opacity",
     "zoomIn": "+",
@@ -51,7 +62,7 @@
     "sourcePeriod": "Period",
     "sourceArea": "Study area",
     "mapsLink": "Use this code for your area (adapt)",
-    "mapsLinkTarget": "#method/change-map",
+    "mapsLinkTarget": "#method/mangrove-change",
     "pointsLink": "Run this analysis on your own data",
     "pointsLinkTarget": "#method/ews",
     "ndviSeries": "NDVI",

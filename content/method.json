@@ -40,9 +40,26 @@
         { "name": "shape-class-map/README.md", "description": "What the analysis shows, the input data, the steps and what the printed messages mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/shape-class-map/README.md" },
         { "name": "shape-class-map/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/shape-class-map/requirements.txt" },
         { "name": "shape-class-map/monthly_max_NDVI_per_point.csv", "description": "Our Sisal data: 150 points, monthly maximum NDVI 1993 to 2026, in the input format; the notebooks run on it as it is.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/shape-class-map/example_data/monthly_max_NDVI_per_point.csv" },
+        { "name": "mangrove-maps/change/README.md", "description": "Full instructions, settings and troubleshooting for the Change map.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/change/README.md" },
+        { "name": "mangrove-maps/change/1_period_images.js", "description": "Script 1: builds one cloud-free Landsat image per period and saves it in your project.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/change/1_period_images.js" },
+        { "name": "mangrove-maps/change/2a_training_points_conabio.js", "description": "Script 2a (accurate route, Mexico): makes training points from the CONABIO maps.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/change/2a_training_points_conabio.js" },
+        { "name": "mangrove-maps/change/2_mangrove_maps.js", "description": "Script 2: decides per period which pixels are mangrove and makes the change classes.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/change/2_mangrove_maps.js" },
+        { "name": "mangrove-maps/change/3_change_map.js", "description": "Script 3: checks every change against NDVI and draws the map, legend and areas.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/change/3_change_map.js" },
+        { "name": "mangrove-maps/change/sisal_aoi.geojson", "description": "Example study area (Sisal) to test the scripts on.", "format": "GeoJSON", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/change/example/sisal_aoi.geojson" },
+        { "name": "mangrove-maps/change/sisal_training_points.csv", "description": "Example training points for Sisal (accurate route).", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/change/example/sisal_training_points.csv" },
         { "name": "export_points.py", "description": "Turns the results into the website data.", "format": "Python", "path": "analysis/satellite/export_points.py" }
       ],
       "useCases": [
+        {
+          "id": "mangrove-maps",
+          "title": "Mangrove maps",
+          "image": "data/vegetation/change.png",
+          "subCards": [
+            { "id": "mangrove-change", "title": "Change" },
+            { "title": "Condition", "comingSoon": true },
+            { "title": "Disturbance & recovery", "comingSoon": true }
+          ]
+        },
         {
           "id": "ndvi-time-series",
           "title": "NDVI time series for your location",
@@ -125,6 +142,52 @@
           ],
           "files": ["shape-class-map/GEE_NDVI.js", "shape-class-map/ndvi_monthly_classification.ipynb", "shape-class-map/README.md", "shape-class-map/requirements.txt", "shape-class-map/monthly_max_NDVI_per_point.csv"],
           "cards": ["point-map"]
+        },
+        {
+          "id": "mangrove-change",
+          "parent": "mangrove-maps",
+          "title": "Mangrove change map for your area",
+          "howWeUsed": "This is the method behind the Change layer on the Vegetation page.",
+          "howWeUsedLink": "#satellite",
+          "howWeUsedLinkLabel": "See the Change layer on the Vegetation page",
+          "whatYouNeed": [
+            "A free Google Earth Engine account with a non-commercial Cloud project.",
+            "Your study area: drawn in the Code Editor, a rectangle or a shapefile.",
+            "For the accurate route also: CONABIO land-use maps or your own labelled points."
+          ],
+          "routes": [
+            {
+              "id": "quick",
+              "title": "Quick (Global Mangrove Watch)",
+              "description": "Works anywhere and needs nothing to prepare. About 1–2 hours, mostly waiting for exports. Coarser.",
+              "steps": [
+                "Create a free Earth Engine account and a non-commercial Cloud project.",
+                "Make scripts 1, 2 and 3 in the Code Editor and set MY_ASSETS and NAME at the top of each.",
+                "Test on Sisal first (draw nothing), then draw your own area.",
+                "Run script 1 and start the export in Tasks; wait.",
+                "Run script 2 with MASK_SOURCE = 'GMW' and export; wait.",
+                "Run script 3: map, legend and areas."
+              ]
+            },
+            {
+              "id": "accurate",
+              "title": "Accurate (training points, our method)",
+              "description": "Mexico via CONABIO, or anywhere with your own points. About 2–3 hours. Best accuracy.",
+              "steps": [
+                "Create a free Earth Engine account and a non-commercial Cloud project.",
+                "Make scripts 1, 2a, 2 and 3 in the Code Editor and set MY_ASSETS and NAME at the top of each.",
+                "Test on Sisal first (draw nothing), then draw your own area.",
+                "Run script 1 and start the export in Tasks; wait.",
+                "Download the CONABIO land-use maps of your area (or prepare your own points CSV) and upload them to your assets.",
+                "Run script 2a to make the training points, and export.",
+                "Run script 2 with MASK_SOURCE = 'POINTS' and export; wait.",
+                "Run script 3: map, legend and areas."
+              ]
+            }
+          ],
+          "readmeLabel": "Full instructions, settings and troubleshooting: README on GitHub",
+          "readmeLink": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/change/README.md",
+          "files": ["mangrove-maps/change/README.md", "mangrove-maps/change/1_period_images.js", "mangrove-maps/change/2a_training_points_conabio.js", "mangrove-maps/change/2_mangrove_maps.js", "mangrove-maps/change/3_change_map.js", "mangrove-maps/change/sisal_aoi.geojson", "mangrove-maps/change/sisal_training_points.csv"]
         }
       ]
     },
