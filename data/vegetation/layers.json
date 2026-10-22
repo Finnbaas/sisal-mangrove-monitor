@@ -172,12 +172,20 @@
             "colors": "Darker means more recent.",
             "chart": {
               "title": "Loss and gain per period",
-              "note": "Periods differ in length. The P2→P3 period includes Hurricane Isidore (2002).",
+              "note": "Periods differ in length. The P2→P3 period includes Hurricane Isidore (2002). Light colors are provisional: P6→P7 has only the years 2024-2025.",
               "noteLink": {
                 "text": "Isidore",
                 "storm": "isidore-2002"
               },
               "periods": [
+                {
+                  "label": "P1→P2",
+                  "range": "1993-97 → 1998-2002",
+                  "lossHa": 0,
+                  "gainHa": 0,
+                  "lossHaPerYr": 0,
+                  "gainHaPerYr": 0
+                },
                 {
                   "label": "P2→P3",
                   "range": "1998-2002 → 2004-08",
@@ -209,6 +217,16 @@
                   "gainHa": 135.1,
                   "lossHaPerYr": 3.6,
                   "gainHaPerYr": 27
+                },
+                {
+                  "label": "P6→P7",
+                  "range": "2019-23 → 2024-25",
+                  "lossHa": 0,
+                  "gainHa": 0,
+                  "lossHaPerYr": 0,
+                  "gainHaPerYr": 0,
+                  "lossProvHa": 36,
+                  "gainProvHa": 58
                 }
               ]
             }

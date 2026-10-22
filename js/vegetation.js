@@ -16,7 +16,7 @@
 
 let vegLayers = null;          // contents of data/vegetation/layers.json
 let vegBarSet = null;          // the bar chart of the per-period view as a set for the comparison line (see charts.js)
-let vegBarMode = 'perYear';    // 'perYear' or 'total' (content/vegetation.json "chartModes")
+let vegBarMode = 'total';      // 'perYear' or 'total' (content/vegetation.json "chartModes")
 let vegEwsSet = null;          // the EWS charts as a set for the comparison line (see charts.js)
 let vegLoaded = false;         // true when layers.json has loaded
 let vegLayerId = null;         // the layer shown in the map of section 1
@@ -538,7 +538,18 @@ function renderChartCard(layer) {
   const periods = chart.periods || [];
   const keys = mode.id === 'perYear' ? ['lossHaPerYr', 'gainHaPerYr'] : ['lossHa', 'gainHa'];
   const series = layer.legend.rows.map((row, k) => ({ label: row.label, color: row.colors[row.colors.length - 1], values: periods.map((p) => p[keys[k]]) }));
-  const known = knownValues([].concat(...series.map((s) => s.values)));
+  // the totals are stacked bars (loss, gain, then the provisional loss and gain of the last period in a lighter color of
+  // the same row); "per year" stays two bars side by side, as the provisional values have no rate
+  const stacked = mode.id === 'total';
+  if (stacked && periods.some((p) => isNumber(p.lossProvHa) || isNumber(p.gainProvHa))) {
+    layer.legend.rows.forEach((row, k) => series.push({
+      label: row.label + ' (' + CONTENT.vegetation.texts.provisional + ')', color: row.colors[1],
+      values: periods.map((p) => p[['lossProvHa', 'gainProvHa'][k]]) }));
+  }
+  // the top of each segment of a stacked bar: the sum of its own value and all the segments under it
+  const tops = series.map((s, k) => s.values.map((val, i) => (isNumber(val)
+    ? series.slice(0, k + 1).reduce((sum, o) => sum + (isNumber(o.values[i]) ? o.values[i] : 0), 0) : null)));
+  const known = knownValues([].concat(...(stacked ? tops : series.map((s) => s.values))));
   const body = $('veg-chart-body');
   body.innerHTML = '';
   vegBarSet = null;
@@ -548,10 +559,16 @@ function renderChartCard(layer) {
     const n = periods.length;
     const x = pointXScale(n);   // one group of bars per period, evenly spaced
     const scale = chartScale(known, true);
-    const barWidth = (PLOT.right - PLOT.left) / n * 0.28;
+    const barWidth = (PLOT.right - PLOT.left) / n * (stacked ? 0.55 : 0.28);
     let svg = chartHead({ label: chart.title }, [], 'chart') + chartYAxis(scale.t, scale.yOf, true);
     const zeroY = scale.yOf(0);
-    series.forEach((s, k) => s.values.forEach((val, i) => {
+    // stacked: one bar per period, every segment on top of the one before; side by side: loss left, gain right
+    if (stacked) series.forEach((s, k) => s.values.forEach((val, i) => {
+      if (!isNumber(val) || val <= 0) return;
+      const top = scale.yOf(tops[k][i]);
+      svg += '<rect x="' + (x.xOf(i) - barWidth / 2).toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + barWidth.toFixed(1) + '" height="' + (scale.yOf(tops[k][i] - val) - top).toFixed(1) + '" fill="' + vegColor(s.color) + '"></rect>';
+    }));
+    else series.forEach((s, k) => s.values.forEach((val, i) => {
       if (!isNumber(val)) return;
       const left = x.xOf(i) + (k === 0 ? -barWidth - 1 : 1);
       const top = Math.min(zeroY, scale.yOf(val));
@@ -563,7 +580,7 @@ function renderChartCard(layer) {
     // the comparison line snaps to periods and shows loss and gain
     vegBarSet = {
       count: n, xOf: x.xOf, indexAt: x.indexAt, label: (i) => periods[i].label + ' (' + periods[i].range + ')',
-      panels: [{ yOf: scale.yOf, points: (i) => series.map((s) => ({ value: s.values[i], color: vegColor(s.color), text: s.label + ' ' + formatLike(s.values[i], s.values) + ' ' + mode.unit })) }]
+      panels: [{ yOf: scale.yOf, points: (i) => series.map((s, k) => ({ value: stacked ? tops[k][i] : s.values[i], color: vegColor(s.color), text: s.label + ' ' + formatLike(s.values[i], s.values) + ' ' + mode.unit })) }]
     };
   }
 

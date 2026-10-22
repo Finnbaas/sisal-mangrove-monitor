@@ -45,6 +45,7 @@
   "texts": {
     "mapNotAvailable": "Map layer not yet available",
     "opacity": "Opacity",
+    "provisional": "provisional",
     "basemap": "Base map",
     "basemapBw": "Black and white",
     "basemapColour": "Colour",
