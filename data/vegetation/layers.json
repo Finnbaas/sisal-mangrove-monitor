@@ -116,12 +116,99 @@
               "ha": 1589.2
             }
           ],
-          "relatedStorms": []
+          "relatedStorms": [],
+          "totalHa": 9077.6,
+          "detailed": {
+            "image": "data/vegetation/extent-classes-detailed.png",
+            "legend": {
+              "type": "categories",
+              "title": "Change",
+              "items": [
+                {
+                  "label": "Stable mangrove",
+                  "color": "#1b7837"
+                },
+                {
+                  "label": "Loss, confirmed",
+                  "color": "#d7191c"
+                },
+                {
+                  "label": "Loss, class change only",
+                  "color": "#fdae61"
+                },
+                {
+                  "label": "Gain, confirmed",
+                  "color": "#2c7bb6"
+                },
+                {
+                  "label": "Gain, class change only",
+                  "color": "#abd9e9"
+                },
+                {
+                  "label": "Fluctuating (uncertain)",
+                  "color": "#9e9e9e"
+                },
+                {
+                  "label": "Recent loss (provisional)",
+                  "color": "#762a83"
+                },
+                {
+                  "label": "Recent gain (provisional)",
+                  "color": "#c51b7d"
+                }
+              ]
+            },
+            "about": {
+              "colors": "Confirmed = land-cover maps and NDVI agree. Class change only = the land-cover maps changed, NDVI did not. Fluctuating = switched back and forth. Recent = change only in 2024-2025, not yet confirmed by a later period. Together the last five classes are the grey 'Uncertain change' of the simplified map."
+            },
+            "classes": [
+              {
+                "label": "Stable mangrove",
+                "color": "#1b7837",
+                "ha": 6974.9
+              },
+              {
+                "label": "Loss, confirmed",
+                "color": "#d7191c",
+                "ha": 64.2
+              },
+              {
+                "label": "Loss, class change only",
+                "color": "#fdae61",
+                "ha": 316.7
+              },
+              {
+                "label": "Gain, confirmed",
+                "color": "#2c7bb6",
+                "ha": 449.4
+              },
+              {
+                "label": "Gain, class change only",
+                "color": "#abd9e9",
+                "ha": 459.7
+              },
+              {
+                "label": "Fluctuating (uncertain)",
+                "color": "#9e9e9e",
+                "ha": 424
+              },
+              {
+                "label": "Recent loss (provisional)",
+                "color": "#762a83",
+                "ha": 114.1
+              },
+              {
+                "label": "Recent gain (provisional)",
+                "color": "#c51b7d",
+                "ha": 274.6
+              }
+            ]
+          }
         },
         {
           "id": "per-period",
           "title": "Confirmed loss and gain per period",
-          "image": "data/vegetation/change-per-period.png",
+          "image": "data/vegetation/extent-per-period.png",
           "bounds": null,
           "legend": {
             "type": "periods",
@@ -243,11 +330,42 @@
                   "gainHa": 0,
                   "lossHaPerYr": 0,
                   "gainHaPerYr": 0,
-                  "lossProvHa": 36,
-                  "gainProvHa": 58
+                  "lossProvHa": 36.3,
+                  "gainProvHa": 58.2
                 }
               ]
             }
+          },
+          "classes": [],
+          "relatedStorms": []
+        },
+        {
+          "id": "dndvi",
+          "title": "Relative NDVI change 2014-2025",
+          "image": "data/vegetation/extent-dndvi-p5-p7.png",
+          "bounds": null,
+          "legend": {
+            "type": "gradient",
+            "title": "dNDVI",
+            "min": -0.3,
+            "max": 0.3,
+            "colors": [
+              "#b2182b",
+              "#ef8a62",
+              "#fddbc7",
+              "#f7f7f7",
+              "#d1e5f0",
+              "#67a9cf",
+              "#2166ac"
+            ],
+            "low": "dropped more",
+            "mid": "same as stable mangrove",
+            "high": "rose more"
+          },
+          "about": {
+            "shows": "How much NDVI changed between 2014-2018 and 2024-2025 compared with unchanged mangrove, for all mangrove.",
+            "computed": "The NDVI change of each pixel minus the median change of stable mangrove (-0.018), so site-wide effects of climate and sensor are removed.",
+            "colors": "White = changed like stable mangrove; red = dropped more; blue = rose more. Below -0.086 or above +0.105 is a larger change than in 95% of stable mangrove."
           },
           "classes": [],
           "relatedStorms": []

@@ -20,6 +20,7 @@ let vegBarMode = 'total';      // 'perYear' or 'total' (content/vegetation.json 
 let vegEwsSet = null;          // the EWS charts as a set for the comparison line (see charts.js)
 let vegLoaded = false;         // true when layers.json has loaded
 let vegLayerId = null;         // the layer shown in the map of section 1
+let vegDetail = 'simplified';   // 'simplified' or 'detailed': the version of a view that has a "detailed" part (Change > Classes)
 let vegViewIds = {};           // the chosen view per layer id (layers with "views", e.g. Change: classes | per-period)
 let vegOverlay = null;         // the Leaflet image of that layer
 let vegMaps = {};              // the Leaflet map of the layers: { layers }
@@ -223,7 +224,12 @@ function currentLayer() {
   const layer = vegLayers.layers.find((l) => l.id === vegLayerId);
   if (!layer.views) return layer;
   const view = layer.views.find((v) => v.id === vegViewIds[layer.id]) || layer.views[0];
-  return Object.assign({}, layer, view, { id: layer.id });
+  const merged = Object.assign({}, layer, view, { id: layer.id });
+  // the detailed version of a view (own image, legend, classes; its "about" texts replace the same texts of the simplified one)
+  if (view.detailed && vegDetail === 'detailed') {
+    Object.assign(merged, view.detailed, { about: Object.assign({}, view.about, view.detailed.about) });
+  }
+  return merged;
 }
 
 function renderLayerSwitch() {
@@ -248,6 +254,7 @@ function renderLayerSwitch() {
 
 // The small switch under the layer chips (e.g. Change: Classes | Per period): only for layers with views.
 function renderViewSwitch() {
+  renderDetailSwitch();
   const box = $('veg-view-switch');
   const items = CONTENT.vegetation.viewSwitch[vegLayerId];
   box.hidden = !items;
@@ -264,6 +271,30 @@ function renderViewSwitch() {
     chip.addEventListener('click', () => {
       vegViewIds[vegLayerId] = item.id;
       renderViewSwitch();
+      renderLayer();
+      renderLayerOverlay();
+    });
+    box.appendChild(chip);
+  });
+}
+
+// The small Simplified | Detailed switch under the view switch: only when the current view has a "detailed" version.
+function renderDetailSwitch() {
+  const box = $('veg-detail-switch');
+  const layer = vegLayers.layers.find((l) => l.id === vegLayerId);
+  const view = layer && layer.views && (layer.views.find((v) => v.id === vegViewIds[layer.id]) || layer.views[0]);
+  box.hidden = !(view && view.detailed);
+  box.innerHTML = '';
+  if (box.hidden) return;
+  CONTENT.vegetation.detailSwitch.forEach((item) => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'layer-chip' + (item.id === vegDetail ? ' on' : '');
+    chip.textContent = item.label;
+    chip.setAttribute('aria-pressed', item.id === vegDetail);
+    chip.addEventListener('click', () => {
+      vegDetail = item.id;
+      renderDetailSwitch();
       renderLayer();
       renderLayerOverlay();
     });
@@ -383,6 +414,23 @@ function renderLegend(legend) {
       note.textContent = legend.note;
       box.appendChild(note);
     }
+  } else if (legend.type === 'gradient' && isFilled(legend.mid)) {
+    // a bar from the first to the last color with three labels under it: left, middle and right (with the values at the ends)
+    const signed = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v);
+    const wrap = document.createElement('span');
+    wrap.className = 'gradient-wrap';
+    const bar = document.createElement('span');
+    bar.className = 'gradient-bar';
+    bar.style.background = 'linear-gradient(to right, ' + legend.colors.map(vegColor).join(', ') + ')';
+    const labels = document.createElement('span');
+    labels.className = 'gradient-labels';
+    [signed(legend.min) + ' ' + legend.low, legend.mid, legend.high + ' ' + signed(legend.max)].forEach((text) => {
+      const label = document.createElement('span');
+      label.textContent = text;
+      labels.appendChild(label);
+    });
+    wrap.append(bar, labels);
+    box.appendChild(wrap);
   } else if (legend.type === 'gradient') {
     // low label, a bar from the first to the last color, high label
     const low = document.createElement('span');
@@ -472,7 +520,8 @@ function renderAbout() {
   // share of area per class: the hectares as stored and their share of the total (one decimal), or "No data"
   if (layer.classes.length) {
   const shares = document.createElement('div');
-  const totalHa = layer.classes.reduce((sum, c) => sum + (isNumber(c.ha) ? c.ha : 0), 0);
+  // "totalHa" (layers.json): the same total for the simplified and the detailed version, so the shares can be compared
+  const totalHa = isNumber(layer.totalHa) ? layer.totalHa : layer.classes.reduce((sum, c) => sum + (isNumber(c.ha) ? c.ha : 0), 0);
   layer.classes.forEach((c) => {
     const row = document.createElement('div');
     row.className = 'value-row';

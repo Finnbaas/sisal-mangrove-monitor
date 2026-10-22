@@ -27,9 +27,23 @@
       {
         "id": "per-period",
         "label": "Per period"
+      },
+      {
+        "id": "dndvi",
+        "label": "dNDVI 2014-2025"
       }
     ]
   },
+  "detailSwitch": [
+    {
+      "id": "simplified",
+      "label": "Simplified"
+    },
+    {
+      "id": "detailed",
+      "label": "Detailed"
+    }
+  ],
   "chartModes": [
     {
       "id": "perYear",
