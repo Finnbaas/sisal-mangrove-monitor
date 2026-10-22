@@ -415,22 +415,7 @@ function renderLegend(legend) {
       box.appendChild(note);
     }
   } else if (legend.type === 'gradient' && isFilled(legend.mid)) {
-    // a bar from the first to the last color with three labels under it: left, middle and right (with the values at the ends)
-    const signed = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v);
-    const wrap = document.createElement('span');
-    wrap.className = 'gradient-wrap';
-    const bar = document.createElement('span');
-    bar.className = 'gradient-bar';
-    bar.style.background = 'linear-gradient(to right, ' + legend.colors.map(vegColor).join(', ') + ')';
-    const labels = document.createElement('span');
-    labels.className = 'gradient-labels';
-    [signed(legend.min) + ' ' + legend.low, legend.mid, legend.high + ' ' + signed(legend.max)].forEach((text) => {
-      const label = document.createElement('span');
-      label.textContent = text;
-      labels.appendChild(label);
-    });
-    wrap.append(bar, labels);
-    box.appendChild(wrap);
+    box.appendChild(gradientLegend(legend));
   } else if (legend.type === 'gradient') {
     // low label, a bar from the first to the last color, high label
     const low = document.createElement('span');
@@ -446,6 +431,26 @@ function renderLegend(legend) {
   } else {
     legend.items.forEach((item) => box.appendChild(legendItem(item.label, vegColor(item.color))));
   }
+}
+
+// A bar from the first to the last color with three labels under it: left, middle and right (with the values at the ends).
+// Used in the legend strip and in "How to read the colors" of About this layer.
+function gradientLegend(legend) {
+  const signed = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v);
+  const wrap = document.createElement('span');
+  wrap.className = 'gradient-wrap';
+  const bar = document.createElement('span');
+  bar.className = 'gradient-bar';
+  bar.style.background = 'linear-gradient(to right, ' + legend.colors.map(vegColor).join(', ') + ')';
+  const labels = document.createElement('span');
+  labels.className = 'gradient-labels';
+  [signed(legend.min) + ' ' + legend.low, legend.mid, legend.high + ' ' + signed(legend.max)].forEach((text) => {
+    const label = document.createElement('span');
+    label.textContent = text;
+    labels.appendChild(label);
+  });
+  wrap.append(bar, labels);
+  return wrap;
 }
 
 // One legend entry: a color block and a label (same look as the other legends).
@@ -491,6 +496,7 @@ function renderAbout() {
   const colors = document.createElement('div');
   colors.className = 'about-legend';
   layer.classes.forEach((c) => colors.appendChild(legendItem(c.label, vegColor(c.color))));
+  if (layer.legend.type === 'gradient' && isFilled(layer.legend.mid)) colors.appendChild(gradientLegend(layer.legend));
   if (layer.legend.type === 'periods') {
     const list = document.createElement('div');
     list.className = 'period-list';
