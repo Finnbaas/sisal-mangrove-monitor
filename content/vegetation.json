@@ -3,7 +3,7 @@
   "files": {
     "layers": "data/vegetation/layers.json"
   },
-  "defaultOpacity": 70,
+  "defaultOpacity": 100,
   "layerSwitch": [
     {
       "id": "condition",
