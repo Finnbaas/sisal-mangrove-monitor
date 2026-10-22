@@ -999,6 +999,148 @@
               "classes": []
             }
           ]
+        },
+        {
+          "id": "acute-ndvi",
+          "title": "Storm effect: acute NDVI change",
+          "bounds": null,
+          "defaultVariant": "isidore",
+          "variantGroup": "storm",
+          "legend": {
+            "type": "gradient",
+            "title": "Acute NDVI change (Z-score)",
+            "min": -3,
+            "max": 3,
+            "colors": [
+              "#b2182b",
+              "#ef8a62",
+              "#fddbc7",
+              "#f7f7f7",
+              "#d1e5f0",
+              "#67a9cf",
+              "#2166ac"
+            ],
+            "low": "far below normal",
+            "high": "far above normal"
+          },
+          "about": {
+            "shows": "The effect in the first weeks after the storm.",
+            "computed": "Landsat images from a short window right after the storm, compared with the same calendar window in other years (Z-score; storm-affected years left out). NDVI shows vegetation; MNDWI shows surface wetness (flooding)."
+          },
+          "classes": [],
+          "variants": [
+            {
+              "id": "opal",
+              "label": "Opal 1995",
+              "relatedStorms": [
+                "opal-1995"
+              ],
+              "about": {
+                "stats": "Window: 1 Nov - 15 Dec 1995 (vs. 1994 and other years). Whole area: NDVI -1.16 (below normal), wetness +1.55.",
+                "note": "Short windows mean few images; single pixels can be noisy. A clear short-term drop, while the lasting view shows little: the effect was mostly temporary, or stands killed in 1995 are missing from the mangrove mask (see Damage classes)."
+              },
+              "image": "data/vegetation/dr-opal-acute-ndvi-z.png",
+              "classes": []
+            },
+            {
+              "id": "isidore",
+              "label": "Isidore 2002",
+              "relatedStorms": [
+                "isidore-2002"
+              ],
+              "about": {
+                "stats": "Window: 1 Nov - 15 Dec 2002 (vs. 2001 and other years). Whole area: NDVI -2.84 (far below normal), wetness +0.60.",
+                "note": "Short windows mean few images; single pixels can be noisy."
+              },
+              "image": "data/vegetation/dr-isidore-acute-ndvi-z.png",
+              "classes": []
+            },
+            {
+              "id": "2020",
+              "label": "2020 storms",
+              "relatedStorms": [
+                "cristobal-2020"
+              ],
+              "about": {
+                "stats": "Window: 5 Jun - 31 Jul 2020, Cristobal (vs. 2019 and other years). Whole area: NDVI +1.83 (above normal), wetness +1.68.",
+                "note": "Short windows mean few images; single pixels can be noisy. Greener and wetter than normal right after the storm: flooding and rain, no acute vegetation loss. The damage in the lasting view (2021) reflects the whole 2020 season."
+              },
+              "mapLabel": "Acute: Cristobal, 5 June - 31 July 2020",
+              "image": "data/vegetation/dr-cristobal-acute-ndvi-z.png",
+              "classes": []
+            }
+          ]
+        },
+        {
+          "id": "acute-wetness",
+          "title": "Storm effect: acute wetness",
+          "bounds": null,
+          "defaultVariant": "isidore",
+          "variantGroup": "storm",
+          "legend": {
+            "type": "gradient",
+            "title": "Acute wetness, MNDWI (Z-score)",
+            "min": -3,
+            "max": 3,
+            "colors": [
+              "#b2182b",
+              "#ef8a62",
+              "#fddbc7",
+              "#f7f7f7",
+              "#d1e5f0",
+              "#67a9cf",
+              "#2166ac"
+            ],
+            "low": "drier than normal",
+            "high": "wetter than normal"
+          },
+          "about": {
+            "shows": "The effect in the first weeks after the storm.",
+            "computed": "Landsat images from a short window right after the storm, compared with the same calendar window in other years (Z-score; storm-affected years left out). NDVI shows vegetation; MNDWI shows surface wetness (flooding)."
+          },
+          "classes": [],
+          "variants": [
+            {
+              "id": "opal",
+              "label": "Opal 1995",
+              "relatedStorms": [
+                "opal-1995"
+              ],
+              "about": {
+                "stats": "Window: 1 Nov - 15 Dec 1995 (vs. 1994 and other years). Whole area: NDVI -1.16 (below normal), wetness +1.55.",
+                "note": "Short windows mean few images; single pixels can be noisy. A clear short-term drop, while the lasting view shows little: the effect was mostly temporary, or stands killed in 1995 are missing from the mangrove mask (see Damage classes)."
+              },
+              "unavailable": "Not available for Opal",
+              "classes": []
+            },
+            {
+              "id": "isidore",
+              "label": "Isidore 2002",
+              "relatedStorms": [
+                "isidore-2002"
+              ],
+              "about": {
+                "stats": "Window: 1 Nov - 15 Dec 2002 (vs. 2001 and other years). Whole area: NDVI -2.84 (far below normal), wetness +0.60.",
+                "note": "Short windows mean few images; single pixels can be noisy."
+              },
+              "image": "data/vegetation/dr-isidore-acute-mndwi-z.png",
+              "classes": []
+            },
+            {
+              "id": "2020",
+              "label": "2020 storms",
+              "relatedStorms": [
+                "cristobal-2020"
+              ],
+              "about": {
+                "stats": "Window: 5 Jun - 31 Jul 2020, Cristobal (vs. 2019 and other years). Whole area: NDVI +1.83 (above normal), wetness +1.68.",
+                "note": "Short windows mean few images; single pixels can be noisy. Greener and wetter than normal right after the storm: flooding and rain, no acute vegetation loss. The damage in the lasting view (2021) reflects the whole 2020 season."
+              },
+              "mapLabel": "Acute: Cristobal, 5 June - 31 July 2020",
+              "image": "data/vegetation/dr-cristobal-acute-mndwi-z.png",
+              "classes": []
+            }
+          ]
         }
       ]
     }

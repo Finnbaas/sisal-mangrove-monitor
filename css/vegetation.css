@@ -10,6 +10,7 @@
 /* layer switch: looks like the chips of the point card (.chip in points.css; own class because points.js changes every .chip) */
 .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .layer-chip { padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--color-border); background: transparent; font-size: 12px; font-weight: 500; color: var(--color-text); }
+.layer-chip:disabled { opacity: 0.45; cursor: not-allowed; }
 .layer-chip.on { background: var(--color-surface-subtle); }
 
 /* sub-switch under the layer switch (Change: Classes | Per period): a smaller version of the chips */

@@ -55,6 +55,14 @@
       {
         "id": "lasting",
         "label": "Lasting NDVI change"
+      },
+      {
+        "id": "acute-ndvi",
+        "label": "Acute NDVI change"
+      },
+      {
+        "id": "acute-wetness",
+        "label": "Acute wetness"
       }
     ]
   },

@@ -270,6 +270,13 @@ function renderLayerSwitch() {
   });
 }
 
+// Why a view cannot be shown for the chosen variant (e.g. no acute wetness for Opal): the text from layers.json "unavailable", or ''.
+function viewUnavailable(layer, view) {
+  const variants = variantsOf(view);
+  const chosen = variants && variants.find((v) => v.id === chosenVariantId(layer, view));
+  return (chosen && chosen.unavailable) || '';
+}
+
 // The small switch under the layer chips (e.g. Change: Classes | Per period): only for layers with views.
 function renderViewSwitch() {
   renderDetailSwitch();
@@ -286,6 +293,8 @@ function renderViewSwitch() {
     chip.className = 'layer-chip' + (item.id === activeId ? ' on' : '');
     chip.textContent = item.label;
     chip.setAttribute('aria-pressed', item.id === activeId);
+    const unavailable = viewUnavailable(layer, layer.views.find((v) => v.id === item.id));
+    if (unavailable) { chip.disabled = true; chip.title = unavailable; }   // greyed out, see vegetation.css
     chip.addEventListener('click', () => {
       vegViewIds[vegLayerId] = item.id;
       renderViewSwitch();
@@ -314,6 +323,8 @@ function renderDetailSwitch() {
     chip.setAttribute('aria-pressed', item.id === active);
     chip.addEventListener('click', () => {
       vegVariantIds[variantKey(layer, view)] = item.id;
+      if (viewUnavailable(layer, view)) vegViewIds[layer.id] = layer.views[0].id;   // e.g. Acute wetness is not there for Opal
+      renderViewSwitch();
       renderDetailSwitch();
       renderLayer();
       renderLayerOverlay();
@@ -395,6 +406,8 @@ function renderLayerOverlay() {
 function renderLayer() {
   const layer = currentLayer();
   setText('veg-map-title', layer.title);
+  setText('veg-map-label', layer.mapLabel || '');
+  $('veg-map-label').hidden = !layer.mapLabel;
   showPlaceholderTag($('veg-map-title').parentElement, layer.placeholder);
   renderLegend(layer.legend);
   renderAbout();
