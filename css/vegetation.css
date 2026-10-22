@@ -62,21 +62,35 @@
 /* page title above the toggle (Figma "Top / Page title") */
 .page-title { margin-bottom: -8px; }
 
-/* the Maps menu: groups with a small heading, one radio row per map, a small segmented control for the variants */
-.map-menu { display: flex; flex-direction: column; gap: 14px; }
-.menu-group { display: flex; flex-direction: column; gap: 2px; }
-.menu-heading { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 4px; }
-.menu-row { text-align: left; padding: 7px 10px; border-radius: 8px; border: 0; background: transparent; font-size: 13px; font-weight: 500; color: var(--color-text); cursor: pointer; }
-.menu-row:hover:not(:disabled) { background: var(--color-surface-subtle); }
-.menu-row[aria-checked="true"] { background: var(--color-accent); color: var(--color-text-on-accent); font-weight: 600; }
-.menu-row:disabled { opacity: 0.45; cursor: not-allowed; }
-.menu-row:focus-visible, .menu-seg-btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
-.menu-seg { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; margin: 4px 0 6px 10px; padding: 2px; border-radius: 8px; background: var(--color-surface-subtle); align-self: flex-start; }
+/* the Maps menu (compact): tabs per theme, the storm line, one radio row per map of the active theme; the variants sit
+   on the line of the selected row */
+.map-menu { display: flex; flex-direction: column; gap: 6px; }
+.menu-tabs { display: flex; gap: 2px; padding: 2px; border-radius: 10px; background: var(--color-surface-subtle); }
+.menu-tab { flex: 1 1 auto; padding: 5px 8px; border-radius: 8px; border: 0; background: transparent; font-size: 12px; font-weight: 500; color: var(--color-text); cursor: pointer; white-space: nowrap; }
+.menu-tab:hover:not([aria-selected="true"]) { background: var(--color-divider); }
+.menu-tab[aria-selected="true"] { background: var(--color-accent); color: var(--color-text-on-accent); font-weight: 600; }
+.menu-rows { display: flex; flex-direction: column; gap: 1px; }
+.menu-item { display: flex; flex-wrap: wrap; align-items: center; column-gap: 8px; min-height: 28px; padding: 0 4px 0 0; border-radius: 8px; color: var(--color-text); }
+.menu-item:not(.selected):not(.disabled):hover { background: var(--color-surface-subtle); }
+.menu-item.selected { background: var(--color-accent); color: var(--color-text-on-accent); }
+.menu-item.disabled { opacity: 0.45; }
+.menu-row { flex: 1 1 auto; text-align: left; padding: 4px 10px; border: 0; background: transparent; font-size: 13px; font-weight: 500; line-height: 20px; color: inherit; cursor: pointer; }
+.menu-item.selected .menu-row { font-weight: 600; }
+.menu-row:disabled { cursor: not-allowed; }
+.menu-row:focus-visible, .menu-seg-btn:focus-visible, .menu-tab:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+/* the selected row is dark: its outline must show on it */
+.menu-item.selected .menu-row:focus-visible, .menu-item.selected .menu-seg-btn:focus-visible { outline-color: var(--color-text-on-accent); outline-offset: -2px; }
+.menu-seg { display: flex; align-items: center; gap: 2px; padding: 2px; border-radius: 8px; background: var(--color-surface-subtle); }
 .menu-seg-label { font-size: 11px; color: var(--color-text-muted); padding: 0 6px 0 8px; }
-.menu-seg-btn { padding: 3px 10px; border-radius: 6px; border: 0; background: transparent; font-size: 11px; font-weight: 500; color: var(--color-text); cursor: pointer; }
+.menu-seg-btn { padding: 2px 9px; border-radius: 6px; border: 0; background: transparent; font-size: 11px; font-weight: 500; line-height: 16px; color: var(--color-text); cursor: pointer; }
 .menu-seg-btn[aria-pressed="true"] { background: var(--color-accent); color: var(--color-text-on-accent); font-weight: 600; }
-/* the storm choice while another group is shown: marked, but not in the color of the selected map */
-.menu-seg.muted .menu-seg-btn[aria-pressed="true"] { background: var(--color-surface); color: var(--color-text); box-shadow: inset 0 0 0 1.5px var(--color-border); }
+/* the variants on the dark selected row: a light pressed button, so it differs from the row itself */
+.menu-item.selected .menu-seg { background: color-mix(in srgb, var(--color-text-on-accent) 18%, transparent); }
+.menu-item.selected .menu-seg-btn { color: var(--color-text-on-accent); }
+.menu-item.selected .menu-seg-btn[aria-pressed="true"] { background: var(--color-surface); color: var(--color-text); }
+/* the variants: right-aligned on the line of the name (they wrap under it when they do not fit) */
+.menu-item .menu-seg { margin: 0 0 0 auto; }
+.menu-storm { align-self: flex-start; }
 
 /* "Where the data comes from": a small table card, as wide as "About this layer" */
 [data-card="veg-source"] { max-width: 451px; }
