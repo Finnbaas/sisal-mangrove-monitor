@@ -21,42 +21,243 @@
     {
       "id": "condition",
       "title": "Mangrove condition map",
-      "image": null,
-      "bounds": null,
-      "legend": {
-        "type": "gradient",
-        "title": "Condition",
-        "low": "low health",
-        "high": "high health",
-        "colors": [
-          "class-loss",
-          "class-recovery",
-          "scenario-4"
-        ]
-      },
-      "about": {
-        "shows": "Placeholder: one or two sentences on what the condition layer shows.",
-        "computed": "Placeholder: data, index and method in plain words."
-      },
-      "classes": [
+      "views": [
         {
-          "label": "Low condition",
-          "color": "class-loss",
-          "share": null
+          "id": "status",
+          "title": "Mangrove condition: status",
+          "bounds": null,
+          "defaultVariant": "2025",
+          "totalHa": 6974.9,
+          "legend": {
+            "type": "categories",
+            "title": "Condition",
+            "items": [
+              {
+                "label": "Improving",
+                "color": "#2c7bb6"
+              },
+              {
+                "label": "Stable",
+                "color": "#d9d9d9"
+              },
+              {
+                "label": "Recently stressed",
+                "color": "#fdae61"
+              },
+              {
+                "label": "Declining",
+                "color": "#d7191c"
+              }
+            ]
+          },
+          "about": {
+            "shows": "The condition of mangrove that was present during the whole period (persistent mangrove), for the chosen year.",
+            "computed": "Per pixel, the NDVI trend over the sensor period (Theil-Sen slope, Mann-Kendall test, p < 0.05) and how far the chosen year lies from that pixel's normal (Z-score). Patches smaller than 6 pixels count as Stable.",
+            "colors": "Improving = significant upward trend; Declining = significant downward trend; Recently stressed = the chosen year far below normal (Z < -2); Stable = none of these.",
+            "note": "Improving and Declining come from the trend over the whole period (1993-2012 or 2014-2025), so they are the same for years in the same period. Only 'Recently stressed' depends on the year. 1996 and 2003 are compared with 1993-2012 (Landsat 5/7), 2021 and 2025 with 2014-2025 (Landsat 8/9). About 2.5% of pixels per direction can come out as significant by chance: read patches, not single pixels."
+          },
+          "variants": [
+            {
+              "id": "1996",
+              "label": "1996",
+              "image": "data/vegetation/condition-status-1996.png",
+              "about": {
+                "sharesNote": "Share of persistent mangrove (6974.9 ha). Trend window 1993-2012."
+              },
+              "classes": [
+                {
+                  "label": "Improving",
+                  "color": "#2c7bb6",
+                  "ha": 1181.4
+                },
+                {
+                  "label": "Stable",
+                  "color": "#d9d9d9",
+                  "ha": 5487.8
+                },
+                {
+                  "label": "Recently stressed",
+                  "color": "#fdae61",
+                  "ha": 8.7
+                },
+                {
+                  "label": "Declining",
+                  "color": "#d7191c",
+                  "ha": 297
+                }
+              ],
+              "relatedStorms": []
+            },
+            {
+              "id": "2003",
+              "label": "2003",
+              "image": "data/vegetation/condition-status-2003.png",
+              "about": {
+                "sharesNote": "Share of persistent mangrove (6974.9 ha). Trend window 1993-2012."
+              },
+              "classes": [
+                {
+                  "label": "Improving",
+                  "color": "#2c7bb6",
+                  "ha": 1018.7
+                },
+                {
+                  "label": "Stable",
+                  "color": "#d9d9d9",
+                  "ha": 4282.9
+                },
+                {
+                  "label": "Recently stressed",
+                  "color": "#fdae61",
+                  "ha": 1376.3
+                },
+                {
+                  "label": "Declining",
+                  "color": "#d7191c",
+                  "ha": 297
+                }
+              ],
+              "relatedStorms": [
+                "isidore-2002"
+              ]
+            },
+            {
+              "id": "2021",
+              "label": "2021",
+              "image": "data/vegetation/condition-status-2021.png",
+              "about": {
+                "sharesNote": "Share of persistent mangrove (6974.9 ha). Trend window 2014-2025."
+              },
+              "classes": [
+                {
+                  "label": "Improving",
+                  "color": "#2c7bb6",
+                  "ha": 549.8
+                },
+                {
+                  "label": "Stable",
+                  "color": "#d9d9d9",
+                  "ha": 4252.6
+                },
+                {
+                  "label": "Recently stressed",
+                  "color": "#fdae61",
+                  "ha": 1069.5
+                },
+                {
+                  "label": "Declining",
+                  "color": "#d7191c",
+                  "ha": 1103.1
+                }
+              ],
+              "relatedStorms": [
+                "cristobal-2020",
+                "zeta-2020"
+              ]
+            },
+            {
+              "id": "2025",
+              "label": "2025",
+              "image": "data/vegetation/condition-status-2025.png",
+              "about": {
+                "sharesNote": "Share of persistent mangrove (6974.9 ha). Trend window 2014-2025."
+              },
+              "classes": [
+                {
+                  "label": "Improving",
+                  "color": "#2c7bb6",
+                  "ha": 571.9
+                },
+                {
+                  "label": "Stable",
+                  "color": "#d9d9d9",
+                  "ha": 5135.7
+                },
+                {
+                  "label": "Recently stressed",
+                  "color": "#fdae61",
+                  "ha": 164.2
+                },
+                {
+                  "label": "Declining",
+                  "color": "#d7191c",
+                  "ha": 1103.1
+                }
+              ],
+              "relatedStorms": []
+            }
+          ],
+          "classes": [],
+          "relatedStorms": []
         },
         {
-          "label": "Medium condition",
-          "color": "class-recovery",
-          "share": null
-        },
-        {
-          "label": "High condition",
-          "color": "scenario-4",
-          "share": null
+          "id": "trend",
+          "title": "Mangrove condition: trend",
+          "bounds": null,
+          "defaultVariant": "2014-2025",
+          "legend": {
+            "type": "gradient",
+            "title": "NDVI per year",
+            "min": -0.01,
+            "max": 0.01,
+            "colors": [
+              "#b2182b",
+              "#ef8a62",
+              "#fddbc7",
+              "#f7f7f7",
+              "#d1e5f0",
+              "#67a9cf",
+              "#2166ac"
+            ],
+            "low": "declining",
+            "high": "increasing"
+          },
+          "about": {
+            "shows": "Where mangrove NDVI went up or down over the period.",
+            "computed": "Theil-Sen slope of yearly NDVI per pixel; only pixels with a significant trend (Mann-Kendall, p < 0.05) are colored.",
+            "colors": "Red = declining, blue = increasing; 0.01 per year = 0.1 per decade. Uncolored mangrove has no significant trend. These shares are slightly higher than Improving and Declining in the status map, because the status map treats patches under 6 pixels as Stable.",
+            "sharesNote": "Share of persistent mangrove with a significant trend."
+          },
+          "variants": [
+            {
+              "id": "2014-2025",
+              "label": "2014–2025",
+              "image": "data/vegetation/condition-trend-2014-2025.png",
+              "classes": [
+                {
+                  "label": "Significant increase",
+                  "color": "#2c7bb6",
+                  "share": 9.8
+                },
+                {
+                  "label": "Significant decrease",
+                  "color": "#d7191c",
+                  "share": 18.5
+                }
+              ]
+            },
+            {
+              "id": "1993-2012",
+              "label": "1993–2012",
+              "image": "data/vegetation/condition-trend-1993-2012.png",
+              "classes": [
+                {
+                  "label": "Significant increase",
+                  "color": "#2c7bb6",
+                  "share": 19.4
+                },
+                {
+                  "label": "Significant decrease",
+                  "color": "#d7191c",
+                  "share": 4.9
+                }
+              ]
+            }
+          ],
+          "classes": [],
+          "relatedStorms": []
         }
-      ],
-      "relatedStorms": [],
-      "placeholder": true
+      ]
     },
     {
       "id": "change",

@@ -20,7 +20,7 @@ let vegBarMode = 'total';      // 'perYear' or 'total' (content/vegetation.json 
 let vegEwsSet = null;          // the EWS charts as a set for the comparison line (see charts.js)
 let vegLoaded = false;         // true when layers.json has loaded
 let vegLayerId = null;         // the layer shown in the map of section 1
-let vegDetail = 'simplified';   // 'simplified' or 'detailed': the version of a view that has a "detailed" part (Change > Classes)
+let vegVariantIds = {};        // the chosen variant per view ("layer/view"): Simplified | Detailed, a year or a period (see variantsOf)
 let vegViewIds = {};           // the chosen view per layer id (layers with "views", e.g. Change: classes | per-period)
 let vegOverlay = null;         // the Leaflet image of that layer
 let vegMaps = {};              // the Leaflet map of the layers: { layers }
@@ -225,11 +225,26 @@ function currentLayer() {
   if (!layer.views) return layer;
   const view = layer.views.find((v) => v.id === vegViewIds[layer.id]) || layer.views[0];
   const merged = Object.assign({}, layer, view, { id: layer.id });
-  // the detailed version of a view (own image, legend, classes; its "about" texts replace the same texts of the simplified one)
-  if (view.detailed && vegDetail === 'detailed') {
-    Object.assign(merged, view.detailed, { about: Object.assign({}, view.about, view.detailed.about) });
+  // the chosen variant of the view (own image, legend, classes, ...; its "about" texts replace the same texts of the view)
+  const variants = variantsOf(view);
+  if (variants) {
+    const { id, label, ...fields } = variants.find((v) => v.id === chosenVariantId(layer, view)) || variants[0];
+    Object.assign(merged, fields, { about: Object.assign({}, view.about, fields.about) });
   }
   return merged;
+}
+
+// The variants of a view, or null: "variants" in layers.json (a year, a period), or Simplified | Detailed for a view
+// with a "detailed" part (Change > Classes). A variant has an id, a label and the fields it replaces.
+function variantsOf(view) {
+  if (Array.isArray(view.variants)) return view.variants;
+  if (!view.detailed) return null;
+  return CONTENT.vegetation.detailSwitch.map((item) => (item.id === 'detailed' ? Object.assign({}, view.detailed, item) : item));
+}
+
+function chosenVariantId(layer, view) {
+  const variants = variantsOf(view);
+  return vegVariantIds[layer.id + '/' + view.id] || view.defaultVariant || variants[0].id;
 }
 
 function renderLayerSwitch() {
@@ -278,22 +293,24 @@ function renderViewSwitch() {
   });
 }
 
-// The small Simplified | Detailed switch under the view switch: only when the current view has a "detailed" version.
+// The small switch under the view switch (Simplified | Detailed, a year, a period): only when the current view has variants.
 function renderDetailSwitch() {
   const box = $('veg-detail-switch');
   const layer = vegLayers.layers.find((l) => l.id === vegLayerId);
   const view = layer && layer.views && (layer.views.find((v) => v.id === vegViewIds[layer.id]) || layer.views[0]);
-  box.hidden = !(view && view.detailed);
+  const variants = view && variantsOf(view);
+  box.hidden = !variants;
   box.innerHTML = '';
   if (box.hidden) return;
-  CONTENT.vegetation.detailSwitch.forEach((item) => {
+  const active = chosenVariantId(layer, view);
+  variants.forEach((item) => {
     const chip = document.createElement('button');
     chip.type = 'button';
-    chip.className = 'layer-chip' + (item.id === vegDetail ? ' on' : '');
+    chip.className = 'layer-chip' + (item.id === active ? ' on' : '');
     chip.textContent = item.label;
-    chip.setAttribute('aria-pressed', item.id === vegDetail);
+    chip.setAttribute('aria-pressed', item.id === active);
     chip.addEventListener('click', () => {
-      vegDetail = item.id;
+      vegVariantIds[layer.id + '/' + view.id] = item.id;
       renderDetailSwitch();
       renderLayer();
       renderLayerOverlay();
@@ -414,7 +431,7 @@ function renderLegend(legend) {
       note.textContent = legend.note;
       box.appendChild(note);
     }
-  } else if (legend.type === 'gradient' && isFilled(legend.mid)) {
+  } else if (legend.type === 'gradient' && isFinite(legend.min)) {
     box.appendChild(gradientLegend(legend));
   } else if (legend.type === 'gradient') {
     // low label, a bar from the first to the last color, high label
@@ -444,7 +461,7 @@ function gradientLegend(legend) {
   bar.style.background = 'linear-gradient(to right, ' + legend.colors.map(vegColor).join(', ') + ')';
   const labels = document.createElement('span');
   labels.className = 'gradient-labels';
-  [signed(legend.min) + ' ' + legend.low, legend.mid, legend.high + ' ' + signed(legend.max)].forEach((text) => {
+  [signed(legend.min) + ' ' + legend.low, legend.mid, legend.high + ' ' + signed(legend.max)].filter(isFilled).forEach((text) => {
     const label = document.createElement('span');
     label.textContent = text;
     labels.appendChild(label);
@@ -495,8 +512,8 @@ function renderAbout() {
   // how to read the colors: one color block per class (the per-period view lists its periods instead)
   const colors = document.createElement('div');
   colors.className = 'about-legend';
-  layer.classes.forEach((c) => colors.appendChild(legendItem(c.label, vegColor(c.color))));
-  if (layer.legend.type === 'gradient' && isFilled(layer.legend.mid)) colors.appendChild(gradientLegend(layer.legend));
+  if (layer.legend.type !== 'gradient') layer.classes.forEach((c) => colors.appendChild(legendItem(c.label, vegColor(c.color))));
+  if (layer.legend.type === 'gradient' && isFinite(layer.legend.min)) colors.appendChild(gradientLegend(layer.legend));
   if (layer.legend.type === 'periods') {
     const list = document.createElement('div');
     list.className = 'period-list';
@@ -519,6 +536,11 @@ function renderAbout() {
     colors.appendChild(list);
   }
   if (isFilled(layer.about.colors)) colors.appendChild(aboutText(layer.about.colors));   // a note on the colors
+  if (isFilled(layer.about.note)) {                                                       // a note that is always visible (Condition > Status)
+    const note = aboutText(layer.about.note);
+    note.classList.add('about-note');
+    colors.appendChild(note);
+  }
   body.appendChild(aboutBlock(vt('aboutColors'), colors));
 
   renderChartCard(layer);

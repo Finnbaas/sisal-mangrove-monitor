@@ -19,6 +19,16 @@
     }
   ],
   "viewSwitch": {
+    "condition": [
+      {
+        "id": "status",
+        "label": "Status"
+      },
+      {
+        "id": "trend",
+        "label": "Trend"
+      }
+    ],
     "change": [
       {
         "id": "classes",
