@@ -60,7 +60,7 @@
     },
     {
       "id": "change",
-      "title": "Mangrove change map",
+      "title": "Mangrove extent map",
       "views": [
         {
           "id": "classes",
@@ -68,7 +68,7 @@
           "bounds": null,
           "legend": {
             "type": "categories",
-            "title": "Change",
+            "title": "Extent",
             "items": [
               {
                 "label": "Stable mangrove",
@@ -122,7 +122,7 @@
             "image": "data/vegetation/extent-classes-detailed.png",
             "legend": {
               "type": "categories",
-              "title": "Change",
+              "title": "Extent",
               "items": [
                 {
                   "label": "Stable mangrove",

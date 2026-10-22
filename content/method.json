@@ -40,7 +40,7 @@
         { "name": "shape-class-map/README.md", "description": "What the analysis shows, the input data, the steps and what the printed messages mean.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/shape-class-map/README.md" },
         { "name": "shape-class-map/requirements.txt", "description": "The Python packages you need.", "format": "Text", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/shape-class-map/requirements.txt" },
         { "name": "shape-class-map/monthly_max_NDVI_per_point.csv", "description": "Our Sisal data: 150 points, monthly maximum NDVI 1993 to 2026, in the input format; the notebooks run on it as it is.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/shape-class-map/example_data/monthly_max_NDVI_per_point.csv" },
-        { "name": "mangrove-maps/change/README.md", "description": "Full instructions, settings and troubleshooting for the Change map.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/change/README.md" },
+        { "name": "mangrove-maps/change/README.md", "description": "Full instructions, settings and troubleshooting for the Extent map.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/change/README.md" },
         { "name": "mangrove-maps/change/1_period_images.js", "description": "Script 1: builds one cloud-free Landsat image per period and saves it in your project.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/change/1_period_images.js" },
         { "name": "mangrove-maps/change/2a_training_points_conabio.js", "description": "Script 2a (accurate route, Mexico): makes training points from the CONABIO maps.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/change/2a_training_points_conabio.js" },
         { "name": "mangrove-maps/change/2_mangrove_maps.js", "description": "Script 2: decides per period which pixels are mangrove and makes the change classes.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/change/2_mangrove_maps.js" },
@@ -55,7 +55,7 @@
           "title": "Mangrove maps",
           "image": "data/vegetation/change.png",
           "subCards": [
-            { "id": "mangrove-change", "title": "Change" },
+            { "id": "mangrove-change", "title": "Extent" },
             { "title": "Condition", "comingSoon": true },
             { "title": "Disturbance & recovery", "comingSoon": true }
           ]
@@ -146,10 +146,10 @@
         {
           "id": "mangrove-change",
           "parent": "mangrove-maps",
-          "title": "Mangrove change map for your area",
-          "howWeUsed": "This is the method behind the Change layer on the Vegetation page.",
+          "title": "Mangrove extent map for your area",
+          "howWeUsed": "This is the method behind the Extent layer on the Vegetation page.",
           "howWeUsedLink": "#satellite",
-          "howWeUsedLinkLabel": "See the Change layer on the Vegetation page",
+          "howWeUsedLinkLabel": "See the Extent layer on the Vegetation page",
           "whatYouNeed": [
             "A free Google Earth Engine account with a non-commercial Cloud project.",
             "Your study area: drawn in the Code Editor, a rectangle or a shapefile.",
