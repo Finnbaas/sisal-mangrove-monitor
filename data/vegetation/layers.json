@@ -256,6 +256,37 @@
           ],
           "classes": [],
           "relatedStorms": []
+        },
+        {
+          "id": "canopy",
+          "title": "Mangrove condition: canopy density",
+          "image": "data/vegetation/condition-canopy-2019-2025.png",
+          "bounds": null,
+          "legend": {
+            "type": "gradient",
+            "title": "NDVI (Sentinel-2)",
+            "min": 0.3,
+            "max": 0.9,
+            "colors": [
+              "#8c510a",
+              "#d8b365",
+              "#f6e8c3",
+              "#c7eae5",
+              "#5ab4ac",
+              "#01665e"
+            ],
+            "low": "sparse or dwarf canopy",
+            "high": "dense canopy"
+          },
+          "about": {
+            "shows": "How dense the mangrove canopy is, 2019-2025.",
+            "computed": "Median Sentinel-2 NDVI (10 m) of the dry seasons 2019-2025, for pixels that were mangrove in both 2019-2023 and 2024-2025.",
+            "colors": "Teal = dense canopy; brown = sparse canopy, dwarf mangrove or a wet background.",
+            "note": "This shows canopy structure, not health. Dwarf and basin mangrove are naturally low here. Sentinel-2 at 10 m: more detail than the Landsat maps (30 m), but a shorter record.",
+            "stats": "NDVI of mangrove 2019-2025: 10th percentile 0.59, median 0.76, 90th percentile 0.88."
+          },
+          "classes": [],
+          "relatedStorms": []
         }
       ]
     },

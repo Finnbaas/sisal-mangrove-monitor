@@ -27,6 +27,10 @@
       {
         "id": "trend",
         "label": "Trend"
+      },
+      {
+        "id": "canopy",
+        "label": "Canopy density"
       }
     ],
     "change": [

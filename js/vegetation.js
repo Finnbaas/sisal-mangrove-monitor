@@ -453,7 +453,8 @@ function renderLegend(legend) {
 // A bar from the first to the last color with three labels under it: left, middle and right (with the values at the ends).
 // Used in the legend strip and in "How to read the colors" of About this layer.
 function gradientLegend(legend) {
-  const signed = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v);
+  // a + sign only for a scale that has negative values (dNDVI, trend), not for NDVI itself
+  const signed = (v) => (legend.min < 0 ? (v > 0 ? '+' : v < 0 ? '−' : '') : '') + Math.abs(v);
   const wrap = document.createElement('span');
   wrap.className = 'gradient-wrap';
   const bar = document.createElement('span');
@@ -540,6 +541,11 @@ function renderAbout() {
     const note = aboutText(layer.about.note);
     note.classList.add('about-note');
     colors.appendChild(note);
+  }
+  if (isFilled(layer.about.stats)) {                                                      // a short line with numbers (Condition > Canopy density)
+    const stats = aboutText(layer.about.stats);
+    stats.classList.add('about-note');
+    colors.appendChild(stats);
   }
   body.appendChild(aboutBlock(vt('aboutColors'), colors));
 
