@@ -67,6 +67,8 @@ async function setupVegetation() {
   renderLayerSwitch();
   renderViewSwitch();
   setupOpacity();
+  setupBasemapSwitch('veg-basemap-switch', 'veg-map', true);   // the Mangrove maps map starts black and white
+  setupBasemapSwitch('map-basemap-switch', 'map', false);      // the points map starts in colour
   renderSource();
   renderLayer();
   setupMaps();
@@ -267,6 +269,33 @@ function renderViewSwitch() {
     });
     box.appendChild(chip);
   });
+}
+
+// Two chips (Black and white | Colour) under a map: the visitor chooses how the base map looks. The class
+// "basemap-bw" on the map element turns its base map black and white (css/vegetation.css).
+function setupBasemapSwitch(boxId, mapId, blackAndWhite) {
+  const box = $(boxId);
+  const map = $(mapId);
+  if (!box || !map) return;
+  const tx = CONTENT.vegetation.texts;
+  const draw = () => {
+    map.classList.toggle('basemap-bw', blackAndWhite);
+    box.innerHTML = '';
+    const label = document.createElement('span');
+    label.className = 'label-xs';
+    label.textContent = tx.basemap;
+    box.appendChild(label);
+    [[true, tx.basemapBw], [false, tx.basemapColour]].forEach(([bw, text]) => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'layer-chip' + (bw === blackAndWhite ? ' on' : '');
+      chip.textContent = text;
+      chip.setAttribute('aria-pressed', bw === blackAndWhite);
+      chip.addEventListener('click', () => { blackAndWhite = bw; draw(); });
+      box.appendChild(chip);
+    });
+  };
+  draw();
 }
 
 function setupOpacity() {

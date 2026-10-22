@@ -45,6 +45,9 @@
   "texts": {
     "mapNotAvailable": "Map layer not yet available",
     "opacity": "Opacity",
+    "basemap": "Base map",
+    "basemapBw": "Black and white",
+    "basemapColour": "Colour",
     "zoomIn": "+",
     "zoomOut": "−",
     "reset": "Reset",

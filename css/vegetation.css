@@ -22,8 +22,9 @@
 /* isolation: the map's own layers stay under the legend strip and the buttons that lie on it */
 /* the map has the shape of the base map picture (1800:1485), so the whole extent fills it */
 .geo-map { width: 100%; aspect-ratio: 1800 / 1485; background: var(--color-map-bg); isolation: isolate; }
-/* the base map under the layers is black and white, so the colored layers stand out */
-.veg-basemap { filter: grayscale(1); }
+/* black and white base map (the visitor can switch it: the chips under the map); the data layers keep their colors */
+.basemap-bw .veg-basemap, .basemap-bw > #map-image { filter: grayscale(1); }
+.basemap-row { align-items: center; margin-top: 10px; }
 /* the zoom buttons sit on top of the map, top right (.map-button is in climatology.css) */
 .map-buttons { position: absolute; top: 10px; right: 10px; z-index: 500; display: flex; gap: 6px; }
 /* calm text on a map layer that is not available yet */
