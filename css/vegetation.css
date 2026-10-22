@@ -25,6 +25,7 @@
 /* black and white base map (the visitor can switch it: the chips under the map); the data layers keep their colors */
 .basemap-bw .veg-basemap, .basemap-bw > #map-image { filter: grayscale(1); }
 .basemap-row { align-items: center; margin-top: 10px; }
+.map-buttons .map-button.on { background: var(--color-surface-subtle); border-color: var(--color-text-muted); }
 /* the zoom buttons sit on top of the map, top right (.map-button is in climatology.css) */
 .map-buttons { position: absolute; top: 10px; right: 10px; z-index: 500; display: flex; gap: 6px; }
 /* calm text on a map layer that is not available yet */

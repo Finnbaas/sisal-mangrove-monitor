@@ -67,7 +67,7 @@ async function setupVegetation() {
   renderLayerSwitch();
   renderViewSwitch();
   setupOpacity();
-  setupBasemapSwitch('veg-basemap-switch', 'veg-map', true);   // the Mangrove maps map starts black and white
+  setupBasemapButton('veg-basemap-button', 'veg-map', true);   // the Mangrove maps map starts black and white
   setupBasemapSwitch('map-basemap-switch', 'map', false);      // the points map starts in colour
   renderSource();
   renderLayer();
@@ -295,6 +295,21 @@ function setupBasemapSwitch(boxId, mapId, blackAndWhite) {
       box.appendChild(chip);
     });
   };
+  draw();
+}
+
+// One button next to the zoom buttons of the Mangrove maps map: pressed = the base map is black and white.
+function setupBasemapButton(buttonId, mapId, blackAndWhite) {
+  const button = $(buttonId);
+  const map = $(mapId);
+  if (!button || !map) return;
+  button.textContent = CONTENT.vegetation.texts.basemapBw;
+  const draw = () => {
+    map.classList.toggle('basemap-bw', blackAndWhite);
+    button.classList.toggle('on', blackAndWhite);
+    button.setAttribute('aria-pressed', blackAndWhite);
+  };
+  button.addEventListener('click', () => { blackAndWhite = !blackAndWhite; draw(); });
   draw();
 }
 

@@ -277,6 +277,8 @@
             <div id="veg-map" class="geo-map"></div>
             <div id="veg-map-message" class="map-message" hidden></div>
             <div class="map-buttons">
+              <!-- base map black and white or colour (vegetation.js: setupBasemapButton) -->
+              <button type="button" id="veg-basemap-button" class="map-button"></button>
               <button type="button" id="veg-map-zoom-in" class="map-button"></button>
               <button type="button" id="veg-map-zoom-out" class="map-button"></button>
               <button type="button" id="veg-map-reset" class="map-button"></button>
@@ -288,8 +290,6 @@
             <input type="range" id="veg-opacity" min="0" max="100" step="5">
             <span id="veg-opacity-value" class="opacity-value"></span>
           </div>
-          <!-- base map: black and white or colour (chips made by vegetation.js) -->
-          <div id="veg-basemap-switch" class="chip-row chip-row-small basemap-row"></div>
           <div class="card-actions card-actions-footer"><a id="veg-maps-link" class="veg-link"></a></div>
           <p class="fine" id="veg-map-status"></p>
         </div>
