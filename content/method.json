@@ -153,7 +153,7 @@
           "whatYouNeed": [
             "A free Google Earth Engine account with a non-commercial Cloud project.",
             "Your study area: drawn in the Code Editor, a rectangle or a shapefile.",
-            "For the accurate route also: CONABIO land-use maps or your own labelled points."
+            "For the accurate route also: CONABIO land-use maps (clipped to your area before uploading, in Mapshaper or QGIS) or your own labelled points."
           ],
           "routes": [
             {
@@ -178,7 +178,7 @@
                 "Make scripts 1, 2a, 2 and 3 in the Code Editor and set MY_ASSETS and NAME at the top of each.",
                 "Test on Sisal first (draw nothing), then draw your own area.",
                 "Run script 1 and start the export in Tasks; wait.",
-                "Download the CONABIO land-use maps of your area (or prepare your own points CSV) and upload them to your assets.",
+                "Download the CONABIO land-use maps of your area (or prepare your own points CSV). Clip each map to your study area first, in Mapshaper or QGIS: the Mexico files are too big to upload to Earth Engine. Then upload the clipped files to your assets.",
                 "Run script 2a to make the training points, and export.",
                 "Run script 2 with MASK_SOURCE = 'POINTS' and export; wait.",
                 "Run script 3: map, legend and areas."
