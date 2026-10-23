@@ -975,14 +975,14 @@ function vegChartRow(label, svg) {
 }
 
 // The early warning signals of a point: its "ews" in data/points.json (loaded by points.js), or null.
-// Also used by the trend signals card (points.js).
+// Used by the Early warning signals cards (vegetation.js).
 function ewsEntryFor(point) {
   return point && point.ews ? point.ews : null;
 }
 
 // The message of a point without EWS charts (content/texts.json), by its "ews.status" in data/points.json:
 // noBreakpoint (a control), tooShort, tooInterpolated or notAnalysed. A point that is missing from the file, or a file
-// without "status" (not exported yet by export_points.py), gets "not available yet". Also used by the trend signals card.
+// without "status" (not exported yet by export_points.py), gets "not available yet".
 const EWS_STATUS_MESSAGES = {
   noBreakpoint: 'messages.ewsNoBreakpoint',
   tooShort: 'messages.ewsTooShort',

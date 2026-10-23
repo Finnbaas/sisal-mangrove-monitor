@@ -5,10 +5,7 @@
 
   "cardTitles": {
     "point-map": "Sisal: monitoring points",
-    "tipping-status": "Tipping status",
-    "point-info": "Point info",
     "point-description": "About this point",
-    "trend-signals": "Trend signals",
     "storm-map": "Tropical cyclones near Sisal",
     "wave-direction": "Rough-sea wave direction",
     "storm-counts": "When storms come",
@@ -29,7 +26,6 @@
     "mapSubtitle": "All {count} points are shown; click one of the {featured} larger markers to see an example.",
     "mapNote": "Background: Sentinel-2 true-colour image, January–May 2024. Each dot is one of {count} monitoring points, coloured by class.",
     "mapNoteOnePoint": "Background: Sentinel-2 true-colour image, January–May 2024. The dot is the one monitoring point, coloured by class.",
-    "valuesFor": "Values for {year}",
     "breakpoint": "Detected breakpoint: {breakpoints}",
     "breakpointItem": "{type} {month} ({magnitude})",
     "showMore": "Show more",

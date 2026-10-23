@@ -24,7 +24,7 @@ files. Changes to the files show after saving; Live Server reloads the page.
 
 | Address | Page |
 |---|---|
-| `#overview` | Map with the monitoring points, year slider, tipping-point status, point chart and values |
+| `#home` | Landing page: hero, the four pages, study area and About (content/landing.json). An empty address and the old `#overview` also show it |
 | `#satellite` | The same cards for the vegetation analysis |
 | `#climatology` | "Storms at Sisal" (event list, storm charts) and "Climate at Sisal" (a typical year, change since 1950, in detail) |
 | `#stakeholders` | Areas where stakeholders saw mangrove change, with a time axis and their observations |
@@ -36,7 +36,7 @@ files. Changes to the files show after saving; Live Server reloads the page.
 index.html            the one page of the site: top bar, footer and the "card library"
 css/
   base.css            colors, section themes, layout, cards, footer (loaded first)
-  points.css          Overview and Vegetation
+  points.css          Vegetation (map with the points, point chart)
   charts.css          stacked charts, shared by storms and climate
   climatology.css     Climatology page
   stakeholders.css    Stakeholder page
@@ -46,7 +46,7 @@ js/
   content.js          loads the content/ files, fills the texts, builds the pages
   charts.js           chart parts and the comparison line (used by storms and climate)
   navigation.js       switching between pages (the #address)
-  points.js           Overview and Vegetation
+  points.js           Vegetation (map with the points, point chart)
   climatology-storms.js   Storms at Sisal
   climatology-climate.js  Climate at Sisal
   stakeholders.js     Stakeholder page
@@ -121,13 +121,13 @@ Claude Code reads CLAUDE.md in every session, so the long descriptions live here
 - index.html: page structure (top bar, footer, the card library); loads the css and js files
 - css/: one shared file plus one per screen. Load order in index.html: base, points, charts, climatology, stakeholders, method.
   - css/base.css: design tokens (colors as CSS variables at the top, named like the Figma Tokens), section themes, page, top bar, navigation, cards, placeholders, research layout, card actions, footer
-  - css/points.css (Overview and Vegetation), css/charts.css (stacked charts shared by storms and climate), css/climatology.css, css/stakeholders.css, css/method.css
+  - css/points.css (Vegetation: points map and chart), css/landing.css (landing page), css/charts.css (stacked charts shared by storms and climate), css/climatology.css, css/stakeholders.css, css/method.css
 - js/: one file per screen plus shared helpers. All files share global names, so the script order in index.html matters (helpers.js first, main.js last); only main.js runs code, the others only define functions.
   - js/helpers.js: $, colors, number formatting (formatLike), escapeHtml, textOrPlaceholder, download, and the values every screen shares (year range, change classes, NO_DATA; filled by readSharedContent)
   - js/content.js: loads and checks content/pages.json, variables.json and texts.json, fills the texts, builds the pages, parts and simple cards, shows placeholder states
   - js/charts.js: the chart parts and the comparison line, shared by the storm charts and the climate charts
-  - js/navigation.js: switching screens by the address (#overview ... #method), moving cards into place
-  - js/points.js: Overview and Vegetation (map, year slider, point chart, values, trend signals, downloads)
+  - js/navigation.js: switching screens by the address (#home ... #method), moving cards into place
+  - js/points.js: Vegetation (map with the points, point chart, downloads); js/landing.js: the landing page
   - js/climatology-storms.js: "Storms at Sisal" (event list, storm anomaly charts)
   - js/climatology-climate.js: "Climate at Sisal" (A typical year, Change since 1950, In detail)
   - js/stakeholders.js: the Stakeholder screen (areas on the map, the Time card with the observation bars, the area panel)
@@ -149,12 +149,12 @@ Claude Code reads CLAUDE.md in every session, so the long descriptions live here
 **data/ versus content/ (always follow this):** data/ is pipeline output only and is never edited by hand.
 content/ is everything the team writes and edits. Research content (which variables, charts, events,
 labels, units, sources and texts) belongs in content/ or data/, never in the code.
-- img/: images used by the site (site map, climatology data-cells map, workflow diagram, placeholder map of the Stakeholder screen; img/method/: pictures of the examples on the Method page)
+- img/: images used by the site (site map, climatology data-cells map, workflow diagram, placeholder map of the Stakeholder screen, the images of the page bands (see "band" in content/pages.json); img/method/: pictures of the examples on the Method page)
 - design/: reference images for design work (not used by the site)
 - Google Fonts are loaded from the internet with a link tag in index.html (the only external resource besides CDN libraries)
 
-The site is one page (index.html). The Research tab has four sections, each with its own address:
-#overview, #satellite, #climatology, #stakeholders, plus #method for the Method tab
+The site is one page (index.html). The top bar has one link per research page plus Method, each with its own address:
+#home (the landing page, the default), #satellite, #climatology, #stakeholders, plus #method for the Method page
 (#method/<use case id> opens the Method page at one use case). Every research
 card exists once in index.html (the "card library") and is moved into the slots (data-slot) of the
 section that is shown. Each section has its own theme colors ([data-section] blocks in css/base.css);
@@ -210,7 +210,7 @@ Only the featured points (content/featured-points.json, the clickable markers) a
 - `ndvi`: monthly maximum NDVI, one value per entry in `dates` (the grey "raw NDVI" line of the plots; gaps filled as in the notebook).
 - `ndviTrend` (featured points): the STL trend (deseasonalised) of the NDVI, one value per entry in `dates`; `null` in the months STL cuts off. `ndvi` and `ndviTrend` are the two lines of the notebook's NDVI plots, written by the notebook to analysis/satellite/featured_plot_lines.csv and featured_plot_breakpoints.csv, and copied into points.json by analysis/satellite/export_points.py.
 - `breakpoints` (featured points): list of `{ "type": "drop" or "rise", "index": position in dates, "label": "2001-08", "windowStart", "windowEnd": positions in dates of the 12-month window, "magnitude" }`; an empty list if none was detected.
-- `ews` (featured points): the early warning signals (EWS) of the point, for the "Early warning signals" card (Vegetation page) and the trend signals card (Overview). Copied by export_points.py from analysis/satellite/ews/featured_ews_stats.csv and featured_ews_series.csv, which the export cell (step 9) of analysis/satellite/ews/ews_monthly_new.ipynb writes; nothing is recalculated. Missing when that export was not found.
+- `ews` (featured points): the early warning signals (EWS) of the point, for the "Early warning signals" card (Vegetation page). Copied by export_points.py from analysis/satellite/ews/featured_ews_stats.csv and featured_ews_series.csv, which the export cell (step 9) of analysis/satellite/ews/ews_monthly_new.ipynb writes; nothing is recalculated. Missing when that export was not found.
   - `status`: "ok" (EWS computed), "noBreakpoint" (no loss breakpoint: a control, not an EWS result), "tooShort" (less than 5 years before the loss), "tooInterpolated" (more than 25% interpolated months before the loss) or "notAnalysed" (too few months with data).
   - `ewsVerdict`: "ews" or "no-ews" (status "ok"), "not-analysed" (all other statuses). The notebook's rule: an EWS if AR1 and standard deviation both rise significantly (tau > 0 and p < `alpha`).
   - `alpha` (0.05), `lossStart` ("2001-02", start of the 12-month loss window; `null` without a loss), `nSurrogates` (AR(1) surrogates of the significance test), `pMin` (1 / nSurrogates).

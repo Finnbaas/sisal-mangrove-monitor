@@ -19,6 +19,7 @@ touching the code (the `js/` and `css/` folders).
 | `texts.json` | Short texts: card titles, labels, messages, footer |
 | `stakeholders.json` | The Stakeholder page: the areas on the map and what stakeholders said about them |
 | `method.json` | The Method page: the analyses, their code files, and the "do it yourself" examples that the research cards link to |
+| `landing.json` | The landing page (`#home`): hero, the page cards, study area and About card |
 | `climate.json` | "Climate at Sisal" on the Climatology page: the year range of "Change since 1950", the trends and their badges |
 
 Images go in `img/` (outside this folder) and are referred to as `img/name.png`.
@@ -37,17 +38,18 @@ Tip: paste the file into https://jsonlint.com to find the mistake.
 ## pages.json: what each page shows
 
 ```json
-{ "id": "overview", "label": "Overview",
+{ "id": "stakeholders", "label": "Stakeholders",
   "columns": [
-    ["point-map", "year-slider", "tipping-status"],
-    ["point-chart", "point-values", ["point-info", "trend-signals"]]
+    ["stakeholder-map", "stakeholder-time"],
+    ["stakeholder-panel"]
   ] }
 ```
 
-- `id`: the page address (`#overview`). Lowercase, no spaces.
-- `label`: the name in the menu under the top bar.
+- `id`: the page address (`#stakeholders`). Lowercase, no spaces. (The landing page `#home` is not in this file: see landing.json below.)
+- `label`: the name of the page in the top bar.
+- `title`, `intro` and `band` (optional): the band at the top of the page, under the top bar: the page title and a short intro in white over an image. `band` is the image (for example `img/site-map.png`); without it the band is the solid dark color of the page. An intro may contain {placeholders} that are filled in with numbers.
 - `columns`: a left and a right column, each a list of cards from top to bottom.
-  A list inside a list (`["point-info", "trend-signals"]`) puts two cards next to each other.
+  A list inside a list (`["card-a", "card-b"]`) puts two cards next to each other.
 - `wide` (optional): a list of cards that span the **full page width**, placed under the two
   columns. A list inside it puts two cards next to each other, each half the width.
 - `parts` (optional, instead of `columns` and `wide`): a long page in parts, like Climatology
@@ -69,7 +71,7 @@ Tip: paste the file into https://jsonlint.com to find the mistake.
   tabs, instead of below each other; `#satellite` alone then opens the first part. A card can then be used
   in several parts (e.g. the point map): it moves into the part that is shown.
 
-**A new page**: add a section with a new `id` and `label`. It gets the Overview colors.
+**A new page**: add a section with a new `id` and `label`. It gets the default (green) colors.
 A page with `"columns": []` (or no cards) shows "This page has no content yet."
 
 ### Ready-made cards (write the name in quotes)
@@ -77,12 +79,7 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 | Name | What it shows |
 |---|---|
 | `point-map` | Site map with the sample points (click to select a point) |
-| `year-slider` | Year slider of the sample-point pages |
-| `tipping-status` | Tipping-point scenario of the selected point |
 | `point-chart` | Time-series chart of the selected point, one chip per point variable |
-| `point-values` | Values of the selected point for the chosen year |
-| `point-info` | Change class and coordinates of the selected point |
-| `trend-signals` | EWS metrics and Kendall's tau of the selected point |
 | `event-list` | List of storms and extreme events |
 | `event-charts` | The anomaly charts of the selected event, one per event variable |
 | `climate-sources` | Small "Where the data comes from" card with the map of the data cells (used as `aside` of "Climate at Sisal") |
@@ -117,7 +114,7 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 
 - `planned`: a card whose graphs are designed but not built yet. Each graph is a light box with its
   `title` and a `label` saying what it will show. `height` and `width` are in pixels (optional; a graph
-  without `width` shares the free width). `"expand": true` adds the round expand button.
+  without `width` shares the free width). `"expand": true` adds the expand button.
 - `group`: one card with a small title that holds ready-made cards side by side, as parts of one card.
   Their rows line up (title, charts, axis).
 
@@ -290,7 +287,7 @@ code files to download. Everything on it comes from this file.
   "image": "img/method/tipping-point.png",
   "steps": [ "Download the Earth Engine script ...", "Change the coordinates ..." ],
   "files": [ "ndvi_timeseries.js", "early_warning_signals.ipynb" ],
-  "cards": [ "trend-signals" ] }
+  "cards": [ "point-chart" ] }
 ```
 
 - `id`: the short name used in the link to this example: the Method page address plus

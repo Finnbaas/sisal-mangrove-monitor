@@ -227,8 +227,8 @@ function findUseCase(id) {
 
 function buildMethodPage() {
   const header =
-    '<div class="card method-header">' +
-      '<div class="method-title-row"><h1>' + textOrPlaceholder('method-placeholder', method.title) + '</h1>' +
+    '<div class="page-band method-header">' +
+      '<div class="method-title-row"><h2>' + textOrPlaceholder('method-placeholder', method.title) + '</h2>' +
       (method.exampleContent ? '<span class="content-tag">' + escapeHtml(t('labels.exampleContent')) + '</span>' : '') + '</div>' +
       (isFilled(method.intro) ? '<p class="method-intro">' + escapeHtml(method.intro) + '</p>' : '') +
       githubLink('large', t('labels.viewRepositoryOnGithub'), method.downloadsRepository || '') +
@@ -243,9 +243,9 @@ function buildMethodPage() {
 
   // the tabs (same look as the toggle of the Climatology page); data-section gives a tab the colors of its research page
   const tabs =
-    '<div class="section-nav method-tabs" role="tablist">' + method.sections.map((s) =>
+    '<div class="section-nav-bar"><div class="section-nav method-tabs" role="tablist">' + method.sections.map((s) =>
       '<button type="button" class="section-nav-item method-tab" role="tab" data-section="' + escapeHtml(s.id) + '">' + escapeHtml(s.title) + '</button>').join('') +
-    '</div>';
+    '</div></div>';
 
   $('method').innerHTML = header + tabs + method.sections.map(methodSectionHtml).join('') + cite;
   if (!activeTab || !sectionById(activeTab)) activeTab = method.sections.length ? method.sections[0].id : null;

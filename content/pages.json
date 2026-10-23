@@ -1,17 +1,10 @@
 {
   "sections": [
     {
-      "id": "overview",
-      "label": "Overview",
-      "columns": [
-        ["point-map", "year-slider", "point-description"],
-        ["point-chart", "point-values", ["point-info", "trend-signals"]]
-      ]
-    },
-    {
       "id": "satellite",
-      "label": "Vegetation data",
-      "title": "Vegetation data",
+      "label": "Vegetation",
+      "title": "Vegetation",
+      "band": "data/vegetation/basemap.png",
       "intro": "Two analyses of the same mangrove: the condition of the whole area, and tipping points at {total} points.",
       "parts": [
         {
@@ -38,7 +31,9 @@
     },
     {
       "id": "climatology",
-      "label": "Climatology data",
+      "label": "Climatology",
+      "title": "Climatology",
+      "band": "img/climatology-band-milton.jpg",
       "parts": [
         {
           "id": "storms",
@@ -70,7 +65,9 @@
     },
     {
       "id": "stakeholders",
-      "label": "Stakeholder data",
+      "label": "Stakeholders",
+      "title": "Stakeholders",
+      "band": "img/stakeholders-band-mangrove.png",
       "columns": [
         ["stakeholder-map", "stakeholder-time"],
         ["stakeholder-panel"]

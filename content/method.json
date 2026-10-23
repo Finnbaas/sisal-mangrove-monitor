@@ -113,7 +113,6 @@
           "whatYouNeed": [
             "A free Google Earth Engine account. Python 3 with pandas, numpy, matplotlib, statsmodels (STL) and scipy (Kendall's tau and smoothing)."
           ],
-          "infoCards": ["trend-signals"],
           "steps": [
             "Find the breakpoints as in the example \"Tipping point analysis for your own location\".",
             "For each point with a loss, take the deseasonalised NDVI before the start of the loss (at least 5 years needed).",
@@ -122,7 +121,7 @@
             "Place each point in the scenario matrix and check the sensitivity to window size and bandwidth."
           ],
           "files": ["ews_monthly_new.ipynb", "tipping-point-analysis/requirements.txt", "tipping-point-analysis/monthly_max_NDVI_per_point.csv"],
-          "cards": ["trend-signals"]
+          "cards": []
         },
         {
           "id": "change-map",

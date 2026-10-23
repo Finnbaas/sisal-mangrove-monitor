@@ -4,7 +4,7 @@
 //   - fills every element with data-text="..." from texts.json; t('labels.year') gives one text
 //   - builds the sub-navigation, the pages, the parts with their section navigation, and the simple
 //     cards (image, text, placeholder, planned, group) from pages.json
-// Reads: content/pages.json, content/variables.json, content/texts.json, content/vegetation.json (see content/README.md).
+// Reads: content/pages.json, content/variables.json, content/texts.json, content/vegetation.json, content/landing.json (see content/README.md).
 // Used by: every screen file (CONTENT, t, parseJsonFile); main.js calls loadContent() first.
 
 let CONTENT = null;   // { pages, variables, texts, vegetation } once loaded
@@ -29,7 +29,8 @@ const CONTENT_FILES = [
   { key: 'pages', path: 'content/pages.json', json: true },
   { key: 'variables', path: 'content/variables.json', json: true },
   { key: 'texts', path: 'content/texts.json', json: true },
-  { key: 'vegetation', path: 'content/vegetation.json', json: true }
+  { key: 'vegetation', path: 'content/vegetation.json', json: true },
+  { key: 'landing', path: 'content/landing.json', json: true }
 ];
 
 async function loadContent() {
@@ -105,6 +106,11 @@ function checkContent(c) {
     if (!v[k] || typeof v[k] !== 'object' || Array.isArray(v[k])) throw new ContentError(varsFile, '"' + k + '" must be an object ({ ... }).');
   });
   if (!c.texts || typeof c.texts !== 'object') throw new ContentError('content/texts.json', 'the file must contain an object ({ ... }).');
+  const lf = 'content/landing.json', L = c.landing || {};
+  if (!L.hero || typeof L.hero.title !== 'string' || !Array.isArray(L.hero.buttons)) throw new ContentError(lf, 'it needs a "hero" with a "title" and a list of "buttons".');
+  if (!Array.isArray(L.cards)) throw new ContentError(lf, 'it needs a list called "cards".');
+  if (!L.studyArea || !Array.isArray(L.studyArea.sentences)) throw new ContentError(lf, 'it needs a "studyArea" with a list of "sentences".');
+  if (!L.about || !Array.isArray(L.about.columns)) throw new ContentError(lf, 'it needs an "about" with a list of "columns".');
 }
 
 // Shown instead of the site when a content file cannot be used.
@@ -124,7 +130,7 @@ function showContentError(err) {
   box.appendChild(title);
   box.appendChild(detail);
   document.querySelectorAll('#subnav, #card-library, [data-screen]').forEach((el) => { el.hidden = true; });
-  $('page').insertBefore(box, $('subnav'));
+  $('topbar').after(box);
   console.error(err);
 }
 
@@ -154,7 +160,7 @@ function pageSections() {
   return CONTENT.pages.sections;
 }
 
-// All card names used on one page (ready-made cards only), e.g. ['point-map', 'year-slider', ...]
+// All card names used on one page (ready-made cards only), e.g. ['point-map', 'point-chart', ...]
 function cardsOnPage(id) {
   const section = pageSections().find((s) => s.id === id);
   const names = [];
@@ -172,7 +178,29 @@ function cardsOnPage(id) {
   return names;
 }
 
-// Builds the sub-navigation and one <section> per page from pages.json.
+// The image band at the top of a page: the page title and an optional intro in white on a dark page-color overlay.
+// "title", "intro" and "band" (the image; without it the band is the solid dark page color) come from content/pages.json.
+// Returns null for a page without a title. An intro with {placeholders} is filled in later (vegetation.js).
+function buildBand(s) {
+  if (!s.title) return null;
+  const top = document.createElement('div');
+  top.className = 'page-band page-title';
+  // full address: a url() in a CSS variable is read relative to the css file
+  if (s.band) top.style.setProperty('--band-image', 'url("' + new URL(s.band, location.href).href + '")');
+  const h1 = document.createElement('h2');
+  h1.textContent = s.title;
+  top.appendChild(h1);
+  if (s.intro) {
+    const intro = document.createElement('p');
+    intro.id = 'intro-page-' + s.id;
+    if (s.intro.includes('{')) intro.dataset.template = s.intro;
+    else intro.textContent = s.intro;
+    top.appendChild(intro);
+  }
+  return top;
+}
+
+// Builds the page navigation in the top bar (one link per page, a divider, "Method") and one <section> per page from pages.json.
 function buildPages() {
   const nav = $('subnav');
   nav.innerHTML = '';
@@ -180,11 +208,19 @@ function buildPages() {
     const link = document.createElement('a');
     link.className = 'subtab';
     link.href = '#' + s.id;
-    const span = document.createElement('span');
-    span.textContent = s.label;
-    link.appendChild(span);
+    link.textContent = s.label;
     nav.appendChild(link);
   });
+  // a thin divider, then the Method page
+  const divider = document.createElement('span');
+  divider.className = 'nav-divider';
+  divider.setAttribute('aria-hidden', 'true');
+  nav.appendChild(divider);
+  const methodLink = document.createElement('a');
+  methodLink.className = 'subtab';
+  methodLink.href = '#method';
+  methodLink.textContent = t('tabs.method');
+  nav.appendChild(methodLink);
 
   const ready = readyCardNames();
   const library = $('card-library');
@@ -198,6 +234,8 @@ function buildPages() {
       buildParts(section, s, ready);
     } else {
       section.className = 'research-grid';
+      const band = buildBand(s);
+      if (band) section.appendChild(band);
       fillGrid(section, s, ready, s.id);
     }
     library.parentNode.insertBefore(section, library);
@@ -236,23 +274,10 @@ function buildParts(section, s, ready) {
   nav.className = 'section-nav';
   nav.setAttribute('aria-label', s.label);
   // the bar stays at the top in the page background color, so cards and axis labels never show behind the navigation
-  // an optional page title (and intro) above the section navigation (Figma: "Top / Page title"). An intro with
+  // an optional page title (and intro) in an image band above the section navigation (Figma: v3 image band). An intro with
   // {placeholders} is filled in later, when the numbers have loaded (vegetation.js)
-  if (s.title) {
-    const top = document.createElement('div');
-    top.className = 'part-header page-title';
-    const h1 = document.createElement('h2');
-    h1.textContent = s.title;
-    top.appendChild(h1);
-    if (s.intro) {
-      const intro = document.createElement('p');
-      intro.id = 'intro-page-' + s.id;
-      if (s.intro.includes('{')) intro.dataset.template = s.intro;
-      else intro.textContent = s.intro;
-      top.appendChild(intro);
-    }
-    section.appendChild(top);
-  }
+  const band = buildBand(s);
+  if (band) section.appendChild(band);
   const bar = document.createElement('div');
   bar.className = 'section-nav-bar';
   bar.appendChild(nav);
@@ -362,7 +387,7 @@ function buildItem(item, ready, pageId) {
   return unknownCard('card type "' + (item && item.type) + '"', pageId);
 }
 
-// A card with an optional title row (title + the round expand button, as on the other cards).
+// A card with an optional title row (title + the expand button, as on the other cards).
 // withExpand = false leaves out the expand button.
 function simpleCard(className, title, withExpand) {
   const card = document.createElement('div');

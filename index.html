@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sisal Mangrove Monitor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <!-- Leaflet (map library, from a CDN) for the two maps of the Vegetation page (vegetation.js) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <!-- styles: base.css first (colors, themes, layout, cards), then one file per screen; charts.css is shared by the storm and climate charts -->
@@ -16,27 +16,24 @@
   <link rel="stylesheet" href="css/stakeholders.css">
   <link rel="stylesheet" href="css/vegetation.css">
   <link rel="stylesheet" href="css/method.css">
+  <link rel="stylesheet" href="css/landing.css">
 </head>
 <body>
   <!-- Texts: every element with data-text="..." gets its text from content/texts.json (see content.js).
        Which pages and cards are shown is set in content/pages.json. -->
   <div id="page">
 
-    <!-- TOP BAR -->
+    <!-- TOP BAR: logo and name, then the page navigation (one link per page in content/pages.json, a divider and
+         "Method"; built by content.js) -->
     <div id="topbar">
-      <div id="brand">
+      <!-- the logo and the name link to the landing page (#home) -->
+      <a id="brand" href="#home">
         <div id="brand-mark">S</div>
         <div id="brand-name" data-text="siteName"></div>
-      </div>
-      <div id="tabs" role="tablist">
-        <button class="tab active" role="tab" aria-selected="true" data-tab="research" data-text="tabs.research"></button>
-        <button class="tab" role="tab" aria-selected="false" data-tab="method" data-text="tabs.method"></button>
-      </div>
+      </a>
+      <nav id="subnav" aria-label="Pages"></nav>
       <div id="topbar-right"></div>
     </div>
-
-    <!-- RESEARCH SUB-NAVIGATION: one link per page in content/pages.json (built by content.js) -->
-    <nav id="subnav" aria-label="Research sections"></nav>
 
     <!-- The research sections (one per page in content/pages.json) are built by content.js and placed
          here, before the card library. Each section has empty slots (data-slot="..."); when the section
@@ -46,7 +43,7 @@
          names used in content/pages.json. -->
     <div id="card-library" hidden>
 
-        <!-- coordinates of the selected point (filled by points.js): content.js moves this pill into the sticky bar
+        <!-- coordinates of the selected point (filled by points.js): content.js moves this box into the sticky bar
              with the part links of a page that has parts with "showCoords" in content/pages.json (Vegetation) -->
         <div id="coords" class="mono"></div>
 
@@ -73,29 +70,6 @@
           </div>
           <div id="map-basemap-switch" class="chip-row chip-row-small basemap-row"></div>
           <div class="fine" id="map-note"></div>
-        </div>
-
-        <div class="card" id="slider-card" data-card="year-slider">
-          <div id="slider-row">
-            <div id="year-block">
-              <div class="label-xs" data-text="labels.year"></div>
-              <div id="year-big"></div>
-            </div>
-            <button id="year-back" class="step" aria-label="Previous year">&larr;</button>
-            <input type="range" id="year-slider" step="1" aria-label="Year">
-            <button id="year-forward" class="step" aria-label="Next year">&rarr;</button>
-            <div class="label-xs" id="year-range"></div>
-          </div>
-        </div>
-
-        <div class="card" data-card="tipping-status">
-          <div class="card-title-row"><div class="card-title" data-text="cardTitles.tipping-status"></div><div class="expand">&#8599;</div></div>
-          <div id="status-row">
-            <div>
-              <div id="status-label"></div>
-              <div id="status-desc"></div>
-            </div>
-          </div>
         </div>
 
         <div class="card" data-card="point-chart">
@@ -130,30 +104,10 @@
           <p id="status" class="fine"></p>
         </div>
 
-        <div class="card" data-card="point-values">
-          <div class="card-title-row"><div class="card-title" id="values-title"></div><div class="expand">&#8599;</div></div>
-          <div id="values"></div>
-        </div>
-
         <div class="card" data-card="point-description">
           <div class="card-title-row"><div class="card-title" data-text="cardTitles.point-description"></div></div>
           <!-- filled by points.js from the "description" of the selected point in content/featured-points.json -->
           <p id="point-description" class="placeholder-text"></p>
-        </div>
-
-        <div class="card" data-card="point-info">
-          <div class="card-title-row"><div class="card-title" data-text="cardTitles.point-info"></div><div class="expand">&#8599;</div></div>
-          <div id="info">
-            <div><div class="label-xs" data-text="labels.changeClass"></div><div class="info-val" id="info-class"></div></div>
-            <div><div class="label-xs" data-text="labels.longitude"></div><div class="info-val mono" id="info-lon"></div></div>
-            <div><div class="label-xs" data-text="labels.latitude"></div><div class="info-val mono" id="info-lat"></div></div>
-          </div>
-        </div>
-
-        <div class="card" data-card="trend-signals">
-          <div class="card-title-row"><div class="card-title" data-text="cardTitles.trend-signals"></div><div class="expand">&#8599;</div></div>
-          <div class="trend-row head"><div data-text="labels.metric"></div><div class="r" data-text="labels.p"></div><div class="r" data-text="labels.tau"></div></div>
-          <div id="metrics"></div>
         </div>
 
         <!-- CLIMATOLOGY CARDS (filled by climatology-storms.js from data/events.json) -->
@@ -409,6 +363,7 @@
        The order matters: helpers.js and content.js are used by all others; charts.js by both climatology files. -->
   <script src="js/helpers.js"></script>
   <script src="js/content.js"></script>
+  <script src="js/landing.js"></script>
   <script src="js/charts.js"></script>
   <script src="js/navigation.js"></script>
   <script src="js/points.js"></script>
