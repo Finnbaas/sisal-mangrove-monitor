@@ -14,11 +14,11 @@ async function start() {
   }
   fillTexts();             // content.js: all data-text="..." texts
   buildPages();            // content.js: menu, pages and simple cards from content/pages.json
+  buildLanding();          // landing.js: the landing page (#home) from content/landing.json
   readSharedContent();     // helpers.js: year range, change classes and the "No data" text
   readPointContent();
   RESEARCH_SECTIONS = pageSections().map((s) => s.id);
-  DEFAULT_SECTION = RESEARCH_SECTIONS[0];
-  lastResearchSection = DEFAULT_SECTION;
+  lastResearchSection = RESEARCH_SECTIONS[0];
 
   setupStorms();           // climatology-storms.js: event list and storm charts of the Climatology screen
   setupStormMap();         // storm-map.js: the map of the storm tracks on the Climatology screen
@@ -29,7 +29,6 @@ async function start() {
   setupStakeholders();     // stakeholders.js: areas, time card and panel of the Stakeholder screen
   setupMethod();           // method.js: the Method page and the "Do this analysis yourself" links
   setupNavigation();
-  setupSlider();
   setupExports();
   loadPoints();             // points.js: also sets the year slider to the years of the data
 }

@@ -4,7 +4,7 @@
 //   - fills every element with data-text="..." from texts.json; t('labels.year') gives one text
 //   - builds the sub-navigation, the pages, the parts with their section navigation, and the simple
 //     cards (image, text, placeholder, planned, group) from pages.json
-// Reads: content/pages.json, content/variables.json, content/texts.json, content/vegetation.json (see content/README.md).
+// Reads: content/pages.json, content/variables.json, content/texts.json, content/vegetation.json, content/landing.json (see content/README.md).
 // Used by: every screen file (CONTENT, t, parseJsonFile); main.js calls loadContent() first.
 
 let CONTENT = null;   // { pages, variables, texts, vegetation } once loaded
@@ -29,7 +29,8 @@ const CONTENT_FILES = [
   { key: 'pages', path: 'content/pages.json', json: true },
   { key: 'variables', path: 'content/variables.json', json: true },
   { key: 'texts', path: 'content/texts.json', json: true },
-  { key: 'vegetation', path: 'content/vegetation.json', json: true }
+  { key: 'vegetation', path: 'content/vegetation.json', json: true },
+  { key: 'landing', path: 'content/landing.json', json: true }
 ];
 
 async function loadContent() {
@@ -105,6 +106,11 @@ function checkContent(c) {
     if (!v[k] || typeof v[k] !== 'object' || Array.isArray(v[k])) throw new ContentError(varsFile, '"' + k + '" must be an object ({ ... }).');
   });
   if (!c.texts || typeof c.texts !== 'object') throw new ContentError('content/texts.json', 'the file must contain an object ({ ... }).');
+  const lf = 'content/landing.json', L = c.landing || {};
+  if (!L.hero || typeof L.hero.title !== 'string' || !Array.isArray(L.hero.buttons)) throw new ContentError(lf, 'it needs a "hero" with a "title" and a list of "buttons".');
+  if (!Array.isArray(L.cards)) throw new ContentError(lf, 'it needs a list called "cards".');
+  if (!L.studyArea || !Array.isArray(L.studyArea.sentences)) throw new ContentError(lf, 'it needs a "studyArea" with a list of "sentences".');
+  if (!L.about || !Array.isArray(L.about.columns)) throw new ContentError(lf, 'it needs an "about" with a list of "columns".');
 }
 
 // Shown instead of the site when a content file cannot be used.
@@ -154,7 +160,7 @@ function pageSections() {
   return CONTENT.pages.sections;
 }
 
-// All card names used on one page (ready-made cards only), e.g. ['point-map', 'year-slider', ...]
+// All card names used on one page (ready-made cards only), e.g. ['point-map', 'point-chart', ...]
 function cardsOnPage(id) {
   const section = pageSections().find((s) => s.id === id);
   const names = [];

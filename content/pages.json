@@ -1,16 +1,6 @@
 {
   "sections": [
     {
-      "id": "overview",
-      "label": "Overview",
-      "title": "Overview",
-      "band": "img/site-map.png",
-      "columns": [
-        ["point-map", "year-slider", "point-description"],
-        ["point-chart", "point-values", ["point-info", "trend-signals"]]
-      ]
-    },
-    {
       "id": "satellite",
       "label": "Vegetation",
       "title": "Vegetation",

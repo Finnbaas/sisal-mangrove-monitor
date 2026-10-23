@@ -1,36 +1,28 @@
-// points.js: the Overview and Vegetation screens (the monitoring points).
-//   Site map with the points, year slider, tipping status, point chart with its chips (drawn like the NDVI
-//   plots of the analysis notebook: NDVI, STL trend and breakpoints), values for the year, point info,
-//   trend signals, and the download menu (CSV of the data, PNG of the chart).
+// points.js: the monitoring points of the Vegetation screen.
+//   Site map with the points, point chart with its chips (drawn like the NDVI plots of the analysis notebook:
+//   NDVI, STL trend and breakpoints), the description of the selected point, and the download menu (CSV of the
+//   data, PNG of the chart).
 //   The map shows every point as a small dot; only the featured points (content/featured-points.json)
 //   are clickable markers. Their "description" is shown in the card under the map.
-// Reads: data/points.json; content/featured-points.json; variables, scenarios and metrics from content/variables.json.
-// Uses: helpers.js, content.js. Used by: main.js (readPointContent, setupSlider, setupExports,
-//   setYear, loadPoints).
+// Reads: data/points.json; content/featured-points.json; variables and classes from content/variables.json.
+// Uses: helpers.js, content.js. Used by: main.js (readPointContent, setupExports, loadPoints).
 
 // ---------- content (set from content/variables.json and content/texts.json, see readPointContent) ----------
-// No research content is written in this file: variables, labels, units, classes, scenarios and
-// metrics all come from the content/ folder. "colorVar" is the name of a color variable in css/base.css.
+// No research content is written in this file: variables, labels, units and classes
+// all come from the content/ folder. "colorVar" is the name of a color variable in css/base.css.
 
-let SCENARIOS = {};       // tipping-point scenarios (variables.json "scenarios")
 let VARS = [];            // variables of the point charts (variables.json "pointVariables")
-let METRICS = [];         // rows of the trend signals card (variables.json "trendMetrics")
 let COORD_DECIMALS;       // decimals of the shown coordinates (variables.json "coordinateDecimals"); without it, all decimals of the data
 
 const checked = {};       // which variables are switched on in the point chart
 
 let allPoints = [];
-// The year range of the point slider: the first and last year of the months ("dates") in data/points.json,
-// set by setPointYearRange() once the data is loaded. (variables.json "yearRange" is for the Stakeholder screen.)
-let POINT_YEAR_MIN = null, POINT_YEAR_MAX = null;
 let FEATURED = {};        // the clickable points: id -> { description } (content/featured-points.json)
 let selectedId = null;
 
 // Copies the point content from content/variables.json into the lists above.
 function readPointContent() {
   const v = CONTENT.variables;
-  SCENARIOS = {};
-  Object.entries(v.scenarios).forEach(([id, s]) => { SCENARIOS[id] = { label: s.label, colorVar: colorVarOf(s.color), desc: s.description || '' }; });
   // decimals (optional): how many decimals to show for this variable; without it, as many as the data has
   // axisRange (optional): fixed [lowest, highest] of the y-axis; without it, the range of the data
   // trend (optional): { id, label } of a trend line in the same chart (e.g. the STL trend of the NDVI);
@@ -38,35 +30,7 @@ function readPointContent() {
   VARS = v.pointVariables.map((x) => ({ id: x.id, label: x.label, lineLabel: x.lineLabel || x.label, unit: x.unit || '', decimals: x.decimals,
     axisRange: x.axisRange, colorVar: colorVarOf(x.color), trend: x.trend || null }));
   VARS.forEach((x, i) => { checked[x.id] = !!v.pointVariables[i].shownAtStart; });
-  // ews = the id of an early warning signal in the "ews" of a point in data/points.json (null: no data for this row yet)
-  METRICS = v.trendMetrics.map((m) => ({ label: m.label, ews: m.ews || null }));
   COORD_DECIMALS = v.coordinateDecimals;
-}
-
-// The slider runs from the first to the last year of the data: the earliest and latest month in the
-// "dates" of all points in data/points.json ("1993-01" -> 1993). It starts at the last year.
-// Without any dates (no featured points) the slider is switched off.
-function setPointYearRange() {
-  const slider = $('year-slider');
-  const firsts = [], lasts = [];
-  allPoints.forEach((p) => {
-    if (Array.isArray(p.dates) && p.dates.length) {
-      firsts.push(parseInt(p.dates[0], 10));
-      lasts.push(parseInt(p.dates[p.dates.length - 1], 10));
-    }
-  });
-  if (!firsts.length) {
-    slider.disabled = true;
-    $('year-range').textContent = NO_DATA;
-    return;
-  }
-  POINT_YEAR_MIN = Math.min(...firsts);
-  POINT_YEAR_MAX = Math.max(...lasts);
-  slider.disabled = false;
-  slider.min = POINT_YEAR_MIN;
-  slider.max = POINT_YEAR_MAX;
-  slider.value = POINT_YEAR_MAX;
-  $('year-range').textContent = POINT_YEAR_MIN + '–' + POINT_YEAR_MAX;
 }
 
 // ---------- data loading ----------
@@ -89,8 +53,6 @@ async function loadPoints() {
     $('map-note').textContent = count === 1 ? t('labels.mapNoteOnePoint') : t('labels.mapNote', { count: count });
     // subtitle under the map title: total points and how many of them are clickable
     $('map-subtitle').textContent = t('labels.mapSubtitle', { count: count, featured: Object.keys(FEATURED).length });
-    // the slider range comes from the data, so it is set now that the data is loaded
-    setPointYearRange();
     // the comparison line on the point chart (mouse and arrow keys), see js/charts.js
     attachComparisonLine($('chart'), () => pointCharts);
     renderMap();
@@ -105,20 +67,6 @@ async function loadPoints() {
 // The selected point, or null when no point is selected.
 function getSelectedPoint() {
   return allPoints.find((p) => p.id === selectedId) || null;
-}
-
-function currentYear() {
-  return parseInt($('year-slider').value, 10);
-}
-
-function nearestIndexForYear(years, year) {
-  let bestIdx = 0;
-  let bestDiff = Infinity;
-  years.forEach((y, i) => {
-    const diff = Math.abs(y - year);
-    if (diff < bestDiff) { bestDiff = diff; bestIdx = i; }
-  });
-  return bestIdx;
 }
 
 // ---------- map ----------
@@ -182,13 +130,8 @@ function seriesFor(point, v) {
   return point && Array.isArray(point[v.id]) ? point[v.id] : [];
 }
 
-// A value with its unit, or "No data" (without unit) when the value is missing.
-function valueWithUnit(value, series, unit, decimals) {
-  return isNumber(value) ? formatLike(value, series, decimals) + ' ' + unit : NO_DATA;
-}
-
 // Coordinates as text ("90.00271° W", "21.17180° N"), or "No data" when missing (or no point is selected).
-// Used by the top-bar pill and the Point info card. The number of decimals is display only (COORD_DECIMALS);
+// Used by the coordinates box in the sticky bar. The number of decimals is display only (COORD_DECIMALS);
 // the data keeps the full values.
 function lonText(point) {
   return point && isNumber(point.lon) ? formatLike(Math.abs(point.lon), [point.lon], COORD_DECIMALS) + '° W' : NO_DATA;
@@ -202,20 +145,6 @@ function latText(point) {
 function renderAll() {
   const point = getSelectedPoint();   // null when no point is selected
   const cls = point ? (CLASSES[point.changeClass] || UNKNOWN) : UNKNOWN;
-  const scen = point ? (SCENARIOS[point.scenario] || UNKNOWN) : UNKNOWN;
-
-  // The slider can be dragged to any year, but data only exists for the survey years of the selected point.
-  // So we show the nearest survey year and move the slider onto it: the year on screen is always the year of the data shown.
-  // idx is the first month of that year in the point's dates; the chart puts the year marker at that month with
-  // the same x scale as the lines (pointXScale), so slider and marker stay in sync.
-  // Without a selected point the year simply stays where the slider is.
-  let year = currentYear();
-  let idx = null;
-  if (point) {
-    idx = nearestIndexForYear(point.years, year);
-    year = point.years[idx];
-    $('year-slider').value = year;
-  }
 
   // map: ring around the selected marker; aria-pressed tells screen readers which marker is selected
   const ring = $('map-ring');
@@ -230,14 +159,8 @@ function renderAll() {
     m.setAttribute('aria-pressed', point !== null && m.dataset.id === point.id);
   });
 
-  // top bar + slider (an empty coordinates pill hides itself, see #coords:empty in css/base.css)
+  // coordinates of the selected point (an empty box hides itself, see #coords:empty in css/base.css)
   $('coords').textContent = point ? lonText(point) + ', ' + latText(point) : '';
-  $('year-big').textContent = year;
-
-  // tipping status (scenario label and description)
-  $('status-label').textContent = scen.label;
-  $('status-label').style.color = color(scen.colorVar);
-  $('status-desc').textContent = scen.desc;
 
   // chart card (exports only work with a selected point)
   $('point-name').textContent = point ? point.name : NO_DATA;
@@ -250,43 +173,13 @@ function renderAll() {
     c.classList.toggle('on', on);
     c.style.borderColor = on ? color(v.colorVar) : '';
   });
-  renderChart(point, idx);
+  renderChart(point);
   // the card "Early warning signals" of the Vegetation page follows the selected point (vegetation.js)
   if (typeof renderVegetationEws === 'function') renderVegetationEws(point);
-
-  // values for year
-  $('values-title').textContent = t('labels.valuesFor', { year: year });
-  $('values').innerHTML = VARS.map((v) =>
-    '<div class="value-row"><div class="value-name"><span class="value-dot" style="background:' + color(v.colorVar) + '"></span><span>' + v.label +
-    '</span></div><div class="mono value-num">' + valueWithUnit(seriesFor(point, v)[idx], seriesFor(point, v), v.unit, v.decimals) + '</div></div>'
-  ).join('');
-  // no variables listed in content/variables.json: say so instead of an empty card
-  if (VARS.length === 0) $('values').innerHTML = '<p class="placeholder-text">' + t('messages.notYetAvailable') + '</p>';
 
   // description of the selected point (see pointDescription), or a hint without a selected point
   $('point-description').textContent = point ? pointDescription(point) : t('messages.pointDescriptionHint');
   $('point-description').className = point ? 'point-description' : 'placeholder-text';
-
-  // point info
-  $('info-class').textContent = cls.label;
-  $('info-lon').textContent = lonText(point);
-  $('info-lat').textContent = latText(point);
-
-  // trend signals: p and Kendall's tau of the early warning signals before the loss (the "ews" of the point in
-  // data/points.json). Only points with a loss breakpoint and enough data before it have them; other points
-  // get the same message as the Early warning signals card of the Vegetation page.
-  const ews = point && typeof ewsEntryFor === 'function' ? ewsEntryFor(point) : null;
-  if (ews && ews.status !== 'ok') {
-    $('metrics').innerHTML = '<p class="placeholder-text">' + escapeHtml(ewsStatusMessage(ews)) + '</p>';
-  } else {
-    $('metrics').innerHTML = METRICS.map((m) => {
-      const data = ews && ews.metrics && m.ews ? ews.metrics[m.ews] : null;
-      const p = ewsP(data ? data.p : null, ews ? ews.pMin : null);
-      const tau = data && isNumber(data.tau) ? formatLike(data.tau, [data.tau]) : NO_DATA;
-      return '<div class="trend-row"><div>' + escapeHtml(m.label) + '</div><div class="mono r">' + (p.below ? '&lt; ' : '') + p.text +
-        '</div><div class="mono r tau">' + tau + '</div></div>';
-    }).join('');
-  }
 }
 
 // ---------- "About this point" ----------
@@ -382,7 +275,7 @@ function breakpointsFor(point, v) {
 // the line (with gaps where data is missing) and, when the variable has one, the trend line on top.
 // Everything is clipped to the plot area, so no line can be drawn outside it.
 // x = the x scale of the chart (pointXScale). Returns the SVG text and what the comparison line needs ({ yOf, points }).
-function pointChartSvg(v, point, idx, gridX, x) {
+function pointChartSvg(v, point, gridX, x) {
   const series = seriesFor(point, v);
   const trend = v.trend ? seriesFor(point, v.trend) : [];
   const head = chartHead(v, gridX, 'chart', POINT_PLOT);
@@ -408,7 +301,6 @@ function pointChartSvg(v, point, idx, gridX, x) {
     const x0 = x.xOf(bp.windowStart), x1 = x.xOf(bp.windowEnd);
     svg += '<rect class="breakpoint-window ' + bp.type + '" x="' + x0.toFixed(1) + '" y="' + POINT_PLOT.top + '" width="' + (x1 - x0).toFixed(1) + '" height="' + (POINT_PLOT.bottom - POINT_PLOT.top) + '"></rect>';
   });
-  if (isNumber(idx)) svg += vertical(idx, 'year-marker', 1, '3,3');
   breakpoints.forEach((bp) => { svg += vertical(bp.index, 'breakpoint-line ' + bp.type, 1.5, '4,4'); });
 
   // the values: a line through consecutive months, a single month between gaps as a dot
@@ -438,7 +330,7 @@ function breakpointText(bp) {
 }
 
 // Draws the charts for the selected point. With no point selected (point is null) the charts stay empty.
-function renderChart(point, idx) {
+function renderChart(point) {
   const active = VARS.filter((v) => checked[v.id]);
   const box = $('chart');
   box.innerHTML = '';
@@ -455,7 +347,7 @@ function renderChart(point, idx) {
   });
 
   const panels = active.map((v) => {
-    const drawn = pointChartSvg(v, point, idx, ticks.map((tick) => tick.x), x);
+    const drawn = pointChartSvg(v, point, ticks.map((tick) => tick.x), x);
     const row = chartRow({ label: v.label, unit: v.unit }, null, drawn.svg);
     // no source tag on top of the chart (the point variables have no source in content/variables.json)
     row.querySelector('.source-tag').remove();
@@ -490,40 +382,6 @@ function renderChart(point, idx) {
   const bps = active.length ? breakpointsFor(point, active.find((v) => v.trend) || {}) : [];
   if (bps.length) $('breakpoint-note').textContent = t('labels.breakpoint', { breakpoints: bps.map(breakpointText).join(', ') });
   $('breakpoint-note').hidden = !bps.length;
-}
-
-// ---------- slider ----------
-
-// Before the data is loaded (no range yet) the slider does nothing.
-function setYear(year) {
-  if (POINT_YEAR_MIN === null) return;
-  $('year-slider').value = Math.min(POINT_YEAR_MAX, Math.max(POINT_YEAR_MIN, year));
-  renderAll();
-}
-
-// The survey years the arrow buttons step through: those of the selected point,
-// or, with no point selected, every survey year that occurs in points.json.
-function surveyYears() {
-  const point = getSelectedPoint();
-  if (point) return point.years;
-  const years = new Set();
-  allPoints.forEach((p) => (p.years || []).forEach((y) => years.add(y)));
-  return [...years].sort((a, b) => a - b);
-}
-
-// The arrow buttons jump to the previous / next survey year.
-function stepYear(direction) {
-  if (!allPoints.length) return;
-  const years = surveyYears();
-  const next = years[nearestIndexForYear(years, currentYear()) + direction];
-  if (next !== undefined) setYear(next);
-}
-
-function setupSlider() {
-  const slider = $('year-slider');
-  slider.addEventListener('input', () => setYear(parseInt(slider.value, 10)));
-  $('year-back').addEventListener('click', () => stepYear(-1));
-  $('year-forward').addEventListener('click', () => stepYear(1));
 }
 
 // ---------- exports ----------

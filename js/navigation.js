@@ -1,5 +1,5 @@
 // navigation.js: switching between the screens.
-//   Every page has its own address (#overview, #satellite, #climatology, #stakeholders, #method).
+//   Every page has its own address (#home, #satellite, #climatology, #stakeholders, #method).
 //   Links only change the address; showScreen() then shows that screen, moves the cards it needs into
 //   place (placeCards) and sets the section colors. The back and forward buttons work too.
 // Reads: the page list of content/pages.json (through content.js).
@@ -7,24 +7,27 @@
 
 // ---------- navigation: screens and the address (#...) ----------
 //
-// Every page in content/pages.json has its own address (#overview, #satellite, ...), plus #method.
+// Every page in content/pages.json has its own address (#satellite, #climatology, ...), plus #home (the landing
+// page, content/landing.json) and #method. #home is also what an empty or unknown address shows, so the old #overview
+// address ends up on the landing page too.
 // Links and buttons only change the address; showScreen() then shows the matching screen.
 // Because every switch changes the address, the browser's back and forward buttons work too.
 
 let RESEARCH_SECTIONS = [];      // page ids from content/pages.json, in menu order
-let DEFAULT_SECTION = null;      // the first page in content/pages.json
-let lastResearchSection = null;  // the last research page (its id, e.g. "satellite")
+const HOME = 'home';             // the landing page: the default page (no tab of the top bar is active on it)
+let lastResearchSection = null;  // the last research page (its id, e.g. "satellite"); not the landing page or the Method page
 let lastResearchAddress = null;  // the full address of that page, with its part (e.g. "satellite/tipping"): where the
                                  // "Back to ..." link of the Method page takes you back to
 
-// The Overview theme colors are the default; pages without their own theme in css/base.css use them.
-const THEME_DEFAULT = 'overview';
+// The landing page and the Method page use the default theme colors (the :root values in css/base.css); a research
+// page without its own theme block there uses them too.
+const THEME_DEFAULT = 'home';
 
-// The screen named in the address, or null if the address is empty or unknown.
+// The screen named in the address, or null if the address is empty or unknown (for example the old #overview).
 function screenFromAddress() {
   // the part before a slash is the screen: #method/<use case> is still the Method screen (see method.js)
   const name = location.hash.slice(1).split('/')[0];
-  return name === 'method' || RESEARCH_SECTIONS.includes(name) ? name : null;
+  return name === 'method' || name === HOME || RESEARCH_SECTIONS.includes(name) ? name : null;
 }
 
 // A page whose parts are tabs ("partsAsTabs" in content/pages.json) shows one part at a time: the part named after
@@ -94,12 +97,13 @@ function placeCards(screenEl) {
 function showScreen() {
   let screen = screenFromAddress();
   if (!screen) {
-    // empty or unknown address: show Overview, and correct the address without adding a back-button step
-    screen = DEFAULT_SECTION;
+    // empty or unknown address (also the old #overview): show the landing page, and correct the address without
+    // adding a back-button step
+    screen = HOME;
     history.replaceState(null, '', '#' + screen);
   }
   const isMethod = screen === 'method';
-  if (!isMethod) {
+  if (!isMethod && screen !== HOME) {
     lastResearchSection = screen;
     lastResearchAddress = location.hash.slice(1);
   }
@@ -119,9 +123,9 @@ function showScreen() {
     else link.removeAttribute('aria-current');
   });
 
-  // section colors (see the section themes in css/base.css): a page without its own theme, and the
-  // Method page, use the Overview colors
-  document.body.dataset.section = isMethod ? THEME_DEFAULT : screen;
+  // section colors (see the section themes in css/base.css): the landing page, the Method page and a page without
+  // its own theme use the default colors
+  document.body.dataset.section = isMethod || screen === HOME ? THEME_DEFAULT : screen;
 }
 
 function setupNavigation() {

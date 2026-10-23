@@ -47,6 +47,7 @@
   --space-2: 16px;
   --space-3: 24px;
   --space-4: 32px;
+  --space-5: 48px;
 
   /* DATA colors: never change between sections */
   --color-data-slider: #1C3B2E;      /* year slider and year number */
@@ -191,7 +192,7 @@ a.expand:hover, a.expand:focus-visible { background: var(--color-border); color:
 .faint.xs { font-size: var(--font-size-small); }
 .label-xs { font-size: var(--font-size-small); color: var(--color-text-muted); }
 /* small section labels ("What it shows", "Share of area per class", legend titles, table heads): small uppercase, grey */
-.about-label, .legend-title, #legend-title, .label-xs, .trend-row.head, .ews-table-row.head, .ews-guide-sources-label {
+.about-label, .legend-title, #legend-title, .label-xs, .ews-table-row.head, .ews-guide-sources-label {
   font-size: var(--font-size-small);
   font-weight: 600;
   text-transform: uppercase;
@@ -214,7 +215,8 @@ a.expand:hover, a.expand:focus-visible { background: var(--color-border); color:
   border-radius: var(--radius-card);
   background: var(--color-header-bg);
 }
-#brand { display: flex; align-items: center; gap: var(--space-1); }
+#brand { display: flex; align-items: center; gap: var(--space-1); color: inherit; text-decoration: none; }
+#brand:focus-visible { outline: 2px solid var(--color-header-text); outline-offset: 4px; border-radius: var(--radius-control); }
 #brand-mark {
   width: 32px;
   height: 32px;
