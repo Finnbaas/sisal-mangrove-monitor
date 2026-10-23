@@ -77,7 +77,7 @@
       "id": "stakeholders",
       "label": "Stakeholders",
       "title": "Stakeholders",
-      "band": "img/stakeholder-map-placeholder.jpg",
+      "band": "img/stakeholders-band-mangrove.png",
       "columns": [
         ["stakeholder-map", "stakeholder-time"],
         ["stakeholder-panel"]
