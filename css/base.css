@@ -217,14 +217,18 @@ a.expand:hover, a.expand:focus-visible { background: var(--color-border); color:
 }
 #brand { display: flex; align-items: center; gap: var(--space-1); color: inherit; text-decoration: none; }
 #brand:focus-visible { outline: 2px solid var(--color-header-text); outline-offset: 4px; border-radius: var(--radius-control); }
-/* the logo: the mangrove tree (img/logo.png, black on white) in a white square; the picture has a wide white margin, so it is
-   enlarged and moved until the tree fills the square */
 #brand-mark {
   width: 32px;
   height: 32px;
   border-radius: var(--radius-control);
-  background: var(--color-surface) url("../img/logo.png") -16.3px -6.1px / 66.6px auto no-repeat;
-  flex-shrink: 0;
+  background: var(--color-header-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-header-bg);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: var(--font-size-section);
 }
 #brand-name { font-family: var(--font-heading); font-weight: 600; font-size: var(--font-size-section); letter-spacing: var(--letter-spacing-title); color: var(--color-header-text); }
 #topbar-right { display: flex; align-items: center; gap: 10px; }
