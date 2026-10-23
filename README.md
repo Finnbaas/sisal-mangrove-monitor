@@ -149,12 +149,12 @@ Claude Code reads CLAUDE.md in every session, so the long descriptions live here
 **data/ versus content/ (always follow this):** data/ is pipeline output only and is never edited by hand.
 content/ is everything the team writes and edits. Research content (which variables, charts, events,
 labels, units, sources and texts) belongs in content/ or data/, never in the code.
-- img/: images used by the site (site map, climatology data-cells map, workflow diagram, placeholder map of the Stakeholder screen; img/method/: pictures of the examples on the Method page)
+- img/: images used by the site (site map, climatology data-cells map, workflow diagram, placeholder map of the Stakeholder screen, the images of the page bands (see "band" in content/pages.json); img/method/: pictures of the examples on the Method page)
 - design/: reference images for design work (not used by the site)
 - Google Fonts are loaded from the internet with a link tag in index.html (the only external resource besides CDN libraries)
 
-The site is one page (index.html). The Research tab has four sections, each with its own address:
-#overview, #satellite, #climatology, #stakeholders, plus #method for the Method tab
+The site is one page (index.html). The top bar has one link per research page plus Method, each with its own address:
+#overview, #satellite, #climatology, #stakeholders, plus #method for the Method page
 (#method/<use case id> opens the Method page at one use case). Every research
 card exists once in index.html (the "card library") and is moved into the slots (data-slot) of the
 section that is shown. Each section has its own theme colors ([data-section] blocks in css/base.css);

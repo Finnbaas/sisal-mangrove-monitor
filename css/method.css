@@ -23,8 +23,8 @@
 .github-link.small .icon { width: 14px; height: 14px; }
 .github-link.small:hover span { text-decoration: underline; }
 
-/* the tabs: the same pills as the toggle of the Climatology page (.section-nav in base.css), not sticky.
-   Each tab button has data-section, so its pill gets the color of its research page. */
+/* the tabs: the same text tabs as the section navigation of the other pages (.section-nav in base.css), sticky.
+   Each tab button has data-section, so its active tab gets the color of its research page. */
 .method-tabs { margin: 0; }
 
 /* the content of one tab: the gallery and its panel first, the background information collapsed below */
@@ -99,7 +99,7 @@ summary.method-label:focus-visible { outline: 2px solid var(--color-text-body); 
 .use-case.highlighted { box-shadow: inset 0 0 0 2px var(--color-accent); }
 .use-case-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 18px; background: var(--color-accent); color: var(--color-text-on-accent); font-size: var(--font-size-body); font-weight: 600; }
 .use-case-bar a { color: inherit; }
-.use-case-close { position: absolute; top: 8px; right: 10px; z-index: 1; width: 28px; height: 28px; padding: 0; border: none; border-radius: 50%; background: transparent; font-size: var(--font-size-section); line-height: 1; color: var(--color-text-muted); }
+.use-case-close { position: absolute; top: 8px; right: 10px; z-index: 1; width: 28px; height: 28px; padding: 0; border: none; border-radius: var(--radius-control); background: transparent; font-size: var(--font-size-section); line-height: 1; color: var(--color-text-muted); }
 .use-case-close:hover, .use-case-close:focus-visible { background: var(--color-surface); color: var(--color-text); }
 .use-case-bar + .use-case-close { top: 44px; }
 .use-case-body { display: flex; align-items: flex-start; gap: 32px; padding: 16px 44px 16px 18px; }
@@ -108,7 +108,7 @@ summary.method-label:focus-visible { outline: 2px solid var(--color-text-body); 
 .use-case-name { margin-top: 2px; font-size: var(--font-size-small); color: var(--color-text-faint); }
 .use-case-steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .use-case-steps li { display: flex; align-items: flex-start; gap: 10px; font-size: var(--font-size-body); line-height: 1.45; color: var(--color-text-body); }
-.use-case-number { width: 20px; height: 20px; border-radius: 50%; background: var(--color-surface); display: flex; align-items: center; justify-content: center; font-size: var(--font-size-small); font-weight: 600; color: var(--color-text-body); flex-shrink: 0; }
+.use-case-number { width: 20px; height: 20px; border-radius: var(--radius-control); background: var(--color-surface); display: flex; align-items: center; justify-content: center; font-size: var(--font-size-small); font-weight: 600; color: var(--color-text-body); flex-shrink: 0; }
 .use-case-files { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 
 /* one file in the panel, on one line: name, type label, GitHub icon; the description is the hover text */

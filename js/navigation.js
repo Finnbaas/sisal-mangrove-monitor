@@ -15,7 +15,7 @@ let RESEARCH_SECTIONS = [];      // page ids from content/pages.json, in menu or
 let DEFAULT_SECTION = null;      // the first page in content/pages.json
 let lastResearchSection = null;  // the last research page (its id, e.g. "satellite")
 let lastResearchAddress = null;  // the full address of that page, with its part (e.g. "satellite/tipping"): where the
-                                 // "Research" tab and the "Back to ..." link of the Method page take you back to
+                                 // "Back to ..." link of the Method page takes you back to
 
 // The Overview theme colors are the default; pages without their own theme in css/base.css use them.
 const THEME_DEFAULT = 'overview';

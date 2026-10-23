@@ -381,7 +381,7 @@ function buildItem(item, ready, pageId) {
   return unknownCard('card type "' + (item && item.type) + '"', pageId);
 }
 
-// A card with an optional title row (title + the round expand button, as on the other cards).
+// A card with an optional title row (title + the expand button, as on the other cards).
 // withExpand = false leaves out the expand button.
 function simpleCard(className, title, withExpand) {
   const card = document.createElement('div');

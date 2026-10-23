@@ -191,7 +191,7 @@ a.expand:hover, a.expand:focus-visible { background: var(--color-border); color:
 .faint.xs { font-size: var(--font-size-small); }
 .label-xs { font-size: var(--font-size-small); color: var(--color-text-muted); }
 /* small section labels ("What it shows", "Share of area per class", legend titles, table heads): small uppercase, grey */
-.about-label, .legend-title, #legend-title, .label-xs, .trend-row.head, .ews-table-row.head, .ews-guide-sources-label, #sh-legend-title {
+.about-label, .legend-title, #legend-title, .label-xs, .trend-row.head, .ews-table-row.head, .ews-guide-sources-label {
   font-size: var(--font-size-small);
   font-weight: 600;
   text-transform: uppercase;

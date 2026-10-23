@@ -45,7 +45,8 @@ Tip: paste the file into https://jsonlint.com to find the mistake.
 ```
 
 - `id`: the page address (`#overview`). Lowercase, no spaces.
-- `label`: the name in the menu under the top bar.
+- `label`: the name of the page in the top bar.
+- `title`, `intro` and `band` (optional): the band at the top of the page, under the top bar: the page title and a short intro in white over an image. `band` is the image (for example `img/site-map.png`); without it the band is the solid dark color of the page. An intro may contain {placeholders} that are filled in with numbers.
 - `columns`: a left and a right column, each a list of cards from top to bottom.
   A list inside a list (`["point-info", "trend-signals"]`) puts two cards next to each other.
 - `wide` (optional): a list of cards that span the **full page width**, placed under the two
@@ -117,7 +118,7 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 
 - `planned`: a card whose graphs are designed but not built yet. Each graph is a light box with its
   `title` and a `label` saying what it will show. `height` and `width` are in pixels (optional; a graph
-  without `width` shares the free width). `"expand": true` adds the round expand button.
+  without `width` shares the free width). `"expand": true` adds the expand button.
 - `group`: one card with a small title that holds ready-made cards side by side, as parts of one card.
   Their rows line up (title, charts, axis).
 
