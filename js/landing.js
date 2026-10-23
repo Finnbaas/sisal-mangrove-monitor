@@ -45,6 +45,7 @@ function buildLanding() {
   pages.appendChild(landingEl('h2', 'landing-title', c.pagesTitle));
   const cards = landingEl('div', 'landing-cards');
   const vegetationThumbs = [];   // thumbnails that need the bounds of data/vegetation/layers.json
+  const wideCards = [];          // cards with "wide": true
   c.cards.forEach((card) => {
     const a = landingEl('a', 'landing-card');
     a.href = '#' + card.page;
@@ -75,9 +76,16 @@ function buildLanding() {
     body.appendChild(landingEl('div', 'landing-card-question', card.question));
     body.appendChild(landingEl('div', 'landing-card-open', c.openLabel));
     a.appendChild(body);
-    cards.appendChild(a);
+    // a "wide" card (content/landing.json) is a long block under the other cards
+    if (card.wide) {
+      a.classList.add('landing-card-wide');
+      wideCards.push(a);
+    } else {
+      cards.appendChild(a);
+    }
   });
   pages.appendChild(cards);
+  wideCards.forEach((a) => pages.appendChild(a));
   section.appendChild(pages);
 
   // ----- study area: the map with the outline, and the text

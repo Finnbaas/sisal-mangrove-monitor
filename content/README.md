@@ -19,7 +19,7 @@ touching the code (the `js/` and `css/` folders).
 | `texts.json` | Short texts: card titles, labels, messages, footer |
 | `stakeholders.json` | The Stakeholder page: the areas on the map and what stakeholders said about them |
 | `method.json` | The Method page: the analyses, their code files, and the "do it yourself" examples that the research cards link to |
-| `landing.json` | The landing page (`#home`): hero, the four page cards, study area and About card |
+| `landing.json` | The landing page (`#home`): hero, the page cards, study area and About card |
 | `climate.json` | "Climate at Sisal" on the Climatology page: the year range of "Change since 1950", the trends and their badges |
 
 Images go in `img/` (outside this folder) and are referred to as `img/name.png`.

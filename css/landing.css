@@ -21,7 +21,7 @@
 
 /* the page cards: the whole card is the link; the page name and "Open" are in the color of that page,
    and the card gets a 2 px border in that page's color when hovered */
-.landing-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-2); }
+.landing-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
 .landing-card { display: flex; flex-direction: column; overflow: hidden; background: var(--color-surface); border: 1px solid var(--color-card-border); border-radius: var(--radius-card); color: inherit; text-decoration: none; }
 .landing-card:hover, .landing-card:focus-visible { border-color: var(--color-header-bg); box-shadow: inset 0 0 0 1px var(--color-header-bg); }
 .landing-card:focus-visible { outline: 2px solid var(--color-header-bg); outline-offset: 2px; }
@@ -35,6 +35,11 @@
 .landing-card-name { font-weight: 600; color: var(--color-accent); }
 .landing-card-question { color: var(--color-text-body); }
 .landing-card-open { font-weight: 500; color: var(--color-accent); }
+
+/* a wide card (content/landing.json "wide": true): a long block under the other cards, the picture on the left */
+.landing-card-wide { flex-direction: row; }
+.landing-card-wide .landing-thumb { flex: 0 0 240px; height: auto; min-height: 120px; }
+.landing-card-wide .landing-card-body { justify-content: center; }
 
 /* study area: the map with the outline (640 px) and the text next to it */
 .landing-study { display: grid; grid-template-columns: 640px 1fr; gap: var(--space-3); align-items: start; }
@@ -55,6 +60,7 @@
 
 @media (max-width: 960px) {
   .landing-cards { grid-template-columns: repeat(2, 1fr); }
+  .landing-card-wide .landing-thumb { flex-basis: 120px; }
   .landing-study { grid-template-columns: 1fr; }
   .landing-about { grid-template-columns: 1fr; }
 }
