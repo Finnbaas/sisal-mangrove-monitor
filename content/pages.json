@@ -4,6 +4,7 @@
       "id": "overview",
       "label": "Overview",
       "title": "Overview",
+      "band": "img/site-map.png",
       "columns": [
         ["point-map", "year-slider", "point-description"],
         ["point-chart", "point-values", ["point-info", "trend-signals"]]
@@ -42,6 +43,7 @@
       "id": "climatology",
       "label": "Climatology",
       "title": "Climatology",
+      "band": "img/climatology-band-milton.jpg",
       "parts": [
         {
           "id": "storms",
@@ -75,6 +77,7 @@
       "id": "stakeholders",
       "label": "Stakeholders",
       "title": "Stakeholders",
+      "band": "img/stakeholder-map-placeholder.jpg",
       "columns": [
         ["stakeholder-map", "stakeholder-time"],
         ["stakeholder-panel"]
