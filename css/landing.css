@@ -30,7 +30,7 @@
 .landing-thumb::after { content: ''; position: absolute; inset: 0; background: var(--color-header-bg); opacity: 0; transition: opacity 0.15s; pointer-events: none; }
 .landing-card:hover .landing-thumb::after, .landing-card:focus-visible .landing-thumb::after { opacity: 0.45; }
 .landing-thumb > img { display: block; width: 100%; height: 100%; object-fit: cover; }
-/* the Vegetation thumbnail: the base map zoomed in, with the change layer on it (placed by landing.js) */
+/* the Ecosystem thumbnail: the base map zoomed in, with the change layer on it (placed by landing.js) */
 .landing-stage { position: absolute; left: 50%; top: 50%; width: 157%; transform: translate(-50%, -50%); }
 .landing-stage > img { display: block; width: 100%; height: auto; }
 .landing-stage > .landing-layer { position: absolute; width: auto; }

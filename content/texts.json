@@ -230,7 +230,7 @@
       {
         "title": "The metrics",
         "items": [
-          "AR1 (autocorrelation): how much each month's value resembles the month before. A rising AR1 means the vegetation recovers more slowly from disturbances, a classic sign of an approaching tipping point.",
+          "AR1 (autocorrelation): how much each month's value resembles the month before. A rising AR1 means the ecosystem recovers more slowly from disturbances, a classic sign of an approaching tipping point.",
           "Standard deviation: how large the fluctuations are. A rising standard deviation means the system is becoming less stable.",
           "Skewness and kurtosis: the shape of the fluctuations (asymmetry, and how often extreme values occur). They can also signal an approaching tipping point, but their expected direction depends on the state the system moves towards, so they are shown for context and not used in the verdict."
         ]
@@ -264,7 +264,7 @@
   "messages": {
     "noData": "No data",
     "placeholderTag": "Placeholder",
-    "couldNotLoadVegetation": "Could not load the Vegetation data: {file}",
+    "couldNotLoadEcosystem": "Could not load the Ecosystem data: {file}",
     "pointDescriptionHint": "Click a larger marker to read about that point.",
     "noPointDescription": "No description yet for this point.",
     "ewsSubtitle": "Rolling statistics of NDVI before the loss. An early warning would show a significant rise in AR1 and standard deviation.",

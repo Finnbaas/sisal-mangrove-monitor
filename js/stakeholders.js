@@ -97,7 +97,7 @@ function areaByNumber(number) {
   return stakeholders.areas.find((a) => a.number === number);
 }
 
-// Label and colors of an area's class (the same change classes as the Vegetation page).
+// Label and colors of an area's class (the same change classes as the Ecosystem page).
 function areaClass(area) {
   const cls = CLASSES[area.class] || UNKNOWN;
   // "--c" is the class color and "--c-tint" its light background (see css/stakeholders.css)

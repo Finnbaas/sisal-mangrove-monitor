@@ -1,7 +1,7 @@
-/* points.css: the Vegetation screen: site map with the points and the point chart. Also the narrow-screen rules of the research layout. */
+/* points.css: the Ecosystem screen: site map with the points and the point chart. Also the narrow-screen rules of the research layout. */
 
 /* The map is the satellite photo as an <img> (see index.html). #map-view is the window, #map the whole photo
-   inside it: vegetation.js sizes and moves #map so the study area outline fills the window with a margin
+   inside it: ecosystem.js sizes and moves #map so the study area outline fills the window with a margin
    (setupPointsMapBackground). The dots, markers and ring lie in #map, at percent positions of the photo. */
 #map-view {
   position: relative;

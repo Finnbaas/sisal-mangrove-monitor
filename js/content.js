@@ -4,10 +4,10 @@
 //   - fills every element with data-text="..." from texts.json; t('labels.year') gives one text
 //   - builds the sub-navigation, the pages, the parts with their section navigation, and the simple
 //     cards (image, text, placeholder, planned, group) from pages.json
-// Reads: content/pages.json, content/variables.json, content/texts.json, content/vegetation.json, content/landing.json (see content/README.md).
+// Reads: content/pages.json, content/variables.json, content/texts.json, content/ecosystem.json, content/landing.json (see content/README.md).
 // Used by: every screen file (CONTENT, t, parseJsonFile); main.js calls loadContent() first.
 
-let CONTENT = null;   // { pages, variables, texts, vegetation } once loaded
+let CONTENT = null;   // { pages, variables, texts, ecosystem } once loaded
 
 // The ready-made cards that exist in index.html (data-card="..."). pages.json may use these names.
 function readyCardNames() {
@@ -29,7 +29,7 @@ const CONTENT_FILES = [
   { key: 'pages', path: 'content/pages.json', json: true },
   { key: 'variables', path: 'content/variables.json', json: true },
   { key: 'texts', path: 'content/texts.json', json: true },
-  { key: 'vegetation', path: 'content/vegetation.json', json: true },
+  { key: 'ecosystem', path: 'content/ecosystem.json', json: true },
   { key: 'landing', path: 'content/landing.json', json: true }
 ];
 
@@ -180,7 +180,7 @@ function cardsOnPage(id) {
 
 // The image band at the top of a page: the page title and an optional intro in white on a dark page-color overlay.
 // "title", "intro" and "band" (the image; without it the band is the solid dark page color) come from content/pages.json.
-// Returns null for a page without a title. An intro with {placeholders} is filled in later (vegetation.js).
+// Returns null for a page without a title. An intro with {placeholders} is filled in later (ecosystem.js).
 function buildBand(s) {
   if (!s.title) return null;
   const top = document.createElement('div');
@@ -275,7 +275,7 @@ function buildParts(section, s, ready) {
   nav.setAttribute('aria-label', s.label);
   // the bar stays at the top in the page background color, so cards and axis labels never show behind the navigation
   // an optional page title (and intro) in an image band above the section navigation (Figma: v3 image band). An intro with
-  // {placeholders} is filled in later, when the numbers have loaded (vegetation.js)
+  // {placeholders} is filled in later, when the numbers have loaded (ecosystem.js)
   const band = buildBand(s);
   if (band) section.appendChild(band);
   const bar = document.createElement('div');

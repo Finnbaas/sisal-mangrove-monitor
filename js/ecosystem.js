@@ -1,4 +1,4 @@
-// vegetation.js: the Vegetation page ("Vegetation data"): Mangrove maps and Tipping points.
+// ecosystem.js: the Ecosystem page ("Ecosystem data"): Mangrove maps and Tipping points.
 //   Section 1: a zoomable map (Leaflet) chosen with the Maps menu (card "Maps": Extent | Condition | Disturbance & recovery, with variants), an opacity
 //   slider, a legend that switches per layer, "About this layer" and "Where the data comes from".
 //   Section 2: the card "Early warning signals before the breakpoint": the verdict of the EWS notebook with its reason,
@@ -7,30 +7,30 @@
 //   The points map and the Point card of this section are the original cards of points.js (data/points.json).
 // Reads: data/vegetation/layers.json (the map layers); the early warning signals come from the "ews" of the points in
 //   data/points.json (loaded by points.js);
-//   content/vegetation.json (texts, layer switch, chart names). Nothing is typed in this file: every number comes from the data.
+//   content/ecosystem.json (texts, layer switch, chart names). Nothing is typed in this file: every number comes from the data.
 // Uses: helpers.js, content.js (CONTENT, t), points.js (getSelectedPoint, pointXScale, allPoints), charts.js,
 //   climatology-storms.js (events, selectEvent, strengthText) and Leaflet (CDN).
-// Used by: main.js (setupVegetation); points.js calls renderVegetationEws() whenever the selected point changes.
+// Used by: main.js (setupEcosystem); points.js calls renderEcosystemEws() whenever the selected point changes.
 
 // ---------- state ----------
 
-let vegLayers = null;          // contents of data/vegetation/layers.json
-let vegBarSet = null;          // the bar chart of the per-period view as a set for the comparison line (see charts.js)
-let vegBarMode = 'total';      // 'perYear' or 'total' (content/vegetation.json "chartModes")
-let vegEwsSet = null;          // the EWS charts as a set for the comparison line (see charts.js)
-let vegLoaded = false;         // true when layers.json has loaded
-let vegLayerId = null;         // the layer shown in the map of section 1
-let vegVariantIds = {};        // the chosen variant per view ("layer/view"): Simplified | Detailed, a year, a period or a storm (see variantsOf)
-let vegViewIds = {};           // the chosen view per layer id (layers with "views", e.g. Change: classes | per-period)
-let vegOverlay = null;         // the Leaflet image of that layer
-let vegMaps = {};              // the Leaflet map of the layers: { layers }
+let ecoLayers = null;          // contents of data/vegetation/layers.json
+let ecoBarSet = null;          // the bar chart of the per-period view as a set for the comparison line (see charts.js)
+let ecoBarMode = 'total';      // 'perYear' or 'total' (content/ecosystem.json "chartModes")
+let ecoEwsSet = null;          // the EWS charts as a set for the comparison line (see charts.js)
+let ecoLoaded = false;         // true when layers.json has loaded
+let ecoLayerId = null;         // the layer shown in the map of section 1
+let ecoVariantIds = {};        // the chosen variant per view ("layer/view"): Simplified | Detailed, a year, a period or a storm (see variantsOf)
+let ecoViewIds = {};           // the chosen view per layer id (layers with "views", e.g. Change: classes | per-period)
+let ecoOverlay = null;         // the Leaflet image of that layer
+let ecoMaps = {};              // the Leaflet map of the layers: { layers }
 const START_PADDING = 40;      // px of base map around the outline in the start view of the maps
 
-// A text from content/vegetation.json "texts", e.g. vt('pointsMapSubtitle', { shown: 5, total: 10 }).
+// A text from content/ecosystem.json "texts", e.g. vt('pointsMapSubtitle', { shown: 5, total: 10 }).
 function vt(key, values) {
-  let text = CONTENT.vegetation.texts[key];
+  let text = CONTENT.ecosystem.texts[key];
   if (typeof text !== 'string') {
-    console.warn('content/vegetation.json has no text "' + key + '"');
+    console.warn('content/ecosystem.json has no text "' + key + '"');
     return '[' + key + ']';
   }
   Object.entries(values || {}).forEach(([k, v]) => { text = text.split('{' + k + '}').join(v); });
@@ -38,51 +38,51 @@ function vt(key, values) {
 }
 
 // A color from a name in css/base.css ("class-loss") or, for map classes, a hex color as in the image ("#d7191c").
-function vegColor(name) { return String(name).startsWith('#') ? name : color(colorVarOf(name)); }
+function ecoColor(name) { return String(name).startsWith('#') ? name : color(colorVarOf(name)); }
 function setText(id, text) { $(id).textContent = text; }
 
 // ---------- loading ----------
 
-async function loadVegetationFile(path) {
+async function loadEcosystemFile(path) {
   let response;
   try { response = await fetch(path); } catch (err) { throw new Error(path + ' (' + err.message + ')'); }
   if (!response.ok) throw new Error(path + ' (HTTP ' + response.status + ')');
   try { return await response.json(); } catch (err) { throw new Error(path + ' is not valid JSON (' + err.message + ')'); }
 }
 
-async function setupVegetation() {
-  const files = CONTENT.vegetation.files;
+async function setupEcosystem() {
+  const files = CONTENT.ecosystem.files;
   try {
-    vegLayers = await loadVegetationFile(files.layers);
+    ecoLayers = await loadEcosystemFile(files.layers);
   } catch (err) {
     // name the file instead of a blank card
-    const message = t('messages.couldNotLoadVegetation', { file: err.message });
-    setText('veg-map-status', message);
-    setText('veg-ews-status', message);
+    const message = t('messages.couldNotLoadEcosystem', { file: err.message });
+    setText('eco-map-status', message);
+    setText('eco-ews-status', message);
     console.error(err);
     return;
   }
   // the first map of the menu is the start map; an address like #satellite/maps/status-2025 chooses another one
-  const firstGroup = CONTENT.vegetation.mapMenu.groups[0];
-  vegLayerId = firstGroup.id;
-  vegViewIds[firstGroup.id] = firstGroup.items[0].view;
+  const firstGroup = CONTENT.ecosystem.mapMenu.groups[0];
+  ecoLayerId = firstGroup.id;
+  ecoViewIds[firstGroup.id] = firstGroup.items[0].view;
   selectFromSlug(mapSlugInAddress());
 
   renderStaticTexts();
   renderMapMenu();
   setupOpacity();
-  setupBasemapButton('veg-basemap-button', 'veg-map', true);   // the Mangrove maps map starts black and white
+  setupBasemapButton('eco-basemap-button', 'eco-map', true);   // the Mangrove maps map starts black and white
   setupBasemapSwitch('map-basemap-switch', 'map', false);      // the points map starts in colour
   renderSource();
   renderLayer();
   setupMaps();
   setupPointsMapBackground();
-  vegLoaded = true;
+  ecoLoaded = true;
   // the comparison line on the EWS charts (mouse and arrow keys), the same as on the other charts, see js/charts.js
-  attachComparisonLine($('ews-plots-charts'), () => vegEwsSet);
-  attachComparisonLine($('veg-chart-body'), () => vegBarSet);
+  attachComparisonLine($('ews-plots-charts'), () => ecoEwsSet);
+  attachComparisonLine($('eco-chart-body'), () => ecoBarSet);
   if (allPoints.length) { renderMap(); renderAll(); }   // points.js: the dots, now on the new base map
-  renderVegetationEws(getSelectedPoint());   // points.js: the selected point, none at the start
+  renderEcosystemEws(getSelectedPoint());   // points.js: the selected point (the start point of featured-points.json)
   window.addEventListener('hashchange', () => {
     if (location.hash.slice(1).split('/')[0] !== 'satellite') return;
     if (selectFromSlug(mapSlugInAddress())) { renderMapMenu(); renderLayer(); renderLayerOverlay(); }   // a link or the back button
@@ -92,15 +92,15 @@ async function setupVegetation() {
 
 // The texts that do not depend on the data: titles, links, hints.
 function renderStaticTexts() {
-  const tx = CONTENT.vegetation.texts;
-  setText('veg-about-title', tx.aboutTitle);
-  setText('veg-source-title', tx.sourceTitle);
-  setText('veg-opacity-label', tx.opacity);
-  setText('veg-map-zoom-in', tx.zoomIn);
-  setText('veg-map-zoom-out', tx.zoomOut);
-  setText('veg-map-reset', tx.reset);
-  $('veg-map-reset').title = tx.resetTitle;
-  [['veg-maps-link', tx.mapsLink, tx.mapsLinkTarget], ['veg-ews-link', tx.pointsLink, tx.pointsLinkTarget]].forEach(([id, label, target]) => {
+  const tx = CONTENT.ecosystem.texts;
+  setText('eco-about-title', tx.aboutTitle);
+  setText('eco-source-title', tx.sourceTitle);
+  setText('eco-opacity-label', tx.opacity);
+  setText('eco-map-zoom-in', tx.zoomIn);
+  setText('eco-map-zoom-out', tx.zoomOut);
+  setText('eco-map-reset', tx.reset);
+  $('eco-map-reset').title = tx.resetTitle;
+  [['eco-maps-link', tx.mapsLink, tx.mapsLinkTarget], ['eco-ews-link', tx.pointsLink, tx.pointsLinkTarget]].forEach(([id, label, target]) => {
     const link = $(id);
     link.href = target;
     link.innerHTML = '<span></span><svg class="icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8H13M9 4L13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -114,12 +114,12 @@ function renderStaticTexts() {
 // real longitude/latitude bounds. The AOI outline is a thin vector line from layers.json "basemap.aoi".
 
 function baseBounds() {
-  const b = vegLayers.basemapBounds;
+  const b = ecoLayers.basemapBounds;
   return L.latLngBounds([b.south, b.west], [b.north, b.east]);
 }
 
 // The AOI outline as Leaflet latitude/longitude pairs (layers.json stores [longitude, latitude]).
-function aoiLatLngs() { return vegLayers.basemap.aoi.map(([lon, lat]) => [lat, lon]); }
+function aoiLatLngs() { return ecoLayers.basemap.aoi.map(([lon, lat]) => [lat, lon]); }
 
 function createMap(elementId, zoomInId, zoomOutId, resetId) {
   const bounds = baseBounds();                  // the whole base map: the map cannot be panned outside it
@@ -130,8 +130,8 @@ function createMap(elementId, zoomInId, zoomOutId, resetId) {
   const showStart = () => map.fitBounds(aoi, { paddingTopLeft: [START_PADDING, START_PADDING], paddingBottomRight: [START_PADDING, START_PADDING + legendHeight()], animate: false });
   // the attribution sits top left: the legend strip covers the bottom of the map
   L.control.attribution({ position: 'topleft', prefix: false }).addTo(map);
-  L.imageOverlay(vegLayers.basemap.image, bounds, { attribution: vegLayers.basemap.attribution, className: 'veg-basemap' }).addTo(map);
-  L.polygon(aoiLatLngs(), { color: vegColor('surface'), weight: 1.5, opacity: 0.9, fill: false, interactive: false }).addTo(map);
+  L.imageOverlay(ecoLayers.basemap.image, bounds, { attribution: ecoLayers.basemap.attribution, className: 'eco-basemap' }).addTo(map);
+  L.polygon(aoiLatLngs(), { color: ecoColor('surface'), weight: 1.5, opacity: 0.9, fill: false, interactive: false }).addTo(map);
   $(zoomInId).addEventListener('click', () => map.zoomIn());
   $(zoomOutId).addEventListener('click', () => map.zoomOut());
   // reset: back to the start view
@@ -155,7 +155,7 @@ function createMap(elementId, zoomInId, zoomOutId, resetId) {
 }
 
 function setupMaps() {
-  vegMaps.layers = createMap('veg-map', 'veg-map-zoom-in', 'veg-map-zoom-out', 'veg-map-reset');
+  ecoMaps.layers = createMap('eco-map', 'eco-map-zoom-in', 'eco-map-zoom-out', 'eco-map-reset');
   renderLayerOverlay();
 }
 
@@ -167,7 +167,7 @@ function mercatorY(latitude) { return Math.log(Math.tan(Math.PI / 4 + latitude *
 
 // A longitude/latitude as percent of the base map picture: { left, top }.
 function basemapPercent(lon, lat) {
-  const b = vegLayers.basemapBounds;
+  const b = ecoLayers.basemapBounds;
   const top = mercatorY(b.north);
   return {
     left: (lon - b.west) / (b.east - b.west) * 100,
@@ -177,7 +177,7 @@ function basemapPercent(lon, lat) {
 
 // Where a point of points.js lies on the points map (percent of the picture).
 function pointMapPosition(p) {
-  if (!vegLayers) return { left: p.leftPct, top: p.topPct };   // layers.json is still loading: drawn again when it is there
+  if (!ecoLayers) return { left: p.leftPct, top: p.topPct };   // layers.json is still loading: drawn again when it is there
   return basemapPercent(p.lon, p.lat);
 }
 
@@ -187,9 +187,9 @@ function layoutPointsMap() {
   const w = view.clientWidth;
   const h = view.clientHeight;
   if (!w || !h) return;
-  const b = vegLayers.basemapBounds;
+  const b = ecoLayers.basemapBounds;
   const ratio = (mercatorY(b.north) - mercatorY(b.south)) / ((b.east - b.west) * Math.PI / 180);   // picture height / width
-  const corners = vegLayers.basemap.aoi.map(([lon, lat]) => basemapPercent(lon, lat));
+  const corners = ecoLayers.basemap.aoi.map(([lon, lat]) => basemapPercent(lon, lat));
   const left = Math.min(...corners.map((c) => c.left)) / 100, right = Math.max(...corners.map((c) => c.left)) / 100;
   const top = Math.min(...corners.map((c) => c.top)) / 100, bottom = Math.max(...corners.map((c) => c.top)) / 100;
   // picture width in px: the outline (a share of the picture) must fit in the window minus the padding
@@ -208,17 +208,17 @@ function layoutPointsMap() {
 
 function setupPointsMapBackground() {
   const map = $('map');
-  $('map-image').src = vegLayers.basemap.image;
-  const points = vegLayers.basemap.aoi.map(([lon, lat]) => {
+  $('map-image').src = ecoLayers.basemap.image;
+  const points = ecoLayers.basemap.aoi.map(([lon, lat]) => {
     const p = basemapPercent(lon, lat);
     return p.left.toFixed(3) + ',' + p.top.toFixed(3);
   }).join(' ');
   const svg = '<svg id="map-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
-    '<polygon points="' + points + '" fill="none" stroke="' + vegColor('surface') + '" stroke-width="1.5" stroke-opacity="0.9" vector-effect="non-scaling-stroke"></polygon></svg>';
+    '<polygon points="' + points + '" fill="none" stroke="' + ecoColor('surface') + '" stroke-width="1.5" stroke-opacity="0.9" vector-effect="non-scaling-stroke"></polygon></svg>';
   map.insertAdjacentHTML('beforeend', svg);
   const credit = document.createElement('span');
   credit.id = 'map-attribution';
-  credit.textContent = vegLayers.basemap.attribution;
+  credit.textContent = ecoLayers.basemap.attribution;
   $('map-view').appendChild(credit);
   // the window can only be measured when its card is on screen: place the picture whenever its size changes
   new ResizeObserver(layoutPointsMap).observe($('map-view'));
@@ -228,9 +228,9 @@ function setupPointsMapBackground() {
 
 // The layer shown. A layer with "views" (layers.json) gets the fields of the chosen view (image, legend, about, ...) on top.
 function currentLayer() {
-  const layer = vegLayers.layers.find((l) => l.id === vegLayerId);
+  const layer = ecoLayers.layers.find((l) => l.id === ecoLayerId);
   if (!layer.views) return layer;
-  const view = layer.views.find((v) => v.id === vegViewIds[layer.id]) || layer.views[0];
+  const view = layer.views.find((v) => v.id === ecoViewIds[layer.id]) || layer.views[0];
   const merged = Object.assign({}, layer, view, { id: layer.id });
   // the chosen variant of the view (own image, legend, classes, ...; its "about" texts replace the same texts of the view)
   const variants = variantsOf(view);
@@ -246,7 +246,7 @@ function currentLayer() {
 function variantsOf(view) {
   if (Array.isArray(view.variants)) return view.variants;
   if (!view.detailed) return null;
-  return CONTENT.vegetation.detailSwitch.map((item) => (item.id === 'detailed' ? Object.assign({}, view.detailed, item) : item));
+  return CONTENT.ecosystem.detailSwitch.map((item) => (item.id === 'detailed' ? Object.assign({}, view.detailed, item) : item));
 }
 
 // The key of the chosen variant: per view, or shared by the views with the same "variantGroup" (the storm of Disturbance & recovery).
@@ -254,7 +254,7 @@ function variantKey(layer, view) { return layer.id + '/' + (view.variantGroup ||
 
 function chosenVariantId(layer, view) {
   const variants = variantsOf(view);
-  return vegVariantIds[variantKey(layer, view)] || view.defaultVariant || variants[0].id;
+  return ecoVariantIds[variantKey(layer, view)] || view.defaultVariant || variants[0].id;
 }
 
 // Why a view cannot be shown for the chosen variant (e.g. no acute wetness for Opal): the text from layers.json "unavailable", or ''.
@@ -265,20 +265,20 @@ function viewUnavailable(layer, view) {
 }
 
 // ---------- the Maps menu (card "Maps") ----------
-// One tab per theme (content/vegetation.json "mapMenu" groups) and under it one radio row per map of the active theme only.
+// One tab per theme (content/ecosystem.json "mapMenu" groups) and under it one radio row per map of the active theme only.
 // The rows name a layer (group id) and a view of it (layers.json). The variants of a view (year, period, Simplified |
 // Detailed) are a small segmented control on the line of the selected row; the storm of Disturbance & recovery is one line
-// under the tabs (it applies to its four maps). A tab selects the map last used in that theme (vegViewIds). The chosen map is kept in vegLayerId, vegViewIds and vegVariantIds, and in the address (#satellite/maps/<slug>).
+// under the tabs (it applies to its four maps). A tab selects the map last used in that theme (ecoViewIds). The chosen map is kept in ecoLayerId, ecoViewIds and ecoVariantIds, and in the address (#satellite/maps/<slug>).
 
-function menuLayer(groupId) { return vegLayers.layers.find((l) => l.id === groupId); }
+function menuLayer(groupId) { return ecoLayers.layers.find((l) => l.id === groupId); }
 function menuView(group, item) { return menuLayer(group.id).views.find((v) => v.id === item.view); }
-function menuGroups() { return CONTENT.vegetation.mapMenu.groups; }
+function menuGroups() { return CONTENT.ecosystem.mapMenu.groups; }
 
 // The group, layer, view and row of the map that is shown.
 function currentMap() {
-  const group = menuGroups().find((g) => g.id === vegLayerId);
+  const group = menuGroups().find((g) => g.id === ecoLayerId);
   const layer = menuLayer(group.id);
-  const view = layer.views.find((v) => v.id === (vegViewIds[layer.id] || layer.views[0].id));
+  const view = layer.views.find((v) => v.id === (ecoViewIds[layer.id] || layer.views[0].id));
   return { group: group, layer: layer, view: view, item: group.items.find((i) => i.view === view.id) };
 }
 
@@ -320,11 +320,11 @@ function selectFromSlug(slug) {
         variantId = rest;
       }
       const key = variantKey(layer, view);
-      const before = vegVariantIds[key];
-      if (variantId) vegVariantIds[key] = variantId;
-      if (viewUnavailable(layer, view)) { vegVariantIds[key] = before; return false; }
-      vegLayerId = layer.id;
-      vegViewIds[layer.id] = view.id;
+      const before = ecoVariantIds[key];
+      if (variantId) ecoVariantIds[key] = variantId;
+      if (viewUnavailable(layer, view)) { ecoVariantIds[key] = before; return false; }
+      ecoLayerId = layer.id;
+      ecoViewIds[layer.id] = view.id;
       return true;
     }
   }
@@ -341,8 +341,8 @@ function refreshMap(focus) {
 }
 
 function selectMap(groupId, viewId, focus) {
-  vegLayerId = groupId;
-  vegViewIds[groupId] = viewId;
+  ecoLayerId = groupId;
+  ecoViewIds[groupId] = viewId;
   refreshMap(focus);
 }
 
@@ -371,20 +371,20 @@ function menuSegment(label, items, activeId, focusKey, onPick) {
   return seg;
 }
 
-// The tabs, the storm line and the rows of the active theme (vegLayerId). focus = the data-focus of the control that keeps
+// The tabs, the storm line and the rows of the active theme (ecoLayerId). focus = the data-focus of the control that keeps
 // the keyboard focus after the menu is drawn again.
 function renderMapMenu(focus) {
-  const box = $('veg-map-menu');
+  const box = $('eco-map-menu');
   box.innerHTML = '';
   const groups = menuGroups();
-  const group = groups.find((g) => g.id === vegLayerId);
+  const group = groups.find((g) => g.id === ecoLayerId);
   const layer = menuLayer(group.id);
 
   // the tabs: one per theme; a tab shows the map last used in that theme (the first one the first time)
   const tabs = document.createElement('div');
   tabs.className = 'menu-tabs';
   tabs.setAttribute('role', 'tablist');
-  tabs.setAttribute('aria-label', CONTENT.vegetation.texts.menuTitle);
+  tabs.setAttribute('aria-label', CONTENT.ecosystem.texts.menuTitle);
   groups.forEach((g) => {
     const tab = document.createElement('button');
     tab.type = 'button';
@@ -394,7 +394,7 @@ function renderMapMenu(focus) {
     tab.setAttribute('role', 'tab');
     tab.setAttribute('aria-selected', g.id === group.id);
     tab.tabIndex = g.id === group.id ? 0 : -1;   // one tab stop; the arrow keys move between the tabs
-    tab.addEventListener('click', () => selectMap(g.id, vegViewIds[g.id] || g.items[0].view, tab.dataset.focus));
+    tab.addEventListener('click', () => selectMap(g.id, ecoViewIds[g.id] || g.items[0].view, tab.dataset.focus));
     tab.addEventListener('keydown', (e) => {
       const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
       if (!step) return;
@@ -409,10 +409,10 @@ function renderMapMenu(focus) {
   if (group.storm) {
     const stormView = layer.views.find((v) => v.id === group.storm.view);
     const storm = menuSegment(group.storm.label + ':', variantsOf(stormView), chosenVariantId(layer, stormView), 'storm', (id, key) => {
-      vegVariantIds[variantKey(layer, stormView)] = id;
+      ecoVariantIds[variantKey(layer, stormView)] = id;
       // a map that does not exist for this storm (Acute wetness for Opal): back to the first map of the theme
-      const current = layer.views.find((v) => v.id === (vegViewIds[layer.id] || layer.views[0].id));
-      if (viewUnavailable(layer, current)) vegViewIds[layer.id] = layer.views[0].id;
+      const current = layer.views.find((v) => v.id === (ecoViewIds[layer.id] || layer.views[0].id));
+      if (viewUnavailable(layer, current)) ecoViewIds[layer.id] = layer.views[0].id;
       refreshMap(key);
     });
     storm.classList.add('menu-storm');
@@ -425,7 +425,7 @@ function renderMapMenu(focus) {
   list.setAttribute('role', 'radiogroup');
   list.setAttribute('aria-label', group.label);
   const rows = [];   // for the arrow keys
-  const currentViewId = vegViewIds[layer.id] || layer.views[0].id;
+  const currentViewId = ecoViewIds[layer.id] || layer.views[0].id;
   group.items.forEach((item) => {
     const view = menuView(group, item);
     const selected = view.id === currentViewId;
@@ -455,7 +455,7 @@ function renderMapMenu(focus) {
     const variants = selected && !group.storm ? variantsOf(view) : null;
     if (variants) {
       line.appendChild(menuSegment('', variants, chosenVariantId(layer, view), 'variant', (id, key) => {
-        vegVariantIds[variantKey(layer, view)] = id;
+        ecoVariantIds[variantKey(layer, view)] = id;
         refreshMap(key);
       }));
     }
@@ -470,12 +470,12 @@ function renderMapMenu(focus) {
 }
 
 // Two chips (Black and white | Colour) under a map: the visitor chooses how the base map looks. The class
-// "basemap-bw" on the map element turns its base map black and white (css/vegetation.css).
+// "basemap-bw" on the map element turns its base map black and white (css/ecosystem.css).
 function setupBasemapSwitch(boxId, mapId, blackAndWhite) {
   const box = $(boxId);
   const map = $(mapId);
   if (!box || !map) return;
-  const tx = CONTENT.vegetation.texts;
+  const tx = CONTENT.ecosystem.texts;
   const draw = () => {
     map.classList.toggle('basemap-bw', blackAndWhite);
     box.innerHTML = '';
@@ -501,7 +501,7 @@ function setupBasemapButton(buttonId, mapId, blackAndWhite) {
   const button = $(buttonId);
   const map = $(mapId);
   if (!button || !map) return;
-  button.textContent = CONTENT.vegetation.texts.basemapBw;
+  button.textContent = CONTENT.ecosystem.texts.basemapBw;
   const draw = () => {
     map.classList.toggle('basemap-bw', blackAndWhite);
     button.classList.toggle('on', blackAndWhite);
@@ -512,11 +512,11 @@ function setupBasemapButton(buttonId, mapId, blackAndWhite) {
 }
 
 function setupOpacity() {
-  const slider = $('veg-opacity');
-  slider.value = CONTENT.vegetation.defaultOpacity;
+  const slider = $('eco-opacity');
+  slider.value = CONTENT.ecosystem.defaultOpacity;
   const apply = () => {
-    setText('veg-opacity-value', slider.value + ' %');
-    if (vegOverlay) vegOverlay.setOpacity(slider.value / 100);
+    setText('eco-opacity-value', slider.value + ' %');
+    if (ecoOverlay) ecoOverlay.setOpacity(slider.value / 100);
   };
   slider.addEventListener('input', apply);
   apply();
@@ -525,32 +525,32 @@ function setupOpacity() {
 // The layer image on the map, or the calm message when the layer has no image yet.
 function renderLayerOverlay() {
   const layer = currentLayer();
-  if (!vegMaps.layers) return;
-  if (vegOverlay) { vegMaps.layers.removeLayer(vegOverlay); vegOverlay = null; }
-  const message = $('veg-map-message');
+  if (!ecoMaps.layers) return;
+  if (ecoOverlay) { ecoMaps.layers.removeLayer(ecoOverlay); ecoOverlay = null; }
+  const message = $('eco-map-message');
   message.hidden = !!layer.image;
   message.innerHTML = '<span></span>';
   message.firstChild.textContent = vt('mapNotAvailable');
   if (!layer.image) return;
-  const b = layer.bounds || vegLayers.layerBounds;
-  vegOverlay = L.imageOverlay(layer.image, L.latLngBounds([b.south, b.west], [b.north, b.east]), { opacity: $('veg-opacity').value / 100, className: 'pixel-layer' }).addTo(vegMaps.layers);   // pixel-layer: sharp blocks, see vegetation.css
+  const b = layer.bounds || ecoLayers.layerBounds;
+  ecoOverlay = L.imageOverlay(layer.image, L.latLngBounds([b.south, b.west], [b.north, b.east]), { opacity: $('eco-opacity').value / 100, className: 'pixel-layer' }).addTo(ecoMaps.layers);   // pixel-layer: sharp blocks, see ecosystem.css
   // an image that cannot be loaded shows the same message
-  vegOverlay.on('error', () => { message.hidden = false; });
+  ecoOverlay.on('error', () => { message.hidden = false; });
 }
 
 // Title, legend strip and "About this layer" of the current layer.
 function renderLayer() {
   const layer = currentLayer();
-  setText('veg-map-title', mapTitle());
-  setText('veg-map-label', layer.mapLabel || '');
-  $('veg-map-label').hidden = !layer.mapLabel;
-  showPlaceholderTag($('veg-map-title').parentElement, layer.placeholder);
+  setText('eco-map-title', mapTitle());
+  setText('eco-map-label', layer.mapLabel || '');
+  $('eco-map-label').hidden = !layer.mapLabel;
+  showPlaceholderTag($('eco-map-title').parentElement, layer.placeholder);
   renderLegend(layer.legend);
   renderAbout();
 }
 
 function renderLegend(legend) {
-  const box = $('veg-legend');
+  const box = $('eco-legend');
   box.innerHTML = '';
   const title = document.createElement('span');
   title.className = 'legend-title';
@@ -592,13 +592,13 @@ function renderLegend(legend) {
     low.textContent = legend.low;
     const bar = document.createElement('span');
     bar.className = 'gradient-bar';
-    bar.style.background = 'linear-gradient(to right, ' + legend.colors.map(vegColor).join(', ') + ')';
+    bar.style.background = 'linear-gradient(to right, ' + legend.colors.map(ecoColor).join(', ') + ')';
     const high = document.createElement('span');
     high.className = 'lg';
     high.textContent = legend.high;
     box.append(low, bar, high);
   } else {
-    legend.items.forEach((item) => box.appendChild(legendItem(item.label, vegColor(item.color))));
+    legend.items.forEach((item) => box.appendChild(legendItem(item.label, ecoColor(item.color))));
   }
 }
 
@@ -611,7 +611,7 @@ function gradientLegend(legend) {
   wrap.className = 'gradient-wrap';
   const bar = document.createElement('span');
   bar.className = 'gradient-bar';
-  bar.style.background = 'linear-gradient(to right, ' + legend.colors.map(vegColor).join(', ') + ')';
+  bar.style.background = 'linear-gradient(to right, ' + legend.colors.map(ecoColor).join(', ') + ')';
   const labels = document.createElement('span');
   labels.className = 'gradient-labels';
   [signed(legend.min) + ' ' + legend.low, legend.mid, legend.high + ' ' + signed(legend.max)].filter(isFilled).forEach((text) => {
@@ -655,9 +655,9 @@ function aboutText(text) {
 
 function renderAbout() {
   const layer = currentLayer();
-  const body = $('veg-about-body');
+  const body = $('eco-about-body');
   body.innerHTML = '';
-  showPlaceholderTag($('veg-about-title').parentElement, layer.placeholder);
+  showPlaceholderTag($('eco-about-title').parentElement, layer.placeholder);
 
   body.appendChild(aboutBlock(vt('aboutShows'), aboutText(layer.about.shows)));
   body.appendChild(aboutBlock(vt('aboutComputed'), aboutText(layer.about.computed)));
@@ -665,7 +665,7 @@ function renderAbout() {
   // how to read the colors: one color block per class (the per-period view lists its periods instead)
   const colors = document.createElement('div');
   colors.className = 'about-legend';
-  if (layer.legend.type !== 'gradient') layer.classes.forEach((c) => colors.appendChild(legendItem(c.label, vegColor(c.color))));
+  if (layer.legend.type !== 'gradient') layer.classes.forEach((c) => colors.appendChild(legendItem(c.label, ecoColor(c.color))));
   if (layer.legend.type === 'gradient' && isFinite(layer.legend.min)) colors.appendChild(gradientLegend(layer.legend));
   if (layer.legend.type === 'periods') {
     const list = document.createElement('div');
@@ -712,7 +712,7 @@ function renderAbout() {
     const row = document.createElement('div');
     row.className = 'value-row';
     row.innerHTML = '<span class="name"><span class="lg-dot"></span><span class="class-name"></span></span><span class="val"></span>';
-    row.querySelector('.lg-dot').style.background = vegColor(c.color);
+    row.querySelector('.lg-dot').style.background = ecoColor(c.color);
     row.querySelector('.class-name').textContent = c.label;
     row.querySelector('.val').textContent = isNumber(c.ha) && totalHa > 0
       ? vt('shareValue', { ha: c.ha.toFixed(1), percent: (c.ha / totalHa * 100).toFixed(1) })
@@ -735,7 +735,7 @@ function renderAbout() {
     storms.forEach((ev) => list.appendChild(stormRow(ev)));
     const block = aboutBlock(vt('relatedStorms'), list);
     const link = document.createElement('a');
-    link.className = 'veg-link';
+    link.className = 'eco-link';
     link.href = '#climatology';
     link.innerHTML = '<span></span><svg class="icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8H13M9 4L13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     link.firstChild.textContent = vt('relatedStormsLink');
@@ -748,18 +748,18 @@ function renderAbout() {
 // with a small toggle per year | total. Hidden when the view has no chart. Drawn with the parts of charts.js; the hover
 // values come from the comparison line. The bar colors are the darkest colors of the legend rows.
 function renderChartCard(layer) {
-  const card = document.querySelector('[data-card="veg-chart"]');
+  const card = document.querySelector('[data-card="eco-chart"]');
   const chart = layer.about.chart;
   card.hidden = !chart;
   if (!chart) return;
-  setText('veg-chart-title', chart.title);
-  showPlaceholderTag($('veg-chart-title').parentElement, chart.placeholder);
-  $('veg-chart-toggle').hidden = chart.type === 'line';   // the per year | total toggle belongs to the bar chart
+  setText('eco-chart-title', chart.title);
+  showPlaceholderTag($('eco-chart-title').parentElement, chart.placeholder);
+  $('eco-chart-toggle').hidden = chart.type === 'line';   // the per year | total toggle belongs to the bar chart
   if (chart.type === 'line') { renderLineChart(chart); return; }
 
-  const modes = CONTENT.vegetation.chartModes;
-  const mode = modes.find((m) => m.id === vegBarMode) || modes[0];
-  const toggle = $('veg-chart-toggle');
+  const modes = CONTENT.ecosystem.chartModes;
+  const mode = modes.find((m) => m.id === ecoBarMode) || modes[0];
+  const toggle = $('eco-chart-toggle');
   toggle.innerHTML = '';
   modes.forEach((m) => {
     const chip = document.createElement('button');
@@ -767,7 +767,7 @@ function renderChartCard(layer) {
     chip.className = 'layer-chip' + (m.id === mode.id ? ' on' : '');
     chip.textContent = m.label;
     chip.setAttribute('aria-pressed', m.id === mode.id);
-    chip.addEventListener('click', () => { vegBarMode = m.id; renderChartCard(currentLayer()); });
+    chip.addEventListener('click', () => { ecoBarMode = m.id; renderChartCard(currentLayer()); });
     toggle.appendChild(chip);
   });
 
@@ -783,18 +783,18 @@ function renderChartCard(layer) {
   const stacked = mode.id === 'total';
   if (stacked && periods.some((p) => isNumber(p.lossProvHa) || isNumber(p.gainProvHa))) {
     layer.legend.rows.forEach((row, k) => series.push({
-      label: row.label + ' (' + CONTENT.vegetation.texts.provisional + ')', color: row.colors[1],
+      label: row.label + ' (' + CONTENT.ecosystem.texts.provisional + ')', color: row.colors[1],
       values: periods.map((p) => p[['lossProvHa', 'gainProvHa'][k]]) }));
   }
   // the top of each segment of a stacked bar: the sum of its own value and all the segments under it
   const tops = series.map((s, k) => s.values.map((val, i) => (isNumber(val)
     ? series.slice(0, k + 1).reduce((sum, o) => sum + (isNumber(o.values[i]) ? o.values[i] : 0), 0) : null)));
   const known = knownValues([].concat(...(stacked ? tops : series.map((s) => s.values))));
-  const body = $('veg-chart-body');
+  const body = $('eco-chart-body');
   body.innerHTML = '';
-  vegBarSet = null;
+  ecoBarSet = null;
   if (!known.length) {
-    body.appendChild(vegChartRow(mode.unit, chartNoData(chartHead({ label: chart.title }, [], 'chart'))));
+    body.appendChild(ecoChartRow(mode.unit, chartNoData(chartHead({ label: chart.title }, [], 'chart'))));
   } else {
     const n = periods.length;
     const x = pointXScale(n);   // one group of bars per period, evenly spaced
@@ -806,41 +806,41 @@ function renderChartCard(layer) {
     if (stacked) series.forEach((s, k) => s.values.forEach((val, i) => {
       if (!isNumber(val) || val <= 0) return;
       const top = scale.yOf(tops[k][i]);
-      svg += '<rect x="' + (x.xOf(i) - barWidth / 2).toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + barWidth.toFixed(1) + '" height="' + (scale.yOf(tops[k][i] - val) - top).toFixed(1) + '" fill="' + vegColor(s.color) + '"></rect>';
+      svg += '<rect x="' + (x.xOf(i) - barWidth / 2).toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + barWidth.toFixed(1) + '" height="' + (scale.yOf(tops[k][i] - val) - top).toFixed(1) + '" fill="' + ecoColor(s.color) + '"></rect>';
     }));
     else series.forEach((s, k) => s.values.forEach((val, i) => {
       if (!isNumber(val)) return;
       const left = x.xOf(i) + (k === 0 ? -barWidth - 1 : 1);
       const top = Math.min(zeroY, scale.yOf(val));
-      svg += '<rect x="' + left.toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + barWidth.toFixed(1) + '" height="' + Math.abs(zeroY - scale.yOf(val)).toFixed(1) + '" fill="' + vegColor(s.color) + '"></rect>';
+      svg += '<rect x="' + left.toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + barWidth.toFixed(1) + '" height="' + Math.abs(zeroY - scale.yOf(val)).toFixed(1) + '" fill="' + ecoColor(s.color) + '"></rect>';
     }));
-    body.appendChild(vegChartRow(mode.unit, svg + '</svg>'));
+    body.appendChild(ecoChartRow(mode.unit, svg + '</svg>'));
     body.appendChild(sharedAxis(periods.map((p, i) => ({ x: x.xOf(i), text: p.label })), ''));
     body.insertAdjacentHTML('beforeend', '<div class="comparison" hidden></div>');
     // the comparison line snaps to periods and shows loss and gain
-    vegBarSet = {
+    ecoBarSet = {
       count: n, xOf: x.xOf, indexAt: x.indexAt, label: (i) => periods[i].label + ' (' + periods[i].range + ')',
-      panels: [{ yOf: scale.yOf, points: (i) => series.map((s, k) => ({ value: stacked ? tops[k][i] : s.values[i], color: vegColor(s.color), text: s.label + ' ' + formatLike(s.values[i], s.values) + ' ' + mode.unit })) }]
+      panels: [{ yOf: scale.yOf, points: (i) => series.map((s, k) => ({ value: stacked ? tops[k][i] : s.values[i], color: ecoColor(s.color), text: s.label + ' ' + formatLike(s.values[i], s.values) + ' ' + mode.unit })) }]
     };
   }
 
-  const legend = $('veg-chart-legend');
+  const legend = $('eco-chart-legend');
   legend.innerHTML = '';
-  series.forEach((s) => legend.appendChild(legendItem(s.label, vegColor(s.color))));
+  series.forEach((s) => legend.appendChild(legendItem(s.label, ecoColor(s.color))));
 
   renderChartNote(chart);
 }
 
 // The note under the chart; a word in it (e.g. "Isidore") can link to that storm on the Climatology page.
 function renderChartNote(chart) {
-  const note = $('veg-chart-note');
+  const note = $('eco-chart-note');
   note.textContent = '';
   const link = chart.noteLink;
   const storm = link && (typeof events !== 'undefined' ? events : []).find((e) => e.id === link.storm);
   const at = link ? chart.note.indexOf(link.text) : -1;
   if (storm && at >= 0) {
     const a = document.createElement('a');
-    a.className = 'veg-link-inline';
+    a.className = 'eco-link-inline';
     a.href = '#climatology';
     a.textContent = link.text;
     a.addEventListener('click', () => { if (selectedEventId !== storm.id) selectEvent(storm.id); });
@@ -855,12 +855,12 @@ function renderChartNote(chart) {
 // come from the comparison line, as for the bar chart.
 function renderLineChart(chart) {
   const years = chart.years;
-  const body = $('veg-chart-body');
+  const body = $('eco-chart-body');
   body.innerHTML = '';
-  vegBarSet = null;
+  ecoBarSet = null;
   const known = knownValues([].concat(...chart.series.map((s) => s.values)));
   if (!known.length) {
-    body.appendChild(vegChartRow(chart.unit, chartNoData(chartHead({ label: chart.title }, [], 'chart'))));
+    body.appendChild(ecoChartRow(chart.unit, chartNoData(chartHead({ label: chart.title }, [], 'chart'))));
   } else {
     const x = pointXScale(years.length);
     const scale = chartScale(known, false);
@@ -868,8 +868,8 @@ function renderLineChart(chart) {
     let svg = chartHead({ label: chart.title }, gridX, 'chart') + chartYAxis(scale.t, scale.yOf, true);
     chart.series.forEach((s) => {
       segmentsOf(s.values).forEach((seg) => {
-        if (seg.length === 1) svg += '<circle cx="' + x.xOf(seg[0].i).toFixed(1) + '" cy="' + scale.yOf(seg[0].val).toFixed(1) + '" r="2" fill="' + vegColor(s.color) + '"></circle>';
-        else svg += '<polyline points="' + seg.map((pt) => x.xOf(pt.i).toFixed(1) + ',' + scale.yOf(pt.val).toFixed(1)).join(' ') + '" fill="none" stroke="' + vegColor(s.color) + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"></polyline>';
+        if (seg.length === 1) svg += '<circle cx="' + x.xOf(seg[0].i).toFixed(1) + '" cy="' + scale.yOf(seg[0].val).toFixed(1) + '" r="2" fill="' + ecoColor(s.color) + '"></circle>';
+        else svg += '<polyline points="' + seg.map((pt) => x.xOf(pt.i).toFixed(1) + ',' + scale.yOf(pt.val).toFixed(1)).join(' ') + '" fill="none" stroke="' + ecoColor(s.color) + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"></polyline>';
       });
     });
     // the dashed line at the storm year, with its name at the top
@@ -879,17 +879,17 @@ function renderLineChart(chart) {
       svg += '<line x1="' + mx + '" y1="' + PLOT.top + '" x2="' + mx + '" y2="' + PLOT.bottom + '" stroke="' + color('--color-breakpoint') + '" stroke-width="1.5" stroke-dasharray="4,4"></line>' +
         '<text class="plot-tick-label" x="' + (Number(mx) + 4) + '" y="' + (PLOT.top + 10) + '">' + escapeHtml(chart.marker.label) + '</text>';
     }
-    body.appendChild(vegChartRow(chart.unit, svg + '</svg>'));
+    body.appendChild(ecoChartRow(chart.unit, svg + '</svg>'));
     body.appendChild(sharedAxis(years.map((y, i) => ({ x: x.xOf(i), text: String(y) })), t('labels.year')));
     body.insertAdjacentHTML('beforeend', '<div class="comparison" hidden></div>');
-    vegBarSet = {
+    ecoBarSet = {
       count: years.length, xOf: x.xOf, indexAt: x.indexAt, label: (i) => String(years[i]),
-      panels: [{ yOf: scale.yOf, points: (i) => chart.series.map((s) => ({ value: s.values[i], color: vegColor(s.color), text: s.label + ' ' + formatLike(s.values[i], s.values) })) }]
+      panels: [{ yOf: scale.yOf, points: (i) => chart.series.map((s) => ({ value: s.values[i], color: ecoColor(s.color), text: s.label + ' ' + formatLike(s.values[i], s.values) })) }]
     };
   }
-  const legend = $('veg-chart-legend');
+  const legend = $('eco-chart-legend');
   legend.innerHTML = '';
-  chart.series.forEach((s) => legend.appendChild(legendItem(s.label, vegColor(s.color))));
+  chart.series.forEach((s) => legend.appendChild(legendItem(s.label, ecoColor(s.color))));
   renderChartNote(chart);
 }
 
@@ -913,10 +913,10 @@ function stormRow(ev) {
 }
 
 function renderSource() {
-  const s = vegLayers.source;
-  const box = $('veg-source-body');
+  const s = ecoLayers.source;
+  const box = $('eco-source-body');
   box.innerHTML = '';
-  showPlaceholderTag($('veg-source-title').parentElement, s.placeholder);
+  showPlaceholderTag($('eco-source-title').parentElement, s.placeholder);
   [[vt('sourceSatellite'), s.satellite], [vt('sourcePeriod'), s.period], [vt('sourceArea'), s.studyArea]].forEach(([label, value]) => {
     const row = document.createElement('div');
     row.className = 'info-row';
@@ -931,13 +931,13 @@ function renderSource() {
 // ---------- section 2: Early warning signals before the breakpoint ----------
 // Three stacked charts (residual, AR1, SD) with Kendall's tau and p of AR1 and SD between them and one shared year
 // axis. The card follows the point selected in the points map and the Point card (points.js): renderAll() calls
-// renderVegetationEws(point). The charts are drawn like the NDVI chart of points.js: same x scale (pointXScale),
+// renderEcosystemEws(point). The charts are drawn like the NDVI chart of points.js: same x scale (pointXScale),
 // same year ticks, same grid and axis parts of charts.js.
 
 
 // The intros with {total} and {featured} (content/pages.json) get the number of points of data/points.json and the
 // number of clickable points of content/featured-points.json (both loaded by points.js).
-function fillVegetationIntros() {
+function fillEcosystemIntros() {
   const total = typeof allPoints !== 'undefined' ? allPoints.length : 0;
   if (!total) return;
   const featured = typeof FEATURED !== 'undefined' ? Object.keys(FEATURED).length : 0;
@@ -949,7 +949,7 @@ function fillVegetationIntros() {
 
 // One chart like the NDVI chart: grid with the year ticks, y axis, and the line (broken where a month has no value).
 // Returns the SVG text and what the comparison line needs ({ yOf, points }, null without values).
-function vegEwsChartSvg(label, values, colorValue, gridX, x, clipId) {
+function ecoEwsChartSvg(label, values, colorValue, gridX, x, clipId) {
   const head = chartHead({ label: label }, gridX, 'chart');
   const known = knownValues(values);
   if (!known.length) return { svg: chartNoData(head), panel: null };
@@ -966,7 +966,7 @@ function vegEwsChartSvg(label, values, colorValue, gridX, x, clipId) {
 }
 
 // A chart row like the others: the name on the left, the plot.
-function vegChartRow(label, svg) {
+function ecoChartRow(label, svg) {
   const row = document.createElement('div');
   row.className = 'anomaly-chart';
   row.innerHTML = '<div class="anomaly-label"><span class="anomaly-name"></span></div><div class="anomaly-plot">' + svg + '</div>';
@@ -975,7 +975,7 @@ function vegChartRow(label, svg) {
 }
 
 // The early warning signals of a point: its "ews" in data/points.json (loaded by points.js), or null.
-// Used by the Early warning signals cards (vegetation.js).
+// Used by the Early warning signals cards (ecosystem.js).
 function ewsEntryFor(point) {
   return point && point.ews ? point.ews : null;
 }
@@ -997,14 +997,14 @@ function ewsStatusMessage(entry) {
 // Only points with status "ok" have charts. They use the same timeline as the NDVI chart; the values exist only for
 // the months before the loss ("dates" of the entry), and a dashed line marks the start of the loss.
 // The early warning signals are two cards: "ews-verdict" (verdict, reason, metrics table) and "ews-plots" (the charts).
-function renderVegetationEws(point) {
-  if (!vegLoaded) return;   // the data of these cards is still loading: setupVegetation draws them once it is there
-  fillVegetationIntros();
+function renderEcosystemEws(point) {
+  if (!ecoLoaded) return;   // the data of these cards is still loading: setupEcosystem draws them once it is there
+  fillEcosystemIntros();
   const verdictBox = $('ews-verdict-body');
   const box = $('ews-plots-charts');
   verdictBox.innerHTML = '';
   box.innerHTML = '';
-  vegEwsSet = null;
+  ecoEwsSet = null;
   const entry = ewsEntryFor(point);
   renderEwsGuide(entry);   // "How to read this": for every point, also without a selected point
   // the subtitle names the start of the loss: the start of the 12-month window of the drop (lossStart), which lies
@@ -1056,18 +1056,18 @@ function renderVegetationEws(point) {
     '" stroke="' + color('--color-breakpoint') + '" stroke-width="1.5" stroke-dasharray="4,4"></line>' : '';
 
   const panels = [];
-  CONTENT.vegetation.ewsCharts.forEach((c) => {
+  CONTENT.ecosystem.ewsCharts.forEach((c) => {
     const data = entry && entry.metrics ? entry.metrics[c.id] : null;
-    const drawn = data ? vegEwsChartSvg(c.label, onTimeline(data.values), vegColor(c.color), gridX, x, 'veg-clip-' + c.id)
+    const drawn = data ? ecoEwsChartSvg(c.label, onTimeline(data.values), ecoColor(c.color), gridX, x, 'eco-clip-' + c.id)
       : { svg: chartNoData(chartHead({ label: c.label }, gridX, 'chart')), panel: null };
-    box.appendChild(vegChartRow(c.label, data ? drawn.svg.replace('</svg>', lossLine + '</svg>') : drawn.svg));
+    box.appendChild(ecoChartRow(c.label, data ? drawn.svg.replace('</svg>', lossLine + '</svg>') : drawn.svg));
     panels.push(drawn.panel);
   });
   if (dates.length) {
     box.appendChild(sharedAxis(ticks, t('labels.year')));
     box.insertAdjacentHTML('beforeend', '<div class="comparison" hidden></div>');
     // the comparison line snaps to months, as on the point chart
-    vegEwsSet = { count: dates.length, xOf: x.xOf, indexAt: x.indexAt, label: (i) => pointMonthLabel(dates[i]), panels: panels };
+    ecoEwsSet = { count: dates.length, xOf: x.xOf, indexAt: x.indexAt, label: (i) => pointMonthLabel(dates[i]), panels: panels };
   }
 }
 
@@ -1083,9 +1083,9 @@ function joinNames(names) {
   return names.slice(0, -1).join(', ') + ' ' + t('labels.and') + ' ' + names[names.length - 1];
 }
 
-// The metrics of the table (content/vegetation.json "ewsMetrics") with their data
+// The metrics of the table (content/ecosystem.json "ewsMetrics") with their data
 function ewsMetricRows(entry) {
-  return (CONTENT.vegetation.ewsMetrics || []).map((m) => ({ m: m, data: entry.metrics ? entry.metrics[m.id] : null }));
+  return (CONTENT.ecosystem.ewsMetrics || []).map((m) => ({ m: m, data: entry.metrics ? entry.metrics[m.id] : null }));
 }
 
 function renderEwsVerdict(box, entry) {

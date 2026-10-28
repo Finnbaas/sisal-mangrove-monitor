@@ -1,4 +1,4 @@
-// points.js: the monitoring points of the Vegetation screen.
+// points.js: the monitoring points of the Ecosystem screen.
 //   Site map with the points, point chart with its chips (drawn like the NDVI plots of the analysis notebook:
 //   NDVI, STL trend and breakpoints), the description of the selected point, and the download menu (CSV of the
 //   data, PNG of the chart).
@@ -46,9 +46,14 @@ async function loadPoints() {
     const featuredResponse = await fetch('content/featured-points.json');
     if (!featuredResponse.ok) throw new Error('content/featured-points.json: HTTP ' + featuredResponse.status);
     FEATURED = {};
-    (await featuredResponse.json()).points.forEach((f) => { FEATURED[f.id] = { description: f.description || '' }; });
+    const featuredFile = await featuredResponse.json();
+    featuredFile.points.forEach((f) => { FEATURED[f.id] = { description: f.description || '' }; });
 
-    // No point is selected at the start: the cards show "No data" until a marker is clicked.
+    // The start point is "selectedAtStart" of content/featured-points.json (a red, loss point). Without it, no point is
+    // selected and the cards show "No data" until a marker is clicked.
+    if (FEATURED[featuredFile.selectedAtStart] && allPoints.some((p) => p.id === featuredFile.selectedAtStart)) {
+      selectedId = featuredFile.selectedAtStart;
+    }
     const count = allPoints.length;
     $('map-note').textContent = count === 1 ? t('labels.mapNoteOnePoint') : t('labels.mapNote', { count: count });
     // subtitle under the map title: total points and how many of them are clickable
@@ -79,7 +84,7 @@ function renderMap() {
   allPoints.filter((p) => !FEATURED[p.id]).forEach((p) => {
     const dot = document.createElement('div');
     dot.className = 'dot';
-    const place = pointMapPosition(p);   // vegetation.js
+    const place = pointMapPosition(p);   // ecosystem.js
     dot.style.left = place.left + '%';
     dot.style.top = place.top + '%';
     dot.style.background = color((CLASSES[p.changeClass] || UNKNOWN).colorVar);
@@ -174,8 +179,8 @@ function renderAll() {
     c.style.borderColor = on ? color(v.colorVar) : '';
   });
   renderChart(point);
-  // the card "Early warning signals" of the Vegetation page follows the selected point (vegetation.js)
-  if (typeof renderVegetationEws === 'function') renderVegetationEws(point);
+  // the card "Early warning signals" of the Ecosystem page follows the selected point (ecosystem.js)
+  if (typeof renderEcosystemEws === 'function') renderEcosystemEws(point);
 
   // description of the selected point (see pointDescription), or a hint without a selected point
   $('point-description').textContent = point ? pointDescription(point) : t('messages.pointDescriptionHint');

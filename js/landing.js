@@ -1,7 +1,7 @@
 // landing.js: builds the landing page (#home) from content/landing.json.
 //   Hero (image band with two buttons), the four page cards, the study area (map with its outline) and the About card.
 //   The page cards take the colors of their own page: a card has data-section="<page id>", so the theme colors of
-//   that page (css/base.css) apply inside the card. The Vegetation card and the study-area map use
+//   that page (css/base.css) apply inside the card. The Ecosystem card and the study-area map use
 //   data/vegetation/layers.json (bounds of the images, outline of the study area).
 // Reads: content/landing.json (through content.js), data/vegetation/layers.json.
 // Uses: content.js (CONTENT, t). Used by: main.js (buildLanding).
@@ -44,7 +44,7 @@ function buildLanding() {
   const pages = landingEl('div', 'landing-section');
   pages.appendChild(landingEl('h2', 'landing-title', c.pagesTitle));
   const cards = landingEl('div', 'landing-cards');
-  const vegetationThumbs = [];   // thumbnails that need the bounds of data/vegetation/layers.json
+  const ecosystemThumbs = [];   // thumbnails that need the bounds of data/vegetation/layers.json
   const wideCards = [];          // cards with "wide": true
   c.cards.forEach((card) => {
     const a = landingEl('a', 'landing-card');
@@ -68,7 +68,7 @@ function buildLanding() {
       stage.appendChild(base);
       stage.appendChild(layer);
       thumb.appendChild(stage);
-      vegetationThumbs.push(layer);
+      ecosystemThumbs.push(layer);
     }
     a.appendChild(thumb);
     const body = landingEl('div', 'landing-card-body');
@@ -113,7 +113,7 @@ function buildLanding() {
   section.appendChild(about);
 
   $('card-library').parentNode.insertBefore(section, $('card-library'));
-  placeLandingLayers(map, vegetationThumbs);
+  placeLandingLayers(map, ecosystemThumbs);
 }
 
 // The outline of the study area on the map and the place of the change layer on the base map: both come
@@ -125,7 +125,7 @@ async function placeLandingLayers(map, layerImages) {
     const layers = await response.json();
     const b = layers.basemapBounds, l = layers.layerBounds;
     const width = b.east - b.west, height = b.north - b.south;
-    // the change layer: its bounds as a share of the base map (the same as on the Vegetation page)
+    // the change layer: its bounds as a share of the base map (the same as on the Ecosystem page)
     layerImages.forEach((img) => {
       img.style.left = ((l.west - b.west) / width * 100) + '%';
       img.style.top = ((b.north - l.north) / height * 100) + '%';
@@ -146,6 +146,6 @@ async function placeLandingLayers(map, layerImages) {
     map.appendChild(svg);
   } catch (err) {
     console.error(err);
-    map.appendChild(landingEl('div', 'landing-map-message', t('messages.couldNotLoadVegetation', { file: 'data/vegetation/layers.json' })));
+    map.appendChild(landingEl('div', 'landing-map-message', t('messages.couldNotLoadEcosystem', { file: 'data/vegetation/layers.json' })));
   }
 }

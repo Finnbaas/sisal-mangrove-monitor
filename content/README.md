@@ -65,7 +65,7 @@ Tip: paste the file into https://jsonlint.com to find the mistake.
   the heading; `columns` and `wide` work as above.
   Each part has its own address, `#<page id>/<part id>` (e.g. `#satellite/ndvi`): the link in the section
   navigation changes the address and scrolls to the part, so the back button works per part. A card can
-  only be used once per page. In an `intro` of the Vegetation page, `{total}` and `{featured}` become the
+  only be used once per page. In an `intro` of the Ecosystem page, `{total}` and `{featured}` become the
   number of points and of clickable points.
 - `partsAsTabs` (optional, with `parts`; not used at the moment): `true` shows one part at a time, like
   tabs, instead of below each other; `#satellite` alone then opens the first part. A card can then be used
@@ -174,7 +174,7 @@ The file has three parts.
 - `number`: the number shown on the map and next to the bars. Each area has its own number.
 - `zone`: the name of the zone. Leave it empty (`""`) if it is not known yet.
 - `class`: `"loss"`, `"recovery"` or `"gain"` (the names and colors come from `changeClasses` in
-  `variables.json`, the same ones the Vegetation page uses).
+  `variables.json`, the same ones the Ecosystem page uses).
 - `shape`: where the area sits on the map image, in **percent of the image** (so it stays in
   place when the image changes): `leftPct` and `topPct` are the top-left corner of the ellipse,
   `widthPct` and `heightPct` its size.
@@ -243,7 +243,7 @@ code files to download. Everything on it comes from this file.
 **`sections`**: one entry per analysis. Any number is possible.
 
 ```json
-{ "id": "satellite", "title": "Vegetation analysis", "description": "",
+{ "id": "satellite", "title": "Ecosystem analysis", "description": "",
   "sources": [ { "label": "Landsat Collection 2", "url": "https://..." } ],
   "keyChoices": [ "Yearly maximum NDVI" ],
   "requirements": "", "folder": "analysis/satellite", "zip": "",

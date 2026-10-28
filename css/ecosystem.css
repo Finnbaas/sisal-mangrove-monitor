@@ -1,8 +1,8 @@
-/* vegetation.css: the Vegetation page: the two maps (Leaflet), layer switch, legend strip, opacity slider,
+/* ecosystem.css: the Ecosystem page: the two maps (Leaflet), layer switch, legend strip, opacity slider,
    "About this layer", the point chips, the early warning charts and the data source table.
    Same cards, legends and list rows as the Climatology page (the shared classes are in base.css,
-   points.css and climatology.css); this file only adds what the Vegetation page needs.
-   Used by: vegetation.js. Loaded after stakeholders.css. */
+   points.css and climatology.css); this file only adds what the Ecosystem page needs.
+   Used by: ecosystem.js. Loaded after stakeholders.css. */
 
 /* Mangrove maps: a wide map (2/3) next to a narrower column (1/3), as in Figma; Tipping points keeps the default columns */
 #satellite-maps .research-grid { grid-template-columns: 2fr 1fr; }
@@ -24,7 +24,7 @@
 /* the map has the shape of the base map picture (1800:1485), so the whole extent fills it */
 .geo-map { width: 100%; aspect-ratio: 1800 / 1485; background: var(--color-map-bg); isolation: isolate; }
 /* black and white base map (the visitor can switch it: the chips under the map); the data layers keep their colors */
-.basemap-bw .veg-basemap, .basemap-bw > #map-image { filter: grayscale(1); }
+.basemap-bw .eco-basemap, .basemap-bw > #map-image { filter: grayscale(1); }
 .basemap-row { align-items: center; margin-top: 10px; }
 .map-buttons .map-button.on { background: var(--color-accent-tint); border-color: var(--color-accent); color: var(--color-accent); }
 /* the zoom buttons sit on top of the map, top right (.map-button is in climatology.css) */
@@ -50,9 +50,9 @@
 .legend-note { flex-basis: 100%; font-size: var(--font-size-small); color: var(--color-text-muted); }
 /* "About this layer": list of periods and the bar chart card under it */
 .period-list { display: flex; flex-direction: column; gap: 2px; font-size: var(--font-size-small); color: var(--color-text-body); }
-#veg-chart-toggle { margin-top: 0; }
+#eco-chart-toggle { margin-top: 0; }
 .chart-legend { display: flex; gap: 18px; margin-top: 8px; }
-[data-card="veg-chart"][hidden] { display: none; }
+[data-card="eco-chart"][hidden] { display: none; }
 
 /* opacity slider under the map */
 .opacity-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
@@ -90,7 +90,7 @@
 .menu-storm { align-self: flex-start; }
 
 /* "Where the data comes from": a small table card, as wide as "About this layer" */
-[data-card="veg-source"] { max-width: 451px; }
+[data-card="eco-source"] { max-width: 451px; }
 
 /* "About this layer" */
 .about-body { display: flex; flex-direction: column; gap: 12px; }
@@ -120,7 +120,7 @@
 .about-note { margin-top: 6px; font-size: var(--font-size-small); color: var(--color-text-muted); }
 
 .chart-foot { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-/* conclusion of the early warning card (vegetation.js renderEwsVerdict): verdict, reason, rule and the metrics table */
+/* conclusion of the early warning card (ecosystem.js renderEwsVerdict): verdict, reason, rule and the metrics table */
 .ews-verdict-box { margin-bottom: 12px; padding: 12px; border-radius: var(--radius-control); background: var(--color-surface-subtle); }
 .ews-verdict { font-size: var(--font-size-body); font-weight: 600; color: var(--color-text); }
 .ews-verdict.ews { color: var(--color-class-loss); }
@@ -153,7 +153,7 @@
 .ews-guide-group .ews-guide-sources p { margin: 0 0 4px 0; font-size: var(--font-size-small); line-height: 1.45; color: var(--color-text-muted); }
 
 /* the links "Use this code..." and "Run this analysis..." (look of .diy-link in base.css; own class because method.js rebuilds every .diy-link) */
-.veg-link { display: flex; align-items: center; gap: 4px; padding: 6px 8px; border-radius: var(--radius-control); font-size: var(--font-size-small); font-weight: 500; color: var(--color-accent); text-decoration: none; white-space: nowrap; width: fit-content; }
-.veg-link-inline { color: var(--color-accent); text-decoration: underline; }
-.veg-link:hover, .veg-link:focus-visible { background: var(--color-surface-subtle); }
-.veg-link:hover .icon { transform: translateX(2px); }
+.eco-link { display: flex; align-items: center; gap: 4px; padding: 6px 8px; border-radius: var(--radius-control); font-size: var(--font-size-small); font-weight: 500; color: var(--color-accent); text-decoration: none; white-space: nowrap; width: fit-content; }
+.eco-link-inline { color: var(--color-accent); text-decoration: underline; }
+.eco-link:hover, .eco-link:focus-visible { background: var(--color-surface-subtle); }
+.eco-link:hover .icon { transform: translateX(2px); }

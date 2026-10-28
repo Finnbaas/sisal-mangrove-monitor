@@ -14,7 +14,7 @@
   "sections": [
     {
       "id": "satellite",
-      "title": "Vegetation analysis",
+      "title": "Ecosystem analysis",
       "datasets": [
         "Landsat 5 TM, 7 ETM+, 8 and 9 OLI, Collection 2 Tier 1 Level-2 (surface reflectance), via Google Earth Engine",
         "Global Mangrove Watch: used for the first mangrove mask, to select the points. The final mangrove map is based on NDVI, so Global Mangrove Watch is not the definitive mask.",
@@ -80,7 +80,7 @@
             "Run the script and export the monthly maximum NDVI per point as a CSV to Google Drive.",
             "Download the CSV from Google Drive to your computer.",
             "Open the notebook, set the path to your CSV and run all cells.",
-            "The notebook regularises, deseasonalises and detrends each series and saves one plot per point, like the plots on the Vegetation page."
+            "The notebook regularises, deseasonalises and detrends each series and saves one plot per point, like the plots on the Ecosystem page."
           ],
           "files": ["GEE_NDVI.js", "ndvi_monthly_classification.ipynb", "README.md", "requirements.txt", "monthly_max_NDVI_per_point.csv"],
           "cards": ["point-chart"]
@@ -146,9 +146,9 @@
           "id": "mangrove-extent",
           "parent": "mangrove-maps",
           "title": "Mangrove extent map for your area",
-          "howWeUsed": "This is the method behind the Extent layer on the Vegetation page.",
+          "howWeUsed": "This is the method behind the Extent layer on the Ecosystem page.",
           "howWeUsedLink": "#satellite",
-          "howWeUsedLinkLabel": "See the Extent layer on the Vegetation page",
+          "howWeUsedLinkLabel": "See the Extent layer on the Ecosystem page",
           "whatYouNeed": [
             "A free Google Earth Engine account with a non-commercial Cloud project.",
             "Your study area: drawn in the Code Editor, a rectangle or a shapefile.",

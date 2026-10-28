@@ -16,7 +16,7 @@
   "cards": [
     {
       "page": "satellite",
-      "name": "Vegetation",
+      "name": "Ecosystem",
       "question": "Where did the mangrove change, and how healthy is it?",
       "image": { "base": "data/vegetation/basemap.png", "layer": "data/vegetation/change.png" }
     },

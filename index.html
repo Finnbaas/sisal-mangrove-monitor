@@ -6,7 +6,7 @@
   <title>Sisal Mangrove Monitor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <!-- Leaflet (map library, from a CDN) for the two maps of the Vegetation page (vegetation.js) -->
+  <!-- Leaflet (map library, from a CDN) for the two maps of the Ecosystem page (ecosystem.js) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <!-- styles: base.css first (colors, themes, layout, cards), then one file per screen; charts.css is shared by the storm and climate charts -->
   <link rel="stylesheet" href="css/base.css">
@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="css/charts.css">
   <link rel="stylesheet" href="css/climatology.css">
   <link rel="stylesheet" href="css/stakeholders.css">
-  <link rel="stylesheet" href="css/vegetation.css">
+  <link rel="stylesheet" href="css/ecosystem.css">
   <link rel="stylesheet" href="css/method.css">
   <link rel="stylesheet" href="css/landing.css">
 </head>
@@ -44,7 +44,7 @@
     <div id="card-library" hidden>
 
         <!-- coordinates of the selected point (filled by points.js): content.js moves this box into the sticky bar
-             with the part links of a page that has parts with "showCoords" in content/pages.json (Vegetation) -->
+             with the part links of a page that has parts with "showCoords" in content/pages.json (Ecosystem) -->
         <div id="coords" class="mono"></div>
 
         <div class="card" data-card="point-map">
@@ -219,72 +219,72 @@
           <div id="climate-detail-body"></div>
         </div>
 
-        <!-- VEGETATION CARDS (filled by vegetation.js from data/vegetation/ and content/vegetation.json).
+        <!-- ECOSYSTEM CARDS (filled by ecosystem.js from data/vegetation/ and content/ecosystem.json).
              A <span class="placeholder-tag"> shows when the data of that card has "placeholder": true. -->
 
         <!-- Mangrove maps: the map with the layer switch, legend strip and opacity slider -->
-        <div class="card" data-card="veg-map">
-          <div class="card-title-row"><div class="card-title"><span id="veg-map-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div><div class="expand">&#8599;</div></div>
+        <div class="card" data-card="eco-map">
+          <div class="card-title-row"><div class="card-title"><span id="eco-map-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div><div class="expand">&#8599;</div></div>
           <!-- a short label above the map, e.g. the storm of the acute views (layers.json "mapLabel") -->
-          <p id="veg-map-label" class="fine" hidden></p>
-          <div id="veg-map-frame" class="map-frame">
-            <div id="veg-map" class="geo-map"></div>
-            <div id="veg-map-message" class="map-message" hidden></div>
+          <p id="eco-map-label" class="fine" hidden></p>
+          <div id="eco-map-frame" class="map-frame">
+            <div id="eco-map" class="geo-map"></div>
+            <div id="eco-map-message" class="map-message" hidden></div>
             <div class="map-buttons">
-              <!-- base map black and white or colour (vegetation.js: setupBasemapButton) -->
-              <button type="button" id="veg-basemap-button" class="map-button"></button>
-              <button type="button" id="veg-map-zoom-in" class="map-button"></button>
-              <button type="button" id="veg-map-zoom-out" class="map-button"></button>
-              <button type="button" id="veg-map-reset" class="map-button"></button>
+              <!-- base map black and white or colour (ecosystem.js: setupBasemapButton) -->
+              <button type="button" id="eco-basemap-button" class="map-button"></button>
+              <button type="button" id="eco-map-zoom-in" class="map-button"></button>
+              <button type="button" id="eco-map-zoom-out" class="map-button"></button>
+              <button type="button" id="eco-map-reset" class="map-button"></button>
             </div>
-            <div id="veg-legend" class="legend-strip"></div>
+            <div id="eco-legend" class="legend-strip"></div>
           </div>
-          <div id="veg-opacity-row" class="opacity-row">
-            <span class="label-xs" id="veg-opacity-label"></span>
-            <input type="range" id="veg-opacity" min="0" max="100" step="5">
-            <span id="veg-opacity-value" class="opacity-value"></span>
+          <div id="eco-opacity-row" class="opacity-row">
+            <span class="label-xs" id="eco-opacity-label"></span>
+            <input type="range" id="eco-opacity" min="0" max="100" step="5">
+            <span id="eco-opacity-value" class="opacity-value"></span>
           </div>
-          <div class="card-actions card-actions-footer"><a id="veg-maps-link" class="veg-link"></a></div>
-          <p class="fine" id="veg-map-status"></p>
+          <div class="card-actions card-actions-footer"><a id="eco-maps-link" class="eco-link"></a></div>
+          <p class="fine" id="eco-map-status"></p>
         </div>
 
-        <!-- Maps: the menu to choose the map (vegetation.js: renderMapMenu, content/vegetation.json "mapMenu") -->
-        <div class="card" data-card="veg-menu">
-          <div id="veg-map-menu" class="map-menu"></div>
+        <!-- Maps: the menu to choose the map (ecosystem.js: renderMapMenu, content/ecosystem.json "mapMenu") -->
+        <div class="card" data-card="eco-menu">
+          <div id="eco-map-menu" class="map-menu"></div>
         </div>
 
-        <div class="card" data-card="veg-about">
-          <div class="card-title-row"><div class="card-title"><span id="veg-about-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div></div>
-          <div id="veg-about-body" class="about-body"></div>
+        <div class="card" data-card="eco-about">
+          <div class="card-title-row"><div class="card-title"><span id="eco-about-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div></div>
+          <div id="eco-about-body" class="about-body"></div>
         </div>
 
-        <div class="card" data-card="veg-chart" hidden>
-          <div class="card-title-row"><div class="card-title"><span id="veg-chart-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div></div>
-          <div id="veg-chart-toggle" class="chip-row chip-row-small"></div>
-          <div id="veg-chart-body" class="chart-stack"></div>
-          <div id="veg-chart-legend" class="chart-legend"></div>
-          <p id="veg-chart-note" class="about-text about-note"></p>
+        <div class="card" data-card="eco-chart" hidden>
+          <div class="card-title-row"><div class="card-title"><span id="eco-chart-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div></div>
+          <div id="eco-chart-toggle" class="chip-row chip-row-small"></div>
+          <div id="eco-chart-body" class="chart-stack"></div>
+          <div id="eco-chart-legend" class="chart-legend"></div>
+          <p id="eco-chart-note" class="about-text about-note"></p>
         </div>
 
-        <div class="card" data-card="veg-source">
-          <div class="card-title-row"><div class="card-title"><span id="veg-source-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div></div>
-          <div id="veg-source-body"></div>
+        <div class="card" data-card="eco-source">
+          <div class="card-title-row"><div class="card-title"><span id="eco-source-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div></div>
+          <div id="eco-source-body"></div>
         </div>
 
         <!-- early warning signals, part 1: the verdict of the EWS notebook with its reason and the metrics table
-             (filled by vegetation.js) -->
+             (filled by ecosystem.js) -->
         <div class="card" data-card="ews-verdict">
           <div class="card-title-row"><div class="card-title" data-text="cardTitles.ews-verdict"></div></div>
           <div id="ews-verdict-body"></div>
           <div class="chart-foot">
             <div></div>
-            <div class="card-actions"><a id="veg-ews-link" class="veg-link"></a></div>
+            <div class="card-actions"><a id="eco-ews-link" class="eco-link"></a></div>
           </div>
-          <p class="fine" id="veg-ews-status"></p>
+          <p class="fine" id="eco-ews-status"></p>
         </div>
 
         <!-- "How to read this": general explanation of the early warning cards, four collapsible groups
-             (filled by vegetation.js from content/texts.json "ewsGuide") -->
+             (filled by ecosystem.js from content/texts.json "ewsGuide") -->
         <div class="card" data-card="ews-guide">
           <div class="card-title-row"><div class="card-title" data-text="cardTitles.ews-guide"></div></div>
           <div id="ews-guide-body"></div>
@@ -373,7 +373,7 @@
   <script src="js/wave-rose.js"></script>
   <script src="js/climatology-climate.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="js/vegetation.js"></script>
+  <script src="js/ecosystem.js"></script>
   <script src="js/stakeholders.js"></script>
   <script src="js/method.js"></script>
   <script src="js/main.js"></script>

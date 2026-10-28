@@ -2,8 +2,8 @@
   "sections": [
     {
       "id": "satellite",
-      "label": "Vegetation",
-      "title": "Vegetation",
+      "label": "Ecosystem",
+      "title": "Ecosystem",
       "band": "data/vegetation/basemap.png",
       "intro": "Two analyses of the same mangrove: the condition of the whole area, and tipping points at {total} points.",
       "parts": [
@@ -11,7 +11,7 @@
           "id": "maps",
           "title": "Mangrove maps",
           "intro": "Condition of the whole mangrove area as a map, with three layers.",
-          "columns": [["veg-map", "veg-source"], ["veg-menu", "veg-about", "veg-chart"]]
+          "columns": [["eco-map", "eco-source"], ["eco-menu", "eco-about", "eco-chart"]]
         },
         {
           "id": "ndvi",

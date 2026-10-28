@@ -1,12 +1,12 @@
 // method.js: the Method page and the "Run this analysis on your own data" links on the research cards.
-//   One tab per analysis (Vegetation, Climatology, Stakeholders). In a tab: a gallery of examples ("use
+//   One tab per analysis (Ecosystem, Climatology, Stakeholders). In a tab: a gallery of examples ("use
 //   cases"; clicking one opens its steps and files in a panel, one panel on the whole page) and a collapsed
 //   row "About this analysis". The address #method/<use case id> opens the right tab and panel.
 //   A section can have "datasets" and "limitations": a compact list above the cards (Climatology); other sections
 //   have the collapsed row "About this analysis". A use case can have "howMade" (a short text at the top of its
 //   panel) and "infoCards": research cards whose small ↗ button opens that panel. Numbers in these texts are
 //   written as {storms.total} and filled in from the data files. A use case can also have "keyChoices" (a list under
-//   "Key choices"), "howWeUsed" and "whatYouNeed". A section with "datasets" (Climatology, Vegetation) shows its data
+//   "Key choices"), "howWeUsed" and "whatYouNeed". A section with "datasets" (Climatology, Ecosystem) shows its data
 //   sources and limitations above the cards and the link to its folder on GitHub below them.
 //   A use case with "subCards" (Mangrove maps) shows no steps: its sub-cards sit inside the card (twice as wide); a sub-card is a use case with
 //   a "parent" (#method/mangrove-extent opens both). A use case can have "routes": tabs with their own steps.

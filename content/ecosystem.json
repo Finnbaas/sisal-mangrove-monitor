@@ -1,5 +1,5 @@
 {
-  "_about": "Texts and settings of the Vegetation page (Mangrove maps + Tipping points), read by js/vegetation.js. The numbers and layers themselves come from data/vegetation/. Scenario names and tau signs follow CLAUDE.md; do not rename them here without the team's decision. \"mapMenu\" = the Maps menu (groups, rows and the address of each map: #satellite/maps/<slug>); the variants (years, storms) come from data/vegetation/layers.json.",
+  "_about": "Texts and settings of the Ecosystem page (Mangrove maps + Tipping points), read by js/ecosystem.js. The numbers and layers themselves come from data/vegetation/. Scenario names and tau signs follow CLAUDE.md; do not rename them here without the team's decision. \"mapMenu\" = the Maps menu (groups, rows and the address of each map: #satellite/maps/<slug>); the variants (years, storms) come from data/vegetation/layers.json.",
   "files": {
     "layers": "data/vegetation/layers.json"
   },

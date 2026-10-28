@@ -1,5 +1,6 @@
 {
-  "_about": "The points you can click on the map (Vegetation page). Each needs an id from data/points.json. Other points are shown as small dots only. After changing this list, run analysis/satellite/export_points.py again (it writes the NDVI lines, trend and breakpoints only for these points). \"description\" (optional): a short paragraph of plain text about the point (no HTML), shown in the card under the map when the point is selected; leave it empty (\"\") until it is written.",
+  "_about": "The points you can click on the map (Ecosystem page). Each needs an id from data/points.json. Other points are shown as small dots only. After changing this list, run analysis/satellite/export_points.py again (it writes the NDVI lines, trend and breakpoints only for these points). \"description\" (optional): a short paragraph of plain text about the point (no HTML), shown in the card under the map when the point is selected; leave it empty (\"\") until it is written. \"selectedAtStart\": the id of the featured point that is selected when the page opens (base_69 has change class loss, shown in red); remove the line to start with no point selected.",
+  "selectedAtStart": "base_69",
   "points": [
     { "id": "base_53", "description": "" },
     { "id": "base_68", "description": "" },
