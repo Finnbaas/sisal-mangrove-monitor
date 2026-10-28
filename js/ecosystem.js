@@ -136,7 +136,7 @@ function createMap(elementId, zoomInId, zoomOutId, resetId, options) {
   const bounds = baseBounds();                  // the whole base map: the map cannot be panned outside it
   const aoi = L.latLngBounds(aoiLatLngs());     // the study area outline: the start view
   const start = options && options.startBounds ? options.startBounds : aoi;
-  const map = L.map(elementId, { zoomControl: false, attributionControl: false, zoomSnap: 0, scrollWheelZoom: false, maxBoundsViscosity: 1 });
+  const map = L.map(elementId, { zoomControl: false, attributionControl: false, zoomSnap: 0, scrollWheelZoom: true, maxBoundsViscosity: 1 });   // scrollWheelZoom: the mouse wheel, two-finger scroll and pinch on a trackpad zoom the map
   // the start view: the outline with 40 px of base map on every side (the legend strip, if the map has one, lies over the bottom of the map)
   const legendHeight = () => {
     const strip = $(elementId).parentElement.querySelector('.legend-strip');
