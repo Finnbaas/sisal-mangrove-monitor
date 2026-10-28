@@ -67,6 +67,13 @@
   --color-class-recovery-tint: #FCEFC5;
   --color-class-loss-recovery-tint: #F7DAEB;
 
+  /* Stakeholder maps (Figma Playground: the legend swatches of the sections "1. Extent", "2. Condition" and "3. Disturbance and
+     Recovery"): the three area colors (red, orange, green) and the grey of the "natural cause" marker. Named in content/stakeholders.json. */
+  --color-stakeholder-red: #F24822;
+  --color-stakeholder-orange: #FF9E42;
+  --color-stakeholder-green: #66D575;
+  --color-stakeholder-natural: #757575;
+
   /* tipping-point scenarios: text color of the scenario name */
   --color-scenario-1: #C1652F;
   --color-scenario-2: #9C5B3E;

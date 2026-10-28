@@ -6,8 +6,8 @@
 // Uses: content.js (CONTENT, t) once the content is loaded.
 // Used by: every other js file. Loaded first.
 
-let YEAR_MIN, YEAR_MAX;   // the year range (variables.json "yearRange"), used by the Stakeholder screen;
-                          // the point slider takes its years from data/points.json (points.js)
+let YEAR_MIN, YEAR_MAX;   // the year range (variables.json "yearRange"); no screen uses it at the moment
+                          // (the point slider takes its years from data/points.json, points.js)
 let CLASSES = {};         // change classes of the points (variables.json "changeClasses")
 
 let NO_DATA = 'No data';  // text shown wherever a value is missing (texts.json "messages.noData")

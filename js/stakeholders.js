@@ -1,325 +1,392 @@
 // stakeholders.js: the Stakeholder screen.
-//   The areas where stakeholders saw mangrove change, on the map image of the selected year; one slider
-//   that is also the time axis of the observation bars; and what stakeholders said about the selected area.
-// Reads: content/stakeholders.json (written by the team) and the map images in data/stakeholder-imagery/.
-// Uses: helpers.js, content.js. Used by: main.js (setupStakeholders).
+//   Three themes (Extent, Condition, Disturbance & recovery). Per theme: a map with the areas where stakeholders saw
+//   change (rotated ellipses with a number marker, on the same black and white base map as the Mangrove maps), and a
+//   list of those areas that opens one area at a time (zone, change, period, cause, and what stakeholders said).
+//   Clicking an area on the map or in the list opens it and flies the map to it; clicking the open one closes it again.
+//   Address of an area: #stakeholders/<theme>/<number>, e.g. #stakeholders/extent/5a.
+// Reads: content/stakeholders.json (themes and areas, written by the team); the base map comes from data/vegetation/layers.json
+//   (loaded by ecosystem.js). Nothing is typed in this file: every text, number and color comes from content/.
+// Uses: helpers.js, content.js, ecosystem.js (createMap, setupBasemapButton, ecoLayersLoaded) and Leaflet (CDN).
+// Used by: main.js (setupStakeholders).
 
 const STAKEHOLDER_FILE = 'content/stakeholders.json';
+const SH_ELLIPSE_STEPS = 72;       // corners of the polygon that draws one ellipse
+const SH_FLY_SECONDS = 0.8;        // duration of the flight to an area and back
+const SH_MIN_VIEW_METERS = 1600;   // flying to an area: the view is at least this wide, so a small area shows its surroundings
+const SH_VIEW_PADDING = 0.6;       // ... and the area itself gets this much extra space around it (share of its size)
 
 let stakeholders = null;     // contents of content/stakeholders.json, or null if it could not be loaded
-let shYear = null;           // the selected year; null means "All years" (the landing view)
-let shArea = null;           // number of the selected area; null means no area selected
-let shEntry = 0;             // which observation of the selected area the panel shows (0 = the first)
-const shImageExists = {};    // remembers per year whether its map image exists (true / false)
+const shThemes = {};         // per theme id: { theme, areas: { number: item }, order, map, ready, open, start }
+let shHover = null;          // { themeId, number } of the area under the mouse, or null
 
 // ---------- loading and checking ----------
 
-async function loadStakeholders() {
+async function loadStakeholderFile() {
+  let response;
   try {
-    let response;
-    try {
-      response = await fetch(STAKEHOLDER_FILE);
-    } catch (err) {
-      throw new ContentError(STAKEHOLDER_FILE, 'the file could not be loaded (' + err.message + ').');
+    response = await fetch(STAKEHOLDER_FILE);
+  } catch (err) {
+    throw new ContentError(STAKEHOLDER_FILE, 'the file could not be loaded (' + err.message + ').');
+  }
+  if (!response.ok) throw new ContentError(STAKEHOLDER_FILE, 'the file could not be loaded (HTTP ' + response.status + ').');
+  return parseJsonFile(await response.text(), STAKEHOLDER_FILE);
+}
+
+// Checks that the file has the parts this screen needs. Areas that cannot be shown are left out (with a warning in
+// the browser console), so one wrong area does not hide the rest. Returns how many were left out.
+function checkStakeholders(content) {
+  const fail = (problem) => { throw new ContentError(STAKEHOLDER_FILE, problem); };
+  if (!content || !Array.isArray(content.themes) || !content.themes.length) fail('"themes" must be a list with at least one theme.');
+  if (!Array.isArray(content.areas)) fail('"areas" must be a list.');
+  content.themes.forEach((th, i) => {
+    const n = 'theme ' + (i + 1);
+    if (!th || typeof th.id !== 'string') fail(n + ' needs an "id".');
+    if (!Array.isArray(th.legend) || !th.legend.length) fail(n + ' ("' + th.id + '") needs a list "legend".');
+    if (!Array.isArray(th.fields)) fail(n + ' ("' + th.id + '") needs a list "fields".');
+  });
+  let skipped = 0;
+  const numbers = new Set();
+  content.areas = content.areas.filter((a) => {
+    const theme = a && content.themes.find((th) => th.id === a.theme);
+    const ellipseOk = (e) => e && ['lat', 'lon', 'radiusXM', 'radiusYM', 'rotationDeg'].every((k) => isNumber(e[k]));
+    const ok = theme && a.number !== undefined && theme.legend.some((l) => l.id === a.class) &&
+      Array.isArray(a.ellipses) && a.ellipses.length > 0 && a.ellipses.every(ellipseOk) && !numbers.has(a.theme + '/' + a.number);
+    if (!ok) {
+      skipped++;
+      console.warn(STAKEHOLDER_FILE + ': an area without a "number", a known "theme" and "class", a complete "ellipses" list, or with a number that is used twice, is not shown (area ' + (a && a.number) + ').');
+    } else {
+      a.number = String(a.number);
+      numbers.add(a.theme + '/' + a.number);
     }
-    if (!response.ok) throw new ContentError(STAKEHOLDER_FILE, 'the file could not be loaded (HTTP ' + response.status + ').');
-    const content = parseJsonFile(await response.text(), STAKEHOLDER_FILE);
-    checkStakeholders(content);
+    return ok;
+  });
+  return skipped;
+}
+
+// A message on each theme's map card (the details are in the browser console).
+function showStakeholderMessage(text) {
+  document.querySelectorAll('.sh-status').forEach((el) => { el.textContent = text; });
+}
+
+async function setupStakeholders() {
+  let skipped = 0;
+  try {
+    const content = await loadStakeholderFile();
+    skipped = checkStakeholders(content);
+    await ecoLayersLoaded;   // the base map (ecosystem.js); it names its own file if it could not be loaded
+    if (!ecoLayers) throw new ContentError(CONTENT.ecosystem.files.layers, 'the base map could not be loaded.');
+    if (typeof L === 'undefined') throw new ContentError('the map library (Leaflet)', 'it could not be loaded.');
     stakeholders = content;
   } catch (err) {
     // a problem in this file only affects the Stakeholder page: the message names the file
-    $('sh-status').textContent = t('messages.couldNotLoadStakeholders', { error: err.message });
+    showStakeholderMessage(t('messages.couldNotLoadStakeholders', { error: err.message }));
     console.error(err);
+    return;
   }
-  renderStakeholders();
-}
+  if (skipped > 0) showStakeholderMessage(t('messages.stakeholderEntriesSkipped', { count: skipped }));
 
-// Checks that the file has the parts this screen needs. Entries that cannot be shown are left out
-// (with a warning in the browser console), so one wrong entry does not hide the rest.
-function checkStakeholders(content) {
-  const fail = (problem) => { throw new ContentError(STAKEHOLDER_FILE, problem); };
-  if (!content || !Array.isArray(content.areas)) fail('"areas" must be a list.');
-  if (!Array.isArray(content.observations)) fail('"observations" must be a list.');
-  let skipped = 0;
-  const warn = (text) => { skipped++; console.warn(STAKEHOLDER_FILE + ': ' + text); };
-
-  content.areas = content.areas.filter((a) => {
-    const s = a && a.shape;
-    const ok = a && a.number !== undefined && s && [s.leftPct, s.topPct, s.widthPct, s.heightPct].every((n) => typeof n === 'number');
-    if (!ok) warn('an area without a "number" or a complete "shape" is not shown.');
-    return ok;
-  });
-  content.observations = content.observations.filter((o) => {
-    if (!o || typeof o.startYear !== 'number') { warn('an observation without a "startYear" is not shown.'); return false; }
-    if (!content.areas.some((a) => a.number === o.area)) { warn('an observation refers to area ' + o.area + ', which does not exist; it is not shown.'); return false; }
-    return true;
-  });
-  // tell the team on the page that something was left out (the details are in the browser console)
-  if (skipped > 0) $('sh-status').textContent = t('messages.stakeholderEntriesSkipped', { count: skipped });
-}
-
-function setupStakeholders() {
-  const slider = $('sh-slider');
-  slider.min = YEAR_MIN;
-  slider.max = YEAR_MAX;
-  slider.value = YEAR_MAX;
-
-  // moving the handle or using the arrows shows one year; the All years button switches back
-  slider.addEventListener('input', () => setStakeholderYear(parseInt(slider.value, 10)));
-  $('sh-year-back').addEventListener('click', () => setStakeholderYear(parseInt(slider.value, 10) - 1));
-  $('sh-year-forward').addEventListener('click', () => setStakeholderYear(parseInt(slider.value, 10) + 1));
-  $('sh-all-years').addEventListener('click', () => setStakeholderYear(shYear === null ? parseInt(slider.value, 10) : null));
-
-  // clicking an area on the map or one of its bars selects that area (clicking it again deselects)
-  const clickArea = (e) => {
-    const el = e.target.closest('[data-area]');
-    if (el) selectStakeholderArea(Number(el.dataset.area));
-  };
-  $('sh-areas').addEventListener('click', clickArea);
-  $('sh-rows').addEventListener('click', clickArea);
-
-  // the Observation 1 of 2 arrows in the panel
-  $('sh-panel-content').addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-entry-step]');
-    if (!btn) return;
-    shEntry += Number(btn.dataset.entryStep);
-    renderStakeholderPanel();
-  });
-
-  renderTrackYears();
-  renderCertaintyLegend();
-  loadStakeholders();
+  stakeholders.themes.forEach(setupStakeholderTheme);
+  applyStakeholderAddress();
+  window.addEventListener('hashchange', applyStakeholderAddress);
 }
 
 // ---------- small helpers ----------
 
-function areaByNumber(number) {
-  return stakeholders.areas.find((a) => a.number === number);
+// The color of an area (its legend class) and the fill of its number marker (Condition: natural or anthropogenic cause).
+function areaColor(theme, area) {
+  const entry = theme.legend.find((l) => l.id === area.class);
+  return entry ? color(colorVarOf(entry.color)) : color('--color-text-faint');
 }
 
-// Label and colors of an area's class (the same change classes as the Ecosystem page).
-function areaClass(area) {
-  const cls = CLASSES[area.class] || UNKNOWN;
-  // "--c" is the class color and "--c-tint" its light background (see css/stakeholders.css)
-  return { label: cls.label, style: '--c: var(' + cls.colorVar + '); --c-tint: var(' + cls.colorVar + '-tint, var(--color-surface-subtle));' };
+function markerFill(theme, area) {
+  const entry = (theme.markerLegend || []).find((m) => m.id === area.causeType);
+  return color(colorVarOf(entry ? entry.fill : 'surface'));
 }
 
-// The observations, oldest first.
-function sortedObservations() {
-  return [...stakeholders.observations].sort((a, b) => a.startYear - b.startYear);
+// White text on a dark marker, dark text on a light one (the fill is a "#rrggbb" color from css/base.css).
+function textColorOn(fill) {
+  const m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(fill);
+  if (!m) return color('--color-text');
+  const luminance = (0.299 * parseInt(m[1], 16) + 0.587 * parseInt(m[2], 16) + 0.114 * parseInt(m[3], 16)) / 255;
+  return color(luminance < 0.6 ? '--color-surface' : '--color-text');
 }
 
-// The last year of an observation. An ongoing observation counts up to today (the last year of the range).
-function observationEnd(o) {
-  return (o.ongoing || typeof o.endYear !== 'number') ? YEAR_MAX : o.endYear;
-}
-
-// Is this observation happening in the selected year? In "All years" every observation counts.
-function observationActive(o) {
-  return shYear === null || (o.startYear <= shYear && shYear <= observationEnd(o));
-}
-
-// How the bar is drawn: "expected", "ongoing", "approximate" or "exact".
-function observationStyle(o) {
-  if (o.certainty === 'expected') return 'expected';
-  if (o.ongoing) return 'ongoing';
-  return o.certainty === 'approximate' ? 'approximate' : 'exact';
-}
-
-// "1988–1990", "1988" or "2005–today": made from the years, for the hover text of a bar.
-function observationYears(o) {
-  if (o.ongoing) return o.startYear + '–' + t('labels.today');
-  const end = observationEnd(o);
-  return end === o.startYear ? String(o.startYear) : o.startYear + '–' + end;
-}
-
-// Position of a year on the track and on the bars, in percent of their shared width.
-function yearPct(year) {
-  const pct = (year - YEAR_MIN) / (YEAR_MAX - YEAR_MIN) * 100;
-  return Math.min(100, Math.max(0, pct));
-}
-
-// ---------- changing the year and the selection ----------
-
-function setStakeholderYear(year) {
-  if (year !== null) {
-    year = Math.min(YEAR_MAX, Math.max(YEAR_MIN, year));
-    $('sh-slider').value = year;
+// The corners of one ellipse as latitude/longitude pairs. The ellipse is drawn in the Web Mercator projection (the one of the
+// base map), so it has exactly the shape and rotation it has in Figma. The radii in the file are metres on the ground at the
+// centre; rotationDeg is clockwise as seen on the map.
+function ellipseLatLngs(e) {
+  const projection = L.Projection.SphericalMercator;
+  const centre = projection.project(L.latLng(e.lat, e.lon));
+  const stretch = 1 / Math.cos(e.lat * Math.PI / 180);   // ground metres -> Mercator metres
+  const a = e.radiusXM * stretch, b = e.radiusYM * stretch;
+  const turn = -e.rotationDeg * Math.PI / 180;           // clockwise on screen = counter-clockwise with north up
+  const points = [];
+  for (let i = 0; i < SH_ELLIPSE_STEPS; i++) {
+    const angle = i / SH_ELLIPSE_STEPS * 2 * Math.PI;
+    const x = a * Math.cos(angle), y = b * Math.sin(angle);
+    points.push(projection.unproject(L.point(
+      centre.x + x * Math.cos(turn) - y * Math.sin(turn),
+      centre.y + x * Math.sin(turn) + y * Math.cos(turn))));
   }
-  shYear = year;
-  shEntry = 0;
-  // an area that has no observation in the new year is no longer on the map, so it cannot stay selected
-  if (stakeholders && shArea !== null && !stakeholders.observations.some((o) => o.area === shArea && observationActive(o))) shArea = null;
-  renderStakeholders();
+  return points;
 }
 
-function selectStakeholderArea(number) {
-  shArea = shArea === number ? null : number;
-  shEntry = 0;
-  renderStakeholders();
+// Style of an area on the map: class color at 25 %, thin dashed outline; hovered: a bit stronger; open: solid, thicker outline.
+function areaStyle(c, state) {
+  return { color: c, weight: state === 'open' ? 3.5 : state === 'hover' ? 2.5 : 1.5, dashArray: state === 'open' ? null : '6 5', opacity: 1, fillColor: c, fillOpacity: state ? 0.4 : 0.25 };
 }
 
-// ---------- drawing ----------
+// ---------- one theme: heading, map, legend and list ----------
 
-function renderStakeholders() {
-  renderStakeholderControls();
-  renderStakeholderMap();
-  renderStakeholderRows();
-  renderStakeholderPanel();
-}
-
-// Top row of the Time card and the handle (Figma year-filter and year-handle).
-function renderStakeholderControls() {
-  const all = shYear === null;
-  const handleYear = parseInt($('sh-slider').value, 10);
-  $('sh-all-years').classList.toggle('on', all);
-  $('sh-all-years').setAttribute('aria-pressed', all);
-  $('sh-year-label').textContent = t(all ? 'labels.showing' : 'labels.year');
-  $('sh-year-big').textContent = all ? t('labels.allYears') : shYear;
-  // in All years the handle and its line are dimmed
-  $('sh-time').classList.toggle('all-years', all);
-  $('sh-handle-line').style.left = yearPct(handleYear) + '%';
-}
-
-// Year labels under the track, every 5 years.
-function renderTrackYears() {
-  let html = '';
-  for (let year = Math.ceil(YEAR_MIN / 5) * 5; year <= YEAR_MAX; year += 5) {
-    html += '<div class="sh-tick" style="left:' + yearPct(year) + '%"></div>' +
-      '<div class="sh-year-label mono" style="left:' + yearPct(year) + '%">' + year + '</div>';
-  }
-  $('sh-track-years').innerHTML = html;
-}
-
-// The legend of the four bar styles (Figma certainty-legend), in a neutral grey.
-function renderCertaintyLegend() {
-  const styles = [['exact', 'labels.certaintyExact'], ['approximate', 'labels.certaintyApproximate'], ['ongoing', 'labels.certaintyOngoing'], ['expected', 'labels.certaintyExpected']];
-  $('sh-certainty-legend').innerHTML = styles.map(([style, label]) =>
-    '<div class="sh-certainty"><span class="sh-sample"><span class="sh-bar-shape ' + style + '"><i></i></span></span>' + escapeHtml(t(label)) + '</div>').join('');
-}
-
-// The map: image of the year, the areas that have an observation in that year, legend and messages.
-function renderStakeholderMap() {
-  showStakeholderImage();
-  if (!stakeholders) {
-    $('sh-areas').innerHTML = '';
-    $('sh-legend').innerHTML = '';
-    $('sh-map-message').hidden = true;
+function setupStakeholderTheme(theme) {
+  if (!$('sh-' + theme.id + '-list')) {
+    console.warn(STAKEHOLDER_FILE + ': the theme "' + theme.id + '" has no cards in index.html (data-card="sh-' + theme.id + '-map" and "-list") and is not shown.');
     return;
   }
-  const visible = stakeholders.areas.filter((a) => stakeholders.observations.some((o) => o.area === a.number && observationActive(o)));
-  $('sh-areas').innerHTML = visible.map((a) => {
-    const s = a.shape;
-    const place = 'left:' + s.leftPct + '%; top:' + s.topPct + '%; width:' + s.widthPct + '%; height:' + s.heightPct + '%;';
-    const selected = a.number === shArea;
-    return '<button type="button" class="sh-area' + (selected ? ' selected' : '') + '" data-area="' + escapeHtml(a.number) + '" aria-pressed="' + selected + '"' +
-      ' title="' + escapeHtml(a.zone || '') + '" aria-label="' + escapeHtml(t('labels.area', { number: a.number }) + (a.zone ? ', ' + a.zone : '')) + '"' +
-      ' style="' + place + areaClass(a).style + '"><span class="sh-area-number">' + escapeHtml(a.number) + '</span></button>';
-  }).join('');
+  const areas = stakeholders.areas.filter((a) => a.theme === theme.id);
+  const state = { theme, areas: {}, order: areas.map((a) => a.number), map: null, ready: false, open: null, start: null };
+  shThemes[theme.id] = state;
 
-  // a year without observations: say so on the map
-  const none = shYear !== null && visible.length === 0;
-  $('sh-map-message').hidden = !none;
-  if (none) $('sh-map-message').textContent = t('messages.noObservationsInYear', { year: shYear });
+  // heading of the part: the theme's title and subtitle (the section navigation keeps the short name from pages.json)
+  const part = $('stakeholders-' + theme.id);
+  if (part) {
+    const header = part.querySelector('.part-header');
+    header.querySelector('h2').textContent = theme.title;
+    let subtitle = header.querySelector('p');
+    if (!subtitle) { subtitle = document.createElement('p'); header.appendChild(subtitle); }
+    subtitle.textContent = theme.subtitle || '';
+  }
 
-  // legend: the classes of the areas, each once, in the order of the areas
-  const seen = [];
-  stakeholders.areas.forEach((a) => { if (!seen.some((x) => x.class === a.class)) seen.push(a); });
-  $('sh-legend').innerHTML = seen.map((a) => {
-    const cls = areaClass(a);
-    return '<div class="lg" style="' + cls.style + '"><span class="lg-dot" style="background: var(--c)"></span>' + escapeHtml(cls.label) + '</div>';
-  }).join('');
+  renderStakeholderLegend(theme);
+  renderStakeholderNote(theme);
+  const list = $('sh-' + theme.id + '-list');
+  list.innerHTML = '';
+  areas.forEach((area) => {
+    const item = { area, polygons: [], marker: null, bounds: null, el: null, row: null, details: null };
+    state.areas[area.number] = item;
+    item.el = buildAreaItem(theme, area);
+    item.row = item.el.querySelector('.sh-row');
+    item.details = item.el.querySelector('.sh-details');
+    list.appendChild(item.el);
+    // clicking the row opens or closes the area; hovering it highlights the area on the map
+    item.row.addEventListener('click', () => selectStakeholderArea(theme.id, area.number));
+    item.el.addEventListener('mouseenter', () => setStakeholderHover(theme.id, area.number));
+    item.el.addEventListener('mouseleave', () => setStakeholderHover(null));
+  });
+  createStakeholderMap(state);
 }
 
-// Shows the map image of the selected year (in All years: the most recent year). If that year has
-// no image yet, the placeholder image is shown and the label on the map says so.
-function showStakeholderImage() {
-  const imagery = (stakeholders && stakeholders.imagery) || {};
-  const year = shYear === null ? YEAR_MAX : shYear;
-  const img = $('sh-map-image');
-  if (!stakeholders) { img.removeAttribute('src'); $('sh-imagery-label').textContent = ''; return; }
-  const show = (exists) => {
-    // the year may have changed while the image was being checked
-    if (year !== (shYear === null ? YEAR_MAX : shYear)) return;
-    const src = exists ? imagery.folder + year + '.' + imagery.extension : (imagery.placeholder || '');
-    if (img.getAttribute('src') !== src) img.setAttribute('src', src);
-    $('sh-imagery-label').textContent = t(exists ? 'labels.imagery' : 'labels.imageryMissing', { year: year });
-  };
-  if (!imagery.folder || !imagery.extension) { show(false); return; }
-  if (year in shImageExists) { show(shImageExists[year]); return; }
-  // try to load the image once; remember the result so each year is only checked once
-  const probe = new Image();
-  probe.onload = () => { shImageExists[year] = true; show(true); };
-  probe.onerror = () => { shImageExists[year] = false; show(false); };
-  probe.src = imagery.folder + year + '.' + imagery.extension;
+// The legend under the map: one swatch per class, and for Condition the two markers (natural / anthropogenic cause).
+function renderStakeholderLegend(theme) {
+  const swatches = theme.legend.map((l) => '<span class="sh-legend-item" style="--c: var(' + colorVarOf(l.color) + ')"><span class="sh-swatch"></span>' + escapeHtml(l.label) + '</span>');
+  const markers = (theme.markerLegend || []).map((m) => '<span class="sh-legend-item"><span class="sh-badge sh-badge-small" style="--c: var(--color-text-muted); --fill: var(' + colorVarOf(m.fill) + ')"></span>' + escapeHtml(m.label) + '</span>');
+  $('sh-' + theme.id + '-legend').innerHTML = swatches.concat(markers).join('');
 }
 
-// One row per observation: the area number on the left and the bar on the scale of the slider track.
-function renderStakeholderRows() {
-  if (!stakeholders) { $('sh-rows').innerHTML = ''; return; }
-  const oneYear = 100 / (YEAR_MAX - YEAR_MIN);   // width of one year, in percent
-  $('sh-rows').innerHTML = sortedObservations().map((o) => {
-    const area = areaByNumber(o.area);
-    const cls = areaClass(area);
-    const end = observationEnd(o);
-    // a bar runs from its start year to its end year; one single year is drawn one year wide, centered on it
-    let left = yearPct(o.startYear), right = yearPct(end);
-    if (end === o.startYear) { left = Math.max(0, left - oneYear / 2); right = Math.min(100, left + oneYear); }
-    const state = (o.area === shArea ? ' selected' : '') + (observationActive(o) ? '' : ' dimmed');
-    const tooltip = '<span class="sh-tooltip' + (left > 60 ? ' flip' : '') + '"><b>' + textOrPlaceholder('sh-placeholder', area.zone) + '</b>' +
-      '<span class="sh-tooltip-years">' + escapeHtml(observationYears(o)) + '</span>' +
-      '<span class="lg"><span class="lg-dot" style="background: var(--c)"></span>' + escapeHtml(cls.label) + '</span></span>';
-    return '<div class="sh-row' + state + '" style="' + cls.style + '">' +
-      '<div class="sh-row-number">' + escapeHtml(o.area) + '</div>' +
-      '<div class="sh-row-scale"><button type="button" class="sh-bar" data-area="' + escapeHtml(o.area) + '" aria-pressed="' + (o.area === shArea) + '"' +
-      ' aria-label="' + escapeHtml(t('labels.area', { number: o.area }) + ', ' + observationYears(o) + ', ' + cls.label) + '"' +
-      ' style="left:' + left + '%; width:' + (right - left) + '%">' +
-      '<span class="sh-bar-shape ' + observationStyle(o) + '"><i></i></span>' + tooltip + '</button></div></div>';
-  }).join('');
+// Condition: the observations that belong to no area on the map (the number on the map is "-" in the interview table).
+function renderStakeholderNote(theme) {
+  const box = $('sh-' + theme.id + '-note');
+  const notes = theme.notes || [];
+  box.hidden = notes.length === 0;
+  // short: the zone and the fields of the one-line summary; the other fields and the quotes are behind "More details"
+  const isShort = (f) => f.key === 'zone' || theme.summary.includes(f.key);
+  box.innerHTML = notes.map((note) =>
+    '<div class="sh-note"><div class="sh-note-label">' + escapeHtml(t('stakeholders.noteLabel')) + '</div>' +
+    '<div class="sh-fields">' + theme.fields.filter(isShort).map((f) => shFieldHtml(theme, note, f)).join('') + '</div>' +
+    '<details class="sh-note-more"><summary>' + escapeHtml(t('stakeholders.noteMore')) + '</summary>' +
+    shDetailsHtml(Object.assign({}, theme, { fields: theme.fields.filter((f) => !isShort(f)) }), note) + '</details></div>').join('');
 }
 
-// The panel on the right: what stakeholders said about the selected area.
-// In All years: all its observations. In a single year: only the observations in that year.
-function renderStakeholderPanel() {
-  const area = stakeholders && shArea !== null ? areaByNumber(shArea) : null;
-  $('sh-panel-empty').hidden = !!area;
-  $('sh-panel-expand').hidden = !area;
-  $('sh-panel-content').hidden = !area;
-  if (!area) return;
+// ---------- the list ----------
 
-  const all = sortedObservations().filter((o) => o.area === area.number);
-  const shown = all.filter(observationActive);
-  shEntry = Math.min(shown.length - 1, Math.max(0, shEntry));
-  const o = shown[shEntry];
-  const cls = areaClass(area);
+// One field as small label + value. A field that is not in the data does not apply and is left out; an empty one shows "No data".
+function shFieldHtml(theme, item, field) {
+  if (!(field.key in item)) return '';
+  let value = item[field.key];
+  if (field.values && isFilled(value)) {
+    const entry = (theme[field.values] || []).find((x) => x.id === value);
+    if (entry) value = entry.label;
+  }
+  return '<div class="sh-field"><div class="sh-field-label">' + escapeHtml(field.label) + '</div><div class="sh-field-value">' + textOrPlaceholder('sh-placeholder', value, NO_DATA) + '</div></div>';
+}
 
-  // "2 observations" or, in a single year, "2 observations in 1988"
-  const key = 'labels.observationCount' + (shYear === null ? '' : 'Year') + (shown.length === 1 ? 'One' : '');
-  const count = t(key, { count: shown.length, year: shYear });
-  const others = all.length - shown.length;
+// All details of an area (or note): the fields, then "In their words (paraphrase)" with every quote as code + type + text.
+function shDetailsHtml(theme, item) {
+  const quotes = (item.quotes || []).map((q) =>
+    '<div class="sh-quote"><div class="sh-quote-head"><b>' + escapeHtml(q.code) + '</b> <span>' + textOrPlaceholder('sh-placeholder', q.type, NO_DATA) + '</span></div>' +
+    '<div class="sh-quote-text">' + textOrPlaceholder('sh-placeholder', q.text, NO_DATA) + '</div></div>').join('');
+  return '<div class="sh-fields">' + theme.fields.map((f) => shFieldHtml(theme, item, f)).join('') + '</div>' +
+    '<div class="sh-quotes"><div class="sh-field-label">' + escapeHtml(stakeholders.quotesLabel) + '</div>' + (quotes || '<div class="sh-quote-text">' + textOrPlaceholder('sh-placeholder', '', NO_DATA) + '</div>') + '</div>';
+}
 
-  const box = (title, body) => '<div class="observation-box"><div class="observation-title">' + escapeHtml(t(title)) + '</div>' + body + '</div>';
-  const textBox = (title, value) => box(title, '<div class="observation-text">' + textOrPlaceholder('sh-placeholder', value) + '</div>');
-  const quotes = (o.quotes || []).map((q) =>
-    '<div class="sh-quote"><div class="observation-text">“' + textOrPlaceholder('sh-placeholder', q.text) + '”</div>' +
-    (q.name ? '<div class="sh-quote-name">— ' + escapeHtml(q.name) + '</div>' : '') + '</div>').join('');
+// The number marker, in the list and on the map: class color outline, white fill (Condition: grey when the cause is natural).
+function shBadgeHtml(theme, area) {
+  const fill = markerFill(theme, area);
+  return '<span class="sh-badge" style="--c: ' + areaColor(theme, area) + '; --fill: ' + fill + '; --ink: ' + textColorOn(fill) + '">' + escapeHtml(area.number) + '</span>';
+}
 
-  $('sh-panel-content').style.cssText = cls.style;
-  $('sh-panel-content').innerHTML =
-    '<div class="area-header">' +
-      '<div><div class="area-number">' + escapeHtml(t('labels.area', { number: area.number })) + '</div>' +
-      '<div class="area-zone">' + textOrPlaceholder('sh-placeholder', area.zone) + '</div></div>' +
-      '<div class="area-meta"><span class="class-badge"><span class="lg-dot" style="background: var(--c)"></span>' + escapeHtml(cls.label) + '</span>' +
-      '<span class="area-count">' + escapeHtml(count) + '</span></div>' +
-    '</div>' +
-    (others > 0 ? '<div class="sh-other-years">' + escapeHtml(t(others === 1 ? 'labels.otherYearsOne' : 'labels.otherYears', { count: others })) + '</div>' : '') +
-    (shown.length > 1 ? '<div class="entry-switcher"><div class="entry-label">' + escapeHtml(t('labels.observationOf', { index: shEntry + 1, count: shown.length })) + '</div>' +
-      '<button type="button" class="step" data-entry-step="-1" aria-label="Previous observation"' + (shEntry === 0 ? ' disabled' : '') + '>&larr;</button>' +
-      '<button type="button" class="step" data-entry-step="1" aria-label="Next observation"' + (shEntry === shown.length - 1 ? ' disabled' : '') + '>&rarr;</button></div>' : '') +
-    '<div class="observation">' +
-      '<div class="observation-pair">' + textBox('labels.change', o.change) + textBox('labels.period', o.period) + '</div>' +
-      textBox('labels.cause', o.cause) +
-      box('labels.inTheirWords', quotes || '<div class="observation-text">' + textOrPlaceholder('sh-placeholder', '') + '</div>') +
-      textBox('labels.stakeholderType', o.stakeholderType) +
-    '</div>';
+function buildAreaItem(theme, area) {
+  const id = 'sh-' + theme.id + '-' + area.number + '-details';
+  const summary = theme.summary.map((k) => area[k]).filter(isFilled).join(' · ');
+  const el = document.createElement('div');
+  el.className = 'sh-item';
+  el.dataset.number = area.number;
+  el.dataset.address = area.number;   // the page scrolls to this row for #stakeholders/<theme>/<number> (navigation.js)
+  el.style.setProperty('--c', areaColor(theme, area));
+  el.innerHTML =
+    '<button type="button" class="sh-row" aria-expanded="false" aria-controls="' + id + '" aria-label="' + escapeHtml(t('stakeholders.areaLabel', { number: area.number }) + ', ' + (area.zone || '')) + '">' +
+      shBadgeHtml(theme, area) +
+      '<span class="sh-row-text"><span class="sh-zone">' + textOrPlaceholder('sh-placeholder', area.zone, NO_DATA) + '</span>' +
+      '<span class="sh-summary" title="' + escapeHtml(summary) + '">' + textOrPlaceholder('sh-placeholder', summary, NO_DATA) + '</span></span>' +
+      '<span class="sh-chevron" aria-hidden="true"></span>' +
+    '</button>' +
+    '<div class="sh-details" id="' + id + '" hidden>' + shDetailsHtml(theme, area) + '</div>';
+  return el;
+}
+
+// ---------- the map ----------
+
+function createStakeholderMap(state) {
+  const theme = state.theme;
+  const items = state.order.map((n) => state.areas[n]);
+  // the polygons of every area; the start view is the bounds of all of them
+  items.forEach((item) => {
+    const c = areaColor(theme, item.area);
+    const rings = item.area.ellipses.map(ellipseLatLngs);
+    item.polygons = rings.map((ring) => L.polygon(ring, areaStyle(c, '')));
+    item.bounds = L.latLngBounds(rings.flat());
+    item.polygons.forEach((poly) => {
+      poly.on('click', () => selectStakeholderArea(theme.id, item.area.number, true));
+      poly.on('mouseover', () => setStakeholderHover(theme.id, item.area.number));
+      poly.on('mouseout', () => setStakeholderHover(null));
+    });
+    // the number marker in the middle of the area (the middle of its ellipse centres)
+    const lat = item.area.ellipses.reduce((s, e) => s + e.lat, 0) / item.area.ellipses.length;
+    const lon = item.area.ellipses.reduce((s, e) => s + e.lon, 0) / item.area.ellipses.length;
+    item.marker = L.marker([lat, lon], {
+      icon: L.divIcon({ className: 'sh-marker', html: shBadgeHtml(theme, item.area), iconSize: [28, 28], iconAnchor: [14, 14] }),
+      title: t('stakeholders.areaLabel', { number: item.area.number }), riseOnHover: true
+    });
+    item.marker.on('click', () => selectStakeholderArea(theme.id, item.area.number, true));
+    item.marker.on('mouseover', () => setStakeholderHover(theme.id, item.area.number));
+    item.marker.on('mouseout', () => setStakeholderHover(null));
+  });
+  state.start = items.length ? L.latLngBounds(items.map((i) => i.bounds.getSouthWest()).concat(items.map((i) => i.bounds.getNorthEast()))) : undefined;
+
+  const id = 'sh-' + theme.id;
+  const map = createMap(id + '-map', id + '-zoom-in', id + '-zoom-out', id + '-reset', {
+    startBounds: state.start || undefined,
+    // the map can only be measured when its card is on screen: after every fit of the start view, an open area is shown again
+    afterFit: (m, first) => {
+      state.ready = true;
+      if (state.open !== null) showStakeholderArea(state, state.open, true);
+      if (first) refreshStakeholderAreas(state);
+    }
+  });
+  state.map = map;
+  // big areas first, so the small ones lie on top and stay clickable
+  const bigFirst = items.slice().sort((a, b) => b.bounds.getSouthWest().distanceTo(b.bounds.getNorthEast()) - a.bounds.getSouthWest().distanceTo(a.bounds.getNorthEast()));
+  bigFirst.forEach((item) => item.polygons.forEach((poly) => poly.addTo(map)));
+  items.forEach((item) => item.marker.addTo(map));
+
+  // the same buttons as the Mangrove maps map
+  const tx = CONTENT.ecosystem.texts;
+  setText(id + '-zoom-in', tx.zoomIn);
+  setText(id + '-zoom-out', tx.zoomOut);
+  setText(id + '-reset', tx.reset);
+  $(id + '-reset').title = tx.resetTitle;
+  setupBasemapButton(id + '-basemap', id + '-map', true);   // starts black and white
+}
+
+// Where the map goes for an area: the area plus some surroundings, never closer than SH_MIN_VIEW_METERS wide.
+function stakeholderAreaView(state, number) {
+  const map = state.map;
+  let view = state.areas[number].bounds.pad(SH_VIEW_PADDING);
+  const centre = view.getCenter();
+  const halfLat = SH_MIN_VIEW_METERS / 2 / 111320;
+  const halfLon = halfLat / Math.cos(centre.lat * Math.PI / 180);
+  view = view.extend([centre.lat - halfLat, centre.lng - halfLon]).extend([centre.lat + halfLat, centre.lng + halfLon]);
+  const zoom = Math.max(map.getMinZoom(), Math.min(map.getBoundsZoom(view, false, L.point(40, 40)), map.getMaxZoom()));
+  return { centre: view.getCenter(), zoom };
+}
+
+// Moves the map to an area: flying, or at once (instant) when the map was just (re)fitted.
+function showStakeholderArea(state, number, instant) {
+  if (!state.ready) return;   // the map is not on screen yet: afterFit shows the open area when it is
+  const v = stakeholderAreaView(state, number);
+  if (instant) state.map.setView(v.centre, v.zoom, { animate: false });
+  else state.map.flyTo(v.centre, v.zoom, { duration: SH_FLY_SECONDS });
+}
+
+function showStakeholderStart(state) {
+  if (!state.ready || !state.start) return;
+  state.map.flyToBounds(state.start, { paddingTopLeft: [START_PADDING, START_PADDING], paddingBottomRight: [START_PADDING, START_PADDING], duration: SH_FLY_SECONDS });
+}
+
+// ---------- selecting and highlighting ----------
+
+// Opens an area (and closes the one that was open); selecting the open area closes it and returns to the start view.
+// fromMap: the click was on the map, so the list scrolls to the row if it is out of view. forceOpen: do not toggle (an address).
+function selectStakeholderArea(themeId, number, fromMap, forceOpen) {
+  const state = shThemes[themeId];
+  if (!state || !state.areas[number]) return;
+  const previous = state.open;
+  if (previous === number && !forceOpen) {
+    state.open = null;
+    refreshStakeholderAreas(state);
+    showStakeholderStart(state);
+    setStakeholderAddress(themeId, null);
+    return;
+  }
+  state.open = number;
+  refreshStakeholderAreas(state);
+  if (previous !== number) showStakeholderArea(state, number, false);
+  setStakeholderAddress(themeId, number);
+  if (fromMap) state.areas[number].el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+function setStakeholderHover(themeId, number) {
+  const before = shHover;
+  shHover = themeId ? { themeId, number } : null;
+  [before, shHover].forEach((h) => { if (h && shThemes[h.themeId]) refreshStakeholderAreas(shThemes[h.themeId]); });
+}
+
+// Draws the state of every area of a theme: open (solid outline, details shown), hovered, or normal; on the map and in the list.
+function refreshStakeholderAreas(state) {
+  state.order.forEach((number) => {
+    const item = state.areas[number];
+    const open = state.open === number;
+    const hover = !!shHover && shHover.themeId === state.theme.id && shHover.number === number;
+    const mode = open ? 'open' : hover ? 'hover' : '';
+    const c = areaColor(state.theme, item.area);
+    item.polygons.forEach((poly) => {
+      poly.setStyle(areaStyle(c, mode));
+      if (mode && state.ready) poly.bringToFront();   // (only once the map has its view: before that the polygon has no drawing yet)
+    });
+    const marker = item.marker.getElement();
+    if (marker) {
+      marker.classList.toggle('is-open', open);
+      marker.classList.toggle('is-hover', hover);
+    }
+    item.el.classList.toggle('open', open);
+    item.el.classList.toggle('hover', hover);
+    item.row.setAttribute('aria-expanded', open);
+    item.details.hidden = !open;
+  });
+}
+
+// ---------- the address ----------
+
+// #stakeholders/<theme>/<number> opens that area (navigation.js has already scrolled to the theme's part).
+function applyStakeholderAddress() {
+  const [screen, themeId, number] = location.hash.slice(1).split('/');
+  if (screen !== 'stakeholders' || !themeId || !number) return;
+  const state = shThemes[themeId];
+  const key = state && state.order.find((n) => n.toLowerCase() === decodeURIComponent(number).toLowerCase());
+  if (key !== undefined) selectStakeholderArea(themeId, key, false, true);
+}
+
+// The address follows the open area, without a new step in the browser history and without scrolling.
+function setStakeholderAddress(themeId, number) {
+  history.replaceState(null, '', '#stakeholders/' + themeId + (number === null ? '' : '/' + number));
 }

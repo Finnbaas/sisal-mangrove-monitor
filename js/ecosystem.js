@@ -10,11 +10,13 @@
 //   content/ecosystem.json (texts, layer switch, chart names). Nothing is typed in this file: every number comes from the data.
 // Uses: helpers.js, content.js (CONTENT, t), points.js (getSelectedPoint, pointXScale, allPoints), charts.js,
 //   climatology-storms.js (events, selectEvent, strengthText) and Leaflet (CDN).
-// Used by: main.js (setupEcosystem); points.js calls renderEcosystemEws() whenever the selected point changes.
+// Used by: main.js (setupEcosystem); points.js calls renderEcosystemEws() whenever the selected point changes;
+//   stakeholders.js reuses createMap, setupBasemapButton, setText and ecoLayersLoaded for its maps.
 
 // ---------- state ----------
 
 let ecoLayers = null;          // contents of data/vegetation/layers.json
+let ecoLayersLoaded = null;    // the promise of that file: stakeholders.js waits for it to draw the same base map
 let ecoBarSet = null;          // the bar chart of the per-period view as a set for the comparison line (see charts.js)
 let ecoBarMode = 'total';      // 'perYear' or 'total' (content/ecosystem.json "chartModes")
 let ecoEwsSet = null;          // the EWS charts as a set for the comparison line (see charts.js)
@@ -53,7 +55,8 @@ async function loadEcosystemFile(path) {
 async function setupEcosystem() {
   const files = CONTENT.ecosystem.files;
   try {
-    ecoLayers = await loadEcosystemFile(files.layers);
+    ecoLayersLoaded = loadEcosystemFile(files.layers);
+    ecoLayers = await ecoLayersLoaded;
   } catch (err) {
     // name the file instead of a blank card
     const message = t('messages.couldNotLoadEcosystem', { file: err.message });
@@ -121,13 +124,20 @@ function baseBounds() {
 // The AOI outline as Leaflet latitude/longitude pairs (layers.json stores [longitude, latitude]).
 function aoiLatLngs() { return ecoLayers.basemap.aoi.map(([lon, lat]) => [lat, lon]); }
 
-function createMap(elementId, zoomInId, zoomOutId, resetId) {
+// The Mangrove maps map calls this with four ids. The Stakeholder maps (stakeholders.js) also pass "options":
+//   startBounds: the start view (default: the study area outline)
+//   afterFit(map, first): called after every (re)fit of the start view; first is true the first time
+function createMap(elementId, zoomInId, zoomOutId, resetId, options) {
   const bounds = baseBounds();                  // the whole base map: the map cannot be panned outside it
   const aoi = L.latLngBounds(aoiLatLngs());     // the study area outline: the start view
+  const start = options && options.startBounds ? options.startBounds : aoi;
   const map = L.map(elementId, { zoomControl: false, attributionControl: false, zoomSnap: 0, scrollWheelZoom: false, maxBoundsViscosity: 1 });
-  // the start view: the outline with 40 px of base map on every side (the legend strip lies over the bottom of the map)
-  const legendHeight = () => $(elementId).parentElement.querySelector('.legend-strip').offsetHeight;
-  const showStart = () => map.fitBounds(aoi, { paddingTopLeft: [START_PADDING, START_PADDING], paddingBottomRight: [START_PADDING, START_PADDING + legendHeight()], animate: false });
+  // the start view: the outline with 40 px of base map on every side (the legend strip, if the map has one, lies over the bottom of the map)
+  const legendHeight = () => {
+    const strip = $(elementId).parentElement.querySelector('.legend-strip');
+    return strip ? strip.offsetHeight : 0;
+  };
+  const showStart = () => map.fitBounds(start, { paddingTopLeft: [START_PADDING, START_PADDING], paddingBottomRight: [START_PADDING, START_PADDING + legendHeight()], animate: false });
   // the attribution sits top left: the legend strip covers the bottom of the map
   L.control.attribution({ position: 'topleft', prefix: false }).addTo(map);
   L.imageOverlay(ecoLayers.basemap.image, bounds, { attribution: ecoLayers.basemap.attribution, className: 'eco-basemap' }).addTo(map);
@@ -146,8 +156,11 @@ function createMap(elementId, zoomInId, zoomOutId, resetId) {
     map.setMaxBounds(bounds);
     map.setMaxZoom(map.getBoundsZoom(aoi, false, L.point(2 * START_PADDING, 2 * START_PADDING + legendHeight())) + 4);
     showStart();
-    if (!fitted) {
-      fitted = true;
+    const first = !fitted;
+    fitted = true;
+    if (options) {
+      if (options.afterFit) options.afterFit(map, first);
+    } else if (first) {
       renderAbout();   // related storms need the storm list, which has loaded by now
     }
   }).observe($(elementId));

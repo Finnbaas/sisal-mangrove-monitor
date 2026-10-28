@@ -68,9 +68,10 @@
       "label": "Stakeholders",
       "title": "Stakeholders",
       "band": "img/stakeholders-band-mangrove.png",
-      "columns": [
-        ["stakeholder-map", "stakeholder-time"],
-        ["stakeholder-panel"]
+      "parts": [
+        { "id": "extent", "title": "Extent", "columns": [["sh-extent-map"], ["sh-extent-list"]] },
+        { "id": "condition", "title": "Condition", "columns": [["sh-condition-map"], ["sh-condition-list"]] },
+        { "id": "disturbance-recovery", "title": "Disturbance & recovery", "columns": [["sh-disturbance-recovery-map"], ["sh-disturbance-recovery-list"]] }
       ]
     }
   ]

@@ -10,8 +10,6 @@
     "wave-direction": "Rough-sea wave direction",
     "storm-counts": "When storms come",
     "event-list": "Studied storms",
-    "stakeholder-map": "Stakeholder observations",
-    "stakeholder-panel": "Area details",
     "ews-verdict": "Early warning signal?",
     "ews-plots": "Rolling statistics before the loss",
     "ews-guide": "How to read this",
@@ -55,30 +53,6 @@
     "date": "Date",
     "anomalyExplanation": "Anomaly: difference from the mean of the same calendar day",
     "baselineLabel": "Baseline:",
-
-    "allYears": "All years",
-    "showing": "Showing",
-    "today": "today",
-    "stakeholderMapNote": "Area shapes and positions are examples",
-    "imagery": "Imagery: {year}",
-    "imageryMissing": "Imagery: {year} (not available, placeholder shown)",
-    "area": "Area {number}",
-    "observationCount": "{count} observations",
-    "observationCountOne": "1 observation",
-    "observationCountYear": "{count} observations in {year}",
-    "observationCountYearOne": "1 observation in {year}",
-    "observationOf": "Observation {index} of {count}",
-    "otherYears": "{count} more observations in other years",
-    "otherYearsOne": "1 more observation in other years",
-    "change": "Change",
-    "period": "Period",
-    "cause": "Attributed cause",
-    "inTheirWords": "In their words (paraphrase)",
-    "stakeholderType": "Stakeholder type",
-    "certaintyExact": "Exact",
-    "certaintyApproximate": "Approximate",
-    "certaintyOngoing": "Ongoing",
-    "certaintyExpected": "Expected",
 
     "clickToEnlarge": "Click to enlarge",
     "close": "Close",
@@ -296,10 +270,14 @@
     "stepsWillBeAdded": "Steps will be added here",
     "couldNotLoadClimateData": "Could not load the climate charts: {error}",
     "couldNotLoadMethod": "The Method page could not be loaded",
-    "selectArea": "Select an area on the map or a bar in the timeline to see what stakeholders reported",
-    "noObservationsInYear": "No observations in {year}",
     "couldNotLoadStakeholders": "Could not load the stakeholder content: {error}",
-    "stakeholderEntriesSkipped": "{count} incomplete entries in content/stakeholders.json are not shown (an area without number or shape, or an observation without start year or with an unknown area)"
+    "stakeholderEntriesSkipped": "{count} incomplete areas in content/stakeholders.json are not shown (see the browser console for which)"
+  },
+
+  "stakeholders": {
+    "areaLabel": "Area {number}",
+    "noteLabel": "Not shown on the map",
+    "noteMore": "More details"
   },
 
   "footer": {

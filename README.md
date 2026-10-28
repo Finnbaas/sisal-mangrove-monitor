@@ -27,7 +27,7 @@ files. Changes to the files show after saving; Live Server reloads the page.
 | `#home` | Landing page: hero, the four pages, study area and About (content/landing.json). An empty address and the old `#overview` also show it |
 | `#satellite` | The same cards for the ecosystem analysis |
 | `#climatology` | "Storms at Sisal" (event list, storm charts) and "Climate at Sisal" (a typical year, change since 1950, in detail) |
-| `#stakeholders` | Areas where stakeholders saw mangrove change, with a time axis and their observations |
+| `#stakeholders` | Three themes (Extent, Condition, Disturbance & recovery): a map of the areas where stakeholders saw change, and a list with what they said (`#stakeholders/<theme>/<number>` opens one area) |
 | `#method` | Methods and code files to download; `#method/<id>` opens one "do it yourself" example |
 
 ## Folder structure
@@ -130,18 +130,18 @@ Claude Code reads CLAUDE.md in every session, so the long descriptions live here
   - js/points.js: Ecosystem (map with the points, point chart, downloads); js/landing.js: the landing page
   - js/climatology-storms.js: "Storms at Sisal" (event list, storm anomaly charts)
   - js/climatology-climate.js: "Climate at Sisal" (A typical year, Change since 1950, In detail)
-  - js/stakeholders.js: the Stakeholder screen (areas on the map, the Time card with the observation bars, the area panel)
+  - js/stakeholders.js: the Stakeholder screen (per theme a Leaflet map with the areas, and the list of areas); reuses the map code of js/ecosystem.js
   - js/method.js: the Method page and the "Do this analysis yourself" links on the research cards
   - js/main.js: starts everything
 - data/points.json: data of the monitoring points
 - data/events.json: data of the storm and extreme-weather events (Climatology screen)
 - data/climate/typical-year.json: the mean seasonal cycle per climate variable ("A typical year"), made by analysis/climatology/export_typical_year.py
-- data/stakeholder-imagery/: one satellite snapshot per year for the Stakeholder map (1984.jpg ... 2026.jpg, all with exactly the same extent and crop)
+- data/stakeholder-imagery/: no longer used by the Stakeholder screen (it now draws on data/vegetation/basemap.png)
 - content/: everything the team writes and edits (see content/README.md):
   - content/pages.json: which pages exist and which cards each page shows
   - content/variables.json: variables (point, event and climate), trend metrics, change classes, scenarios, data sources, year range
   - content/texts.json: short labels and texts (card titles, messages, footer)
-  - content/stakeholders.json: the Stakeholder screen: areas on the map and the stakeholder observations
+  - content/stakeholders.json: the Stakeholder screen: the three themes, their areas (ellipses on the map) and what stakeholders said
   - content/method.json: the Method page: analyses, code files, use cases, and which research cards link to which use case
   - content/climate.json: "Climate at Sisal": the year range of Change since 1950, the trend texts and their badges
   - content/README.md: how to edit these files
@@ -251,10 +251,9 @@ Made by analysis/climatology/export_typical_year.py (never edit by hand). `varia
 
 #### Structure of content/stakeholders.json
 The file is one JSON object, written by the team (Stakeholder screen). It is loaded by stakeholders.js; an error in it shows a message on the Stakeholder page only.
-- `imagery`: `folder` and `extension` of the yearly map images (data/stakeholder-imagery/, one file per year named by the year) and the `placeholder` image shown when a year has no image.
-- `areas`: one object per area on the map: `number`, `zone` (name, may be empty), `class` ("loss", "recovery" or "gain", a key of changeClasses in content/variables.json) and `shape` (`type` "ellipse" with `leftPct`, `topPct`, `widthPct`, `heightPct`, in percent of the map image).
-- `observations`: one object per stakeholder observation: `area` (the area number), `change`, `period`, `cause`, `stakeholderType` (texts, may be empty), `startYear`, `endYear` (`null` if ongoing), `ongoing` (true/false), `certainty` ("exact", "approximate" or "expected") and `quotes` (list of `{ "text", "name" }`).
-- An area is shown in a year when that year falls within at least one of its observations. Ongoing observations count up to the last year of yearRange. An empty text shows "Not yet available".
+- `quotesLabel`: the heading above the quotes of an open area.
+- `themes`: one object per theme (`extent`, `condition`, `disturbance-recovery`): `id`, `menuGroup` (the group of the Maps menu in content/ecosystem.json with the same name), `title`, `subtitle`, `legend` (list of `{ id, label, color }`; `color` is a name from css/base.css, e.g. "stakeholder-red"), optional `markerLegend` (Condition: `{ id, label, fill }` for natural / anthropogenic cause), `fields` (the details shown for an open area: `{ key, label }`, in order), `summary` (the two field keys of the one-line summary) and optional `notes` (observations that belong to no area on the map).
+- `areas`: one object per area: `number` (text, e.g. "5a"), `theme`, `class` (an `id` of the theme's legend), `ellipses` (one or more: `lat`, `lon` of the centre, `radiusXM`, `radiusYM` in metres on the ground, `rotationDeg` clockwise as seen on the map), the fields named in the theme's `fields`, `causeType` (Condition only) and `quotes` (list of `{ code, type, text }`). The ellipses were converted from the Figma maps with the `basemapBounds` of data/vegetation/layers.json.
 
 #### Structure of content/method.json
 The file is one JSON object, written by the team (Method page). It is loaded by method.js; an error in it shows a message on the Method page only.
