@@ -13,7 +13,7 @@
 [data-card="stakeholder-map"] { display: flex; flex-direction: column; height: var(--sh-card-height); }
 [data-card="stakeholder-map"] .map-frame { flex: 1 1 auto; min-height: 0; }
 #sh-map.geo-map { height: 100%; aspect-ratio: auto; }
-[data-card="stakeholder-panel"] { min-height: var(--sh-card-height); }
+[data-card="stakeholder-panel"] { min-height: 502px; }   /* its old size, so it does not grow with the map card */
 
 /* the theme tabs at the top of the map card: the same segmented tabs and divider as the Maps menu (.menu-tabs, .card-tabs in ecosystem.css) */
 
