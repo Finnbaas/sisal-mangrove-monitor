@@ -26,6 +26,8 @@ let ecoVariantIds = {};        // the chosen variant per view ("layer/view"): Si
 let ecoViewIds = {};           // the chosen view per layer id (layers with "views", e.g. Change: classes | per-period)
 let ecoOverlay = null;         // the Leaflet image of that layer
 let ecoMaps = {};              // the Leaflet map of the layers: { layers }
+const MAP_WHEEL_SCROLL = 1 / 150;   // zoom levels per pixel of mouse wheel / two-finger scroll (a swipe of 80 px = about half a level)
+const MAP_WHEEL_PINCH = 1 / 40;     // zoom levels per pixel of a trackpad pinch (a pinch arrives as a wheel event with ctrlKey)
 const START_PADDING = 40;      // px of base map around the outline in the start view of the maps
 
 // A text from content/ecosystem.json "texts", e.g. vt('pointsMapSubtitle', { shown: 5, total: 10 }).
@@ -136,7 +138,15 @@ function createMap(elementId, zoomInId, zoomOutId, resetId, options) {
   const bounds = baseBounds();                  // the whole base map: the map cannot be panned outside it
   const aoi = L.latLngBounds(aoiLatLngs());     // the study area outline: the start view
   const start = options && options.startBounds ? options.startBounds : aoi;
-  const map = L.map(elementId, { zoomControl: false, attributionControl: false, zoomSnap: 0, scrollWheelZoom: true, maxBoundsViscosity: 1 });   // scrollWheelZoom: the mouse wheel, two-finger scroll and pinch on a trackpad zoom the map
+  const map = L.map(elementId, { zoomControl: false, attributionControl: false, zoomSnap: 0, scrollWheelZoom: false, maxBoundsViscosity: 1 });
+  // zoom with the mouse wheel, two-finger scroll and pinch on a trackpad, around the pointer. Own handler instead of Leaflet's
+  // scrollWheelZoom, which is too weak for the many small steps of a trackpad.
+  map.getContainer().addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const pixels = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1);   // a mouse wheel may report lines or pages
+    const zoom = Math.max(map.getMinZoom(), Math.min(map.getMaxZoom(), map.getZoom() - pixels * (e.ctrlKey ? MAP_WHEEL_PINCH : MAP_WHEEL_SCROLL)));
+    if (zoom !== map.getZoom()) map.setZoomAround(map.mouseEventToContainerPoint(e), zoom, { animate: Math.abs(pixels) >= 50 });   // a notch of a mouse wheel is animated
+  }, { passive: false });
   // the start view: the outline with 40 px of base map on every side (the legend strip, if the map has one, lies over the bottom of the map)
   const legendHeight = () => {
     const strip = $(elementId).parentElement.querySelector('.legend-strip');

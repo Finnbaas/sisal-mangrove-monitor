@@ -146,7 +146,7 @@ function setupStormMapControls() {
   canvas.addEventListener('wheel', (e) => {
     e.preventDefault();
     const pixels = e.deltaY * (e.deltaMode === 1 ? 16 : 1);   // a mouse wheel may report lines instead of pixels
-    zoomStormMap(e.offsetX, e.offsetY, Math.exp(-pixels * (e.ctrlKey ? 0.012 : 0.0025)));
+    zoomStormMap(e.offsetX, e.offsetY, Math.exp(-pixels * (e.ctrlKey ? 0.018 : 0.0045)));
     hideStormTip();
   }, { passive: false });
   canvas.addEventListener('pointerleave', () => { drag = null; stormMap.hoverId = null; hideStormTip(); renderStormMap(); });
