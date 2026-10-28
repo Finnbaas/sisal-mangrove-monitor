@@ -235,6 +235,8 @@ function setupStakeholderMap() {
   });
 
   shMap = createMap('sh-map', 'sh-zoom-in', 'sh-zoom-out', 'sh-reset', {
+    fillMap: true,   // the map is wider than tall: no empty bands at its sides
+    alignTop: true,  // ... and the north-east of the study area (where the areas are) is not cut off
     // the map can only be measured when its card is on screen; after every (re)fit of the start view a selected area is shown again
     afterFit: () => {
       if (!shReady) { shReady = true; refreshStakeholderStyles(); }
@@ -269,10 +271,9 @@ function showStakeholderArea(number, instant) {
   else shMap.flyTo(v.centre, v.zoom, { duration: SH_FLY_SECONDS });
 }
 
-// Back to the start view (the same as the Reset button): the study area outline with the usual padding.
+// Back to the start view (the same as the Reset button).
 function showStakeholderStart() {
-  if (!shReady) return;
-  shMap.flyToBounds(L.latLngBounds(aoiLatLngs()), { paddingTopLeft: [START_PADDING, START_PADDING], paddingBottomRight: [START_PADDING, START_PADDING], duration: SH_FLY_SECONDS });
+  if (shReady) shMap.flyToStart();
 }
 
 // Puts the areas of the theme that were happening in the selected year on the map (big areas first, so small ones stay clickable).

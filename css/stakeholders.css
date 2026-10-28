@@ -7,9 +7,17 @@
 /* the same columns as the Mangrove maps page (ecosystem.css): the map is 2/3 of the page, the menu and panel 1/3 */
 [data-screen="stakeholders"].research-grid { grid-template-columns: 2fr 1fr; }   /* (this page has no parts: the section itself is the grid) */
 
+/* the map card has a fixed height (the map takes what the header and the legend leave), and the empty area panel is as tall,
+   so with nothing selected the map card and the panel end at about the same height; the panel grows with its content */
+[data-screen="stakeholders"] { --sh-card-height: 600px; }
+[data-card="stakeholder-map"] { display: flex; flex-direction: column; height: var(--sh-card-height); }
+[data-card="stakeholder-map"] .map-frame { flex: 1 1 auto; min-height: 0; }
+#sh-map.geo-map { height: 100%; aspect-ratio: auto; }
+[data-card="stakeholder-panel"] { min-height: calc(var(--sh-card-height) - 98px); }   /* 98 px = the menu card above it and the gap */
+
 /* map card: the legend under the map */
-.sh-legend { display: flex; flex-wrap: wrap; gap: 6px 20px; padding-top: 12px; }
-.sh-legend:empty { display: none; }
+/* room for two lines on every theme, so the map is the same size (and has the same start view) on all of them */
+.sh-legend { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 6px 20px; padding-top: 12px; min-height: 52px; }
 .sh-legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: var(--font-size-small); color: var(--color-text-body); }
 /* a swatch looks like an area on the map: class color at 25 %, thin dashed outline */
 .sh-swatch { width: 18px; height: 12px; border-radius: 3px; border: 1.5px dashed var(--c); background: color-mix(in srgb, var(--c) 25%, transparent); flex-shrink: 0; }

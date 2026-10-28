@@ -127,6 +127,11 @@ function aoiLatLngs() { return ecoLayers.basemap.aoi.map(([lon, lat]) => [lat, l
 // The Mangrove maps map calls this with four ids. The Stakeholder maps (stakeholders.js) also pass "options":
 //   startBounds: the start view (default: the study area outline)
 //   afterFit(map, first): called after every (re)fit of the start view; first is true the first time
+//   fillMap: true = the smallest zoom is the one at which the base map fills the whole map frame (no empty bands at the sides
+//     of a map that is wider than the base map), instead of the one at which the whole base map is in view
+//   alignTop: true = when the start view is cut off at the top, it is moved down so that the top of the start bounds is
+//     START_PADDING from the top of the map (the bottom is cut off instead)
+//   The map gets flyToStart(): flies to the start view (the same view as the Reset button).
 function createMap(elementId, zoomInId, zoomOutId, resetId, options) {
   const bounds = baseBounds();                  // the whole base map: the map cannot be panned outside it
   const aoi = L.latLngBounds(aoiLatLngs());     // the study area outline: the start view
@@ -137,7 +142,21 @@ function createMap(elementId, zoomInId, zoomOutId, resetId, options) {
     const strip = $(elementId).parentElement.querySelector('.legend-strip');
     return strip ? strip.offsetHeight : 0;
   };
-  const showStart = () => map.fitBounds(start, { paddingTopLeft: [START_PADDING, START_PADDING], paddingBottomRight: [START_PADDING, START_PADDING + legendHeight()], animate: false });
+  const showStart = () => {
+    map.fitBounds(start, { paddingTopLeft: [START_PADDING, START_PADDING], paddingBottomRight: [START_PADDING, START_PADDING + legendHeight()], animate: false });
+    if (options && options.alignTop) {
+      const top = map.latLngToContainerPoint(start.getNorthWest()).y;
+      if (top < START_PADDING) map.panBy([0, top - START_PADDING], { animate: false });   // (the base map's edge limits how far)
+    }
+  };
+  // flying back to the start view: find where it is (the map is put back where it was), then fly there
+  map.flyToStart = () => {
+    const centre = map.getCenter(), zoom = map.getZoom();
+    showStart();
+    const target = { centre: map.getCenter(), zoom: map.getZoom() };
+    map.setView(centre, zoom, { animate: false });
+    map.flyTo(target.centre, target.zoom, { duration: 0.8 });
+  };
   // the attribution sits top left: the legend strip covers the bottom of the map
   L.control.attribution({ position: 'topleft', prefix: false }).addTo(map);
   L.imageOverlay(ecoLayers.basemap.image, bounds, { attribution: ecoLayers.basemap.attribution, className: 'eco-basemap' }).addTo(map);
@@ -152,7 +171,7 @@ function createMap(elementId, zoomInId, zoomOutId, resetId, options) {
     const box = $(elementId);
     if (!box.clientWidth) return;
     map.invalidateSize();
-    map.setMinZoom(map.getBoundsZoom(bounds));   // the level at which the whole base map just fits
+    map.setMinZoom(map.getBoundsZoom(bounds, !!(options && options.fillMap)));   // the level at which the whole base map just fits (or fills the frame)
     map.setMaxBounds(bounds);
     map.setMaxZoom(map.getBoundsZoom(aoi, false, L.point(2 * START_PADDING, 2 * START_PADDING + legendHeight())) + 4);
     showStart();
