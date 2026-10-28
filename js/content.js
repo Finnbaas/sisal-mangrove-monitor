@@ -388,7 +388,7 @@ function buildItem(item, ready, pageId) {
 }
 
 // A card with an optional title row (title + the expand button, as on the other cards).
-// withExpand = false leaves out the expand button.
+// The expand button is only added when withExpand is true.
 function simpleCard(className, title, withExpand) {
   const card = document.createElement('div');
   card.className = 'card ' + className;
@@ -399,7 +399,7 @@ function simpleCard(className, title, withExpand) {
     titleEl.className = 'card-title';
     titleEl.textContent = title;
     row.appendChild(titleEl);
-    if (withExpand !== false) {
+    if (withExpand === true) {
       const expand = document.createElement('div');
       expand.className = 'expand';
       expand.textContent = '↗';
