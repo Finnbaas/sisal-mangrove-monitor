@@ -301,62 +301,68 @@
           <div id="ews-plots-charts" class="chart-stack"></div>
         </div>
 
-        <!-- STAKEHOLDER CARDS (filled by stakeholders.js from content/stakeholders.json): per theme one map card and one
-             list card, named sh-<theme>-map and sh-<theme>-list (the themes are in content/stakeholders.json; the cards are
-             placed in the three parts of the Stakeholders page in content/pages.json). The map uses the map classes of ecosystem.css. -->
+        <!-- STAKEHOLDER CARDS (filled by stakeholders.js from content/stakeholders.json): the map of the chosen theme with the
+             timeline under it, and on the right the theme menu and the panel. The map uses the map classes of ecosystem.css. -->
 
-        <div class="card sh-map-card" data-card="sh-extent-map">
-          <div class="map-frame sh-map-frame">
-            <div id="sh-extent-map" class="geo-map sh-map"></div>
+        <div class="card" data-card="stakeholder-map">
+          <div class="card-title-row top">
+            <div>
+              <div class="card-title" id="sh-title"></div>
+              <div class="faint" id="sh-subtitle"></div>
+            </div>
+            <div class="expand">&#8599;</div>
+          </div>
+          <div class="map-frame">
+            <div id="sh-map" class="geo-map"></div>
+            <div id="sh-map-message" class="map-message" hidden></div>
             <div class="map-buttons">
-              <button type="button" id="sh-extent-basemap" class="map-button"></button>
-              <button type="button" id="sh-extent-zoom-in" class="map-button"></button>
-              <button type="button" id="sh-extent-zoom-out" class="map-button"></button>
-              <button type="button" id="sh-extent-reset" class="map-button"></button>
+              <button type="button" id="sh-basemap" class="map-button"></button>
+              <button type="button" id="sh-zoom-in" class="map-button"></button>
+              <button type="button" id="sh-zoom-out" class="map-button"></button>
+              <button type="button" id="sh-reset" class="map-button"></button>
             </div>
           </div>
-          <div id="sh-extent-legend" class="sh-legend"></div>
-          <p class="fine sh-status"></p>
-        </div>
-        <div class="card sh-list-card" data-card="sh-extent-list">
-          <div id="sh-extent-note" hidden></div>
-          <div id="sh-extent-list" class="sh-list"></div>
+          <div id="sh-legend" class="sh-legend"></div>
+          <p class="fine" id="sh-status"></p>
         </div>
 
-        <div class="card sh-map-card" data-card="sh-condition-map">
-          <div class="map-frame sh-map-frame">
-            <div id="sh-condition-map" class="geo-map sh-map"></div>
-            <div class="map-buttons">
-              <button type="button" id="sh-condition-basemap" class="map-button"></button>
-              <button type="button" id="sh-condition-zoom-in" class="map-button"></button>
-              <button type="button" id="sh-condition-zoom-out" class="map-button"></button>
-              <button type="button" id="sh-condition-reset" class="map-button"></button>
+        <div class="card" data-card="stakeholder-time">
+          <!-- top row: All years button, year display, one year back / forward -->
+          <div id="sh-controls">
+            <button id="sh-all-years" type="button" aria-pressed="true" data-text="stakeholders.allYears"></button>
+            <div id="sh-year-block">
+              <div class="label-xs" id="sh-year-label"></div>
+              <div id="sh-year-big"></div>
             </div>
+            <button id="sh-year-back" class="step" aria-label="Previous year">&larr;</button>
+            <button id="sh-year-forward" class="step" aria-label="Next year">&rarr;</button>
           </div>
-          <div id="sh-condition-legend" class="sh-legend"></div>
-          <p class="fine sh-status"></p>
-        </div>
-        <div class="card sh-list-card" data-card="sh-condition-list">
-          <div id="sh-condition-note" hidden></div>
-          <div id="sh-condition-list" class="sh-list"></div>
+          <!-- the slider track is the time axis of the area rows under it: both use the same
+               left and right edge (#sh-track and .sh-row-scale), and the handle line runs through all rows -->
+          <div id="sh-time">
+            <div id="sh-track">
+              <div id="sh-track-line"></div>
+              <div id="sh-track-years"></div>
+              <input type="range" id="sh-slider" step="1" aria-label="Year">
+            </div>
+            <div id="sh-rows"></div>
+            <div id="sh-handle"><div id="sh-handle-line"></div></div>
+          </div>
+          <div id="sh-certainty-legend"></div>
         </div>
 
-        <div class="card sh-map-card" data-card="sh-disturbance-recovery-map">
-          <div class="map-frame sh-map-frame">
-            <div id="sh-disturbance-recovery-map" class="geo-map sh-map"></div>
-            <div class="map-buttons">
-              <button type="button" id="sh-disturbance-recovery-basemap" class="map-button"></button>
-              <button type="button" id="sh-disturbance-recovery-zoom-in" class="map-button"></button>
-              <button type="button" id="sh-disturbance-recovery-zoom-out" class="map-button"></button>
-              <button type="button" id="sh-disturbance-recovery-reset" class="map-button"></button>
-            </div>
-          </div>
-          <div id="sh-disturbance-recovery-legend" class="sh-legend"></div>
-          <p class="fine sh-status"></p>
+        <!-- the theme menu: the same tabs as the Maps menu of the Mangrove maps (stakeholders.js: renderStakeholderMenu) -->
+        <div class="card" data-card="stakeholder-menu">
+          <div id="sh-menu" class="map-menu"></div>
         </div>
-        <div class="card sh-list-card" data-card="sh-disturbance-recovery-list">
-          <div id="sh-disturbance-recovery-note" hidden></div>
-          <div id="sh-disturbance-recovery-list" class="sh-list"></div>
+
+        <div class="card" data-card="stakeholder-panel">
+          <div class="card-title-row"><div class="card-title" data-text="stakeholders.panelTitle"></div><div class="expand">&#8599;</div></div>
+          <div id="sh-panel-empty">
+            <div id="sh-panel-empty-text"></div>
+            <div id="sh-panel-note" hidden></div>
+          </div>
+          <div id="sh-panel-content" hidden></div>
         </div>
     </div>
 

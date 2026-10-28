@@ -39,8 +39,9 @@ Tip: paste the file into https://jsonlint.com to find the mistake.
 
 ```json
 { "id": "stakeholders", "label": "Stakeholders",
-  "parts": [
-    { "id": "extent", "title": "Extent", "columns": [["sh-extent-map"], ["sh-extent-list"]] }
+  "columns": [
+    ["stakeholder-map", "stakeholder-time"],
+    ["stakeholder-menu", "stakeholder-panel"]
   ] }
 ```
 
@@ -85,8 +86,10 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 | `climate-typical-year` | "A typical year": one chart per climate variable, monthly mean with 10th–90th percentile band |
 | `climate-change` | "Change since 1950": one chart per climate variable, with the trend and its badge |
 | `climate-detail` | "In detail": one tab per climate variable, with record period, the daily values and the annual means with the trend |
-| `sh-extent-map`, `sh-condition-map`, `sh-disturbance-recovery-map` | Map of one stakeholder theme with its areas (click an area to open it in the list) |
-| `sh-extent-list`, `sh-condition-list`, `sh-disturbance-recovery-list` | The list of areas of that theme: one open at a time, with what stakeholders said |
+| `stakeholder-map` | The map of the chosen stakeholder theme, with the title and subtitle of the theme in its header and the legend under it |
+| `stakeholder-time` | Year slider that is also the time axis of the area bars (goes directly under `stakeholder-map`) |
+| `stakeholder-menu` | The theme menu (Extent, Condition, Disturbance & recovery): the same tabs as the Maps menu |
+| `stakeholder-panel` | What stakeholders said about the clicked area |
 
 ### Simple cards (write them as an object)
 
@@ -160,14 +163,15 @@ has decided (see CLAUDE.md).
 
 ## stakeholders.json: the Stakeholder page
 
-The page has three themes (Extent, Condition, Disturbance & recovery). Per theme: a map with the areas and a list of the
-same areas. The texts come from the interview tables in Figma; the ellipses from the Figma maps.
+One map with a menu of three themes (Extent, Condition, Disturbance & recovery). The theme chooses the areas on the map, the legend,
+the rows of the timeline and what the panel shows. The texts come from the interview tables in Figma; the ellipses from the Figma maps.
 
-**`themes`**: one entry per theme: `id`, `title` and `subtitle` (heading of the part), `menuGroup` (the group of the
-Maps menu in `ecosystem.json` with the same name), `legend` (the classes: `id`, `label`, `color`; the color is a name from
-`css/base.css`, e.g. `stakeholder-red`), `fields` (what an open area shows, in order: `key` and `label`), `summary` (the two
-field keys shown on the closed row) and, for Condition, `markerLegend` (grey marker = natural cause, white = anthropogenic) and
-`notes` (an observation that has no number on the map: it is shown as a note above the list).
+**`themes`**: one entry per theme: `id`, `title` and `subtitle` (header of the map card), `menuGroup` (the group of the Maps menu in
+`ecosystem.json` with the same name: its label is the name of the tab), `legend` (the classes: `id`, `label`, `color`; the color is a
+name from `css/base.css`, e.g. `stakeholder-red`), `fields` (the labels of the fields: `key` and `label`, and `values` for a field whose
+value is the `id` of an entry of another list), `periodKey` (the field with the period text, shown on hover over a bar), `panel` (the
+boxes of the panel, row by row: two keys in one row = side by side) and, for Condition, `markerLegend` (grey marker = natural cause,
+white = anthropogenic) and `notes` (an observation that has no number on the map: shown as a short note in the empty state of the panel).
 
 **`areas`**: one entry per area:
 
@@ -175,17 +179,22 @@ field keys shown on the closed row) and, for Condition, `markerLegend` (grey mar
 { "number": "5a", "theme": "extent", "class": "loss",
   "ellipses": [ { "lat": 21.16, "lon": -90.05, "radiusXM": 388.5, "radiusYM": 97.5, "rotationDeg": -5.74 } ],
   "zone": "...", "change": "...", "period": "...", "attributedCause": "...",
+  "startYear": 2021, "endYear": null, "ongoing": true, "certainty": "approximate",
   "quotes": [ { "code": "AC1", "type": "Academic", "text": "..." } ] }
 ```
 
-- `number`: text, shown on the map and in the list (also in the address: `#stakeholders/extent/5a`).
+- `number`: text, shown on the map and in the timeline (also in the address: `#stakeholders/extent/5a`).
 - `class`: an `id` of the theme's `legend`.
 - `ellipses`: one or more. `lat`/`lon` = centre; `radiusXM`/`radiusYM` = half width and half height in metres on the ground;
   `rotationDeg` = rotation clockwise as seen on the map. (Converted from Figma with the `basemapBounds` of
   `data/vegetation/layers.json`, linear in the Web Mercator projection of the base map.)
-- The other fields are the columns of the interview table; which ones a theme shows is set in its `fields`. Extent: `change`,
-  `period`, `attributedCause`. Condition: `signal`, `period`, `attributedCause`, `causeType` (`natural` or `anthropogenic`).
-  Disturbance & recovery: `disturbance`, `when`, `recovery`, `recoveryMode`. An empty text shows "No data".
+- The other fields are the columns of the interview table. Extent: `change`, `period`, `attributedCause`. Condition: `signal`,
+  `period`, `attributedCause`, `causeType` (`natural` or `anthropogenic`). Disturbance & recovery: `disturbance`, `when`, `recovery`,
+  `recoveryMode` (it has no `attributedCause`: the panel shows "No data"). The period text is shown as written.
+- `startYear`, `endYear`, `ongoing`, `certainty`: the bar on the timeline. `endYear` is `null` when `ongoing` is `true` (the bar runs to
+  the last year of `yearRange` in `variables.json`). `certainty` is `"exact"`, `"approximate"` or `"expected"`; an ongoing area is drawn
+  with an arrow. The time scale of all themes starts at the earliest `startYear` of all areas. An area without all four is not shown.
+  These years were derived from the period text (the interviews took place in 2026); change them here if the team decides otherwise.
 - `quotes`: what people said (paraphrased): `code` of the stakeholder (e.g. AC1; codes only, never names), `type`, `text`.
 
 **`quotesLabel`**: the heading above the quotes.

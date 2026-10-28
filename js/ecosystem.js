@@ -384,6 +384,35 @@ function menuSegment(label, items, activeId, focusKey, onPick) {
   return seg;
 }
 
+// The tabs of a menu card (the Maps menu here, the theme menu of the Stakeholder page): one button per item { id, label },
+// the active one marked. onPick(id, focus) is called when a tab is clicked or reached with the arrow keys; focus = the
+// data-focus of the tab, which keeps the keyboard focus when the menu is drawn again. Styles: .menu-tabs, .menu-tab (ecosystem.css).
+function buildMenuTabs(items, activeId, onPick, ariaLabel) {
+  const tabs = document.createElement('div');
+  tabs.className = 'menu-tabs';
+  tabs.setAttribute('role', 'tablist');
+  tabs.setAttribute('aria-label', ariaLabel);
+  items.forEach((item, i) => {
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.className = 'menu-tab';
+    tab.textContent = item.label;
+    tab.dataset.focus = 'tab-' + item.id;
+    tab.setAttribute('role', 'tab');
+    tab.setAttribute('aria-selected', item.id === activeId);
+    tab.tabIndex = item.id === activeId ? 0 : -1;   // one tab stop; the arrow keys move between the tabs
+    tab.addEventListener('click', () => onPick(item.id, tab.dataset.focus));
+    tab.addEventListener('keydown', (e) => {
+      const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (!step) return;
+      e.preventDefault();
+      tabs.children[(i + step + items.length) % items.length].click();   // arrow keys switch the tab
+    });
+    tabs.appendChild(tab);
+  });
+  return tabs;
+}
+
 // The tabs, the storm line and the rows of the active theme (ecoLayerId). focus = the data-focus of the control that keeps
 // the keyboard focus after the menu is drawn again.
 function renderMapMenu(focus) {
@@ -394,29 +423,7 @@ function renderMapMenu(focus) {
   const layer = menuLayer(group.id);
 
   // the tabs: one per theme; a tab shows the map last used in that theme (the first one the first time)
-  const tabs = document.createElement('div');
-  tabs.className = 'menu-tabs';
-  tabs.setAttribute('role', 'tablist');
-  tabs.setAttribute('aria-label', CONTENT.ecosystem.texts.menuTitle);
-  groups.forEach((g) => {
-    const tab = document.createElement('button');
-    tab.type = 'button';
-    tab.className = 'menu-tab';
-    tab.textContent = g.label;
-    tab.dataset.focus = 'tab-' + g.id;
-    tab.setAttribute('role', 'tab');
-    tab.setAttribute('aria-selected', g.id === group.id);
-    tab.tabIndex = g.id === group.id ? 0 : -1;   // one tab stop; the arrow keys move between the tabs
-    tab.addEventListener('click', () => selectMap(g.id, ecoViewIds[g.id] || g.items[0].view, tab.dataset.focus));
-    tab.addEventListener('keydown', (e) => {
-      const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
-      if (!step) return;
-      e.preventDefault();
-      tabs.children[(groups.indexOf(g) + step + groups.length) % groups.length].click();   // arrow keys switch the tab
-    });
-    tabs.appendChild(tab);
-  });
-  box.appendChild(tabs);
+  box.appendChild(buildMenuTabs(groups, group.id, (id, focus) => selectMap(id, ecoViewIds[id] || groups.find((g) => g.id === id).items[0].view, focus), CONTENT.ecosystem.texts.menuTitle));
 
   // the storm choice: one line under the tabs; it applies to all maps of the theme
   if (group.storm) {

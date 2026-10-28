@@ -1,25 +1,17 @@
 /* stakeholders.css: the Stakeholder screen (stakeholders.js).
-   Per theme: a map card (60 %, stays in view while the page scrolls) and a list card (40 %). The map itself uses the map classes of
-   ecosystem.css (.map-frame, .geo-map, .map-buttons, the black and white base map); this file only adds what is specific to the
-   stakeholder maps and list. Colors: css/base.css (--color-stakeholder-...). stakeholders.js sets two variables on the elements
-   that show a class: --c = the class color, and on a number marker --fill (its fill) and --ink (its text color).
-   Loaded before ecosystem.css, so the rules that change a .geo-map use two classes (.sh-map.geo-map). */
+   The map card (the map itself uses the map classes of ecosystem.css: .map-frame, .geo-map, .map-buttons, the black and white base
+   map), the Time card (timeline) and the area panel; the theme menu uses the Maps menu classes of ecosystem.css (.menu-tabs).
+   Colors: css/base.css (--color-stakeholder-...). stakeholders.js sets two variables on the elements that show a class:
+   --c = the class color, and on a number marker --fill (its fill) and --ink (its text color). */
 
-/* one theme = one part of the page: 60 % map card | 40 % list card; the columns are as tall as the list, so the map card can stay in view */
-[data-screen="stakeholders"] .research-grid { grid-template-columns: 3fr 2fr; align-items: stretch; }
-/* (not ">": the card sits in a slot wrapper, which has no box of its own) */
-[data-screen="stakeholders"] .col:first-child .sh-map-card { position: sticky; top: 56px; }   /* 56 px = under the section navigation */
-
-/* map card: map, legend under it (inside the card) */
-.sh-map-card { display: flex; flex-direction: column; gap: 12px; height: 560px; padding: var(--space-2); }
-.sh-map-frame { flex: 1 1 auto; min-height: 0; }
-.sh-map.geo-map { height: 100%; aspect-ratio: auto; }
-.sh-legend { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+/* map card: the legend under the map */
+.sh-legend { display: flex; flex-wrap: wrap; gap: 6px 20px; padding-top: 12px; }
+.sh-legend:empty { display: none; }
 .sh-legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: var(--font-size-small); color: var(--color-text-body); }
 /* a swatch looks like an area on the map: class color at 25 %, thin dashed outline */
 .sh-swatch { width: 18px; height: 12px; border-radius: 3px; border: 1.5px dashed var(--c); background: color-mix(in srgb, var(--c) 25%, transparent); flex-shrink: 0; }
 
-/* the number marker (map and list): outline in the class color, white fill (Condition: grey when the cause is natural) */
+/* the number marker on the map: outline in the class color, white fill (Condition: grey when the cause is natural) */
 .sh-badge { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-width: 26px; height: 26px; padding: 0 4px; border-radius: 13px; border: 2px solid var(--c); background: var(--fill, var(--color-surface)); color: var(--ink, var(--color-text)); font-size: var(--font-size-small); font-weight: 600; line-height: 1; flex-shrink: 0; }
 .sh-badge-small { min-width: 14px; width: 14px; height: 14px; padding: 0; border-width: 1.5px; }
 /* on the map the marker is a Leaflet icon; Leaflet moves the icon itself, so the highlight is on the badge inside it */
@@ -28,37 +20,118 @@
 .sh-marker.is-hover .sh-badge { transform: scale(1.12); }
 .sh-marker.is-open .sh-badge { border-width: 3px; transform: scale(1.12); }
 
-/* list card: one row per area; one area is open at a time (the page scrolls, there is no scroll box inside the card) */
-.sh-list-card { padding: var(--space-2); }
-.sh-list { display: flex; flex-direction: column; }
-.sh-item { border-top: 1px solid var(--color-divider); scroll-margin-top: 64px; }
-.sh-item:first-child { border-top: 0; }
-.sh-row { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; width: 100%; padding: 12px 8px; border: 0; border-radius: var(--radius-control); background: transparent; text-align: left; font: inherit; color: inherit; }
-.sh-item.hover > .sh-row, .sh-row:hover { background: var(--color-surface-subtle); }
-.sh-item.open > .sh-row { background: color-mix(in srgb, var(--c) 12%, var(--color-surface)); }
-.sh-row:focus-visible { outline: 2px solid var(--color-accent); outline-offset: -2px; }
-.sh-row-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.sh-zone { font-size: var(--font-size-body); font-weight: 600; color: var(--color-text); }
-.sh-summary { font-size: var(--font-size-small); color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* one line */
-.sh-chevron { width: 7px; height: 7px; border-right: 2px solid var(--color-text-muted); border-bottom: 2px solid var(--color-text-muted); transform: rotate(45deg); transition: transform 0.15s; }
-.sh-item.open .sh-chevron { transform: rotate(-135deg); }
-.sh-placeholder { color: var(--color-text-faint); font-weight: 400; }
+/* Time card, top row (Figma year-filter): All years button, year display, back / forward */
+#sh-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+#sh-all-years { border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text-body); border-radius: var(--radius-control); padding: 7px 12px; font-size: var(--font-size-body); font-weight: 600; flex-shrink: 0; }
+#sh-all-years.on { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-text-on-accent); }
+#sh-year-big { font-family: var(--font-heading); font-weight: 600; letter-spacing: var(--letter-spacing-title); font-size: var(--font-size-section); line-height: 1.1; color: var(--color-text); white-space: nowrap; }
 
-/* the details of an open area: small label + value, then what stakeholders said */
-.sh-details { display: flex; flex-direction: column; gap: 16px; margin: 6px 8px 14px 20px; padding-left: 14px; border-left: 3px solid var(--c); }
-.sh-fields { display: flex; flex-direction: column; gap: 10px; }
-.sh-field, .sh-quotes { display: flex; flex-direction: column; gap: 2px; }
-.sh-quotes { gap: 10px; }
-.sh-field-label { font-size: var(--font-size-small); font-weight: 600; text-transform: uppercase; letter-spacing: var(--letter-spacing-label); color: var(--color-text-muted); }
-.sh-field-value { font-size: var(--font-size-body); line-height: 1.45; color: var(--color-text-body); }
+/* The track and the observation rows share one scale: both start 28px from the left (after the
+   column with the area numbers) and end 8px from the right. Everything on the scale is placed in
+   percent, so a year on a bar lines up with the same year on the track at every screen width. */
+#sh-time { position: relative; }
+#sh-track { position: relative; height: 30px; margin: 0 8px 10px 28px; }
+#sh-track-line { position: absolute; left: 0; right: 0; top: 5px; height: 4px; border-radius: 2px; background: var(--color-data-slider); }
+.sh-tick { position: absolute; top: 12px; width: 1px; height: 4px; background: var(--color-border); }
+.sh-year-label { position: absolute; top: 17px; transform: translateX(-50%); font-size: var(--font-size-small); color: var(--color-text-muted); }
+/* the handle (Figma year-handle): a native slider with only its round thumb visible. It is 7px wider
+   on both sides, so the middle of the 14px thumb reaches exactly the first and the last year. */
+#sh-slider { position: absolute; left: -7px; top: 0; width: calc(100% + 14px); height: 14px; margin: 0; background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer; z-index: 2; }
+#sh-slider::-webkit-slider-runnable-track { height: 14px; background: transparent; }
+#sh-slider::-moz-range-track { height: 14px; background: transparent; }
+#sh-slider::-webkit-slider-thumb { -webkit-appearance: none; box-sizing: border-box; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--color-surface); background: var(--color-data-slider); }
+#sh-slider::-moz-range-thumb { box-sizing: border-box; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--color-surface); background: var(--color-data-slider); }
+/* the line from the handle down through all rows */
+#sh-handle { position: absolute; left: 28px; right: 8px; top: 7px; bottom: 0; pointer-events: none; }
+#sh-handle-line { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--color-data-slider); }
+/* All years: the handle and its line are dimmed */
+#sh-time.all-years #sh-slider, #sh-time.all-years #sh-handle-line { opacity: 0.3; }
+
+/* one row per observation: area number on the left, bar on the scale (Figma observation-bar) */
+.sh-row { position: relative; height: 14px; --c-tint: color-mix(in srgb, var(--c) 18%, var(--color-surface)); }   /* --c: the class color, set by stakeholders.js */
+.sh-row-number { position: absolute; left: 0; width: 22px; text-align: center; font-size: var(--font-size-small); font-weight: 600; line-height: 14px; color: var(--color-text-muted); }
+.sh-row.selected .sh-row-number { color: var(--color-text); }
+.sh-row.dimmed .sh-row-number { opacity: 0.35; }
+.sh-row-scale { position: relative; height: 100%; margin: 0 8px 0 28px; }
+.sh-bar { position: absolute; top: 0; height: 14px; min-width: 4px; padding: 0; border: none; background: transparent; display: flex; align-items: center; }
+.sh-bar:hover, .sh-bar:focus-visible { z-index: 5; }
+/* the drawn bar: 6px thick, 9px when its area is selected, 25% when not in the selected year */
+.sh-bar-shape { display: flex; align-items: center; width: 100%; }
+.sh-bar-shape i { display: block; width: 100%; height: 6px; background: var(--c); }
+.sh-row.selected .sh-bar-shape i { height: 9px; }
+.sh-row.dimmed .sh-bar-shape { opacity: 0.25; }
+/* exact: solid bar with clear ends */
+.sh-bar-shape.exact i { border-radius: 1px; }
+.sh-row.selected .sh-bar-shape.exact i { box-shadow: 0 0 0 1.25px var(--color-text); }
+/* approximate: the ends fade out */
+.sh-bar-shape.approximate i { -webkit-mask-image: linear-gradient(to right, transparent, #000 22%, #000 78%, transparent); mask-image: linear-gradient(to right, transparent, #000 22%, #000 78%, transparent); }
+/* ongoing: the bar ends in an arrow at today */
+.sh-bar-shape.ongoing i { height: 10px; clip-path: polygon(0 2px, calc(100% - 8px) 2px, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, calc(100% - 8px) calc(100% - 2px), 0 calc(100% - 2px)); }
+.sh-row.selected .sh-bar-shape.ongoing i { height: 13px; clip-path: polygon(0 2px, calc(100% - 10px) 2px, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, calc(100% - 10px) calc(100% - 2px), 0 calc(100% - 2px)); }
+.sh-row.selected .sh-bar-shape.ongoing { filter: drop-shadow(1px 0 0 var(--color-text)) drop-shadow(-1px 0 0 var(--color-text)) drop-shadow(0 1px 0 var(--color-text)) drop-shadow(0 -1px 0 var(--color-text)); }
+/* expected: light tint with a dashed outline */
+.sh-bar-shape.expected i { background: var(--c-tint); border: 1.5px dashed var(--c); border-radius: 2px; }
+.sh-row.selected .sh-bar-shape.expected i { border-width: 2px; }
+/* hover text of a bar: zone name, years and class */
+.sh-tooltip {
+  display: none;
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 6px);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-divider);
+  background: var(--color-surface);
+  box-shadow: none;
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.sh-tooltip.flip { left: auto; right: 0; }
+.sh-tooltip b { font-size: var(--font-size-body); font-weight: 600; color: var(--color-text); }
+.sh-tooltip .lg { margin-bottom: 0; }
+.sh-bar:hover .sh-tooltip, .sh-bar:focus-visible .sh-tooltip { display: flex; }
+/* legend of the four bar styles (Figma certainty-legend), in a neutral grey */
+#sh-certainty-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; padding: 4px 0 0 28px; font-size: var(--font-size-small); color: var(--color-text-muted); --c: var(--color-text-muted); --c-tint: var(--color-surface-subtle); }
+.sh-certainty { display: flex; align-items: center; gap: 6px; }
+.sh-sample { width: 26px; display: flex; }
+
+/* hovering a row (or its area on the map) */
+.sh-row.hover .sh-row-number { color: var(--color-text); }
+.sh-row.hover .sh-bar-shape i { height: 8px; }
+
+/* area panel */
+#sh-panel-empty { min-height: 240px; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
+#sh-panel-empty-text { text-align: center; font-size: var(--font-size-body); color: var(--color-text-faint); }
+#sh-panel-empty-text:only-child { padding: 40px 0; }
+#sh-panel-content { display: flex; flex-direction: column; gap: 12px; --c-tint: color-mix(in srgb, var(--c) 14%, var(--color-surface)); }
+.sh-placeholder { color: var(--color-text-faint); font-weight: 400; }
+/* header (Figma area-header): class tint behind it, class color as left border */
+.area-header { display: flex; flex-direction: column; gap: 10px; padding: 16px 18px 16px 20px; border-radius: var(--radius-card); border-left: 4px solid var(--c); background: var(--c-tint); }
+.area-number { font-size: var(--font-size-small); font-weight: 500; color: var(--color-text-muted); margin-bottom: 2px; }
+.area-zone { font-size: var(--font-size-body); font-weight: 700; color: var(--color-text); }
+.area-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; }
+.class-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--radius-control); background: var(--color-surface); font-size: var(--font-size-body); font-weight: 600; color: var(--color-text); }
+/* one observation: a box per column of the interview table (Figma observation-box) */
+.observation { display: flex; flex-direction: column; gap: 8px; }
+.observation-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.observation-box { display: flex; flex-direction: column; gap: 6px; min-width: 0; padding: 12px 14px 12px 16px; border-radius: var(--radius-card); border-left: 3px solid var(--c); background: var(--color-background); }
+.observation-title { font-size: var(--font-size-small); font-weight: 600; color: var(--color-text-muted); }
+.observation-text { font-size: var(--font-size-body); line-height: 1.4; color: var(--color-text-body); }
 .sh-quote { display: flex; flex-direction: column; gap: 2px; padding-left: 10px; border-left: 2px solid var(--color-divider); }
+.sh-quote + .sh-quote { margin-top: 6px; }
 .sh-quote-head { font-size: var(--font-size-small); color: var(--color-text-muted); }
 .sh-quote-head b { font-weight: 600; color: var(--color-text); }
-.sh-quote-text { font-size: var(--font-size-body); line-height: 1.45; color: var(--color-text-body); }
 
-/* Condition: the observation that belongs to no area on the map, as a short note above the list */
-.sh-note { display: flex; flex-direction: column; gap: 14px; margin-bottom: 12px; padding: 14px 16px; border-radius: var(--radius-card); background: var(--color-surface-subtle); }
+/* Condition: the observation that belongs to no area on the map, as a short note in the empty state of the panel */
+.sh-note { display: flex; flex-direction: column; gap: 14px; padding: 14px 16px; border-radius: var(--radius-card); background: var(--color-surface-subtle); }
+.sh-note-label, .sh-field-label { font-size: var(--font-size-small); font-weight: 600; text-transform: uppercase; letter-spacing: var(--letter-spacing-label); color: var(--color-text-muted); }
+.sh-fields, .sh-quotes { display: flex; flex-direction: column; gap: 10px; }
+.sh-field { display: flex; flex-direction: column; gap: 2px; }
+.sh-field-value { font-size: var(--font-size-body); line-height: 1.45; color: var(--color-text-body); }
 .sh-note-more > summary { cursor: pointer; font-size: var(--font-size-small); font-weight: 600; color: var(--color-accent); }
 .sh-note-more[open] > summary { margin-bottom: 12px; }
 .sh-note-more .sh-quotes { margin-top: 14px; }
-.sh-note-label { font-size: var(--font-size-small); font-weight: 600; text-transform: uppercase; letter-spacing: var(--letter-spacing-label); color: var(--color-text-muted); }

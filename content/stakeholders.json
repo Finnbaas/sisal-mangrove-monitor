@@ -1,5 +1,5 @@
 {
-  "_about": "The Stakeholder page (js/stakeholders.js): three themes with their areas on the base map. Texts come from the stakeholder interview tables in Figma (Playground page, sections 1. Extent, 2. Condition, 3. Disturbance and Recovery); the ellipses from the maps \"lck_*_map – basemap\". See content/README.md (\"stakeholders.json\") for the structure.",
+  "_about": "The Stakeholder page (js/stakeholders.js): one map, three themes with their areas on the base map. Texts come from the stakeholder interview tables in Figma (Playground page, sections 1. Extent, 2. Condition, 3. Disturbance and Recovery); the ellipses from the maps \"lck_*_map – basemap\". See content/README.md (\"stakeholders.json\") for the structure.",
   "quotesLabel": "In their words (paraphrase)",
   "themes": [
     {
@@ -42,9 +42,15 @@
           "label": "Attributed cause"
         }
       ],
-      "summary": [
-        "change",
-        "period"
+      "periodKey": "period",
+      "panel": [
+        [
+          "change",
+          "period"
+        ],
+        [
+          "attributedCause"
+        ]
       ]
     },
     {
@@ -104,9 +110,18 @@
           "values": "markerLegend"
         }
       ],
-      "summary": [
-        "signal",
-        "period"
+      "periodKey": "period",
+      "panel": [
+        [
+          "signal",
+          "period"
+        ],
+        [
+          "attributedCause"
+        ],
+        [
+          "causeType"
+        ]
       ],
       "notes": [
         {
@@ -171,11 +186,25 @@
         {
           "key": "recoveryMode",
           "label": "Recovery mode"
+        },
+        {
+          "key": "attributedCause",
+          "label": "Attributed cause"
         }
       ],
-      "summary": [
-        "disturbance",
-        "when"
+      "periodKey": "when",
+      "panel": [
+        [
+          "disturbance",
+          "when"
+        ],
+        [
+          "recovery",
+          "recoveryMode"
+        ],
+        [
+          "attributedCause"
+        ]
       ]
     }
   ],
@@ -203,7 +232,11 @@
           "type": "Academic",
           "text": "because of local road construction this area totally dried up."
         }
-      ]
+      ],
+      "startYear": 1996,
+      "endYear": 1996,
+      "ongoing": false,
+      "certainty": "exact"
     },
     {
       "number": "2",
@@ -233,7 +266,11 @@
           "type": "Conservation NGO",
           "text": "residents keep filling land and moving further into the mangrove, even though building on water makes them vulnerable to flooding."
         }
-      ]
+      ],
+      "startYear": 1996,
+      "endYear": null,
+      "ongoing": true,
+      "certainty": "approximate"
     },
     {
       "number": "3",
@@ -258,7 +295,11 @@
           "type": "Conservation NGO",
           "text": "you can't see it from the street, but people from the community cut tall mangrove there, fill the land and sell the lots; in her view this is where the mangrove is currently hit hardest."
         }
-      ]
+      ],
+      "startYear": 2021,
+      "endYear": null,
+      "ongoing": true,
+      "certainty": "approximate"
     },
     {
       "number": "4",
@@ -293,7 +334,11 @@
           "type": "Conservation NGO",
           "text": "since Sisal was announced as Pueblo Mágico, investors in luxury hotels have arrived, fragmenting the dune."
         }
-      ]
+      ],
+      "startYear": 2020,
+      "endYear": null,
+      "ongoing": true,
+      "certainty": "approximate"
     },
     {
       "number": "5a",
@@ -318,7 +363,11 @@
           "type": "Conservation NGO",
           "text": "for a very large hotel, mangrove was cleared and the dune damaged; a protected plant species had to be relocated."
         }
-      ]
+      ],
+      "startYear": 2021,
+      "endYear": null,
+      "ongoing": true,
+      "certainty": "approximate"
     },
     {
       "number": "5b",
@@ -353,7 +402,11 @@
           "type": "Eco-tourism",
           "text": "marked this area on his sketch map."
         }
-      ]
+      ],
+      "startYear": 2021,
+      "endYear": null,
+      "ongoing": true,
+      "certainty": "expected"
     },
     {
       "number": "6",
@@ -378,7 +431,11 @@
           "type": "Community restoration group",
           "text": "where she used to collect firewood until recently, the land is now divided into lots, less than 100 m from mangrove water, which she expects will be filled in too."
         }
-      ]
+      ],
+      "startYear": 2025,
+      "endYear": 2026,
+      "ongoing": false,
+      "certainty": "expected"
     },
     {
       "number": "7",
@@ -410,7 +467,11 @@
           "type": "Community restoration group",
           "text": "this one was in 1998, at the location Tzintzin."
         }
-      ]
+      ],
+      "startYear": 1998,
+      "endYear": 1998,
+      "ongoing": false,
+      "certainty": "exact"
     },
     {
       "number": "8",
@@ -442,7 +503,11 @@
           "type": "Community restoration group",
           "text": "These are from 1999, at the location Carbonera."
         }
-      ]
+      ],
+      "startYear": 1999,
+      "endYear": 1999,
+      "ongoing": false,
+      "certainty": "exact"
     },
     {
       "number": "9",
@@ -467,7 +532,11 @@
           "type": "Community restoration group",
           "text": "I’m not sure about this one, but 1998 or 1999."
         }
-      ]
+      ],
+      "startYear": 1998,
+      "endYear": 1999,
+      "ongoing": false,
+      "certainty": "approximate"
     },
     {
       "number": "10",
@@ -492,7 +561,11 @@
           "type": "Community restoration group",
           "text": "Here after 2000, on both sides of the road between Hunucma and Sisal."
         }
-      ]
+      ],
+      "startYear": 2000,
+      "endYear": 2000,
+      "ongoing": false,
+      "certainty": "exact"
     },
     {
       "number": "11",
@@ -524,7 +597,11 @@
           "type": "Community restoration group",
           "text": "Canals and planting of seedlings, 3 years ago."
         }
-      ]
+      ],
+      "startYear": 2023,
+      "endYear": 2023,
+      "ongoing": false,
+      "certainty": "exact"
     },
     {
       "number": "2",
@@ -550,7 +627,11 @@
           "type": "Community restoration group",
           "text": "as the water became very salty after Hurricane Gilbert created a lot of breaches, the mangrove began to die, and pests spread through the weakened trees, as in an epidemic."
         }
-      ]
+      ],
+      "startYear": 1988,
+      "endYear": 1990,
+      "ongoing": false,
+      "certainty": "exact"
     },
     {
       "number": "3",
@@ -581,7 +662,11 @@
           "type": "",
           "text": "a barrier built near Chuburná (neighbouring town) stopped the water flowing in, and the shrimp never came back."
         }
-      ]
+      ],
+      "startYear": 1980,
+      "endYear": null,
+      "ongoing": true,
+      "certainty": "approximate"
     },
     {
       "number": "4",
@@ -607,7 +692,11 @@
           "type": "Eco-tourism",
           "text": "birds that used to be easy to find on the dune disappeared once people started building this large hotel and because of increased boat traffic from foreign (Canadian) landowners whose property now borders the mangrove."
         }
-      ]
+      ],
+      "startYear": 2023,
+      "endYear": 2026,
+      "ongoing": false,
+      "certainty": "approximate"
     },
     {
       "number": "5",
@@ -650,7 +739,11 @@
           "type": "Government",
           "text": "Sisal in particular faces other challenges, such as solid waste management; sometimes this waste ends up in illegal dumps in the mangrove zone."
         }
-      ]
+      ],
+      "startYear": 2021,
+      "endYear": null,
+      "ongoing": true,
+      "certainty": "approximate"
     },
     {
       "number": "6",
@@ -676,7 +769,11 @@
           "type": "Conservation NGO",
           "text": "last year's red tide carried a lot of nitrogen, likely from hotel and farm waste; for a month there was no tourism or fishing."
         }
-      ]
+      ],
+      "startYear": 2025,
+      "endYear": 2025,
+      "ongoing": false,
+      "certainty": "exact"
     },
     {
       "number": "7",
@@ -702,7 +799,11 @@
           "type": "Conservation NGO",
           "text": "hotels treat their waste in tanks, but in a flood zone with rising water these could leak into the very permeable ground next to the mangroves."
         }
-      ]
+      ],
+      "startYear": 2021,
+      "endYear": null,
+      "ongoing": true,
+      "certainty": "expected"
     },
     {
       "number": "8",
@@ -728,7 +829,11 @@
           "type": "Community restoration group",
           "text": "sites that can handle about ten visitors a day now receive up to 200, often swimming with sunscreen which is very polluting for mangrove water quality. \"nature tourism\" visitors often have no idea what the ecosystem actually contains and what part people do take within them."
         }
-      ]
+      ],
+      "startYear": 2021,
+      "endYear": 2026,
+      "ongoing": false,
+      "certainty": "approximate"
     },
     {
       "number": "9",
@@ -754,7 +859,11 @@
           "type": "Eco-tourism",
           "text": "he describes people without legitimate claims \"stealing\" land, clearing vegetation, and then selling it on to Canadian buyers."
         }
-      ]
+      ],
+      "startYear": 2021,
+      "endYear": 2026,
+      "ongoing": false,
+      "certainty": "approximate"
     },
     {
       "number": "10",
@@ -780,7 +889,11 @@
           "type": "Community restoration group",
           "text": "whatever happens inland, such as pig and poultry farms, eventually ends up here."
         }
-      ]
+      ],
+      "startYear": 2016,
+      "endYear": 2026,
+      "ongoing": false,
+      "certainty": "approximate"
     },
     {
       "number": "11",
@@ -806,7 +919,11 @@
           "type": "Academic",
           "text": "Inland, new suburbs are being built between Hunucma and Sisal. These constructions will not only block inland water to reach the Sisal mangroves, but will also increase touristic pressure on them."
         }
-      ]
+      ],
+      "startYear": 2021,
+      "endYear": 2026,
+      "ongoing": false,
+      "certainty": "approximate"
     },
     {
       "number": "1",
@@ -842,7 +959,11 @@
           "type": "Eco-tourism",
           "text": "Some of the channels the hurricane opened never closed, like \"la bocana la carbonera”."
         }
-      ]
+      ],
+      "startYear": 1988,
+      "endYear": 1988,
+      "ongoing": false,
+      "certainty": "exact"
     },
     {
       "number": "2",
@@ -868,7 +989,11 @@
           "type": "Academic",
           "text": "in northern Yucatán, roads and harbours that block water flow are the main cause of mangrove degradation. The construction of the road from Hunucma to Sisal blocked waterflow and caused the death of this large area. Huricanne Gilbert amplified this die-off. In the past years we have restored a part of this area."
         }
-      ]
+      ],
+      "startYear": 1988,
+      "endYear": 1988,
+      "ongoing": false,
+      "certainty": "exact"
     },
     {
       "number": "3",
@@ -904,7 +1029,11 @@
           "type": "Eco-tourism",
           "text": "seawater mixed with the mangrove water, the salt killed the trees, and those zones are still bare today."
         }
-      ]
+      ],
+      "startYear": 1988,
+      "endYear": 1990,
+      "ongoing": false,
+      "certainty": "exact"
     },
     {
       "number": "4",
@@ -930,7 +1059,11 @@
           "type": "Academic",
           "text": "in northern Yucatán, roads and harbours that block water flow are the main cause of mangrove degradation. The construction of the road from Hunucma to Sisal blocked waterflow and caused the death of this large area. Huricanne Gilbert amplified this die-off. In the past years we have restored a part of this area."
         }
-      ]
+      ],
+      "startYear": 1988,
+      "endYear": 1988,
+      "ongoing": false,
+      "certainty": "exact"
     },
     {
       "number": "5",
@@ -976,7 +1109,11 @@
           "type": "Government",
           "text": "due to heavy rainfall the groundwater rose and the mangrove zones were flooded for five to six months."
         }
-      ]
+      ],
+      "startYear": 2020,
+      "endYear": 2020,
+      "ongoing": false,
+      "certainty": "exact"
     }
   ]
 }

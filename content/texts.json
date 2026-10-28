@@ -275,7 +275,17 @@
   },
 
   "stakeholders": {
+    "menuTitle": "Themes",
+    "panelTitle": "Area details",
+    "emptyPanel": "Click an area on the map",
     "areaLabel": "Area {number}",
+    "noAreasInYear": "No areas in {year}",
+    "allYears": "All years",
+    "showing": "Showing",
+    "certaintyExact": "Exact",
+    "certaintyApproximate": "Approximate",
+    "certaintyOngoing": "Ongoing",
+    "certaintyExpected": "Expected",
     "noteLabel": "Not shown on the map",
     "noteMore": "More details"
   },

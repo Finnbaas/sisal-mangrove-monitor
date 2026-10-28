@@ -49,22 +49,16 @@ function showPart(screenEl) {
   return shown;
 }
 
-// What an address scrolls to: its part, or, when the address goes on after the part (#stakeholders/extent/5a), the element
-// inside the part with data-address="5a" (a row of the Stakeholder list).
-function addressTarget(part, item) {
-  return (item && part.querySelector('[data-address="' + CSS.escape(item) + '"]')) || part;
-}
-
 // On a page with parts below each other, an address with a part (#satellite/ndvi) scrolls to that part.
 // Returns true when it scrolled.
 function scrollToPart() {
-  const [screen, partId, item] = location.hash.slice(1).split('/');
+  const [screen, partId] = location.hash.slice(1).split('/');
   if (!partId || screen === 'method') return false;
   const screenEl = document.querySelector('[data-screen="' + screen + '"]');
   if (!screenEl || screenEl.classList.contains('parts-as-tabs')) return false;
   const part = screenEl.querySelector('.research-part[data-part="' + partId + '"]');
   if (!part) return false;
-  addressTarget(part, item).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  part.scrollIntoView({ behavior: 'smooth', block: 'start' });
   return true;
 }
 
@@ -72,13 +66,13 @@ function scrollToPart() {
 // are still loading, so the parts above it grow afterwards and push it down. So the page jumps to the part again
 // every time the page changes size, until the visitor scrolls, clicks or types (or after 10 seconds).
 function scrollToPartWhileLoading() {
-  const [screen, partId, item] = location.hash.slice(1).split('/');
+  const [screen, partId] = location.hash.slice(1).split('/');
   const screenEl = screen && partId ? document.querySelector('[data-screen="' + screen + '"]') : null;
   if (!screenEl || screenEl.classList.contains('parts-as-tabs')) return;
   const part = screenEl.querySelector('.research-part[data-part="' + partId + '"]');
   if (!part) return;
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';   // a reload does not restore the old position
-  const jump = () => addressTarget(part, item).scrollIntoView({ block: 'start' });
+  const jump = () => part.scrollIntoView({ block: 'start' });
   const observer = new ResizeObserver(jump);
   observer.observe(screenEl);
   const stop = () => {
