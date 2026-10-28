@@ -224,6 +224,8 @@
 
         <!-- Mangrove maps: the map with the layer switch, legend strip and opacity slider -->
         <div class="card" data-card="eco-map">
+          <!-- the menu to choose the map, above the map it controls (ecosystem.js: renderMapMenu, content/ecosystem.json "mapMenu") -->
+          <div id="eco-map-menu" class="map-menu"></div>
           <div class="card-title-row"><div class="card-title"><span id="eco-map-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div><div class="expand">&#8599;</div></div>
           <!-- a short label above the map, e.g. the storm of the acute views (layers.json "mapLabel") -->
           <p id="eco-map-label" class="fine" hidden></p>
@@ -246,11 +248,6 @@
           </div>
           <div class="card-actions card-actions-footer"><a id="eco-maps-link" class="eco-link"></a></div>
           <p class="fine" id="eco-map-status"></p>
-        </div>
-
-        <!-- Maps: the menu to choose the map (ecosystem.js: renderMapMenu, content/ecosystem.json "mapMenu") -->
-        <div class="card" data-card="eco-menu">
-          <div id="eco-map-menu" class="map-menu"></div>
         </div>
 
         <div class="card" data-card="eco-about">

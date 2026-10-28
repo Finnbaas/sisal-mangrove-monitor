@@ -413,7 +413,7 @@ function menuSegment(label, items, activeId, focusKey, onPick) {
   return seg;
 }
 
-// The tabs of a menu card (the Maps menu here, the theme menu of the Stakeholder page): one button per item { id, label },
+// The theme tabs at the top of a map card (the Maps menu here, the theme tabs of the Stakeholder page): one button per item { id, label },
 // the active one marked. onPick(id, focus) is called when a tab is clicked or reached with the arrow keys; focus = the
 // data-focus of the tab, which keeps the keyboard focus when the menu is drawn again. Styles: .menu-tabs, .menu-tab (ecosystem.css).
 function buildMenuTabs(items, activeId, onPick, ariaLabel) {
@@ -442,8 +442,9 @@ function buildMenuTabs(items, activeId, onPick, ariaLabel) {
   return tabs;
 }
 
-// The tabs, the storm line and the rows of the active theme (ecoLayerId). focus = the data-focus of the control that keeps
-// the keyboard focus after the menu is drawn again.
+// The menu at the top of the map card. Row 1: the theme tabs. Row 2: the maps of the active theme as small tabs, with at the end
+// the variant switch of the selected map (for Disturbance & recovery the storm choice, which applies to all maps of the theme).
+// focus = the data-focus of the control that keeps the keyboard focus after the menu is drawn again.
 function renderMapMenu(focus) {
   const box = $('eco-map-menu');
   box.innerHTML = '';
@@ -451,45 +452,33 @@ function renderMapMenu(focus) {
   const group = groups.find((g) => g.id === ecoLayerId);
   const layer = menuLayer(group.id);
 
-  // the tabs: one per theme; a tab shows the map last used in that theme (the first one the first time)
+  // row 1, the tabs: one per theme; a tab shows the map last used in that theme (the first one the first time)
   box.appendChild(buildMenuTabs(groups, group.id, (id, focus) => selectMap(id, ecoViewIds[id] || groups.find((g) => g.id === id).items[0].view, focus), CONTENT.ecosystem.texts.menuTitle));
 
-  // the storm choice: one line under the tabs; it applies to all maps of the theme
-  if (group.storm) {
-    const stormView = layer.views.find((v) => v.id === group.storm.view);
-    const storm = menuSegment(group.storm.label + ':', variantsOf(stormView), chosenVariantId(layer, stormView), 'storm', (id, key) => {
-      ecoVariantIds[variantKey(layer, stormView)] = id;
-      // a map that does not exist for this storm (Acute wetness for Opal): back to the first map of the theme
-      const current = layer.views.find((v) => v.id === (ecoViewIds[layer.id] || layer.views[0].id));
-      if (viewUnavailable(layer, current)) ecoViewIds[layer.id] = layer.views[0].id;
-      refreshMap(key);
-    });
-    storm.classList.add('menu-storm');
-    box.appendChild(storm);
-  }
-
-  // the maps of the theme: one radio group
+  // row 2: the maps of the theme: one radio group
+  const maps = document.createElement('div');
+  maps.className = 'menu-maps';
   const list = document.createElement('div');
-  list.className = 'menu-rows';
+  list.className = 'menu-map-list';
   list.setAttribute('role', 'radiogroup');
   list.setAttribute('aria-label', group.label);
   const rows = [];   // for the arrow keys
   const currentViewId = ecoViewIds[layer.id] || layer.views[0].id;
+  let selectedView = null;
   group.items.forEach((item) => {
     const view = menuView(group, item);
     const selected = view.id === currentViewId;
+    if (selected) selectedView = view;
     const unavailable = viewUnavailable(layer, view);
-    const line = document.createElement('div');
-    line.className = 'menu-item' + (selected ? ' selected' : '') + (unavailable ? ' disabled' : '');
     const row = document.createElement('button');
     row.type = 'button';
-    row.className = 'menu-row';
+    row.className = 'menu-map' + (selected ? ' selected' : '');
     row.textContent = item.label;
     row.dataset.focus = 'row-' + group.id + '-' + item.view;
     row.setAttribute('role', 'radio');
     row.setAttribute('aria-checked', selected);
     row.tabIndex = selected ? 0 : -1;   // one tab stop for the group; the arrow keys move inside it
-    if (unavailable) { row.disabled = true; row.title = unavailable; line.title = unavailable; }   // greyed out with the reason as tooltip
+    if (unavailable) { row.disabled = true; row.title = unavailable; }   // greyed out with the reason as tooltip
     row.addEventListener('click', () => selectMap(group.id, item.view, row.dataset.focus));
     row.addEventListener('keydown', (e) => {
       const step = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : e.key === 'ArrowUp' || e.key === 'ArrowLeft' ? -1 : 0;
@@ -499,18 +488,30 @@ function renderMapMenu(focus) {
       enabled[(enabled.indexOf(row) + step + enabled.length) % enabled.length].click();   // arrow keys select, like a native radio group
     });
     rows.push(row);
-    line.appendChild(row);
-    // the variants of the selected map, on its line, right-aligned (they wrap under the name when they do not fit)
-    const variants = selected && !group.storm ? variantsOf(view) : null;
+    list.appendChild(row);
+  });
+  maps.appendChild(list);
+
+  // at the end of row 2: the storm choice (whole theme), or the variants of the selected map
+  if (group.storm) {
+    const stormView = layer.views.find((v) => v.id === group.storm.view);
+    maps.appendChild(menuSegment(group.storm.label + ':', variantsOf(stormView), chosenVariantId(layer, stormView), 'storm', (id, key) => {
+      ecoVariantIds[variantKey(layer, stormView)] = id;
+      // a map that does not exist for this storm (Acute wetness for Opal): back to the first map of the theme
+      const current = layer.views.find((v) => v.id === (ecoViewIds[layer.id] || layer.views[0].id));
+      if (viewUnavailable(layer, current)) ecoViewIds[layer.id] = layer.views[0].id;
+      refreshMap(key);
+    }));
+  } else {
+    const variants = selectedView && variantsOf(selectedView);
     if (variants) {
-      line.appendChild(menuSegment('', variants, chosenVariantId(layer, view), 'variant', (id, key) => {
-        ecoVariantIds[variantKey(layer, view)] = id;
+      maps.appendChild(menuSegment('', variants, chosenVariantId(layer, selectedView), 'variant', (id, key) => {
+        ecoVariantIds[variantKey(layer, selectedView)] = id;
         refreshMap(key);
       }));
     }
-    list.appendChild(line);
-  });
-  box.appendChild(list);
+  }
+  box.appendChild(maps);
 
   if (focus) {
     const target = [...box.querySelectorAll('[data-focus]')].find((el) => el.dataset.focus === focus);

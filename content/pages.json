@@ -11,7 +11,7 @@
           "id": "maps",
           "title": "Mangrove maps",
           "intro": "Condition of the whole mangrove area as a map, with three layers.",
-          "columns": [["eco-map", "eco-source"], ["eco-menu", "eco-about", "eco-chart"]]
+          "columns": [["eco-map", "eco-source"], ["eco-about", "eco-chart"]]
         },
         {
           "id": "ndvi",

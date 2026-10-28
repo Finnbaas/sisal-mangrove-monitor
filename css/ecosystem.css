@@ -59,35 +59,24 @@
 .opacity-row input[type="range"] { flex: 1; min-width: 0; accent-color: var(--color-data-slider); }
 .opacity-value { min-width: 40px; text-align: right; font-size: var(--font-size-body); font-weight: 700; }
 
-/* the Maps menu (compact): tabs per theme, the storm line, one radio row per map of the active theme; the variants sit
-   on the line of the selected row */
-.map-menu { display: flex; flex-direction: column; gap: 6px; }
-.menu-tabs { display: flex; gap: 2px; padding: 2px; border-radius: var(--radius-control); background: var(--color-surface-subtle); }
-.menu-tab { flex: 1 1 auto; padding: 5px 8px; border-radius: var(--radius-control); border: 0; background: transparent; font-size: var(--font-size-small); font-weight: 500; color: var(--color-text); cursor: pointer; white-space: nowrap; }
+/* the Maps menu at the top of the map card: row 1 the theme tabs (segmented, only as wide as the tabs), row 2 the maps of the
+   active theme as small text tabs with the variant switch at the end of the row */
+.map-menu { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.menu-tabs { display: flex; gap: 2px; padding: 2px; width: fit-content; border-radius: var(--radius-control); background: var(--color-surface-subtle); }
+.menu-tab { flex: 0 0 auto; padding: 5px 14px; border-radius: var(--radius-control); border: 0; background: transparent; font-size: var(--font-size-small); font-weight: 500; color: var(--color-text); cursor: pointer; white-space: nowrap; }
 .menu-tab:hover:not([aria-selected="true"]) { background: var(--color-divider); }
 .menu-tab[aria-selected="true"] { background: var(--color-surface); color: var(--color-accent); font-weight: 600; box-shadow: inset 0 0 0 1px var(--color-accent); }
-.menu-rows { display: flex; flex-direction: column; gap: 1px; }
-.menu-item { display: flex; flex-wrap: wrap; align-items: center; column-gap: 8px; min-height: 28px; padding: 0 4px 0 0; border-radius: var(--radius-control); color: var(--color-text); }
-.menu-item:not(.selected):not(.disabled):hover { background: var(--color-surface-subtle); }
-.menu-item.selected { background: var(--color-accent-tint); color: var(--color-accent); }
-.menu-item.disabled { opacity: 0.45; }
-.menu-row { flex: 1 1 auto; text-align: left; padding: 4px 10px; border: 0; background: transparent; font-size: var(--font-size-body); font-weight: 500; line-height: 20px; color: inherit; cursor: pointer; }
-.menu-item.selected .menu-row { font-weight: 600; }
-.menu-row:disabled { cursor: not-allowed; }
-.menu-row:focus-visible, .menu-seg-btn:focus-visible, .menu-tab:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
-/* the selected row is a light tint: the outline stays inside the row */
-.menu-item.selected .menu-row:focus-visible, .menu-item.selected .menu-seg-btn:focus-visible { outline-offset: -2px; }
-.menu-seg { display: flex; align-items: center; gap: 2px; padding: 2px; border-radius: var(--radius-control); background: var(--color-surface-subtle); }
+.menu-maps { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: nowrap; }
+.menu-map-list { display: flex; gap: 2px; min-width: 0; }
+.menu-map { padding: 3px 10px; border: 0; border-radius: var(--radius-control); background: transparent; font-size: var(--font-size-small); font-weight: 500; color: var(--color-text-muted); cursor: pointer; white-space: nowrap; }
+.menu-map:hover:not(.selected):not(:disabled) { background: var(--color-surface-subtle); color: var(--color-text); }
+.menu-map.selected { background: var(--color-accent-tint); color: var(--color-accent); font-weight: 600; }
+.menu-map:disabled { opacity: 0.45; cursor: not-allowed; }
+.menu-map:focus-visible, .menu-seg-btn:focus-visible, .menu-tab:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.menu-seg { display: flex; align-items: center; flex-shrink: 0; gap: 2px; padding: 2px; border-radius: var(--radius-control); background: var(--color-surface-subtle); }
 .menu-seg-label { font-size: var(--font-size-small); color: var(--color-text-muted); padding: 0 6px 0 8px; }
-.menu-seg-btn { padding: 2px 9px; border-radius: var(--radius-control); border: 0; background: transparent; font-size: var(--font-size-small); font-weight: 500; line-height: 16px; color: var(--color-text); cursor: pointer; }
+.menu-seg-btn { padding: 2px 9px; border-radius: var(--radius-control); border: 0; background: transparent; font-size: var(--font-size-small); font-weight: 500; line-height: 16px; color: var(--color-text); cursor: pointer; white-space: nowrap; }
 .menu-seg-btn[aria-pressed="true"] { background: var(--color-accent-tint); color: var(--color-accent); font-weight: 600; box-shadow: inset 0 0 0 1px var(--color-accent); }
-/* the variants on the selected row: the pressed button is white with the page-color ring, so it differs from the row itself */
-.menu-item.selected .menu-seg { background: color-mix(in srgb, var(--color-accent) 10%, var(--color-surface)); }
-.menu-item.selected .menu-seg-btn { color: var(--color-accent); }
-.menu-item.selected .menu-seg-btn[aria-pressed="true"] { background: var(--color-surface); color: var(--color-accent); }
-/* the variants: right-aligned on the line of the name (they wrap under it when they do not fit) */
-.menu-item .menu-seg { margin: 0 0 0 auto; }
-.menu-storm { align-self: flex-start; }
 
 /* "Where the data comes from": a small table card, as wide as "About this layer" */
 [data-card="eco-source"] { max-width: 451px; }

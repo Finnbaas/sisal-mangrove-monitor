@@ -17,8 +17,6 @@
 
 /* the theme tabs at the top of the map card: the same segmented tabs as the old Maps menu (.menu-tabs in ecosystem.css), above the map they control */
 .card-tabs { margin-bottom: var(--space-2); }
-.card-tabs .menu-tabs { width: fit-content; }   /* only as wide as the tabs, not the whole card */
-.card-tabs .menu-tab { flex: 0 0 auto; padding: 5px 14px; }
 
 /* map card: the legend under the map */
 /* room for two lines on every theme, so the map is the same size (and has the same start view) on all of them */
