@@ -16,6 +16,7 @@ const SH_ELLIPSE_STEPS = 72;       // corners of the polygon that draws one elli
 const SH_CERTAINTY = ['exact', 'approximate', 'expected'];
 const SH_FLY_SECONDS = 0.8;        // duration of the flight to an area and back
 const SH_MIN_VIEW_METERS = 1600;   // flying to an area: the view is at least this wide, so a small area shows its surroundings
+const SH_HIT_PIXELS = 10;          // width of the invisible click area around an ellipse
 const SH_VIEW_PADDING = 0.6;       // ... and the area itself gets this much extra space around it (share of its size)
 
 let stakeholders = null;     // contents of content/stakeholders.json, or null if it could not be loaded
@@ -213,6 +214,8 @@ function setupStakeholderMap() {
     const c = areaColor(theme, area);
     const rings = area.ellipses.map(ellipseLatLngs);
     const item = { area, polygons: rings.map((ring) => L.polygon(ring, areaStyle(c, ''))), marker: null };
+    // an invisible, wider copy of each ellipse takes the clicks, so a thin ellipse is easy to hit (the whole shape and a few pixels around it)
+    item.hits = rings.map((ring) => L.polygon(ring, { weight: SH_HIT_PIXELS, opacity: 0, fill: true, fillOpacity: 0 }));
     const bounds = L.latLngBounds(rings.flat());
     item.bounds = bounds;
     item.size = bounds.getSouthWest().distanceTo(bounds.getNorthEast());
@@ -223,7 +226,7 @@ function setupStakeholderMap() {
       icon: L.divIcon({ className: 'sh-marker', html: shBadgeHtml(theme, area), iconSize: [28, 28], iconAnchor: [14, 14] }),
       title: t('stakeholders.areaLabel', { number: area.number }), riseOnHover: true
     });
-    [item.marker].concat(item.polygons).forEach((layer) => {
+    [item.marker].concat(item.polygons, item.hits).forEach((layer) => {
       layer.on('click', () => selectStakeholderArea(area.number));
       layer.on('mouseover', () => setStakeholderHover(area.number));
       layer.on('mouseout', () => setStakeholderHover(null));
@@ -275,9 +278,11 @@ function showStakeholderStart() {
 // Puts the areas of the theme that were happening in the selected year on the map (big areas first, so small ones stay clickable).
 // The view of the map is not changed.
 function renderStakeholderMap() {
-  Object.values(shItems).forEach((item) => { item.polygons.forEach((p) => p.remove()); item.marker.remove(); });
+  Object.values(shItems).forEach((item) => { item.polygons.concat(item.hits).forEach((p) => p.remove()); item.marker.remove(); });
   const visible = areasOfTheme(shTheme).filter(areaActive).map((a) => shItems[shTheme + '/' + a.number]);
-  visible.slice().sort((a, b) => b.size - a.size).forEach((item) => item.polygons.forEach((p) => p.addTo(shMap)));
+  const bigFirst = visible.slice().sort((a, b) => b.size - a.size);
+  bigFirst.forEach((item) => item.polygons.forEach((p) => p.addTo(shMap)));
+  bigFirst.forEach((item) => item.hits.forEach((p) => p.addTo(shMap)));   // above all ellipses; small areas last, so they win where areas overlap
   visible.forEach((item) => item.marker.addTo(shMap));
   // a year without areas: say so on the map
   const none = visible.length === 0;
@@ -295,10 +300,7 @@ function refreshStakeholderStyles() {
     const hover = shHover === area.number;
     const mode = selected ? 'open' : hover ? 'hover' : '';
     const c = areaColor(theme, area);
-    item.polygons.forEach((poly) => {
-      poly.setStyle(areaStyle(c, mode));
-      if (mode && shReady && shMap.hasLayer(poly)) poly.bringToFront();
-    });
+    item.polygons.forEach((poly) => poly.setStyle(areaStyle(c, mode)));
     const marker = item.marker.getElement();
     if (marker) {
       marker.classList.toggle('is-open', selected);
