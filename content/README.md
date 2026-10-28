@@ -17,7 +17,7 @@ touching the code (the `js/` and `css/` folders).
 | `pages.json` | Which pages (sections) exist and which cards each page shows, in which order |
 | `variables.json` | Which variables are shown (point charts and storm charts), their labels, units and colors; trend metrics; change classes; scenarios; data sources; the year range |
 | `texts.json` | Short texts: card titles, labels, messages, footer |
-| `stakeholders.json` | The Stakeholder page: the areas on the map and what stakeholders said about them |
+| `stakeholders.json` | The Stakeholder page: three themes, the areas on the map (ellipses) and what stakeholders said about them |
 | `method.json` | The Method page: the analyses, their code files, and the "do it yourself" examples that the research cards link to |
 | `landing.json` | The landing page (`#home`): hero, the page cards, study area and About card |
 | `climate.json` | "Climate at Sisal" on the Climatology page: the year range of "Change since 1950", the trends and their badges |
@@ -86,9 +86,9 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 | `climate-typical-year` | "A typical year": one chart per climate variable, monthly mean with 10th–90th percentile band |
 | `climate-change` | "Change since 1950": one chart per climate variable, with the trend and its badge |
 | `climate-detail` | "In detail": one tab per climate variable, with record period, the daily values and the annual means with the trend |
-| `stakeholder-map` | Map with the areas stakeholders pointed out (click to select an area) |
-| `stakeholder-time` | Year slider that is also the time axis of the observation bars (goes directly under `stakeholder-map`) |
-| `stakeholder-panel` | What stakeholders said about the selected area |
+| `stakeholder-map` | The map of the chosen stakeholder theme, with the theme tabs (Extent, Condition, ...) at the top, the title and subtitle of the theme under them and the legend under the map |
+| `stakeholder-time` | Year slider that is also the time axis of the area bars (goes directly under `stakeholder-map`) |
+| `stakeholder-panel` | What stakeholders said about the clicked area |
 
 ### Simple cards (write them as an object)
 
@@ -106,7 +106,7 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 - `text`: a card with a title and a paragraph.
 
 ```json
-{ "type": "planned", "title": "When storms come", "expand": false,
+{ "type": "planned", "title": "When storms come",
   "graphs": [ { "title": "Storms per year", "label": "Bar chart, 1950 to 2025", "height": 150 },
               { "title": "Storms per month", "label": "Bar chart, J to D", "height": 150, "width": 224 } ] }
 { "type": "group", "title": "Climate overview", "cards": ["climate-typical-year", "climate-change"], "note": "optional small grey line under the cards" }
@@ -114,7 +114,7 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 
 - `planned`: a card whose graphs are designed but not built yet. Each graph is a light box with its
   `title` and a `label` saying what it will show. `height` and `width` are in pixels (optional; a graph
-  without `width` shares the free width). `"expand": true` adds the expand button.
+  without `width` shares the free width).
 - `group`: one card with a small title that holds ready-made cards side by side, as parts of one card.
   Their rows line up (title, charts, axis).
 
@@ -162,45 +162,41 @@ has decided (see CLAUDE.md).
 
 ## stakeholders.json: the Stakeholder page
 
-The file has three parts.
+One map with a menu of three themes (Extent, Condition, Disturbance & recovery). The theme chooses the areas on the map, the legend,
+the rows of the timeline and what the panel shows. The texts come from the interview tables in Figma; the ellipses from the Figma maps.
 
-**`areas`**: the zones on the map. One entry per area:
+**`themes`**: one entry per theme: `id`, `title` and `subtitle` (header of the map card), `menuGroup` (the group of the Maps menu in
+`ecosystem.json` with the same name: its label is the name of the tab), `legend` (the classes: `id`, `label`, `color`; the color is a
+name from `css/base.css`, e.g. `stakeholder-red`), `fields` (the labels of the fields: `key` and `label`, and `values` for a field whose
+value is the `id` of an entry of another list), `periodKey` (the field with the period text, shown on hover over a bar), `panel` (the
+boxes of the panel, row by row: two keys in one row = side by side) and, for Condition, `markerLegend` (grey marker = natural cause,
+white = anthropogenic) and `notes` (an observation that has no number on the map: shown as a short note in the empty state of the panel).
 
-```json
-{ "number": 1, "zone": "Zone name", "class": "loss",
-  "shape": { "type": "ellipse", "leftPct": 17.3, "topPct": 55.8, "widthPct": 22.0, "heightPct": 14.2 } }
-```
-
-- `number`: the number shown on the map and next to the bars. Each area has its own number.
-- `zone`: the name of the zone. Leave it empty (`""`) if it is not known yet.
-- `class`: `"loss"`, `"recovery"` or `"gain"` (the names and colors come from `changeClasses` in
-  `variables.json`, the same ones the Ecosystem page uses).
-- `shape`: where the area sits on the map image, in **percent of the image** (so it stays in
-  place when the image changes): `leftPct` and `topPct` are the top-left corner of the ellipse,
-  `widthPct` and `heightPct` its size.
-
-**`observations`**: what stakeholders said. One entry per observation (one row of the interview table):
+**`areas`**: one entry per area:
 
 ```json
-{ "area": 1, "change": "", "period": "", "startYear": 1988, "endYear": 1990,
-  "ongoing": false, "certainty": "exact", "cause": "", "stakeholderType": "",
-  "quotes": [ { "text": "", "name": "" } ] }
+{ "number": "5a", "theme": "extent", "class": "loss",
+  "ellipses": [ { "lat": 21.16, "lon": -90.05, "radiusXM": 388.5, "radiusYM": 97.5, "rotationDeg": -5.74 } ],
+  "zone": "...", "change": "...", "period": "...", "attributedCause": "...",
+  "startYear": 2021, "endYear": null, "ongoing": true, "certainty": "approximate",
+  "quotes": [ { "code": "AC1", "type": "Academic", "text": "..." } ] }
 ```
 
-- `area`: the `number` of the area it belongs to. An area can have several observations.
-- `startYear`, `endYear`: numbers, no quotes. They place the bar on the timeline. For one single
-  year, write the same year twice.
-- `ongoing`: `true` if it is still happening; then write `"endYear": null`.
-- `certainty`: `"exact"`, `"approximate"` (period estimated from vague answers) or `"expected"`
-  (a change people expect but that has not happened yet).
-- `change`, `period`, `cause`, `stakeholderType`: texts shown in the panel. An empty text (`""`)
-  shows "Not yet available".
-- `quotes`: what people said in their own words (paraphrased), each with a `name` label.
-  Any number of quotes is possible.
+- `number`: text, shown on the map and in the timeline (also in the address: `#stakeholders/extent/5a`).
+- `class`: an `id` of the theme's `legend`.
+- `ellipses`: one or more. `lat`/`lon` = centre; `radiusXM`/`radiusYM` = half width and half height in metres on the ground;
+  `rotationDeg` = rotation clockwise as seen on the map. (Converted from Figma with the `basemapBounds` of
+  `data/vegetation/layers.json`, linear in the Web Mercator projection of the base map.)
+- The other fields are the columns of the interview table. Extent: `change`, `period`, `attributedCause`. Condition: `signal`,
+  `period`, `attributedCause`, `causeType` (`natural` or `anthropogenic`). Disturbance & recovery: `disturbance`, `when`, `recovery`,
+  `recoveryMode` (it has no `attributedCause`: the panel shows "No data"). The period text is shown as written.
+- `startYear`, `endYear`, `ongoing`, `certainty`: the bar on the timeline. `endYear` is `null` when `ongoing` is `true` (the bar runs to
+  the last year of `yearRange` in `variables.json`). `certainty` is `"exact"`, `"approximate"` or `"expected"`; an ongoing area is drawn
+  with an arrow. The time scale of all themes starts at the earliest `startYear` of all areas. An area without all four is not shown.
+  These years were derived from the period text (the interviews took place in 2026); change them here if the team decides otherwise.
+- `quotes`: what people said (paraphrased): `code` of the stakeholder (e.g. AC1; codes only, never names), `type`, `text`.
 
-**`imagery`**: where the yearly map images are (`folder`), their file type (`extension`) and the
-image shown when a year has no image yet (`placeholder`). The images themselves are made by the
-pipeline: see `data/stakeholder-imagery/README.txt`.
+**`quotesLabel`**: the heading above the quotes.
 
 ## climate.json: "Climate at Sisal"
 
@@ -308,7 +304,6 @@ code files to download. Everything on it comes from this file.
 - `howMade`: at most two sentences, shown as "How this is made" at the top of the panel of a use case.
 - `howWeUsed` (optional, one sentence) with `howWeUsedLink` (optional, e.g. `#climatology`): shown as "How we used it", with a link to the page that shows the result.
 - `whatYouNeed` (optional, list of 1 or 2 lines): shown as "What you need".
-- `infoCards` (use case or section): research cards whose small ↗ button opens that panel (a section: its tab).
 - Numbers in curly brackets (also in `steps`) are filled in from the data files, so they always match the research
   page: `{storms.total}`, `{storms.start}`, `{storms.end}`, `{storms.studied}`, `{storms.notCounted}`,
   `{storms.rule}`, `{storms.baseline}`, `{storms.windowDays}`, `{record.<variable id>.start}` and `.end`

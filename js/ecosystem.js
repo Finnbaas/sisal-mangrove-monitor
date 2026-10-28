@@ -10,11 +10,13 @@
 //   content/ecosystem.json (texts, layer switch, chart names). Nothing is typed in this file: every number comes from the data.
 // Uses: helpers.js, content.js (CONTENT, t), points.js (getSelectedPoint, pointXScale, allPoints), charts.js,
 //   climatology-storms.js (events, selectEvent, strengthText) and Leaflet (CDN).
-// Used by: main.js (setupEcosystem); points.js calls renderEcosystemEws() whenever the selected point changes.
+// Used by: main.js (setupEcosystem); points.js calls renderEcosystemEws() whenever the selected point changes;
+//   stakeholders.js reuses createMap, setupBasemapButton, setText and ecoLayersLoaded for its maps.
 
 // ---------- state ----------
 
 let ecoLayers = null;          // contents of data/vegetation/layers.json
+let ecoLayersLoaded = null;    // the promise of that file: stakeholders.js waits for it to draw the same base map
 let ecoBarSet = null;          // the bar chart of the per-period view as a set for the comparison line (see charts.js)
 let ecoBarMode = 'total';      // 'perYear' or 'total' (content/ecosystem.json "chartModes")
 let ecoEwsSet = null;          // the EWS charts as a set for the comparison line (see charts.js)
@@ -24,6 +26,8 @@ let ecoVariantIds = {};        // the chosen variant per view ("layer/view"): Si
 let ecoViewIds = {};           // the chosen view per layer id (layers with "views", e.g. Change: classes | per-period)
 let ecoOverlay = null;         // the Leaflet image of that layer
 let ecoMaps = {};              // the Leaflet map of the layers: { layers }
+const MAP_WHEEL_SCROLL = 1 / 150;   // zoom levels per pixel of mouse wheel / two-finger scroll (a swipe of 80 px = about half a level)
+const MAP_WHEEL_PINCH = 1 / 40;     // zoom levels per pixel of a trackpad pinch (a pinch arrives as a wheel event with ctrlKey)
 const START_PADDING = 40;      // px of base map around the outline in the start view of the maps
 
 // A text from content/ecosystem.json "texts", e.g. vt('pointsMapSubtitle', { shown: 5, total: 10 }).
@@ -53,7 +57,8 @@ async function loadEcosystemFile(path) {
 async function setupEcosystem() {
   const files = CONTENT.ecosystem.files;
   try {
-    ecoLayers = await loadEcosystemFile(files.layers);
+    ecoLayersLoaded = loadEcosystemFile(files.layers);
+    ecoLayers = await ecoLayersLoaded;
   } catch (err) {
     // name the file instead of a blank card
     const message = t('messages.couldNotLoadEcosystem', { file: err.message });
@@ -121,13 +126,47 @@ function baseBounds() {
 // The AOI outline as Leaflet latitude/longitude pairs (layers.json stores [longitude, latitude]).
 function aoiLatLngs() { return ecoLayers.basemap.aoi.map(([lon, lat]) => [lat, lon]); }
 
-function createMap(elementId, zoomInId, zoomOutId, resetId) {
+// The Mangrove maps map calls this with four ids. The Stakeholder maps (stakeholders.js) also pass "options":
+//   startBounds: the start view (default: the study area outline)
+//   afterFit(map, first): called after every (re)fit of the start view; first is true the first time
+//   fillMap: true = the smallest zoom is the one at which the base map fills the whole map frame (no empty bands at the sides
+//     of a map that is wider than the base map), instead of the one at which the whole base map is in view
+//   alignTop: true = when the start view is cut off at the top, it is moved down so that the top of the start bounds is
+//     START_PADDING from the top of the map (the bottom is cut off instead)
+//   The map gets flyToStart(): flies to the start view (the same view as the Reset button).
+function createMap(elementId, zoomInId, zoomOutId, resetId, options) {
   const bounds = baseBounds();                  // the whole base map: the map cannot be panned outside it
   const aoi = L.latLngBounds(aoiLatLngs());     // the study area outline: the start view
+  const start = options && options.startBounds ? options.startBounds : aoi;
   const map = L.map(elementId, { zoomControl: false, attributionControl: false, zoomSnap: 0, scrollWheelZoom: false, maxBoundsViscosity: 1 });
-  // the start view: the outline with 40 px of base map on every side (the legend strip lies over the bottom of the map)
-  const legendHeight = () => $(elementId).parentElement.querySelector('.legend-strip').offsetHeight;
-  const showStart = () => map.fitBounds(aoi, { paddingTopLeft: [START_PADDING, START_PADDING], paddingBottomRight: [START_PADDING, START_PADDING + legendHeight()], animate: false });
+  // zoom with the mouse wheel, two-finger scroll and pinch on a trackpad, around the pointer. Own handler instead of Leaflet's
+  // scrollWheelZoom, which is too weak for the many small steps of a trackpad.
+  map.getContainer().addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const pixels = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1);   // a mouse wheel may report lines or pages
+    const zoom = Math.max(map.getMinZoom(), Math.min(map.getMaxZoom(), map.getZoom() - pixels * (e.ctrlKey ? MAP_WHEEL_PINCH : MAP_WHEEL_SCROLL)));
+    if (zoom !== map.getZoom()) map.setZoomAround(map.mouseEventToContainerPoint(e), zoom, { animate: Math.abs(pixels) >= 50 });   // a notch of a mouse wheel is animated
+  }, { passive: false });
+  // the start view: the outline with 40 px of base map on every side (the legend strip, if the map has one, lies over the bottom of the map)
+  const legendHeight = () => {
+    const strip = $(elementId).parentElement.querySelector('.legend-strip');
+    return strip ? strip.offsetHeight : 0;
+  };
+  const showStart = () => {
+    map.fitBounds(start, { paddingTopLeft: [START_PADDING, START_PADDING], paddingBottomRight: [START_PADDING, START_PADDING + legendHeight()], animate: false });
+    if (options && options.alignTop) {
+      const top = map.latLngToContainerPoint(start.getNorthWest()).y;
+      if (top < START_PADDING) map.panBy([0, top - START_PADDING], { animate: false });   // (the base map's edge limits how far)
+    }
+  };
+  // flying back to the start view: find where it is (the map is put back where it was), then fly there
+  map.flyToStart = () => {
+    const centre = map.getCenter(), zoom = map.getZoom();
+    showStart();
+    const target = { centre: map.getCenter(), zoom: map.getZoom() };
+    map.setView(centre, zoom, { animate: false });
+    map.flyTo(target.centre, target.zoom, { duration: 0.8 });
+  };
   // the attribution sits top left: the legend strip covers the bottom of the map
   L.control.attribution({ position: 'topleft', prefix: false }).addTo(map);
   L.imageOverlay(ecoLayers.basemap.image, bounds, { attribution: ecoLayers.basemap.attribution, className: 'eco-basemap' }).addTo(map);
@@ -142,12 +181,15 @@ function createMap(elementId, zoomInId, zoomOutId, resetId) {
     const box = $(elementId);
     if (!box.clientWidth) return;
     map.invalidateSize();
-    map.setMinZoom(map.getBoundsZoom(bounds));   // the level at which the whole base map just fits
+    map.setMinZoom(map.getBoundsZoom(bounds, !!(options && options.fillMap)));   // the level at which the whole base map just fits (or fills the frame)
     map.setMaxBounds(bounds);
     map.setMaxZoom(map.getBoundsZoom(aoi, false, L.point(2 * START_PADDING, 2 * START_PADDING + legendHeight())) + 4);
     showStart();
-    if (!fitted) {
-      fitted = true;
+    const first = !fitted;
+    fitted = true;
+    if (options) {
+      if (options.afterFit) options.afterFit(map, first);
+    } else if (first) {
       renderAbout();   // related storms need the storm list, which has loaded by now
     }
   }).observe($(elementId));
@@ -371,8 +413,38 @@ function menuSegment(label, items, activeId, focusKey, onPick) {
   return seg;
 }
 
-// The tabs, the storm line and the rows of the active theme (ecoLayerId). focus = the data-focus of the control that keeps
-// the keyboard focus after the menu is drawn again.
+// The theme tabs at the top of a map card (the Maps menu here, the theme tabs of the Stakeholder page): one button per item { id, label },
+// the active one marked. onPick(id, focus) is called when a tab is clicked or reached with the arrow keys; focus = the
+// data-focus of the tab, which keeps the keyboard focus when the menu is drawn again. Styles: .menu-tabs, .menu-tab (ecosystem.css).
+function buildMenuTabs(items, activeId, onPick, ariaLabel) {
+  const tabs = document.createElement('div');
+  tabs.className = 'menu-tabs';
+  tabs.setAttribute('role', 'tablist');
+  tabs.setAttribute('aria-label', ariaLabel);
+  items.forEach((item, i) => {
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.className = 'menu-tab';
+    tab.textContent = item.label;
+    tab.dataset.focus = 'tab-' + item.id;
+    tab.setAttribute('role', 'tab');
+    tab.setAttribute('aria-selected', item.id === activeId);
+    tab.tabIndex = item.id === activeId ? 0 : -1;   // one tab stop; the arrow keys move between the tabs
+    tab.addEventListener('click', () => onPick(item.id, tab.dataset.focus));
+    tab.addEventListener('keydown', (e) => {
+      const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (!step) return;
+      e.preventDefault();
+      tabs.children[(i + step + items.length) % items.length].click();   // arrow keys switch the tab
+    });
+    tabs.appendChild(tab);
+  });
+  return tabs;
+}
+
+// The menu at the top of the map card. Row 1: the theme tabs. Row 2: the maps of the active theme as small tabs, with at the end
+// the variant switch of the selected map (for Disturbance & recovery the storm choice, which applies to all maps of the theme).
+// focus = the data-focus of the control that keeps the keyboard focus after the menu is drawn again.
 function renderMapMenu(focus) {
   const box = $('eco-map-menu');
   box.innerHTML = '';
@@ -380,67 +452,33 @@ function renderMapMenu(focus) {
   const group = groups.find((g) => g.id === ecoLayerId);
   const layer = menuLayer(group.id);
 
-  // the tabs: one per theme; a tab shows the map last used in that theme (the first one the first time)
-  const tabs = document.createElement('div');
-  tabs.className = 'menu-tabs';
-  tabs.setAttribute('role', 'tablist');
-  tabs.setAttribute('aria-label', CONTENT.ecosystem.texts.menuTitle);
-  groups.forEach((g) => {
-    const tab = document.createElement('button');
-    tab.type = 'button';
-    tab.className = 'menu-tab';
-    tab.textContent = g.label;
-    tab.dataset.focus = 'tab-' + g.id;
-    tab.setAttribute('role', 'tab');
-    tab.setAttribute('aria-selected', g.id === group.id);
-    tab.tabIndex = g.id === group.id ? 0 : -1;   // one tab stop; the arrow keys move between the tabs
-    tab.addEventListener('click', () => selectMap(g.id, ecoViewIds[g.id] || g.items[0].view, tab.dataset.focus));
-    tab.addEventListener('keydown', (e) => {
-      const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
-      if (!step) return;
-      e.preventDefault();
-      tabs.children[(groups.indexOf(g) + step + groups.length) % groups.length].click();   // arrow keys switch the tab
-    });
-    tabs.appendChild(tab);
-  });
-  box.appendChild(tabs);
+  // row 1, the tabs: one per theme; a tab shows the map last used in that theme (the first one the first time)
+  box.appendChild(buildMenuTabs(groups, group.id, (id, focus) => selectMap(id, ecoViewIds[id] || groups.find((g) => g.id === id).items[0].view, focus), CONTENT.ecosystem.texts.menuTitle));
 
-  // the storm choice: one line under the tabs; it applies to all maps of the theme
-  if (group.storm) {
-    const stormView = layer.views.find((v) => v.id === group.storm.view);
-    const storm = menuSegment(group.storm.label + ':', variantsOf(stormView), chosenVariantId(layer, stormView), 'storm', (id, key) => {
-      ecoVariantIds[variantKey(layer, stormView)] = id;
-      // a map that does not exist for this storm (Acute wetness for Opal): back to the first map of the theme
-      const current = layer.views.find((v) => v.id === (ecoViewIds[layer.id] || layer.views[0].id));
-      if (viewUnavailable(layer, current)) ecoViewIds[layer.id] = layer.views[0].id;
-      refreshMap(key);
-    });
-    storm.classList.add('menu-storm');
-    box.appendChild(storm);
-  }
-
-  // the maps of the theme: one radio group
+  // row 2: the maps of the theme: one radio group
+  const maps = document.createElement('div');
+  maps.className = 'menu-maps';
   const list = document.createElement('div');
-  list.className = 'menu-rows';
+  list.className = 'menu-map-list';
   list.setAttribute('role', 'radiogroup');
   list.setAttribute('aria-label', group.label);
   const rows = [];   // for the arrow keys
   const currentViewId = ecoViewIds[layer.id] || layer.views[0].id;
+  let selectedView = null;
   group.items.forEach((item) => {
     const view = menuView(group, item);
     const selected = view.id === currentViewId;
+    if (selected) selectedView = view;
     const unavailable = viewUnavailable(layer, view);
-    const line = document.createElement('div');
-    line.className = 'menu-item' + (selected ? ' selected' : '') + (unavailable ? ' disabled' : '');
     const row = document.createElement('button');
     row.type = 'button';
-    row.className = 'menu-row';
+    row.className = 'menu-map' + (selected ? ' selected' : '');
     row.textContent = item.label;
     row.dataset.focus = 'row-' + group.id + '-' + item.view;
     row.setAttribute('role', 'radio');
     row.setAttribute('aria-checked', selected);
     row.tabIndex = selected ? 0 : -1;   // one tab stop for the group; the arrow keys move inside it
-    if (unavailable) { row.disabled = true; row.title = unavailable; line.title = unavailable; }   // greyed out with the reason as tooltip
+    if (unavailable) { row.disabled = true; row.title = unavailable; }   // greyed out with the reason as tooltip
     row.addEventListener('click', () => selectMap(group.id, item.view, row.dataset.focus));
     row.addEventListener('keydown', (e) => {
       const step = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : e.key === 'ArrowUp' || e.key === 'ArrowLeft' ? -1 : 0;
@@ -450,18 +488,30 @@ function renderMapMenu(focus) {
       enabled[(enabled.indexOf(row) + step + enabled.length) % enabled.length].click();   // arrow keys select, like a native radio group
     });
     rows.push(row);
-    line.appendChild(row);
-    // the variants of the selected map, on its line, right-aligned (they wrap under the name when they do not fit)
-    const variants = selected && !group.storm ? variantsOf(view) : null;
+    list.appendChild(row);
+  });
+  maps.appendChild(list);
+
+  // at the end of row 2: the storm choice (whole theme), or the variants of the selected map
+  if (group.storm) {
+    const stormView = layer.views.find((v) => v.id === group.storm.view);
+    maps.appendChild(menuSegment(group.storm.label + ':', variantsOf(stormView), chosenVariantId(layer, stormView), 'storm', (id, key) => {
+      ecoVariantIds[variantKey(layer, stormView)] = id;
+      // a map that does not exist for this storm (Acute wetness for Opal): back to the first map of the theme
+      const current = layer.views.find((v) => v.id === (ecoViewIds[layer.id] || layer.views[0].id));
+      if (viewUnavailable(layer, current)) ecoViewIds[layer.id] = layer.views[0].id;
+      refreshMap(key);
+    }));
+  } else {
+    const variants = selectedView && variantsOf(selectedView);
     if (variants) {
-      line.appendChild(menuSegment('', variants, chosenVariantId(layer, view), 'variant', (id, key) => {
-        ecoVariantIds[variantKey(layer, view)] = id;
+      maps.appendChild(menuSegment('', variants, chosenVariantId(layer, selectedView), 'variant', (id, key) => {
+        ecoVariantIds[variantKey(layer, selectedView)] = id;
         refreshMap(key);
       }));
     }
-    list.appendChild(line);
-  });
-  box.appendChild(list);
+  }
+  box.appendChild(maps);
 
   if (focus) {
     const target = [...box.querySelectorAll('[data-focus]')].find((el) => el.dataset.focus === focus);

@@ -27,7 +27,7 @@ files. Changes to the files show after saving; Live Server reloads the page.
 | `#home` | Landing page: hero, the four pages, study area and About (content/landing.json). An empty address and the old `#overview` also show it |
 | `#satellite` | The same cards for the ecosystem analysis |
 | `#climatology` | "Storms at Sisal" (event list, storm charts) and "Climate at Sisal" (a typical year, change since 1950, in detail) |
-| `#stakeholders` | Areas where stakeholders saw mangrove change, with a time axis and their observations |
+| `#stakeholders` | One map with a theme menu (Extent, Condition, Disturbance & recovery): the areas where stakeholders saw change, a timeline with a year slider, and what they said about the clicked area (`#stakeholders/<theme>` and `#stakeholders/<theme>/<number>` open a theme or an area) |
 | `#method` | Methods and code files to download; `#method/<id>` opens one "do it yourself" example |
 
 ## Folder structure
@@ -130,18 +130,18 @@ Claude Code reads CLAUDE.md in every session, so the long descriptions live here
   - js/points.js: Ecosystem (map with the points, point chart, downloads); js/landing.js: the landing page
   - js/climatology-storms.js: "Storms at Sisal" (event list, storm anomaly charts)
   - js/climatology-climate.js: "Climate at Sisal" (A typical year, Change since 1950, In detail)
-  - js/stakeholders.js: the Stakeholder screen (areas on the map, the Time card with the observation bars, the area panel)
+  - js/stakeholders.js: the Stakeholder screen (one Leaflet map with the areas of the chosen theme, the timeline with the year slider, the area panel); reuses the map code and the menu tabs of js/ecosystem.js
   - js/method.js: the Method page and the "Do this analysis yourself" links on the research cards
   - js/main.js: starts everything
 - data/points.json: data of the monitoring points
 - data/events.json: data of the storm and extreme-weather events (Climatology screen)
 - data/climate/typical-year.json: the mean seasonal cycle per climate variable ("A typical year"), made by analysis/climatology/export_typical_year.py
-- data/stakeholder-imagery/: one satellite snapshot per year for the Stakeholder map (1984.jpg ... 2026.jpg, all with exactly the same extent and crop)
+- data/stakeholder-imagery/: no longer used by the Stakeholder screen (it now draws on data/vegetation/basemap.png)
 - content/: everything the team writes and edits (see content/README.md):
   - content/pages.json: which pages exist and which cards each page shows
   - content/variables.json: variables (point, event and climate), trend metrics, change classes, scenarios, data sources, year range
   - content/texts.json: short labels and texts (card titles, messages, footer)
-  - content/stakeholders.json: the Stakeholder screen: areas on the map and the stakeholder observations
+  - content/stakeholders.json: the Stakeholder screen: the three themes, their areas (ellipses on the map) and what stakeholders said
   - content/method.json: the Method page: analyses, code files, use cases, and which research cards link to which use case
   - content/climate.json: "Climate at Sisal": the year range of Change since 1950, the trend texts and their badges
   - content/README.md: how to edit these files
@@ -250,18 +250,16 @@ The file is one JSON object, written by the team. It has:
 Made by analysis/climatology/export_typical_year.py (never edit by hand). `variables`: per climate variable id: `unit`, `trendUnit` (unit of slope and ci95: per decade, sea level per year), `record` (`start`, `end` year), optional `periods` (sea level: trends of 1993-2011 and 2012-2025) and `series` (air temperature: `max` and `min`), each `{ id, label, years, means (annual means), slope, ci95 (± 95%), p (p-value), fit (trend line value in the first and last year) }`.
 
 #### Structure of content/stakeholders.json
-The file is one JSON object, written by the team (Stakeholder screen). It is loaded by stakeholders.js; an error in it shows a message on the Stakeholder page only.
-- `imagery`: `folder` and `extension` of the yearly map images (data/stakeholder-imagery/, one file per year named by the year) and the `placeholder` image shown when a year has no image.
-- `areas`: one object per area on the map: `number`, `zone` (name, may be empty), `class` ("loss", "recovery" or "gain", a key of changeClasses in content/variables.json) and `shape` (`type` "ellipse" with `leftPct`, `topPct`, `widthPct`, `heightPct`, in percent of the map image).
-- `observations`: one object per stakeholder observation: `area` (the area number), `change`, `period`, `cause`, `stakeholderType` (texts, may be empty), `startYear`, `endYear` (`null` if ongoing), `ongoing` (true/false), `certainty` ("exact", "approximate" or "expected") and `quotes` (list of `{ "text", "name" }`).
-- An area is shown in a year when that year falls within at least one of its observations. Ongoing observations count up to the last year of yearRange. An empty text shows "Not yet available".
+The file is one JSON object, written by the team (Stakeholder screen). It is loaded by stakeholders.js; an error in it shows a message on the Stakeholder page only. The full description is in content/README.md ("stakeholders.json").
+- `themes`: Extent, Condition and Disturbance & recovery, each with `title`, `subtitle`, `legend`, `fields` (labels), `panel` (which boxes the panel shows) and `periodKey`.
+- `areas`: one object per area: `number`, `theme`, `class`, `ellipses` (centre, radii in metres, rotation), the table fields, `startYear`, `endYear`, `ongoing`, `certainty` (the bar on the timeline) and `quotes` (`code`, `type`, `text`).
 
 #### Structure of content/method.json
 The file is one JSON object, written by the team (Method page). It is loaded by method.js; an error in it shows a message on the Method page only.
 - `title`, `intro`, `exampleContent` (true shows the "Example content" tag), `repository` and `branch` (GitHub address, for the "View on GitHub" links), `license`, `citation`, `doi`.
-- `sections`: one object per analysis: `id` (a page id from content/pages.json gives the section that page's theme colors), `title`, `folder` (folder in the repository, or a full https:// address for a folder in another repository; the "View on GitHub" link under the cards), `zip` (path of a zip with all files; the button only shows when filled), `files` and `useCases`. Climatology and Satellite also have `datasets` (list of the data sources) and `limitations` (list; leave empty for none), shown above the cards, and `infoCards` (cards whose small ↗ button opens the tab). A section without `datasets` (Stakeholders, for now) has the older collapsed block instead: `description`, `sources` (list of `{ "label", "url" }`), `keyChoices` and `requirements`.
+- `sections`: one object per analysis: `id` (a page id from content/pages.json gives the section that page's theme colors), `title`, `folder` (folder in the repository, or a full https:// address for a folder in another repository; the "View on GitHub" link under the cards), `zip` (path of a zip with all files; the button only shows when filled), `files` and `useCases`. Climatology and Satellite also have `datasets` (list of the data sources) and `limitations` (list; leave empty for none), shown above the cards. A section without `datasets` (Stakeholders, for now) has the older collapsed block instead: `description`, `sources` (list of `{ "label", "url" }`), `keyChoices` and `requirements`.
 - `files`: one object per code file: `name`, `description`, `format` (tag text) and `path` (path in the repository, or a full https:// address for a file in another repository; an empty path shows the file as "Not yet available" and not downloadable).
-- `useCases`: one object per "do it yourself" example: `id` (short name, lowercase letters, numbers and dashes, used in the address #method/<id>), `title`, `image`, `howMade` (short text at the top of the panel), `keyChoices` (list of texts, or `{ "text", "more", "moreLabel" }` for a long choice with its rest behind a small toggle), `howWeUsed` and `howWeUsedLink`, `whatYouNeed` (list of texts), `infoCards` (research cards whose ↗ button opens this panel), `steps` (list of one-line instructions), `files` (names of files of the same section) and `cards` (names of ready-made cards that get the "Do this analysis yourself" link to this use case). Every part except the steps and files is left out of the panel when it is empty.
+- `useCases`: one object per "do it yourself" example: `id` (short name, lowercase letters, numbers and dashes, used in the address #method/<id>), `title`, `image`, `howMade` (short text at the top of the panel), `keyChoices` (list of texts, or `{ "text", "more", "moreLabel" }` for a long choice with its rest behind a small toggle), `howWeUsed` and `howWeUsedLink`, `whatYouNeed` (list of texts), `steps` (list of one-line instructions), `files` (names of files of the same section) and `cards` (names of ready-made cards that get the "Do this analysis yourself" link to this use case). Every part except the steps and files is left out of the panel when it is empty.
 - Any number of sections, files and use cases is possible. Empty texts show "Not yet available".
 
 #### Structure of data/climate/detail/<variable id>.json

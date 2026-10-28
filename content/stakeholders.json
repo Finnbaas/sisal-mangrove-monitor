@@ -1,106 +1,1119 @@
 {
-  "imagery": {
-    "folder": "data/stakeholder-imagery/",
-    "extension": "jpg",
-    "placeholder": "img/stakeholder-map-placeholder.jpg"
-  },
-
-  "areas": [
+  "_about": "The Stakeholder page (js/stakeholders.js): one map, three themes with their areas on the base map. Texts come from the stakeholder interview tables in Figma (Playground page, sections 1. Extent, 2. Condition, 3. Disturbance and Recovery); the ellipses from the maps \"lck_*_map – basemap\". See content/README.md (\"stakeholders.json\") for the structure.",
+  "quotesLabel": "In their words (paraphrase)",
+  "themes": [
     {
-      "number": 1,
-      "zone": "",
-      "class": "loss",
-      "shape": { "type": "ellipse", "leftPct": 17.3, "topPct": 55.8, "widthPct": 22.0, "heightPct": 14.2 }
+      "id": "extent",
+      "menuGroup": "change",
+      "title": "Extent of mangrove",
+      "subtitle": "Areas where mangrove was converted to another land use, or gained through planting",
+      "legend": [
+        {
+          "id": "loss",
+          "label": "Loss",
+          "color": "stakeholder-red"
+        },
+        {
+          "id": "expected-loss",
+          "label": "Expected loss",
+          "color": "stakeholder-orange"
+        },
+        {
+          "id": "gain",
+          "label": "Gain",
+          "color": "stakeholder-green"
+        }
+      ],
+      "fields": [
+        {
+          "key": "zone",
+          "label": "Zone"
+        },
+        {
+          "key": "change",
+          "label": "Change"
+        },
+        {
+          "key": "period",
+          "label": "Period"
+        },
+        {
+          "key": "attributedCause",
+          "label": "Attributed cause"
+        }
+      ],
+      "periodKey": "period",
+      "panel": [
+        [
+          "change",
+          "period"
+        ],
+        [
+          "attributedCause"
+        ]
+      ]
     },
     {
-      "number": 2,
-      "zone": "",
-      "class": "loss + recovery",
-      "shape": { "type": "ellipse", "leftPct": 61.7, "topPct": 44.2, "widthPct": 20.0, "heightPct": 15.3 }
+      "id": "condition",
+      "menuGroup": "condition",
+      "title": "Condition (of ecosystem)",
+      "subtitle": "Signals about the state of remaining mangrove and its environment (water, fauna, pollution)",
+      "legend": [
+        {
+          "id": "disturbed",
+          "label": "Disturbed mangrove condition",
+          "color": "stakeholder-red"
+        },
+        {
+          "id": "risk",
+          "label": "Risk for mangrove condition",
+          "color": "stakeholder-orange"
+        },
+        {
+          "id": "improved",
+          "label": "Improved mangrove condition",
+          "color": "stakeholder-green"
+        }
+      ],
+      "markerLegend": [
+        {
+          "id": "natural",
+          "label": "Natural cause",
+          "fill": "stakeholder-natural"
+        },
+        {
+          "id": "anthropogenic",
+          "label": "Anthropogenic cause",
+          "fill": "surface"
+        }
+      ],
+      "fields": [
+        {
+          "key": "zone",
+          "label": "Zone"
+        },
+        {
+          "key": "signal",
+          "label": "Signal"
+        },
+        {
+          "key": "period",
+          "label": "Period"
+        },
+        {
+          "key": "attributedCause",
+          "label": "Attributed cause"
+        },
+        {
+          "key": "causeType",
+          "label": "Cause type",
+          "values": "markerLegend"
+        }
+      ],
+      "periodKey": "period",
+      "panel": [
+        [
+          "signal",
+          "period"
+        ],
+        [
+          "attributedCause"
+        ],
+        [
+          "causeType"
+        ]
+      ],
+      "notes": [
+        {
+          "zone": "All of ciénaga in Sisal Coast",
+          "signal": "Plants dying from lack of water; ciénaga drier than before",
+          "period": "Past ~5 years; completely dry in 2025",
+          "attributedCause": "Less rain, especially inland, so less water reaching the coast underground",
+          "quotes": [
+            {
+              "code": "ET2",
+              "type": "Eco-tourism",
+              "text": "The mangrove used to fill up much more; now plants are dying because not enough water reaches them."
+            },
+            {
+              "code": "CR2",
+              "type": "Community restoration group",
+              "text": "A year ago the ciénaga was completely dry; now there is some water again."
+            }
+          ]
+        }
+      ]
     },
     {
-      "number": 3,
-      "zone": "",
-      "class": "gain",
-      "shape": { "type": "ellipse", "leftPct": 44.1, "topPct": 68.9, "widthPct": 17.0, "heightPct": 18.4 }
+      "id": "disturbance-recovery",
+      "menuGroup": "disturbance-recovery",
+      "title": "Disturbance and recovery",
+      "subtitle": "Abrupt die-off with the site remaining wetland, and whether and how it recovered",
+      "legend": [
+        {
+          "id": "not-recovered",
+          "label": "Damaged, not recovered",
+          "color": "stakeholder-red"
+        },
+        {
+          "id": "partially-recovered",
+          "label": "Damaged, partially recovered",
+          "color": "stakeholder-orange"
+        },
+        {
+          "id": "fully-recovered",
+          "label": "Damaged, fully recovered",
+          "color": "stakeholder-green"
+        }
+      ],
+      "fields": [
+        {
+          "key": "zone",
+          "label": "Zone"
+        },
+        {
+          "key": "disturbance",
+          "label": "Disturbance"
+        },
+        {
+          "key": "when",
+          "label": "When"
+        },
+        {
+          "key": "recovery",
+          "label": "Recovery"
+        },
+        {
+          "key": "recoveryMode",
+          "label": "Recovery mode"
+        },
+        {
+          "key": "attributedCause",
+          "label": "Attributed cause"
+        }
+      ],
+      "periodKey": "when",
+      "panel": [
+        [
+          "disturbance",
+          "when"
+        ],
+        [
+          "recovery",
+          "recoveryMode"
+        ],
+        [
+          "attributedCause"
+        ]
+      ]
     }
   ],
-
-  "observations": [
+  "areas": [
     {
-      "area": 1,
-      "change": "",
-      "period": "",
-      "startYear": 1988,
-      "endYear": 1990,
-      "ongoing": false,
-      "certainty": "exact",
-      "cause": "",
-      "stakeholderType": "",
+      "number": "1",
+      "theme": "extent",
+      "class": "loss",
+      "ellipses": [
+        {
+          "lat": 21.159776,
+          "lon": -90.050295,
+          "radiusXM": 388.5,
+          "radiusYM": 97.5,
+          "rotationDeg": -5.74
+        }
+      ],
+      "zone": "Area east of Sisal’s Port",
+      "change": "Loss",
+      "period": "1996",
+      "attributedCause": "Local road construction",
       "quotes": [
-        { "text": "", "name": "" },
-        { "text": "", "name": "" }
-      ]
-    },
-    {
-      "area": 1,
-      "change": "",
-      "period": "",
-      "startYear": 1988,
-      "endYear": 1988,
-      "ongoing": false,
-      "certainty": "exact",
-      "cause": "",
-      "stakeholderType": "",
-      "quotes": [
-        { "text": "", "name": "" },
-        { "text": "", "name": "" }
-      ]
-    },
-    {
-      "area": 2,
-      "change": "",
-      "period": "",
+        {
+          "code": "AC1",
+          "type": "Academic",
+          "text": "Because of local road construction, this area dried up completely."
+        }
+      ],
       "startYear": 1996,
-      "endYear": 2001,
+      "endYear": 1996,
       "ongoing": false,
-      "certainty": "approximate",
-      "cause": "",
-      "stakeholderType": "",
-      "quotes": [
-        { "text": "", "name": "" },
-        { "text": "", "name": "" }
-      ]
+      "certainty": "exact"
     },
     {
-      "area": 3,
-      "change": "",
-      "period": "",
-      "startYear": 2005,
+      "number": "2",
+      "theme": "extent",
+      "class": "loss",
+      "ellipses": [
+        {
+          "lat": 21.162117,
+          "lon": -90.040178,
+          "radiusXM": 906.7,
+          "radiusYM": 63.3,
+          "rotationDeg": -5.74
+        }
+      ],
+      "zone": "Sisal’s village edge against the mangrove",
+      "change": "Loss",
+      "period": "Over 30 years, ongoing",
+      "attributedCause": "Landfill for housing as the village grows",
+      "quotes": [
+        {
+          "code": "CR2",
+          "type": "Community restoration group",
+          "text": "The houses now standing against the ciénaga were built on mangrove that was filled in."
+        },
+        {
+          "code": "NGO1",
+          "type": "Conservation NGO",
+          "text": "Residents keep filling land and moving further into the mangrove, even though building on water makes them vulnerable to flooding."
+        }
+      ],
+      "startYear": 1996,
       "endYear": null,
       "ongoing": true,
-      "certainty": "exact",
-      "cause": "",
-      "stakeholderType": "",
-      "quotes": [
-        { "text": "", "name": "" },
-        { "text": "", "name": "" }
-      ]
+      "certainty": "approximate"
     },
     {
-      "area": 2,
-      "change": "",
-      "period": "",
+      "number": "3",
+      "theme": "extent",
+      "class": "loss",
+      "ellipses": [
+        {
+          "lat": 21.164684,
+          "lon": -90.024524,
+          "radiusXM": 635.1,
+          "radiusYM": 67.4,
+          "rotationDeg": -10.74
+        }
+      ],
+      "zone": "Plot with tall mangrove",
+      "change": "Loss",
+      "period": "Recent, ongoing",
+      "attributedCause": "Residents filling land to sell as lots, illegally",
+      "quotes": [
+        {
+          "code": "NGO1",
+          "type": "Conservation NGO",
+          "text": "It cannot be seen from the street, but people from the community cut tall mangrove there, fill the land and sell the lots; in her view this is where the mangrove is currently hit hardest."
+        }
+      ],
+      "startYear": 2021,
+      "endYear": null,
+      "ongoing": true,
+      "certainty": "approximate"
+    },
+    {
+      "number": "4",
+      "theme": "extent",
+      "class": "loss",
+      "ellipses": [
+        {
+          "lat": 21.17927,
+          "lon": -89.982477,
+          "radiusXM": 1144.2,
+          "radiusYM": 90.6,
+          "rotationDeg": -25.74
+        }
+      ],
+      "zone": "Coastal strip and dune",
+      "change": "Loss",
+      "period": "Since 2020/2021",
+      "attributedCause": "Tourism and real estate after the Pueblo Mágico designation",
+      "quotes": [
+        {
+          "code": "ET1",
+          "type": "Eco-tourism",
+          "text": "Over the past five years, hotels and beach clubs have been built in the mangrove and behind the dune."
+        },
+        {
+          "code": "CR2",
+          "type": "Community restoration group",
+          "text": "This construction is for tourism, not for local people."
+        },
+        {
+          "code": "NGO1",
+          "type": "Conservation NGO",
+          "text": "Since Sisal was announced as Pueblo Mágico, investors in luxury hotels have arrived, fragmenting the dune."
+        }
+      ],
+      "startYear": 2020,
+      "endYear": null,
+      "ongoing": true,
+      "certainty": "approximate"
+    },
+    {
+      "number": "5a",
+      "theme": "extent",
+      "class": "loss",
+      "ellipses": [
+        {
+          "lat": 21.192705,
+          "lon": -89.963742,
+          "radiusXM": 763.7,
+          "radiusYM": 59.7,
+          "rotationDeg": -30.74
+        }
+      ],
+      "zone": "Punta Piedra (west)",
+      "change": "Loss",
+      "period": "Recent",
+      "attributedCause": "Construction of a very large hotel",
+      "quotes": [
+        {
+          "code": "NGO1",
+          "type": "Conservation NGO",
+          "text": "For a very large hotel, mangrove was cleared and the dune damaged; a protected plant species had to be relocated."
+        }
+      ],
+      "startYear": 2021,
+      "endYear": null,
+      "ongoing": true,
+      "certainty": "approximate"
+    },
+    {
+      "number": "5b",
+      "theme": "extent",
+      "class": "expected-loss",
+      "ellipses": [
+        {
+          "lat": 21.158352,
+          "lon": -90.069838,
+          "radiusXM": 906.7,
+          "radiusYM": 59.7,
+          "rotationDeg": -5.74
+        }
+      ],
+      "zone": "Paraíso Sisal / El Palmar reserve (west)",
+      "change": "Expected loss: subdivided, not yet cleared",
+      "period": "Subdivision recent; protection removed in 2014",
+      "attributedCause": "Real estate; change of reserve boundaries",
+      "quotes": [
+        {
+          "code": "CR2",
+          "type": "Community restoration group",
+          "text": "The whole strip has been divided into lots, and she expects it to be cleared, filled and built on."
+        },
+        {
+          "code": "NGO1",
+          "type": "Conservation NGO",
+          "text": "The area used to lie within the state reserve, but in 2014 the governor changed the decree and the protection was lifted."
+        },
+        {
+          "code": "ET1",
+          "type": "Eco-tourism",
+          "text": "He marked this area on his sketch map."
+        }
+      ],
+      "startYear": 2021,
+      "endYear": null,
+      "ongoing": true,
+      "certainty": "expected"
+    },
+    {
+      "number": "6",
+      "theme": "extent",
+      "class": "expected-loss",
+      "ellipses": [
+        {
+          "lat": 21.161092,
+          "lon": -90.053184,
+          "radiusXM": 494.1,
+          "radiusYM": 55.1,
+          "rotationDeg": -10.74
+        }
+      ],
+      "zone": "Former casuarina stand",
+      "change": "Expected loss: subdivided, next to mangrove water",
+      "period": "2025 to 2026",
+      "attributedCause": "Clearing, followed by subdivision",
+      "quotes": [
+        {
+          "code": "CR2",
+          "type": "Community restoration group",
+          "text": "She used to collect firewood there until recently; the land is now divided into lots, less than 100 m from mangrove water, and she expects it to be filled in too."
+        }
+      ],
       "startYear": 2025,
       "endYear": 2026,
       "ongoing": false,
-      "certainty": "expected",
-      "cause": "",
-      "stakeholderType": "",
+      "certainty": "expected"
+    },
+    {
+      "number": "7",
+      "theme": "extent",
+      "class": "gain",
+      "ellipses": [
+        {
+          "lat": 21.191719,
+          "lon": -89.958314,
+          "radiusXM": 206.1,
+          "radiusYM": 57.8,
+          "rotationDeg": -35.74
+        },
+        {
+          "lat": 21.192942,
+          "lon": -89.955151,
+          "radiusXM": 206.1,
+          "radiusYM": 57.8,
+          "rotationDeg": -5.74
+        }
+      ],
+      "zone": "Tzintzin",
+      "change": "Gain",
+      "period": "1998",
+      "attributedCause": "Planting by community restoration group",
       "quotes": [
-        { "text": "", "name": "" },
-        { "text": "", "name": "" }
-      ]
+        {
+          "code": "CR1",
+          "type": "Community restoration group",
+          "text": "This planting was in 1998, at the location Tzintzin."
+        }
+      ],
+      "startYear": 1998,
+      "endYear": 1998,
+      "ongoing": false,
+      "certainty": "exact"
+    },
+    {
+      "number": "8",
+      "theme": "extent",
+      "class": "gain",
+      "ellipses": [
+        {
+          "lat": 21.188435,
+          "lon": -89.961179,
+          "radiusXM": 206.1,
+          "radiusYM": 57.8,
+          "rotationDeg": -90.74
+        },
+        {
+          "lat": 21.184702,
+          "lon": -89.962103,
+          "radiusXM": 206.1,
+          "radiusYM": 57.8,
+          "rotationDeg": -60.74
+        }
+      ],
+      "zone": "Lugar Carbonera (la reserva de ciénagas y manglares)",
+      "change": "Gain",
+      "period": "1999",
+      "attributedCause": "Planting by community restoration group",
+      "quotes": [
+        {
+          "code": "CR1",
+          "type": "Community restoration group",
+          "text": "These plantings are from 1999, at the location Carbonera."
+        }
+      ],
+      "startYear": 1999,
+      "endYear": 1999,
+      "ongoing": false,
+      "certainty": "exact"
+    },
+    {
+      "number": "9",
+      "theme": "extent",
+      "class": "gain",
+      "ellipses": [
+        {
+          "lat": 21.157951,
+          "lon": -90.050195,
+          "radiusXM": 440.3,
+          "radiusYM": 53.9,
+          "rotationDeg": -10.74
+        }
+      ],
+      "zone": "Specified on map",
+      "change": "Gain",
+      "period": "1998/1999",
+      "attributedCause": "Planting by community restoration group",
+      "quotes": [
+        {
+          "code": "CR1",
+          "type": "Community restoration group",
+          "text": "The interviewee is not sure about this one, but it was in 1998 or 1999."
+        }
+      ],
+      "startYear": 1998,
+      "endYear": 1999,
+      "ongoing": false,
+      "certainty": "approximate"
+    },
+    {
+      "number": "10",
+      "theme": "extent",
+      "class": "gain",
+      "ellipses": [
+        {
+          "lat": 21.156853,
+          "lon": -90.025342,
+          "radiusXM": 271.4,
+          "radiusYM": 100.9,
+          "rotationDeg": -10.74
+        }
+      ],
+      "zone": "Specified on map",
+      "change": "Gain",
+      "period": "2000",
+      "attributedCause": "Planting by community restoration group",
+      "quotes": [
+        {
+          "code": "CR1",
+          "type": "Community restoration group",
+          "text": "The planting was after 2000, on both sides of the road between Hunucma and Sisal."
+        }
+      ],
+      "startYear": 2000,
+      "endYear": 2000,
+      "ongoing": false,
+      "certainty": "exact"
+    },
+    {
+      "number": "11",
+      "theme": "extent",
+      "class": "gain",
+      "ellipses": [
+        {
+          "lat": 21.160823,
+          "lon": -90.033899,
+          "radiusXM": 222.4,
+          "radiusYM": 29.1,
+          "rotationDeg": -6.22
+        },
+        {
+          "lat": 21.159808,
+          "lon": -90.030099,
+          "radiusXM": 222.4,
+          "radiusYM": 29.1,
+          "rotationDeg": -6.22
+        }
+      ],
+      "zone": "Specified on map",
+      "change": "Gain",
+      "period": "2023",
+      "attributedCause": "Planting by community restoration group",
+      "quotes": [
+        {
+          "code": "CR1",
+          "type": "Community restoration group",
+          "text": "Canals were made and seedlings planted three years ago."
+        }
+      ],
+      "startYear": 2023,
+      "endYear": 2023,
+      "ongoing": false,
+      "certainty": "exact"
+    },
+    {
+      "number": "2",
+      "theme": "condition",
+      "class": "disturbed",
+      "ellipses": [
+        {
+          "lat": 21.157119,
+          "lon": -90.012817,
+          "radiusXM": 908.3,
+          "radiusYM": 372.1,
+          "rotationDeg": -10.74
+        }
+      ],
+      "zone": "Ciénaga east of Sisal",
+      "signal": "Trees weakened before dying; pests appearing",
+      "period": "1988 to 1990",
+      "attributedCause": "Rising salinity after Hurricane Gilbert",
+      "causeType": "natural",
+      "quotes": [
+        {
+          "code": "CR1",
+          "type": "Community restoration group",
+          "text": "The water became very salty after Hurricane Gilbert created a lot of breaches, so the mangrove began to die, and pests spread through the weakened trees, as in an epidemic."
+        }
+      ],
+      "startYear": 1988,
+      "endYear": 1990,
+      "ongoing": false,
+      "certainty": "exact"
+    },
+    {
+      "number": "3",
+      "theme": "condition",
+      "class": "disturbed",
+      "ellipses": [
+        {
+          "lat": 21.171193,
+          "lon": -89.982065,
+          "radiusXM": 3952.7,
+          "radiusYM": 798.4,
+          "rotationDeg": -20.74
+        }
+      ],
+      "zone": "Ciénaga east of Sisal",
+      "signal": "Shrimp and crab largely gone",
+      "period": "Since the 1980s and 1990s",
+      "attributedCause": "Water flow blocked near Chuburná due to barrier built in ciénaga",
+      "causeType": "anthropogenic",
+      "quotes": [
+        {
+          "code": "CR2",
+          "type": "Community restoration group",
+          "text": "In the 1980s and 1990s there was plenty of shrimp and crab; now there is almost none."
+        },
+        {
+          "code": "ET2",
+          "type": "",
+          "text": "A barrier built near Chuburná (a neighbouring town) stopped the water from flowing in, and the shrimp never came back."
+        }
+      ],
+      "startYear": 1980,
+      "endYear": null,
+      "ongoing": true,
+      "certainty": "approximate"
+    },
+    {
+      "number": "4",
+      "theme": "condition",
+      "class": "disturbed",
+      "ellipses": [
+        {
+          "lat": 21.187606,
+          "lon": -89.968692,
+          "radiusXM": 2044.8,
+          "radiusYM": 158,
+          "rotationDeg": -30.74
+        }
+      ],
+      "zone": "Dune and coast",
+      "signal": "Common bird species (matracas) disappeared",
+      "period": "Past 3 years",
+      "attributedCause": "Construction",
+      "causeType": "anthropogenic",
+      "quotes": [
+        {
+          "code": "ET2",
+          "type": "Eco-tourism",
+          "text": "Birds that used to be easy to find on the dune disappeared once people started building this large hotel, and because of increased boat traffic from foreign (Canadian) landowners whose property now borders the mangrove."
+        }
+      ],
+      "startYear": 2023,
+      "endYear": 2026,
+      "ongoing": false,
+      "certainty": "approximate"
+    },
+    {
+      "number": "5",
+      "theme": "condition",
+      "class": "disturbed",
+      "ellipses": [
+        {
+          "lat": 21.161912,
+          "lon": -90.037365,
+          "radiusXM": 542.9,
+          "radiusYM": 106.6,
+          "rotationDeg": -10.74
+        },
+        {
+          "lat": 21.163637,
+          "lon": -90.025871,
+          "radiusXM": 542.9,
+          "radiusYM": 106.6,
+          "rotationDeg": -10.74
+        }
+      ],
+      "zone": "Mangrove south of Sisal",
+      "signal": "Waste in the mangrove; dead crocodiles found",
+      "period": "Ongoing",
+      "attributedCause": "Waste from the village and fishers; cause of crocodile deaths unknown",
+      "causeType": "anthropogenic",
+      "quotes": [
+        {
+          "code": "CR1",
+          "type": "Community restoration group",
+          "text": "Waste from the village ends up in the mangrove, and the mud used to smell clearly polluted. A resident found several dead crocodiles without a clear cause (hearsay)."
+        },
+        {
+          "code": "CR2",
+          "type": "Community restoration group",
+          "text": "A resident found several dead crocodiles without a clear cause (hearsay)."
+        },
+        {
+          "code": "GOV1",
+          "type": "Government",
+          "text": "Sisal in particular faces other challenges, such as solid waste management; sometimes this waste ends up in illegal dumps in the mangrove zone."
+        }
+      ],
+      "startYear": 2021,
+      "endYear": null,
+      "ongoing": true,
+      "certainty": "approximate"
+    },
+    {
+      "number": "6",
+      "theme": "condition",
+      "class": "risk",
+      "ellipses": [
+        {
+          "lat": 21.174359,
+          "lon": -90.052452,
+          "radiusXM": 5597.1,
+          "radiusYM": 169.4,
+          "rotationDeg": -10.74
+        }
+      ],
+      "zone": "Coast and sea",
+      "signal": "Red tide with high nitrogen; month without income",
+      "period": "2025",
+      "attributedCause": "Possibly wastewater from hotels and farms",
+      "causeType": "anthropogenic",
+      "quotes": [
+        {
+          "code": "NGO1",
+          "type": "Conservation NGO",
+          "text": "Last year's red tide carried a lot of nitrogen, likely from hotel and farm waste; for a month there was no tourism or fishing."
+        }
+      ],
+      "startYear": 2025,
+      "endYear": 2025,
+      "ongoing": false,
+      "certainty": "exact"
+    },
+    {
+      "number": "7",
+      "theme": "condition",
+      "class": "risk",
+      "ellipses": [
+        {
+          "lat": 21.185237,
+          "lon": -89.979221,
+          "radiusXM": 2283.9,
+          "radiusYM": 111.4,
+          "rotationDeg": -30.74
+        }
+      ],
+      "zone": "Hotels in the flood zone",
+      "signal": "Risk of wastewater leaking towards the mangrove",
+      "period": "Current and future",
+      "attributedCause": "Wastewater tanks buried in permeable, flood-prone ground",
+      "causeType": "anthropogenic",
+      "quotes": [
+        {
+          "code": "NGO1",
+          "type": "Conservation NGO",
+          "text": "Hotels treat their waste in tanks, but in a flood zone with rising water these could leak into the very permeable ground next to the mangroves."
+        }
+      ],
+      "startYear": 2021,
+      "endYear": null,
+      "ongoing": true,
+      "certainty": "expected"
+    },
+    {
+      "number": "8",
+      "theme": "condition",
+      "class": "risk",
+      "ellipses": [
+        {
+          "lat": 21.163298,
+          "lon": -90.007417,
+          "radiusXM": 2138.1,
+          "radiusYM": 502.3,
+          "rotationDeg": -10.74
+        }
+      ],
+      "zone": "Freshwater springs",
+      "signal": "Water quality under pressure",
+      "period": "Past few years",
+      "attributedCause": "Crowding by nature tourism",
+      "causeType": "anthropogenic",
+      "quotes": [
+        {
+          "code": "CR1",
+          "type": "Community restoration group",
+          "text": "Sites that can handle about ten visitors a day now receive up to 200, often swimming with sunscreen, which is very polluting for mangrove water quality. Nature tourism visitors often have no idea what the ecosystem actually contains or what role people play in it."
+        }
+      ],
+      "startYear": 2021,
+      "endYear": 2026,
+      "ongoing": false,
+      "certainty": "approximate"
+    },
+    {
+      "number": "9",
+      "theme": "condition",
+      "class": "risk",
+      "ellipses": [
+        {
+          "lat": 21.158547,
+          "lon": -90.071748,
+          "radiusXM": 2358.7,
+          "radiusYM": 97.5,
+          "rotationDeg": -10.74
+        }
+      ],
+      "zone": "Coastal area west of Sisal",
+      "signal": "Increased filled up parts of land",
+      "period": "Past 5 years",
+      "attributedCause": "Local residents illegaly filling land and selling lots to foreigners",
+      "causeType": "anthropogenic",
+      "quotes": [
+        {
+          "code": "ET2",
+          "type": "Eco-tourism",
+          "text": "He describes people without legitimate claims “stealing” land, clearing vegetation, and then selling it on to Canadian buyers."
+        }
+      ],
+      "startYear": 2021,
+      "endYear": 2026,
+      "ongoing": false,
+      "certainty": "approximate"
+    },
+    {
+      "number": "10",
+      "theme": "condition",
+      "class": "risk",
+      "ellipses": [
+        {
+          "lat": 21.123129,
+          "lon": -89.954312,
+          "radiusXM": 2344.8,
+          "radiusYM": 903.5,
+          "rotationDeg": -0.74
+        }
+      ],
+      "zone": "Inland",
+      "signal": "Pollution flowing towards the coast",
+      "period": "Past 10 years",
+      "attributedCause": "Pig and poultry farms",
+      "causeType": "anthropogenic",
+      "quotes": [
+        {
+          "code": "CR1",
+          "type": "Community restoration group",
+          "text": "Whatever happens inland, such as pig and poultry farms, eventually ends up here."
+        }
+      ],
+      "startYear": 2016,
+      "endYear": 2026,
+      "ongoing": false,
+      "certainty": "approximate"
+    },
+    {
+      "number": "11",
+      "theme": "condition",
+      "class": "risk",
+      "ellipses": [
+        {
+          "lat": 21.135439,
+          "lon": -89.940857,
+          "radiusXM": 1205.9,
+          "radiusYM": 788.4,
+          "rotationDeg": -0.74
+        }
+      ],
+      "zone": "Inland",
+      "signal": "Pollution of mangrove, clearing mangrove for tourism purposes",
+      "period": "Past 5 years",
+      "attributedCause": "Construction of suburbs",
+      "causeType": "anthropogenic",
+      "quotes": [
+        {
+          "code": "AC1",
+          "type": "Academic",
+          "text": "Inland, new suburbs are being built between Hunucma and Sisal. These constructions will not only block inland water from reaching the Sisal mangroves, but will also increase tourist pressure on them."
+        }
+      ],
+      "startYear": 2021,
+      "endYear": 2026,
+      "ongoing": false,
+      "certainty": "approximate"
+    },
+    {
+      "number": "1",
+      "theme": "disturbance-recovery",
+      "class": "not-recovered",
+      "ellipses": [
+        {
+          "lat": 21.186556,
+          "lon": -89.945639,
+          "radiusXM": 1847,
+          "radiusYM": 917.4,
+          "rotationDeg": -20.74
+        }
+      ],
+      "zone": "La bocana la carbonera",
+      "disturbance": "Hurricane Gilbert: breach, seawater intrusion, areas dried out",
+      "when": "1988",
+      "recovery": "Not recovered",
+      "recoveryMode": "-",
+      "quotes": [
+        {
+          "code": "NGO1",
+          "type": "Conservation NGO",
+          "text": "According to her grandparents' stories, much of the mangrove in the ejido zone died or fell. Without trees for shade, a tall grass took over and has prevented mangrove from returning. At La Carbonera, seawater intrusion after the hurricane dried out areas that used to be mangrove."
+        },
+        {
+          "code": "ET2",
+          "type": "Eco-tourism",
+          "text": "The biggest breach that Hurricane Gilbert made was in this area, close to La Carbonera."
+        },
+        {
+          "code": "ET1",
+          "type": "Eco-tourism",
+          "text": "Some of the channels the hurricane opened never closed, like “La Bocana La Carbonera”."
+        }
+      ],
+      "startYear": 1988,
+      "endYear": 1988,
+      "ongoing": false,
+      "certainty": "exact"
+    },
+    {
+      "number": "2",
+      "theme": "disturbance-recovery",
+      "class": "not-recovered",
+      "ellipses": [
+        {
+          "lat": 21.161537,
+          "lon": -90.036389,
+          "radiusXM": 551,
+          "radiusYM": 87.9,
+          "rotationDeg": -5.74
+        }
+      ],
+      "zone": "Area behind the Sisal to Mérida road",
+      "disturbance": "Die-off due to blocked water flow because of road construction +  Huricanne Gilbert",
+      "when": "1988",
+      "recovery": "Not recovered",
+      "recoveryMode": "-",
+      "quotes": [
+        {
+          "code": "AC1",
+          "type": "Academic",
+          "text": "In northern Yucatán, roads and harbours that block water flow are the main cause of mangrove degradation. The construction of the road from Hunucma to Sisal blocked the water flow and caused the death of this large area. Hurricane Gilbert amplified this die-off. In the past years, part of this area has been restored."
+        }
+      ],
+      "startYear": 1988,
+      "endYear": 1988,
+      "ongoing": false,
+      "certainty": "exact"
+    },
+    {
+      "number": "3",
+      "theme": "disturbance-recovery",
+      "class": "partially-recovered",
+      "ellipses": [
+        {
+          "lat": 21.167982,
+          "lon": -89.97706,
+          "radiusXM": 4432,
+          "radiusYM": 940.2,
+          "rotationDeg": -15.74
+        }
+      ],
+      "zone": "Ciénaga east of Sisal",
+      "disturbance": "Hurricane Gilbert: breaches, seawater intrusion, hypersalinity, mass die-off",
+      "when": "1988 to 1990",
+      "recovery": "None for ~8 years; bare zones persist today",
+      "recoveryMode": "Partially naturally, then assisted from 1996 (spring clearing, planting 1997 to 2001)",
+      "quotes": [
+        {
+          "code": "CR1",
+          "type": "Community cooperative",
+          "text": "The hurricane hit Sisal hard and opened many breaches in the coastal strip, letting in a lot of seawater. The water became hypersaline, the mangrove started dying, pests followed, and around 90% died. Patches of dead trees were visible by 1990. He sees the hurricane as the indirect cause; the real damage came from the rise in salinity."
+        },
+        {
+          "code": "NGO1",
+          "type": "Conservation NGO",
+          "text": "Her family recalls that much of the mangrove died or fell after Gilbert; without trees for shade, a tall grass took over and prevented mangrove from returning."
+        },
+        {
+          "code": "ET1",
+          "type": "Eco-tourism",
+          "text": "Seawater mixed with the mangrove water, the salt killed the trees, and those zones are still bare today."
+        }
+      ],
+      "startYear": 1988,
+      "endYear": 1990,
+      "ongoing": false,
+      "certainty": "exact"
+    },
+    {
+      "number": "4",
+      "theme": "disturbance-recovery",
+      "class": "fully-recovered",
+      "ellipses": [
+        {
+          "lat": 21.158467,
+          "lon": -90.035726,
+          "radiusXM": 630.9,
+          "radiusYM": 178,
+          "rotationDeg": -5.74
+        }
+      ],
+      "zone": "Area behind the Sisal to Mérida road",
+      "disturbance": "Die-off due to blocked water flow because of road construction +  Huricanne Gilbert",
+      "when": "1988",
+      "recovery": "Restored",
+      "recoveryMode": "Assisted",
+      "quotes": [
+        {
+          "code": "AC1",
+          "type": "Academic",
+          "text": "In northern Yucatán, roads and harbours that block water flow are the main cause of mangrove degradation. The construction of the road from Hunucma to Sisal blocked the water flow and caused the death of this large area. Hurricane Gilbert amplified this die-off. In the past years, part of this area has been restored."
+        }
+      ],
+      "startYear": 1988,
+      "endYear": 1988,
+      "ongoing": false,
+      "certainty": "exact"
+    },
+    {
+      "number": "5",
+      "theme": "disturbance-recovery",
+      "class": "fully-recovered",
+      "ellipses": [
+        {
+          "lat": 21.158233,
+          "lon": -90.027314,
+          "radiusXM": 560.8,
+          "radiusYM": 307.9,
+          "rotationDeg": 54.26
+        }
+      ],
+      "zone": "Ciénaga as a whole (no specific location)",
+      "disturbance": "Storms Cristóbal, Delta and Zeta: long flooding, possibly salt die-off",
+      "when": "2020",
+      "recovery": "Within ~1 year according to one source",
+      "recoveryMode": "Naturally",
+      "quotes": [
+        {
+          "code": "CR2",
+          "type": "Community restoration group",
+          "text": "Around 2020, during the pandemic, the ciénaga rose and the road between the sea and the ciénaga flooded, after which the water dropped again. She doesn't name the storm specifically."
+        },
+        {
+          "code": "NGO1",
+          "type": "Conservation NGO",
+          "text": "Cristóbal, Delta and Zeta brought a lot of rain. Everything was full of water, roadside channels connected to the mangrove and the main road was flooded. She isn't sure whether it was good or bad for the mangrove, or where the water went."
+        },
+        {
+          "code": "ET2",
+          "type": "Eco-tourism",
+          "text": "A lot of seawater came in and caused flooding. The mangrove became too salty and died, but re-established within about a year. A breach opened by the storms has since closed again."
+        },
+        {
+          "code": "CR1",
+          "type": "Community cooperative",
+          "text": "Since a barrier now keeps out the sea, storms no longer cause major change."
+        },
+        {
+          "code": "GOV1",
+          "type": "Government",
+          "text": "Due to heavy rainfall, the groundwater rose and the mangrove zones were flooded for five to six months."
+        }
+      ],
+      "startYear": 2020,
+      "endYear": 2020,
+      "ongoing": false,
+      "certainty": "exact"
     }
   ]
 }

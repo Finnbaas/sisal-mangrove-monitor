@@ -141,6 +141,14 @@ function setupStormMapControls() {
     }
   });
   canvas.addEventListener('pointercancel', () => { drag = null; });
+  // mouse wheel, two-finger scroll or pinch on a trackpad: zoom around the pointer (a pinch arrives as a wheel event with ctrlKey,
+  // with smaller steps)
+  canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const pixels = e.deltaY * (e.deltaMode === 1 ? 16 : 1);   // a mouse wheel may report lines instead of pixels
+    zoomStormMap(e.offsetX, e.offsetY, Math.exp(-pixels * (e.ctrlKey ? 0.018 : 0.0045)));
+    hideStormTip();
+  }, { passive: false });
   canvas.addEventListener('pointerleave', () => { drag = null; stormMap.hoverId = null; hideStormTip(); renderStormMap(); });
 }
 

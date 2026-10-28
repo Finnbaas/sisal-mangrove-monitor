@@ -53,7 +53,6 @@
               <div class="card-title" data-text="cardTitles.point-map"></div>
               <div class="faint" id="map-subtitle"></div>
             </div>
-            <div class="expand">&#8599;</div>
           </div>
           <!-- the legend strip sits under the map, like the storm map -->
           <div id="map-frame">
@@ -78,7 +77,6 @@
               <div class="card-title" id="point-name"></div>
               <div class="faint" id="point-class"></div>
             </div>
-            <div class="expand">&#8599;</div>
           </div>
           <div id="chips"></div>
           <!-- one chart per selected variable, a shared year axis and the comparison line (drawn by points.js
@@ -114,7 +112,7 @@
 
         <!-- storm map: drawn on the canvas by storm-map.js; the legend strip sits under the map -->
         <div class="card" data-card="storm-map">
-          <div class="card-title-row"><div class="card-title" data-text="cardTitles.storm-map"></div><div class="expand">&#8599;</div></div>
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.storm-map"></div></div>
           <div id="storm-map-frame">
             <div id="storm-map">
               <canvas id="storm-map-canvas"></canvas>
@@ -132,7 +130,7 @@
 
         <!-- wave rose: drawn as SVG by wave-rose.js -->
         <div class="card" data-card="wave-direction">
-          <div class="card-title-row"><div class="card-title" data-text="cardTitles.wave-direction"></div><div class="expand">&#8599;</div></div>
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.wave-direction"></div></div>
           <div id="wave-rose"><div id="wave-rose-tip" class="hover-chip" hidden></div></div>
           <div id="wave-rose-legend"></div>
           <p class="fine" id="wave-rose-note"></p>
@@ -141,7 +139,7 @@
 
         <!-- all storms near Sisal as two bar charts: storm-counts.js -->
         <div class="card" data-card="storm-counts">
-          <div class="card-title-row"><div class="card-title" data-text="cardTitles.storm-counts"></div><div class="expand">&#8599;</div></div>
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.storm-counts"></div></div>
           <div id="storm-counts-legend"></div>
           <div id="storm-counts-charts"><div id="storm-counts-tip" class="hover-chip" hidden></div></div>
           <p class="fine" id="storm-counts-text"></p>
@@ -150,7 +148,7 @@
         </div>
 
         <div class="card" data-card="event-list">
-          <div class="card-title-row"><div class="card-title" data-text="cardTitles.event-list"></div><div class="expand">&#8599;</div></div>
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.event-list"></div></div>
           <div id="event-list"></div>
           <!-- how many events there are (climatology-storms.js) -->
           <div id="event-list-foot">
@@ -167,7 +165,6 @@
                 <div class="card-title" id="event-title"></div>
                 <div class="faint" id="event-subtitle"></div>
               </div>
-              <div class="expand">&#8599;</div>
             </div>
             <!-- legend of the red box and dashed line in the charts (climatology-storms.js) -->
             <div id="event-legend"></div>
@@ -181,7 +178,7 @@
 
         <!-- the small card next to the heading of "Climate at Sisal": where the data comes from -->
         <div class="card climate-sources-card" data-card="climate-sources">
-          <div class="card-title-row"><div class="card-title" data-text="labels.dataSourcesTitle"></div><div class="expand">&#8599;</div></div>
+          <div class="card-title-row"><div class="card-title" data-text="labels.dataSourcesTitle"></div></div>
           <img src="img/climatology-data-cells.png" alt="">
         </div>
 
@@ -191,7 +188,6 @@
               <div class="card-title" data-text="cardTitles.climate-typical-year"></div>
               <div class="faint" data-text="labels.typicalYearSubtitle"></div>
             </div>
-            <div class="expand">&#8599;</div>
           </div>
           <!-- one chart per variable, one shared month axis and the comparison line (drawn by climatology-climate.js) -->
           <div id="typical-year-charts" class="chart-stack"></div>
@@ -204,7 +200,6 @@
               <div class="card-title" data-text="cardTitles.climate-change"></div>
               <div class="faint" data-text="labels.changeSubtitle"></div>
             </div>
-            <div class="expand">&#8599;</div>
           </div>
           <div id="climate-change-charts" class="chart-stack">
             <p class="placeholder-text" data-text="messages.notYetAvailable"></p>
@@ -214,7 +209,7 @@
 
         <!-- "In detail": one tab per variable; the charts in it are not filled yet (climatology-climate.js) -->
         <div class="card" data-card="climate-detail">
-          <div class="card-title-row"><div class="card-title" data-text="cardTitles.climate-detail"></div><div class="expand">&#8599;</div></div>
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.climate-detail"></div></div>
           <div id="climate-detail-tabs" class="detail-tabs"></div>
           <div id="climate-detail-body"></div>
         </div>
@@ -224,7 +219,9 @@
 
         <!-- Mangrove maps: the map with the layer switch, legend strip and opacity slider -->
         <div class="card" data-card="eco-map">
-          <div class="card-title-row"><div class="card-title"><span id="eco-map-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div><div class="expand">&#8599;</div></div>
+          <!-- the menu to choose the map, above the map it controls (ecosystem.js: renderMapMenu, content/ecosystem.json "mapMenu") -->
+          <div id="eco-map-menu" class="map-menu"></div>
+          <div class="card-title-row"><div class="card-title"><span id="eco-map-title"></span> <span class="placeholder-tag" hidden data-text="messages.placeholderTag"></span></div></div>
           <!-- a short label above the map, e.g. the storm of the acute views (layers.json "mapLabel") -->
           <p id="eco-map-label" class="fine" hidden></p>
           <div id="eco-map-frame" class="map-frame">
@@ -246,11 +243,6 @@
           </div>
           <div class="card-actions card-actions-footer"><a id="eco-maps-link" class="eco-link"></a></div>
           <p class="fine" id="eco-map-status"></p>
-        </div>
-
-        <!-- Maps: the menu to choose the map (ecosystem.js: renderMapMenu, content/ecosystem.json "mapMenu") -->
-        <div class="card" data-card="eco-menu">
-          <div id="eco-map-menu" class="map-menu"></div>
         </div>
 
         <div class="card" data-card="eco-about">
@@ -301,26 +293,36 @@
           <div id="ews-plots-charts" class="chart-stack"></div>
         </div>
 
-        <!-- STAKEHOLDER CARDS (filled by stakeholders.js from content/stakeholders.json) -->
+        <!-- STAKEHOLDER CARDS (filled by stakeholders.js from content/stakeholders.json): the map of the chosen theme with the
+             timeline under it (the theme tabs are at the top of the map card), and on the right the panel. The map uses the map classes of ecosystem.css. -->
 
         <div class="card" data-card="stakeholder-map">
-          <div class="card-title-row"><div class="card-title" data-text="cardTitles.stakeholder-map"></div><div class="expand">&#8599;</div></div>
-          <!-- three layers: the map image of the year, the areas on top of it, and the labels -->
-          <div id="sh-map">
-            <img id="sh-map-image" alt="">
-            <div id="sh-areas"></div>
-            <div id="sh-imagery-label"></div>
-            <div id="sh-map-message" hidden></div>
+          <!-- the theme tabs sit above the map they control (stakeholders.js: renderStakeholderMenu) -->
+          <div id="sh-menu" class="card-tabs"></div>
+          <div class="card-title-row top">
+            <div>
+              <div class="card-title" id="sh-title"></div>
+              <div class="faint" id="sh-subtitle"></div>
+            </div>
           </div>
-          <div id="sh-legend"></div>
-          <div class="fine" data-text="labels.stakeholderMapNote"></div>
+          <div class="map-frame">
+            <div id="sh-map" class="geo-map"></div>
+            <div id="sh-map-message" class="map-message" hidden></div>
+            <div class="map-buttons">
+              <button type="button" id="sh-basemap" class="map-button"></button>
+              <button type="button" id="sh-zoom-in" class="map-button"></button>
+              <button type="button" id="sh-zoom-out" class="map-button"></button>
+              <button type="button" id="sh-reset" class="map-button"></button>
+            </div>
+          </div>
+          <div id="sh-legend" class="sh-legend"></div>
           <p class="fine" id="sh-status"></p>
         </div>
 
         <div class="card" data-card="stakeholder-time">
           <!-- top row: All years button, year display, one year back / forward -->
           <div id="sh-controls">
-            <button id="sh-all-years" type="button" aria-pressed="true" data-text="labels.allYears"></button>
+            <button id="sh-all-years" type="button" aria-pressed="true" data-text="stakeholders.allYears"></button>
             <div id="sh-year-block">
               <div class="label-xs" id="sh-year-label"></div>
               <div id="sh-year-big"></div>
@@ -328,7 +330,7 @@
             <button id="sh-year-back" class="step" aria-label="Previous year">&larr;</button>
             <button id="sh-year-forward" class="step" aria-label="Next year">&rarr;</button>
           </div>
-          <!-- the slider track is the time axis of the observation bars under it: both use the same
+          <!-- the slider track is the time axis of the area rows under it: both use the same
                left and right edge (#sh-track and .sh-row-scale), and the handle line runs through all rows -->
           <div id="sh-time">
             <div id="sh-track">
@@ -343,8 +345,11 @@
         </div>
 
         <div class="card" data-card="stakeholder-panel">
-          <div class="card-title-row"><div class="card-title" data-text="cardTitles.stakeholder-panel"></div><div class="expand" id="sh-panel-expand">&#8599;</div></div>
-          <div id="sh-panel-empty" data-text="messages.selectArea"></div>
+          <div class="card-title-row"><div class="card-title" data-text="stakeholders.panelTitle"></div></div>
+          <div id="sh-panel-empty">
+            <div id="sh-panel-empty-text"></div>
+            <div id="sh-panel-note" hidden></div>
+          </div>
           <div id="sh-panel-content" hidden></div>
         </div>
     </div>

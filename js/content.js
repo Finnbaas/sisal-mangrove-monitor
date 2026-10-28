@@ -387,9 +387,8 @@ function buildItem(item, ready, pageId) {
   return unknownCard('card type "' + (item && item.type) + '"', pageId);
 }
 
-// A card with an optional title row (title + the expand button, as on the other cards).
-// withExpand = false leaves out the expand button.
-function simpleCard(className, title, withExpand) {
+// A card with an optional title row.
+function simpleCard(className, title) {
   const card = document.createElement('div');
   card.className = 'card ' + className;
   if (title) {
@@ -399,24 +398,17 @@ function simpleCard(className, title, withExpand) {
     titleEl.className = 'card-title';
     titleEl.textContent = title;
     row.appendChild(titleEl);
-    if (withExpand !== false) {
-      const expand = document.createElement('div');
-      expand.className = 'expand';
-      expand.textContent = '↗';
-      row.appendChild(expand);
-    }
     card.appendChild(row);
   }
   return card;
 }
 
-// { "type": "planned", "title": ..., "expand": true, "graphs": [ { "title", "label", "height", "width" } ] }
+// { "type": "planned", "title": ..., "graphs": [ { "title", "label", "height", "width" } ] }
 // A card whose graphs are designed but not built yet (Figma: graph-placeholder): per graph a light
 // box with its title and a line saying what it will show. Graphs sit side by side; a graph with a
 // "width" (px) keeps that width, the others share the rest.
 function plannedCard(item) {
-  const card = simpleCard('planned-card', item.title, item.expand === true);
-  if (!item.expand) card.classList.add('no-expand');
+  const card = simpleCard('planned-card', item.title);
   const row = document.createElement('div');
   row.className = 'planned-row';
   (Array.isArray(item.graphs) ? item.graphs : []).forEach((g) => {
@@ -442,7 +434,7 @@ function plannedCard(item) {
 // One card with a small title that holds ready-made cards side by side, each with a light border
 // instead of its own shadow, so they read as parts of one card. Their rows line up (css/base.css).
 function groupCard(item, ready, pageId) {
-  const card = simpleCard('group-card', item.title, false);
+  const card = simpleCard('group-card', item.title);
   const row = document.createElement('div');
   row.className = 'group-row';
   (Array.isArray(item.cards) ? item.cards : []).forEach((name) => row.appendChild(buildItem(name, ready, pageId)));

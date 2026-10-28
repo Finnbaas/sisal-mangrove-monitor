@@ -18,7 +18,7 @@
 
   /* FIXED colors: the same in every section */
   --color-surface: #FFFFFF;          /* card backgrounds */
-  --color-surface-subtle: #F0F2F4;   /* small light backgrounds (expand button, menu, panels): neutral grey */
+  --color-surface-subtle: #F0F2F4;   /* small light backgrounds (menu, panels): neutral grey */
   --color-divider: #E3E6E9;          /* lines between rows */
   --color-text: #1F2328;
   --color-text-body: #3D434A;
@@ -66,6 +66,13 @@
   --color-class-gain-tint: #D6E3FA;
   --color-class-recovery-tint: #FCEFC5;
   --color-class-loss-recovery-tint: #F7DAEB;
+
+  /* Stakeholder maps (Figma Playground: the legend swatches of the sections "1. Extent", "2. Condition" and "3. Disturbance and
+     Recovery"): the three area colors (red, orange, green) and the grey of the "natural cause" marker. Named in content/stakeholders.json. */
+  --color-stakeholder-red: #F24822;
+  --color-stakeholder-orange: #FF9E42;
+  --color-stakeholder-green: #66D575;
+  --color-stakeholder-natural: #757575;
 
   /* tipping-point scenarios: text color of the scenario name */
   --color-scenario-1: #C1652F;
@@ -174,20 +181,6 @@ button { font-family: inherit; cursor: pointer; }
 .card-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .card-title-row.top { align-items: flex-start; }
 .card-title { font-size: var(--font-size-body); font-weight: 600; color: var(--color-text-muted); }
-a.expand { text-decoration: none; }
-a.expand:hover, a.expand:focus-visible { background: var(--color-border); color: var(--color-text); }
-.expand {
-  width: 26px;
-  height: 26px;
-  border-radius: var(--radius-control);
-  background: var(--color-surface-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--font-size-small);
-  color: var(--color-text-muted);
-  flex-shrink: 0;
-}
 .faint { color: var(--color-text-faint); font-size: var(--font-size-small); }
 .faint.xs { font-size: var(--font-size-small); }
 .label-xs { font-size: var(--font-size-small); color: var(--color-text-muted); }
@@ -329,7 +322,7 @@ a.expand:hover, a.expand:focus-visible { background: var(--color-border); color:
 
 /* a card with graphs that are not built yet (content/pages.json { "type": "planned" }; Figma graph-placeholder) */
 .planned-card { display: flex; flex-direction: column; gap: 12px; }
-.planned-card.no-expand .card-title-row { margin-bottom: 0; }
+.planned-card .card-title-row { margin-bottom: 0; }
 .planned-row { display: flex; gap: 12px; }
 .graph-placeholder { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; padding: 10px 12px 12px 12px; border-radius: var(--radius-card); border: 1px solid var(--color-map-bg); background: var(--color-surface-subtle); }
 .graph-placeholder-title { font-size: var(--font-size-body); font-weight: 600; color: var(--color-text-body); }
