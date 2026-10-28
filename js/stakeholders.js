@@ -3,7 +3,8 @@
 //   (Extent, Condition, Disturbance & recovery). The theme chooses which areas (rotated ellipses with a number marker) are on
 //   the map, the legend, the rows of the timeline and what the panel shows. The slider of the timeline is also its time axis:
 //   it shows only the areas that were happening in that year. Clicking an area (map or timeline bar) shows what stakeholders
-//   said about it in the panel; clicking it again clears the panel. The map never moves by itself.
+//   said about it in the panel and flies the map to it (the area plus some surroundings); clicking it again clears the panel
+//   and returns to the start view. Changing the theme does not move the map.
 //   Address: #stakeholders/<theme> and #stakeholders/<theme>/<number>, e.g. #stakeholders/disturbance-recovery/5.
 // Reads: content/stakeholders.json (themes and areas, written by the team); the base map comes from data/vegetation/layers.json
 //   (loaded by ecosystem.js). Nothing is typed in this file: every text, number and color comes from content/.
@@ -13,6 +14,9 @@
 const STAKEHOLDER_FILE = 'content/stakeholders.json';
 const SH_ELLIPSE_STEPS = 72;       // corners of the polygon that draws one ellipse
 const SH_CERTAINTY = ['exact', 'approximate', 'expected'];
+const SH_FLY_SECONDS = 0.8;        // duration of the flight to an area and back
+const SH_MIN_VIEW_METERS = 1600;   // flying to an area: the view is at least this wide, so a small area shows its surroundings
+const SH_VIEW_PADDING = 0.6;       // ... and the area itself gets this much extra space around it (share of its size)
 
 let stakeholders = null;     // contents of content/stakeholders.json, or null if it could not be loaded
 let shTheme = null;          // id of the theme on the map
@@ -22,7 +26,7 @@ let shHover = null;          // number of the area under the mouse (map or timel
 let shScaleStart = null;     // first year of the time scale: the earliest start year of all areas of all themes
 let shMap = null;            // the Leaflet map
 let shReady = false;         // true when the map has its view
-const shItems = {};          // "theme/number" -> { area, polygons, marker, size } (the drawings of one area)
+const shItems = {};          // "theme/number" -> { area, polygons, marker, size, bounds } (the drawings of one area)
 
 // ---------- loading and checking ----------
 
@@ -101,7 +105,11 @@ async function setupStakeholders() {
   renderStakeholderCertaintyLegend();
   applyStakeholderAddress();
   renderStakeholders();
-  window.addEventListener('hashchange', () => { applyStakeholderAddress(); renderStakeholders(); });
+  window.addEventListener('hashchange', () => {
+    applyStakeholderAddress();
+    renderStakeholders();
+    if (shSelected !== null) showStakeholderArea(shSelected, false);   // a link to an area
+  });
 }
 
 // ---------- small helpers ----------
@@ -206,6 +214,7 @@ function setupStakeholderMap() {
     const rings = area.ellipses.map(ellipseLatLngs);
     const item = { area, polygons: rings.map((ring) => L.polygon(ring, areaStyle(c, ''))), marker: null };
     const bounds = L.latLngBounds(rings.flat());
+    item.bounds = bounds;
     item.size = bounds.getSouthWest().distanceTo(bounds.getNorthEast());
     // the number marker in the middle of the area (the middle of its ellipse centres)
     const lat = area.ellipses.reduce((s, e) => s + e.lat, 0) / area.ellipses.length;
@@ -223,7 +232,11 @@ function setupStakeholderMap() {
   });
 
   shMap = createMap('sh-map', 'sh-zoom-in', 'sh-zoom-out', 'sh-reset', {
-    afterFit: () => { if (!shReady) { shReady = true; refreshStakeholderStyles(); } }
+    // the map can only be measured when its card is on screen; after every (re)fit of the start view a selected area is shown again
+    afterFit: () => {
+      if (!shReady) { shReady = true; refreshStakeholderStyles(); }
+      if (shSelected !== null) showStakeholderArea(shSelected, true);
+    }
   });
   // the same buttons as the Mangrove maps map
   const tx = CONTENT.ecosystem.texts;
@@ -232,6 +245,31 @@ function setupStakeholderMap() {
   setText('sh-reset', tx.reset);
   $('sh-reset').title = tx.resetTitle;
   setupBasemapButton('sh-basemap', 'sh-map', true);   // starts black and white
+}
+
+// Where the map goes for an area: the area plus some surroundings, never closer than SH_MIN_VIEW_METERS wide.
+function stakeholderAreaView(number) {
+  let view = shItems[shTheme + '/' + number].bounds.pad(SH_VIEW_PADDING);
+  const centre = view.getCenter();
+  const halfLat = SH_MIN_VIEW_METERS / 2 / 111320;
+  const halfLon = halfLat / Math.cos(centre.lat * Math.PI / 180);
+  view = view.extend([centre.lat - halfLat, centre.lng - halfLon]).extend([centre.lat + halfLat, centre.lng + halfLon]);
+  const zoom = Math.max(shMap.getMinZoom(), Math.min(shMap.getBoundsZoom(view, false, L.point(40, 40)), shMap.getMaxZoom()));
+  return { centre: view.getCenter(), zoom };
+}
+
+// Centres the map on an area and zooms to it: flying, or at once (instant) when the map was just (re)fitted.
+function showStakeholderArea(number, instant) {
+  if (!shReady) return;   // the map is not on screen yet: afterFit shows the selected area when it is
+  const v = stakeholderAreaView(number);
+  if (instant) shMap.setView(v.centre, v.zoom, { animate: false });
+  else shMap.flyTo(v.centre, v.zoom, { duration: SH_FLY_SECONDS });
+}
+
+// Back to the start view (the same as the Reset button): the study area outline with the usual padding.
+function showStakeholderStart() {
+  if (!shReady) return;
+  shMap.flyToBounds(L.latLngBounds(aoiLatLngs()), { paddingTopLeft: [START_PADDING, START_PADDING], paddingBottomRight: [START_PADDING, START_PADDING], duration: SH_FLY_SECONDS });
 }
 
 // Puts the areas of the theme that were happening in the selected year on the map (big areas first, so small ones stay clickable).
@@ -481,10 +519,13 @@ function setStakeholderYear(year) {
   renderStakeholderPanel();
 }
 
-// Selecting the selected area again clears the panel.
+// Selecting an area shows it in the panel and flies the map to it; selecting the selected area again clears the panel and
+// returns to the start view.
 function selectStakeholderArea(number) {
   if (!shItems[shTheme + '/' + number]) return;
   shSelected = shSelected === number ? null : number;
+  if (shSelected !== null) showStakeholderArea(shSelected, false);
+  else showStakeholderStart();
   setStakeholderAddress();
   refreshStakeholderStyles();
   document.querySelectorAll('#sh-rows .sh-bar').forEach((bar) => bar.setAttribute('aria-pressed', bar.dataset.area === shSelected));

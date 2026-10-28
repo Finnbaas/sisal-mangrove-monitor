@@ -4,6 +4,9 @@
    Colors: css/base.css (--color-stakeholder-...). stakeholders.js sets two variables on the elements that show a class:
    --c = the class color, and on a number marker --fill (its fill) and --ink (its text color). */
 
+/* the same columns as the Mangrove maps page (ecosystem.css): the map is 2/3 of the page, the menu and panel 1/3 */
+[data-screen="stakeholders"].research-grid { grid-template-columns: 2fr 1fr; }   /* (this page has no parts: the section itself is the grid) */
+
 /* map card: the legend under the map */
 .sh-legend { display: flex; flex-wrap: wrap; gap: 6px 20px; padding-top: 12px; }
 .sh-legend:empty { display: none; }
