@@ -331,7 +331,7 @@ function renderStakeholderLegend() {
   $('sh-legend').innerHTML = swatches.concat(markers).join('');
 }
 
-// The theme menu: the same tabs as the Maps menu of the Mangrove maps (buildMenuTabs in ecosystem.js). focus = the tab that keeps the keyboard focus.
+// The theme tabs at the top of the map card (buildMenuTabs in ecosystem.js, styled by .card-tabs). focus = the tab that keeps the keyboard focus.
 function renderStakeholderMenu(focus) {
   const box = $('sh-menu');
   box.innerHTML = '';

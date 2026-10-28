@@ -41,7 +41,7 @@ Tip: paste the file into https://jsonlint.com to find the mistake.
 { "id": "stakeholders", "label": "Stakeholders",
   "columns": [
     ["stakeholder-map", "stakeholder-time"],
-    ["stakeholder-menu", "stakeholder-panel"]
+    ["stakeholder-panel"]
   ] }
 ```
 
@@ -86,9 +86,8 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 | `climate-typical-year` | "A typical year": one chart per climate variable, monthly mean with 10th–90th percentile band |
 | `climate-change` | "Change since 1950": one chart per climate variable, with the trend and its badge |
 | `climate-detail` | "In detail": one tab per climate variable, with record period, the daily values and the annual means with the trend |
-| `stakeholder-map` | The map of the chosen stakeholder theme, with the title and subtitle of the theme in its header and the legend under it |
+| `stakeholder-map` | The map of the chosen stakeholder theme, with the theme tabs (Extent, Condition, ...) at the top, the title and subtitle of the theme under them and the legend under the map |
 | `stakeholder-time` | Year slider that is also the time axis of the area bars (goes directly under `stakeholder-map`) |
-| `stakeholder-menu` | The theme menu (Extent, Condition, Disturbance & recovery): the same tabs as the Maps menu |
 | `stakeholder-panel` | What stakeholders said about the clicked area |
 
 ### Simple cards (write them as an object)

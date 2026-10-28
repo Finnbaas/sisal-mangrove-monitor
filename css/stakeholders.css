@@ -1,6 +1,6 @@
 /* stakeholders.css: the Stakeholder screen (stakeholders.js).
    The map card (the map itself uses the map classes of ecosystem.css: .map-frame, .geo-map, .map-buttons, the black and white base
-   map), the Time card (timeline) and the area panel; the theme menu uses the Maps menu classes of ecosystem.css (.menu-tabs).
+   map), the Time card (timeline) and the area panel; the theme tabs at the top of the map card are built with .menu-tab (ecosystem.js) and styled by .card-tabs below.
    Colors: css/base.css (--color-stakeholder-...). stakeholders.js sets two variables on the elements that show a class:
    --c = the class color, and on a number marker --fill (its fill) and --ink (its text color). */
 
@@ -13,7 +13,15 @@
 [data-card="stakeholder-map"] { display: flex; flex-direction: column; height: var(--sh-card-height); }
 [data-card="stakeholder-map"] .map-frame { flex: 1 1 auto; min-height: 0; }
 #sh-map.geo-map { height: 100%; aspect-ratio: auto; }
-[data-card="stakeholder-panel"] { min-height: calc(var(--sh-card-height) - 98px); }   /* 98 px = the menu card above it and the gap */
+[data-card="stakeholder-panel"] { min-height: var(--sh-card-height); }
+
+/* the theme tabs at the top of the map card: text tabs with an underline in the page color (like .section-nav in base.css),
+   a thin divider under the row over the full card width (the card has 24px padding) */
+.card-tabs { margin: 0 calc(-1 * var(--space-3)) var(--space-2); padding: 0 var(--space-3); border-bottom: 1px solid var(--color-divider); }
+.card-tabs .menu-tabs { display: flex; flex-wrap: nowrap; gap: var(--space-3); padding: 0; background: transparent; border-radius: 0; }
+.card-tabs .menu-tab { flex: 0 0 auto; padding: 0 0 8px; margin-bottom: -1px; border: none; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; font-size: var(--font-size-small); font-weight: 500; color: var(--color-text-muted); }
+.card-tabs .menu-tab:hover:not([aria-selected="true"]) { background: transparent; color: var(--color-text); }
+.card-tabs .menu-tab[aria-selected="true"] { background: transparent; box-shadow: none; color: var(--color-accent); font-weight: 600; border-bottom-color: var(--color-accent); }
 
 /* map card: the legend under the map */
 /* room for two lines on every theme, so the map is the same size (and has the same start view) on all of them */

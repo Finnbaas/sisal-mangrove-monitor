@@ -302,9 +302,11 @@
         </div>
 
         <!-- STAKEHOLDER CARDS (filled by stakeholders.js from content/stakeholders.json): the map of the chosen theme with the
-             timeline under it, and on the right the theme menu and the panel. The map uses the map classes of ecosystem.css. -->
+             timeline under it (the theme tabs are at the top of the map card), and on the right the panel. The map uses the map classes of ecosystem.css. -->
 
         <div class="card" data-card="stakeholder-map">
+          <!-- the theme tabs sit above the map they control (stakeholders.js: renderStakeholderMenu) -->
+          <div id="sh-menu" class="card-tabs"></div>
           <div class="card-title-row top">
             <div>
               <div class="card-title" id="sh-title"></div>
@@ -349,11 +351,6 @@
             <div id="sh-handle"><div id="sh-handle-line"></div></div>
           </div>
           <div id="sh-certainty-legend"></div>
-        </div>
-
-        <!-- the theme menu: the same tabs as the Maps menu of the Mangrove maps (stakeholders.js: renderStakeholderMenu) -->
-        <div class="card" data-card="stakeholder-menu">
-          <div id="sh-menu" class="map-menu"></div>
         </div>
 
         <div class="card" data-card="stakeholder-panel">
