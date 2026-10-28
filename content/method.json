@@ -414,10 +414,14 @@
     {
       "id": "stakeholders",
       "title": "Stakeholder mapping",
-      "description": "",
-      "sources": [],
-      "keyChoices": [],
-      "requirements": "",
+      "description": "The stakeholder map shows where and when local people have seen the mangrove change. It comes from interviews with seven stakeholders in 2026, each shown only by a code (for example AC1 or NGO1), never by name. They represent six types: academic, community restoration group, community cooperative, conservation NGO, eco-tourism and government. Each interview table was sorted into three themes: extent, condition, and disturbance and recovery.",
+      "sources": [{ "label": "Stakeholder interviews, Sisal, 2026 (TU Delft and UNAM)" }],
+      "keyChoices": [
+        "The areas are drawn as ellipses by hand on the base map, from what the stakeholders described. They show roughly where, not exact borders.",
+        "The years on the timeline come from the period each stakeholder gave, such as 1996 or since 2010. Where a period was vague, the bar is marked approximate or expected.",
+        "The quotes are paraphrased, not word for word, and are shown with the stakeholder code and type only."
+      ],
+      "requirements": "Nothing to install: the stakeholder map only shows the interview results. There is no code to run for this analysis.",
       "folder": "",
       "zip": "",
       "files": [],

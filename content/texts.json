@@ -100,6 +100,8 @@
     "chooseYourRoute": "Choose your route",
     "closePanel": "Close",
     "viewFileOnGithub": "View on GitHub",
+    "downloadFile": "Download file",
+    "downloadAllFiles": "Download all files",
     "downloadAll": "Download all (.zip)",
     "doItYourselfHeading": "Do it yourself",
     "galleryHint": "Analyses you can run on your own data. Pick one to see how it works and what you need.",

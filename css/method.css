@@ -48,6 +48,13 @@ a.method-source:hover { text-decoration: underline; }
 .method-files-empty { min-height: 60px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: var(--font-size-body); color: var(--color-text-faint); }
 .method-files-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .download-all { background: var(--color-surface); text-decoration: none; }
+/* under the downloads of an open example: some space above, and the folder link is a white button (text and logo keep the accent color) */
+.use-case-files .method-files-actions { flex-wrap: wrap; justify-content: flex-start; margin-top: 20px; }
+.use-case-files .method-files-actions { margin-left: 10px; }   /* the box starts where the file names above start (.file-row has 10 px padding), so it does not stick out */
+.use-case-files .github-link.small { padding: 8px 14px 8px 12px; border-radius: var(--radius-control); background: var(--color-surface); }
+.use-case-files .download-all { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px 8px 12px; border: none; color: var(--color-accent); font-weight: 600; }
+.use-case-files .github-link.small:hover, .use-case-files .download-all:hover:not(:disabled) { box-shadow: 0 0 0 1px var(--color-accent); }
+.use-case-files .github-link.small:hover span { text-decoration: none; }
 
 /* "About this analysis": one collapsed row (details/summary) */
 .method-about { border-radius: var(--radius-card); background: var(--color-background); }
@@ -116,10 +123,10 @@ summary.method-label:focus-visible { outline: 2px solid var(--color-text-body); 
 .file-row { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: var(--radius-control); }
 .file-row:hover { background: var(--color-surface); }
 .file-name { flex: 1; min-width: 0; font-size: var(--font-size-body); font-weight: 700; color: var(--color-text); overflow-wrap: anywhere; }
-.file-github { display: flex; color: var(--color-accent); }
-a.file-github:hover, a.file-github:focus-visible { color: var(--color-text); }
+.file-download { display: flex; color: var(--color-accent); }
+a.file-download:hover, a.file-download:focus-visible { color: var(--color-text); }
 /* a file that is not in the repository yet: grey icon, no link */
-.file-github.unavailable { color: var(--color-text-faint); opacity: 0.5; }
+.file-download.unavailable { color: var(--color-text-faint); opacity: 0.5; }
 .file-row.unavailable .file-name { color: var(--color-text-muted); }
 .format-tag { padding: 3px 8px; border-radius: var(--radius-control); border: 1px solid var(--color-border); background: var(--color-surface); font-size: var(--font-size-small); font-weight: 600; color: var(--color-text-body); white-space: nowrap; }
 

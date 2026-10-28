@@ -94,6 +94,20 @@ function setupMethod() {
       renderUseCases();
       return;
     }
+    // "Download all files": the files of the open example one after the other (a short pause between them, because browsers can block a burst of downloads)
+    const downloadAll = e.target.closest('[data-download-all]');
+    if (downloadAll) {
+      downloadAll.disabled = true;
+      const links = [...downloadAll.closest('.use-case').querySelectorAll('a.file-download')];
+      (async () => {
+        for (const link of links) { await downloadFile(link); await new Promise((resolve) => setTimeout(resolve, 400)); }
+        downloadAll.disabled = false;
+      })();
+      return;
+    }
+    // the download icon of one file
+    const download = e.target.closest('a.file-download');
+    if (download) { e.preventDefault(); downloadFile(download); return; }
     const card = e.target.closest('.example-card, .sub-card');
     const close = e.target.closest('.use-case-close');
     if (!card && !close) return;
@@ -181,8 +195,8 @@ function choiceHtml(c) {
 }
 
 // The row under the cards of a tab: the link to the folder on GitHub and, when the section has one, the zip file.
-function filesActions(section) {
-  return '<div class="method-files-actions">' +
+function filesActions(section, downloadAllButton) {
+  return '<div class="method-files-actions">' + (downloadAllButton || '') +
     githubLink('small', t(isFilled(section.folder) ? 'labels.viewFolderOnGithub' : 'labels.viewOnGithub'), section.folder) +
     (isFilled(section.zip) ? '<a class="ghost download-all" href="' + escapeHtml(section.zip) + '" download>' + escapeHtml(t('labels.downloadAll')) + '</a>' : '') +
     '</div>';
@@ -204,10 +218,34 @@ function githubLink(size, label, folder) {
   return '<a class="github-link ' + size + '" href="' + escapeHtml(githubAddress(folder)) + '" target="_blank" rel="noopener">' + METHOD_ICONS.github + '<span>' + escapeHtml(label) + '</span></a>';
 }
 
-// The address of one file on GitHub. A full address (https://...) is used as it is.
-function githubFileAddress(path) {
+// The address to download one file from: the plain file on raw.githubusercontent.com. A GitHub page address
+// (https://github.com/owner/repo/blob/branch/path) is turned into it; a path without an address is a file in this repository.
+function githubRawAddress(path) {
+  const page = /^https:\/\/github\.com\/([^/]+\/[^/]+)\/blob\/(.+)$/.exec(path);
+  if (page) return 'https://raw.githubusercontent.com/' + page[1] + '/' + page[2];
   if (/^https?:\/\//.test(path)) return path;
-  return String(method.repository || '').replace(/\/$/, '') + '/blob/' + (method.branch || 'main') + '/' + path;
+  const repo = /^https:\/\/github\.com\/([^/]+\/[^/]+)/.exec(String(method.repository || ''));
+  return repo ? 'https://raw.githubusercontent.com/' + repo[1] + '/' + (method.branch || 'main') + '/' + path : path;
+}
+
+// Downloads one file without leaving the page. The browser ignores the "download" attribute for files on another site,
+// so the file is fetched and saved from here; if that fails, the plain file opens in a new tab instead.
+async function downloadFile(link) {
+  try {
+    const response = await fetch(link.href);
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    const url = URL.createObjectURL(await response.blob());
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = link.dataset.fileName || 'download';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.warn('Could not download ' + link.href + ': ' + error.message);
+    window.open(link.href, '_blank', 'noopener');
+  }
 }
 
 function sectionById(id) {
@@ -304,7 +342,7 @@ function methodSectionHtml(section) {
     '</div>';
 
   // the theme colors of a section follow the research page with the same id (data-section, see css/base.css)
-  return '<div class="card method-section" id="method-' + escapeHtml(section.id) + '" data-section="' + escapeHtml(section.id) + '" role="tabpanel" aria-label="' + escapeHtml(section.title) + '" hidden>' + info +
+  return '<div class="card method-section" id="method-' + escapeHtml(section.id) + '" data-section="' + escapeHtml(section.id) + '" role="tabpanel" aria-label="' + escapeHtml(section.title) + '" hidden>' +
     (section.useCases.length ?
       '<div class="use-cases">' +
         '<div class="use-cases-heading">' + escapeHtml(t('labels.doItYourselfHeading')) + '</div>' +
@@ -312,7 +350,7 @@ function methodSectionHtml(section) {
         '<div class="example-gallery" id="gallery-' + escapeHtml(section.id) + '"></div>' +
         '<div id="use-case-slot-' + escapeHtml(section.id) + '"></div>' +
       '</div>' : '') +
-    (Array.isArray(section.datasets) && isFilled(section.folder) ? filesActions(section) : '') +
+    info +   // the "Data sources" block of a section with "datasets": always at the bottom, under the steps of an open example
     about +
   '</div>';
 }
@@ -321,9 +359,10 @@ function methodSectionHtml(section) {
 // file. The description shows when hovering over the line. A file that has no "path" yet has a grey icon and no link.
 function fileRow(file) {
   const available = isFilled(file.path);
+  // the download icon downloads the file straight from the website (see downloadFile below)
   const icon = available
-    ? '<a class="file-github" href="' + escapeHtml(githubFileAddress(file.path)) + '" target="_blank" rel="noopener" aria-label="' + escapeHtml(t('labels.viewFileOnGithub') + ': ' + file.name) + '" title="' + escapeHtml(t('labels.viewFileOnGithub')) + '">' + METHOD_ICONS.github + '</a>'
-    : '<span class="file-github unavailable" title="' + escapeHtml(t('messages.notYetAvailable')) + '">' + METHOD_ICONS.github + '</span>';
+    ? '<a class="file-download" href="' + escapeHtml(githubRawAddress(file.path)) + '" data-file-name="' + escapeHtml(file.path.split('/').pop()) + '" aria-label="' + escapeHtml(t('labels.downloadFile') + ': ' + file.name) + '" title="' + escapeHtml(t('labels.downloadFile')) + '">' + METHOD_ICONS.download + '</a>'
+    : '<span class="file-download unavailable" title="' + escapeHtml(t('messages.notYetAvailable')) + '">' + METHOD_ICONS.download + '</span>';
   return '<div class="file-row' + (available ? '' : ' unavailable') + '"' + (isFilled(file.description) ? ' title="' + escapeHtml(file.description) + '"' : '') + '>' +
     '<span class="file-name mono">' + escapeHtml(file.name) + '</span>' +
     (isFilled(file.format) ? '<span class="format-tag">' + escapeHtml(file.format) + '</span>' : '') + icon + '</div>';
@@ -359,8 +398,7 @@ function renderUseCases() {
         '</button>';
     }).join('');
     const useCase = section.useCases.find((u) => u.id === openUseCase);
-    $('use-case-slot-' + section.id).innerHTML = (useCase ? useCaseHtml(section, useCase) : '');
-  });
+    $('use-case-slot-' + section.id).innerHTML = (useCase ? useCaseHtml(section, useCase) : '');  });
 }
 
 // The sub-cards inside a card with "subCards" (Mangrove maps): a smaller version of the example cards.
@@ -426,12 +464,17 @@ function useCaseHtml(section, useCase) {
   const filesHtml = files.length ? '<div class="file-list">' + files.map(fileRow).join('') + '</div>'
     : '<div class="method-files-empty small">' + escapeHtml(t('messages.filesWillBeAdded')) + '</div>';
 
+  // one button that downloads every available file of this example (only when there is more than one)
+  const downloadable = files.filter((f) => isFilled(f.path));
+  const downloadAllHtml = downloadable.length > 1 ?
+    '<button type="button" class="ghost download-all" data-download-all>' + METHOD_ICONS.download + '<span>' + escapeHtml(t('labels.downloadAllFiles')) + '</span></button>' : '';
+
   return '<div class="use-case' + (arrived ? ' highlighted' : '') + '" id="use-case-' + escapeHtml(useCase.id) + '">' + bar +
     '<button type="button" class="use-case-close" aria-label="' + escapeHtml(t('labels.closePanel')) + '" title="' + escapeHtml(t('labels.closePanel')) + '">&times;</button>' +
     '<div class="use-case-body">' +
       '<div class="use-case-instructions"><div><div class="use-case-title">' + textOrPlaceholder('method-placeholder', useCase.title) + '</div>' +
       '<div class="use-case-name mono">#method/' + escapeHtml(useCase.id) + '</div></div>' + madeHtml + choicesHtml + usedHtml + needHtml + routesHtml + stepsHtml + readmeHtml + '</div>' +
-      '<div class="use-case-files">' + filesHtml + '</div>' +
+      '<div class="use-case-files">' + filesHtml + (isFilled(section.folder) || downloadAllHtml ? filesActions(section, downloadAllHtml) : '') + '</div>' +   // "Download all files", the folder link (and zip) under the downloads
     '</div></div>';
 }
 
@@ -460,8 +503,35 @@ function openMethodTarget() {
   openUseCase = found.useCase.id;
   selectMethodTab(found.section.id);                      // shows the tab and opens the panel
   const el = $('use-case-' + found.useCase.id);
-  if (el && !$('method').hidden) el.scrollIntoView({ block: 'center' });
+  if (el && !$('method').hidden) {
+    // start at the top of the page so the visitor sees which page they landed on (the selected card is
+    // visible there), then scroll slowly down to the steps after a short pause
+    window.scrollTo(0, 0);
+    const address = location.hash;
+    setTimeout(() => {
+      if (location.hash === address) scrollSlowlyTo(el);   // not if the visitor already went elsewhere
+    }, 700);
+  }
   return true;
+}
+
+// Scrolls down to an element in about 1.6 seconds (the browser's own smooth scroll is too fast and cannot be slowed down),
+// so the element ends up in the middle of the screen. With "reduce motion" switched on it jumps instead.
+const SLOW_SCROLL_MS = 1600;
+function scrollSlowlyTo(el) {
+  const start = window.scrollY;
+  const rect = el.getBoundingClientRect();
+  const target = Math.max(0, start + rect.top - (window.innerHeight - rect.height) / 2);
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { window.scrollTo(0, target); return; }
+  const begin = performance.now();
+  const address = location.hash;
+  const step = (now) => {
+    const progress = Math.min(1, (now - begin) / SLOW_SCROLL_MS);
+    const eased = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;   // slow start and end
+    window.scrollTo(0, start + (target - start) * eased);
+    if (progress < 1 && location.hash === address) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
 }
 
 // "Do this analysis yourself" (Figma card-actions): a small link in the footer of every research
