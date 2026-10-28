@@ -9,7 +9,7 @@
 
 /* the map card has a fixed height (the map takes what the header and the legend leave), and the empty area panel is as tall,
    so with nothing selected the map card and the panel end at about the same height; the panel grows with its content */
-[data-screen="stakeholders"] { --sh-card-height: 629px; }   /* 600 px before the tabs were added: the map keeps its old size (417 px high at 1440 wide) */
+[data-screen="stakeholders"] { --sh-card-height: 669px; }   /* 600 px before the tabs were added; +69 px for the tab row so the map keeps its old size (457 px high at 1440 wide) */
 [data-card="stakeholder-map"] { display: flex; flex-direction: column; height: var(--sh-card-height); }
 [data-card="stakeholder-map"] .map-frame { flex: 1 1 auto; min-height: 0; }
 #sh-map.geo-map { height: 100%; aspect-ratio: auto; }
