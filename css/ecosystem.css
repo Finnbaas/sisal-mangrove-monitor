@@ -61,7 +61,9 @@
 
 /* the Maps menu at the top of the map card: row 1 the theme tabs (segmented, only as wide as the tabs), row 2 the maps of the
    active theme as small text tabs with the variant switch at the end of the row */
-.map-menu { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.map-menu { display: flex; flex-direction: column; gap: 10px; }
+/* a thin divider under the menu over the full card width (the card has 24px padding), so the menu is set apart from the title and the map */
+.map-menu, .card-tabs { margin: 0 calc(-1 * var(--space-3)) var(--space-3); padding: 0 var(--space-3) var(--space-2); border-bottom: 1px solid var(--color-divider); }
 .menu-tabs { display: flex; gap: 2px; padding: 2px; width: fit-content; border-radius: var(--radius-control); background: var(--color-surface-subtle); }
 .menu-tab { flex: 0 0 auto; padding: 5px 14px; border-radius: var(--radius-control); border: 0; background: transparent; font-size: var(--font-size-small); font-weight: 500; color: var(--color-text); cursor: pointer; white-space: nowrap; }
 .menu-tab:hover:not([aria-selected="true"]) { background: var(--color-divider); }

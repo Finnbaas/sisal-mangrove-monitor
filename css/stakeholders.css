@@ -15,8 +15,7 @@
 #sh-map.geo-map { height: 100%; aspect-ratio: auto; }
 [data-card="stakeholder-panel"] { min-height: var(--sh-card-height); }
 
-/* the theme tabs at the top of the map card: the same segmented tabs as the old Maps menu (.menu-tabs in ecosystem.css), above the map they control */
-.card-tabs { margin-bottom: var(--space-2); }
+/* the theme tabs at the top of the map card: the same segmented tabs and divider as the Maps menu (.menu-tabs, .card-tabs in ecosystem.css) */
 
 /* map card: the legend under the map */
 /* room for two lines on every theme, so the map is the same size (and has the same start view) on all of them */
