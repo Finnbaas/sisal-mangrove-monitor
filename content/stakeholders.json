@@ -10,17 +10,17 @@
       "legend": [
         {
           "id": "loss",
-          "label": "loss",
+          "label": "Loss",
           "color": "stakeholder-red"
         },
         {
           "id": "expected-loss",
-          "label": "expected loss",
+          "label": "Expected loss",
           "color": "stakeholder-orange"
         },
         {
           "id": "gain",
-          "label": "gain",
+          "label": "Gain",
           "color": "stakeholder-green"
         }
       ],
@@ -61,29 +61,29 @@
       "legend": [
         {
           "id": "disturbed",
-          "label": "disturbed mangrove condition",
+          "label": "Disturbed mangrove condition",
           "color": "stakeholder-red"
         },
         {
           "id": "risk",
-          "label": "risk for mangrove condition",
+          "label": "Risk for mangrove condition",
           "color": "stakeholder-orange"
         },
         {
           "id": "improved",
-          "label": "improved mangrove condition",
+          "label": "Improved mangrove condition",
           "color": "stakeholder-green"
         }
       ],
       "markerLegend": [
         {
           "id": "natural",
-          "label": "natural cause",
+          "label": "Natural cause",
           "fill": "stakeholder-natural"
         },
         {
           "id": "anthropogenic",
-          "label": "anthropogenic cause",
+          "label": "Anthropogenic cause",
           "fill": "surface"
         }
       ],
