@@ -4,7 +4,7 @@
 //   the map, the legend, the rows of the timeline and what the panel shows. The slider of the timeline is also its time axis:
 //   it shows only the areas that were happening in that year. Clicking an area (map or timeline bar) shows what stakeholders
 //   said about it in the panel and flies the map to it (the area plus some surroundings); clicking it again clears the panel
-//   and returns to the start view. Changing the theme does not move the map.
+//   and returns to the start view. Changing the theme also returns the map to the start view.
 //   Address: #stakeholders/<theme> and #stakeholders/<theme>/<number>, e.g. #stakeholders/disturbance-recovery/5.
 // Reads: content/stakeholders.json (themes and areas, written by the team); the base map comes from data/vegetation/layers.json
 //   (loaded by ecosystem.js). Nothing is typed in this file: every text, number and color comes from content/.
@@ -497,12 +497,13 @@ function renderStakeholders(focus) {
   renderStakeholderPanel();
 }
 
-// Another theme: other ellipses, legend, rows and panel; the view of the map stays as it is.
+// Another theme: other ellipses, legend, rows and panel; a map that was zoomed in goes back to the start view.
 function setStakeholderTheme(id, focus) {
   if (id === shTheme) return;
   shTheme = id;
   shSelected = null;
   shHover = null;
+  showStakeholderStart();
   setStakeholderAddress();
   renderStakeholders(focus);
 }
