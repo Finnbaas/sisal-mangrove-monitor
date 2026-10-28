@@ -74,7 +74,6 @@
           "whatYouNeed": [
             "A free Google Earth Engine account. Python 3 with pandas, numpy, matplotlib, statsmodels (STL) and scipy (Kendall's tau and smoothing)."
           ],
-          "infoCards": ["point-chart"],
           "steps": [
             "Open the Earth Engine script in the Earth Engine Code Editor. Choose one location, or upload a CSV with the coordinates of several points.",
             "Run the script and export the monthly maximum NDVI per point as a CSV to Google Drive.",
@@ -133,7 +132,6 @@
           "whatYouNeed": [
             "A free Google Earth Engine account. Python 3 with pandas, numpy, matplotlib, statsmodels (STL) and scipy (Kendall's tau and smoothing)."
           ],
-          "infoCards": ["point-map"],
           "steps": [
             "Make the NDVI time series as in the example \"NDVI time series for your location\", for many random points in your area.",
             "In the notebook, compute the net NDVI change and turnover per point and assign the shape classes (stable, gain, loss, loss + recovery, high turnover, non-mangrove).",
@@ -193,7 +191,6 @@
     {
       "id": "climatology",
       "title": "Climatology analysis",
-      "infoCards": ["climate-sources"],
       "datasets": [
         "ERA5-Land, land cell: air temperature (daily maximum and minimum), rainfall. Daily, {record.airTemperature.start} to {record.airTemperature.end}.",
         "ERA5, sea cell: wind speed, wave height, wave direction, sea surface temperature. Daily, {record.windSpeed.start} to {record.windSpeed.end}.",
@@ -275,7 +272,6 @@
             "The HURDAT2 text file of your ocean from the National Hurricane Center (Atlantic, or North-East Pacific for the Pacific coast of Mexico and Central America).",
             "The latitude and longitude of your location, a radius in km and a minimum wind. The coastlines of the world are included in the package."
           ],
-          "infoCards": ["storm-map","event-list"],
           "steps": [
             "Install Python and the packages in requirements.txt (pandas, numpy, matplotlib) in a virtual environment.",
             "Download the HURDAT2 file of your ocean from nhc.noaa.gov/data/hurdat and put it in the example_data folder.",
@@ -297,7 +293,6 @@
             "A CSV file with one row per event and the columns name and date (YYYY-MM-DD), and the first and last year of your record.",
             "No list of events? For storms, the helper script makes one for any location, radius and minimum wind from the HURDAT2 tracks of the National Hurricane Center (Atlantic and North-East Pacific)."
           ],
-          "infoCards": ["storm-counts"],
           "steps": [
             "Install Python and the packages in requirements.txt (pandas, numpy, matplotlib) in a virtual environment.",
             "Storms: download the HURDAT2 file of your ocean, open make_events_from_hurdat2.py, set the file, your location, the radius, the minimum wind and the years, and run it. Other events: write your own CSV with name and date.",
@@ -319,7 +314,6 @@
             "A CSV file with a date column (YYYY-MM-DD) and one numeric column per variable, with at least 10 years of daily data.",
             "No own data? The helper script exports daily ERA5-Land data (air temperature, rainfall, wind) for any coordinates from Google Earth Engine."
           ],
-          "infoCards": ["event-charts"],
           "steps": [
             "Install Python and the packages in requirements.txt (pandas, numpy, matplotlib) in a virtual environment.",
             "Put your data in a CSV file in the input format, or export it with get_era5_point.js in the Earth Engine Code Editor.",
@@ -341,7 +335,6 @@
             "A CSV file with a date column (YYYY-MM-DD), a column with the direction in degrees (0 to 360, the direction it comes from) and a column to decide which days count, for example wave height or wind speed. At least 10 years of daily data.",
             "No own data? The helper script of the anomaly chart exports daily ERA5-Land data for any coordinates from Google Earth Engine; wave data comes from the Copernicus Climate Data Store."
           ],
-          "infoCards": ["wave-direction"],
           "steps": [
             "Install Python and the packages in requirements.txt (pandas, numpy, matplotlib) in a virtual environment.",
             "Put your data in a CSV file in the input format.",
@@ -363,7 +356,6 @@
             "A CSV file with a date column (YYYY-MM-DD) and one numeric column per variable, with at least 10 years of daily data.",
             "No own data? The helper script of the anomaly chart exports daily ERA5-Land data (air temperature, rainfall, wind) for any coordinates from Google Earth Engine."
           ],
-          "infoCards": ["climate-typical-year"],
           "steps": [
             "Install Python and the packages in requirements.txt (pandas, numpy, matplotlib) in a virtual environment.",
             "Put your data in a CSV file in the input format.",
@@ -385,7 +377,6 @@
             "A CSV file with a date column (YYYY-MM-DD) and one numeric column per variable, with at least 20 years of daily data (10 complete years is the minimum for a rough picture).",
             "No own data? The helper script of the anomaly chart exports daily ERA5-Land data (air temperature, rainfall, wind) for any coordinates from Google Earth Engine."
           ],
-          "infoCards": ["climate-change"],
           "steps": [
             "Install Python and the packages in requirements.txt (pandas, numpy, scipy, matplotlib) in a virtual environment.",
             "Put your data in a CSV file in the input format.",
@@ -407,7 +398,6 @@
             "A CSV file with a date column (YYYY-MM-DD) and one numeric column per variable, with at least 10 years of daily data (a running mean needs a record of more than one year).",
             "No own data? The helper script of the anomaly chart exports daily ERA5-Land data (air temperature, rainfall, wind) for any coordinates from Google Earth Engine."
           ],
-          "infoCards": ["climate-detail"],
           "steps": [
             "Install Python and the packages in requirements.txt (pandas, numpy, matplotlib) in a virtual environment.",
             "Put your data in a CSV file in the input format.",

@@ -106,7 +106,7 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 - `text`: a card with a title and a paragraph.
 
 ```json
-{ "type": "planned", "title": "When storms come", "expand": false,
+{ "type": "planned", "title": "When storms come",
   "graphs": [ { "title": "Storms per year", "label": "Bar chart, 1950 to 2025", "height": 150 },
               { "title": "Storms per month", "label": "Bar chart, J to D", "height": 150, "width": 224 } ] }
 { "type": "group", "title": "Climate overview", "cards": ["climate-typical-year", "climate-change"], "note": "optional small grey line under the cards" }
@@ -114,7 +114,7 @@ A page with `"columns": []` (or no cards) shows "This page has no content yet."
 
 - `planned`: a card whose graphs are designed but not built yet. Each graph is a light box with its
   `title` and a `label` saying what it will show. `height` and `width` are in pixels (optional; a graph
-  without `width` shares the free width). `"expand": true` adds the expand button.
+  without `width` shares the free width).
 - `group`: one card with a small title that holds ready-made cards side by side, as parts of one card.
   Their rows line up (title, charts, axis).
 
@@ -304,7 +304,6 @@ code files to download. Everything on it comes from this file.
 - `howMade`: at most two sentences, shown as "How this is made" at the top of the panel of a use case.
 - `howWeUsed` (optional, one sentence) with `howWeUsedLink` (optional, e.g. `#climatology`): shown as "How we used it", with a link to the page that shows the result.
 - `whatYouNeed` (optional, list of 1 or 2 lines): shown as "What you need".
-- `infoCards` (use case or section): research cards whose small ↗ button opens that panel (a section: its tab).
 - Numbers in curly brackets (also in `steps`) are filled in from the data files, so they always match the research
   page: `{storms.total}`, `{storms.start}`, `{storms.end}`, `{storms.studied}`, `{storms.notCounted}`,
   `{storms.rule}`, `{storms.baseline}`, `{storms.windowDays}`, `{record.<variable id>.start}` and `.end`

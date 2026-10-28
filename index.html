@@ -53,7 +53,6 @@
               <div class="card-title" data-text="cardTitles.point-map"></div>
               <div class="faint" id="map-subtitle"></div>
             </div>
-            <div class="expand">&#8599;</div>
           </div>
           <!-- the legend strip sits under the map, like the storm map -->
           <div id="map-frame">
@@ -78,7 +77,6 @@
               <div class="card-title" id="point-name"></div>
               <div class="faint" id="point-class"></div>
             </div>
-            <div class="expand">&#8599;</div>
           </div>
           <div id="chips"></div>
           <!-- one chart per selected variable, a shared year axis and the comparison line (drawn by points.js
@@ -114,7 +112,7 @@
 
         <!-- storm map: drawn on the canvas by storm-map.js; the legend strip sits under the map -->
         <div class="card" data-card="storm-map">
-          <div class="card-title-row"><div class="card-title" data-text="cardTitles.storm-map"></div><div class="expand">&#8599;</div></div>
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.storm-map"></div></div>
           <div id="storm-map-frame">
             <div id="storm-map">
               <canvas id="storm-map-canvas"></canvas>
@@ -132,7 +130,7 @@
 
         <!-- wave rose: drawn as SVG by wave-rose.js -->
         <div class="card" data-card="wave-direction">
-          <div class="card-title-row"><div class="card-title" data-text="cardTitles.wave-direction"></div><div class="expand">&#8599;</div></div>
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.wave-direction"></div></div>
           <div id="wave-rose"><div id="wave-rose-tip" class="hover-chip" hidden></div></div>
           <div id="wave-rose-legend"></div>
           <p class="fine" id="wave-rose-note"></p>
@@ -141,7 +139,7 @@
 
         <!-- all storms near Sisal as two bar charts: storm-counts.js -->
         <div class="card" data-card="storm-counts">
-          <div class="card-title-row"><div class="card-title" data-text="cardTitles.storm-counts"></div><div class="expand">&#8599;</div></div>
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.storm-counts"></div></div>
           <div id="storm-counts-legend"></div>
           <div id="storm-counts-charts"><div id="storm-counts-tip" class="hover-chip" hidden></div></div>
           <p class="fine" id="storm-counts-text"></p>
@@ -150,7 +148,7 @@
         </div>
 
         <div class="card" data-card="event-list">
-          <div class="card-title-row"><div class="card-title" data-text="cardTitles.event-list"></div><div class="expand">&#8599;</div></div>
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.event-list"></div></div>
           <div id="event-list"></div>
           <!-- how many events there are (climatology-storms.js) -->
           <div id="event-list-foot">
@@ -167,7 +165,6 @@
                 <div class="card-title" id="event-title"></div>
                 <div class="faint" id="event-subtitle"></div>
               </div>
-              <div class="expand">&#8599;</div>
             </div>
             <!-- legend of the red box and dashed line in the charts (climatology-storms.js) -->
             <div id="event-legend"></div>
@@ -181,7 +178,7 @@
 
         <!-- the small card next to the heading of "Climate at Sisal": where the data comes from -->
         <div class="card climate-sources-card" data-card="climate-sources">
-          <div class="card-title-row"><div class="card-title" data-text="labels.dataSourcesTitle"></div><div class="expand">&#8599;</div></div>
+          <div class="card-title-row"><div class="card-title" data-text="labels.dataSourcesTitle"></div></div>
           <img src="img/climatology-data-cells.png" alt="">
         </div>
 
@@ -191,7 +188,6 @@
               <div class="card-title" data-text="cardTitles.climate-typical-year"></div>
               <div class="faint" data-text="labels.typicalYearSubtitle"></div>
             </div>
-            <div class="expand">&#8599;</div>
           </div>
           <!-- one chart per variable, one shared month axis and the comparison line (drawn by climatology-climate.js) -->
           <div id="typical-year-charts" class="chart-stack"></div>
@@ -204,7 +200,6 @@
               <div class="card-title" data-text="cardTitles.climate-change"></div>
               <div class="faint" data-text="labels.changeSubtitle"></div>
             </div>
-            <div class="expand">&#8599;</div>
           </div>
           <div id="climate-change-charts" class="chart-stack">
             <p class="placeholder-text" data-text="messages.notYetAvailable"></p>
@@ -214,7 +209,7 @@
 
         <!-- "In detail": one tab per variable; the charts in it are not filled yet (climatology-climate.js) -->
         <div class="card" data-card="climate-detail">
-          <div class="card-title-row"><div class="card-title" data-text="cardTitles.climate-detail"></div><div class="expand">&#8599;</div></div>
+          <div class="card-title-row"><div class="card-title" data-text="cardTitles.climate-detail"></div></div>
           <div id="climate-detail-tabs" class="detail-tabs"></div>
           <div id="climate-detail-body"></div>
         </div>

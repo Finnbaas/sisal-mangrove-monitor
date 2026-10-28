@@ -4,7 +4,7 @@
 //   row "About this analysis". The address #method/<use case id> opens the right tab and panel.
 //   A section can have "datasets" and "limitations": a compact list above the cards (Climatology); other sections
 //   have the collapsed row "About this analysis". A use case can have "howMade" (a short text at the top of its
-//   panel) and "infoCards": research cards whose small ↗ button opens that panel. Numbers in these texts are
+//   panel). Numbers in these texts are
 //   written as {storms.total} and filled in from the data files. A use case can also have "keyChoices" (a list under
 //   "Key choices"), "howWeUsed" and "whatYouNeed". A section with "datasets" (Climatology, Ecosystem) shows its data
 //   sources and limitations above the cards and the link to its folder on GitHub below them.
@@ -489,23 +489,4 @@ function placeCardLinks() {
     link.addEventListener('click', () => { methodCameFrom = lastResearchAddress; });
     actions.appendChild(link);
   })));
-
-  // the ↗ button in the title row of a card opens the panel of a use case (or, for a section, its tab)
-  const expandLink = (name, id, title) => {
-    const card = document.querySelector('[data-card="' + name + '"]');
-    const old = card && card.querySelector('.expand');
-    if (!old) { console.warn(METHOD_FILE + ': "' + id + '" names the card "' + name + '", which has no ↗ button.'); return; }
-    const link = document.createElement('a');
-    link.className = 'expand';
-    link.href = '#method/' + id;
-    link.title = t('labels.openTopic');
-    link.setAttribute('aria-label', t('labels.openTopic') + ': ' + title);
-    link.textContent = '↗';
-    link.addEventListener('click', () => { methodCameFrom = lastResearchAddress; });
-    old.replaceWith(link);
-  };
-  method.sections.forEach((section) => {
-    (section.infoCards || []).forEach((name) => expandLink(name, section.id, section.title));
-    section.useCases.forEach((useCase) => (useCase.infoCards || []).forEach((name) => expandLink(name, useCase.id, useCase.title)));
-  });
 }
