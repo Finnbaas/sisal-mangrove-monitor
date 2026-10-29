@@ -69,9 +69,7 @@
           "title": "Mangrove maps",
           "image": "data/vegetation/change.png",
           "subCards": [
-            { "id": "mangrove-extent", "title": "Change classes" },
-            { "id": "mangrove-change-per-period", "title": "Change per period" },
-            { "id": "mangrove-dndvi", "title": "dNDVI 2014-2025" },
+            { "id": "mangrove-extent", "title": "Extent" },
             { "title": "Condition", "comingSoon": true },
             { "title": "Disturbance & recovery", "comingSoon": true }
           ]
@@ -159,6 +157,13 @@
         {
           "id": "mangrove-extent",
           "parent": "mangrove-maps",
+          "title": "Extent",
+          "maps": ["mangrove-change-classes", "mangrove-change-per-period", "mangrove-dndvi"]
+        },
+        {
+          "id": "mangrove-change-classes",
+          "parent": "mangrove-extent",
+          "tabLabel": "Change classes",
           "title": "Change classes map for your area",
           "howWeUsed": "This is the method behind the Change classes map (Extent) on the Ecosystem page: stable mangrove, confirmed loss, confirmed gain and uncertain change.",
           "howWeUsedLink": "#satellite/maps/change-classes",
@@ -212,7 +217,8 @@
         },
         {
           "id": "mangrove-change-per-period",
-          "parent": "mangrove-maps",
+          "parent": "mangrove-extent",
+          "tabLabel": "Change per period",
           "title": "Change per period map for your area",
           "howWeUsed": "This is the method behind the Change per period map (Extent) on the Ecosystem page: when the confirmed loss and gain happened, per interval. The last interval is provisional.",
           "howWeUsedLink": "#satellite/maps/change-per-period",
@@ -266,7 +272,8 @@
         },
         {
           "id": "mangrove-dndvi",
-          "parent": "mangrove-maps",
+          "parent": "mangrove-extent",
+          "tabLabel": "dNDVI 2014-2025",
           "title": "dNDVI map for your area",
           "howWeUsed": "This is the method behind the dNDVI 2014-2025 map (Extent) on the Ecosystem page: how much the NDVI of mangrove changed between two periods, compared with stable mangrove.",
           "howWeUsedLink": "#satellite/maps/dndvi",

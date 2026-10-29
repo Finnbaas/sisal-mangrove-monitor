@@ -9,7 +9,7 @@
 //   "Key choices"), "howWeUsed" and "whatYouNeed". A section with "datasets" (Climatology, Ecosystem) shows its data
 //   sources and limitations above the cards and the link to its folder on GitHub below them.
 //   A use case with "subCards" (Mangrove maps) shows no steps: its sub-cards sit inside the card (twice as wide); a sub-card is a use case with
-//   a "parent" (#method/mangrove-extent opens both). A use case can have "routes": tabs with their own steps.
+//   a "parent" (#method/mangrove-extent opens both). A sub-card can have "maps" (ids of use cases whose "parent" is that sub-card): its panel then has a row of map tabs (Extent: Change classes | Change per period | dNDVI). A use case can have "routes": tabs with their own steps.
 //   A use case with "comingSoon" (and a "title") is a greyed-out card without panel. A section can have its own
 //   "galleryHint" (the line above the cards) and "license" (shown at the bottom while its tab is open).
 // Reads: content/method.json (written by the team) and, for the numbers in the texts, data/storms/storm-counts.json,
@@ -22,6 +22,7 @@ let method = null;           // contents of content/method.json, or null if it c
 let activeTab = null;        // id of the section (tab) that is shown
 let openUseCase = null;      // id of the use case whose panel is open (only one on the whole page; none at the start)
 let methodFacts = {};        // the numbers that the texts can use, from the data files (see loadMethodFacts)
+let mapChoice = {};          // the chosen map per use case id (a use case with "maps": Extent -> Change classes | Change per period | dNDVI)
 let routeChoice = {};        // the chosen route per use case id (use cases with "routes": tabs above the steps)
 let methodArrival = null;    // { useCase, from }: set when the visitor arrives through a link to one use case
 let methodCameFrom = null;   // the address of the research page (and part) on which a "Do this analysis yourself" link was clicked
@@ -88,6 +89,13 @@ function setupMethod() {
     if (tab) {
       if (tab.dataset.section !== activeTab) { openUseCase = null; methodArrival = null; }   // the panel belongs to the old tab
       selectMethodTab(tab.dataset.section);
+      return;
+    }
+    // a map tab inside a panel with "maps" (Extent): shows the panel of that map
+    const mapTab = e.target.closest('.map-tab');
+    if (mapTab) {
+      mapChoice[mapTab.dataset.useCase] = mapTab.dataset.map;
+      renderUseCases();
       return;
     }
     // a route tab inside a panel (Quick | Accurate): shows the steps of that route
@@ -430,8 +438,14 @@ function subCardsHtml(group) {
 
 // The steps and files of one example (Figma use-case). It is highlighted when the visitor arrived
 // through a link to it; if they came from a research page, a bar on top offers the way back.
-function useCaseHtml(section, useCase) {
-  const arrived = methodArrival && methodArrival.useCase === useCase.id;
+function useCaseHtml(section, useCase, group) {
+  // a use case with "maps" (Extent) shows the panel of the chosen map, with a row of map tabs on top
+  if (Array.isArray(useCase.maps)) {
+    const maps = useCase.maps.map((id) => section.useCases.find((u) => u.id === id)).filter(Boolean);
+    const chosen = maps.find((m) => m.id === mapChoice[useCase.id]) || maps[0];
+    return chosen ? useCaseHtml(section, chosen, { useCase: useCase, maps: maps }) : '';
+  }
+  const arrived = methodArrival && (methodArrival.useCase === useCase.id || (group && methodArrival.useCase === group.useCase.id));
   // "from" is an address such as "satellite/tipping": the page is the part before the slash
   const fromPage = arrived && methodArrival.from ? pageSections().find((p) => p.id === methodArrival.from.split('/')[0]) : null;
   const bar = fromPage ?
@@ -464,6 +478,11 @@ function useCaseHtml(section, useCase) {
     '<div class="route-tabs" role="tablist">' + routes.map((r) =>
       '<button type="button" class="route-tab' + (r === route ? ' current' : '') + '" role="tab" aria-selected="' + (r === route) + '" data-use-case="' + escapeHtml(useCase.id) + '" data-route="' + escapeHtml(r.id) + '">' + escapeHtml(r.title) + '</button>').join('') + '</div>' +
     (isFilled(route.description) ? '<p class="method-text">' + escapeHtml(route.description) + '</p>' : '') + '</div>' : '';
+  // the map tabs of a group (Extent): one button per map
+  const mapTabsHtml = group ?
+    '<div class="use-case-made"><div class="method-label">' + escapeHtml(t('labels.chooseYourMap')) + '</div>' +
+    '<div class="route-tabs" role="tablist">' + group.maps.map((m) =>
+      '<button type="button" class="route-tab map-tab' + (m === useCase ? ' current' : '') + '" role="tab" aria-selected="' + (m === useCase) + '" data-use-case="' + escapeHtml(group.useCase.id) + '" data-map="' + escapeHtml(m.id) + '">' + escapeHtml(m.tabLabel || m.title) + '</button>').join('') + '</div></div>' : '';
   const readmeHtml = isFilled(useCase.readmeLink) ?
     '<a class="github-link small" href="' + escapeHtml(useCase.readmeLink) + '" target="_blank" rel="noopener">' + METHOD_ICONS.github + '<span>' + escapeHtml(useCase.readmeLabel || useCase.readmeLink) + '</span></a>' : '';
 
@@ -482,11 +501,11 @@ function useCaseHtml(section, useCase) {
   const downloadAllHtml = downloadable.length > 1 ?
     '<button type="button" class="ghost download-all" data-download-all>' + METHOD_ICONS.download + '<span>' + escapeHtml(t('labels.downloadAllFiles')) + '</span></button>' : '';
 
-  return '<div class="use-case' + (arrived ? ' highlighted' : '') + '" id="use-case-' + escapeHtml(useCase.id) + '">' + bar +
+  return '<div class="use-case' + (arrived ? ' highlighted' : '') + '" id="use-case-' + escapeHtml((group ? group.useCase : useCase).id) + '">' + bar +
     '<button type="button" class="use-case-close" aria-label="' + escapeHtml(t('labels.closePanel')) + '" title="' + escapeHtml(t('labels.closePanel')) + '">&times;</button>' +
     '<div class="use-case-body">' +
       '<div class="use-case-instructions"><div><div class="use-case-title">' + textOrPlaceholder('method-placeholder', useCase.title) + '</div>' +
-      '<div class="use-case-name mono">#method/' + escapeHtml(useCase.id) + '</div></div>' + madeHtml + choicesHtml + usedHtml + needHtml + routesHtml + stepsHtml + readmeHtml + '</div>' +
+      '<div class="use-case-name mono">#method/' + escapeHtml(useCase.id) + '</div></div>' + mapTabsHtml + madeHtml + choicesHtml + usedHtml + needHtml + routesHtml + stepsHtml + readmeHtml + '</div>' +
       '<div class="use-case-files">' + filesHtml + (isFilled(section.folder) || downloadAllHtml ? filesActions(section, downloadAllHtml) : '') + '</div>' +   // "Download all files", the folder link (and zip) under the downloads
     '</div></div>';
 }
@@ -511,11 +530,14 @@ function openMethodTarget() {
     else if (hadArrival) renderUseCases();
     return false;
   }
-  methodArrival = { useCase: found.useCase.id, from: methodCameFrom };
+  // a link to one map (#method/mangrove-dndvi) opens its group (Extent) with that map chosen
+  const group = found.section.useCases.find((u) => (u.maps || []).includes(found.useCase.id));
+  if (group) mapChoice[group.id] = found.useCase.id;
+  methodArrival = { useCase: (group || found.useCase).id, from: methodCameFrom };
   methodCameFrom = null;
-  openUseCase = found.useCase.id;
+  openUseCase = (group || found.useCase).id;
   selectMethodTab(found.section.id);                      // shows the tab and opens the panel
-  const el = $('use-case-' + found.useCase.id);
+  const el = $('use-case-' + openUseCase);
   if (el && !$('method').hidden) {
     // start at the top of the page so the visitor sees which page they landed on (the selected card is
     // visible there), then scroll slowly down to the steps after a short pause
