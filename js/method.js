@@ -9,7 +9,7 @@
 //   "Key choices"), "howWeUsed" and "whatYouNeed". A section with "datasets" (Climatology, Ecosystem) shows its data
 //   sources and limitations above the cards and the link to its folder on GitHub below them.
 //   A use case with "subCards" (Mangrove maps) shows no steps: its sub-cards sit inside the card (twice as wide); a sub-card is a use case with
-//   a "parent" (#method/mangrove-extent opens both). A use case can have "routes": tabs with their own steps.
+//   a "parent" (#method/mangrove-dndvi opens both). A sub-card can have "maps" (ids of use cases whose "parent" is the sub-card): clicking it shows those maps inside the card, and each opens its own panel. A use case can have "routes": tabs with their own steps.
 //   A use case with "comingSoon" (and a "title") is a greyed-out card without panel. A section can have its own
 //   "galleryHint" (the line above the cards) and "license" (shown at the bottom while its tab is open).
 // Reads: content/method.json (written by the team) and, for the numbers in the texts, data/storms/storm-counts.json,
@@ -20,6 +20,7 @@ const METHOD_FILE = 'content/method.json';
 
 let method = null;           // contents of content/method.json, or null if it could not be loaded
 let activeTab = null;        // id of the section (tab) that is shown
+let openGroup = null;        // id of the sub-card (Extent) whose maps are shown inside the Mangrove maps card
 let openUseCase = null;      // id of the use case whose panel is open (only one on the whole page; none at the start)
 let methodFacts = {};        // the numbers that the texts can use, from the data files (see loadMethodFacts)
 let routeChoice = {};        // the chosen route per use case id (use cases with "routes": tabs above the steps)
@@ -86,7 +87,7 @@ function setupMethod() {
   $('method').addEventListener('click', (e) => {
     const tab = e.target.closest('.method-tab');
     if (tab) {
-      if (tab.dataset.section !== activeTab) { openUseCase = null; methodArrival = null; }   // the panel belongs to the old tab
+      if (tab.dataset.section !== activeTab) { openUseCase = null; openGroup = null; methodArrival = null; }   // the panel belongs to the old tab
       selectMethodTab(tab.dataset.section);
       return;
     }
@@ -111,6 +112,18 @@ function setupMethod() {
     // the download icon of one file
     const download = e.target.closest('a.file-download');
     if (download) { e.preventDefault(); downloadFile(download); return; }
+    // a sub-card with "maps" (Extent): shows or hides its maps inside the card; the panel opens when a map is clicked
+    const groupButton = e.target.closest('.sub-card[data-group]');
+    if (groupButton) {
+      const id = groupButton.dataset.group;
+      const closing = openGroup === id;
+      openGroup = closing ? null : id;
+      const open = findUseCase(openUseCase);
+      if (closing && open && open.useCase.parent === id) openUseCase = null;   // the panel of one of its maps closes with it
+      methodArrival = null;
+      renderUseCases();
+      return;
+    }
     const card = e.target.closest('.example-card, .sub-card');
     const close = e.target.closest('.use-case-close');
     if (!card && !close) return;
@@ -384,7 +397,7 @@ function renderUseCases() {
       const badges = (u.badges || []).filter(isFilled);
       // a card with "subCards" (Mangrove maps) is twice as wide and holds its options itself; it has no steps of its own
       if (Array.isArray(u.subCards)) {
-        const open = u.subCards.some((c) => c.id && c.id === openUseCase);
+        const open = u.subCards.some((c) => c.id && (c.id === openUseCase || c.id === openGroup));
         // left: the picture and title as on the other cards; right: what it is for and the options under each other
         return '<div class="example-card example-group' + (open ? ' selected' : '') + '" data-section="' + escapeHtml(section.id) + '">' +
           '<div class="example-group-left">' +
@@ -418,6 +431,16 @@ function renderUseCases() {
 // A sub-card with "comingSoon" is greyed out and does nothing.
 function subCardsHtml(group) {
   return '<div class="sub-cards">' + group.subCards.map((c) => {
+    // a sub-card with "maps" (Extent): a button that shows its maps (small buttons under it, each opening its own panel)
+    if (Array.isArray(c.maps) && c.id) {
+      const shown = c.id === openGroup;
+      const maps = c.maps.map((id) => findUseCase(id)).filter(Boolean).map((f) => f.useCase);
+      return '<button type="button" class="sub-card' + (shown ? ' selected' : '') + '" data-group="' + escapeHtml(c.id) + '" aria-expanded="' + shown + '">' +
+        '<span class="sub-title">' + escapeHtml(c.title) + '</span></button>' +
+        (shown ? '<div class="sub-maps">' + maps.map((m) =>
+          '<button type="button" class="sub-card sub-map' + (m.id === openUseCase ? ' selected' : '') + '" data-use-case="' + escapeHtml(m.id) + '" aria-expanded="' + (m.id === openUseCase) + '">' +
+          '<span class="sub-title">' + escapeHtml(m.tabLabel || m.title) + '</span></button>').join('') + '</div>' : '');
+    }
     if (c.comingSoon || !c.id) {
       return '<div class="sub-card coming-soon" aria-disabled="true"><span class="sub-title">' + escapeHtml(c.title) + '</span>' +
         '<span class="badge">' + escapeHtml(t('labels.comingSoon')) + '</span></div>';
@@ -514,6 +537,7 @@ function openMethodTarget() {
   methodArrival = { useCase: found.useCase.id, from: methodCameFrom };
   methodCameFrom = null;
   openUseCase = found.useCase.id;
+  openGroup = found.useCase.parent || null;              // a map of Extent: Extent opens in the card
   selectMethodTab(found.section.id);                      // shows the tab and opens the panel
   const el = $('use-case-' + found.useCase.id);
   if (el && !$('method').hidden) {

@@ -149,6 +149,9 @@ button.sub-card:hover, button.sub-card:focus-visible { box-shadow: none; }
 .sub-title { font-size: var(--font-size-body); line-height: 1.4; color: var(--color-text); }
 .sub-card.selected .sub-title { color: var(--color-accent); }
 /* "Coming soon": greyed out, not clickable */
+/* the maps of a sub-card (Extent), under it and indented */
+.sub-maps { display: flex; flex-direction: column; gap: 6px; margin: -2px 0 2px 16px; }
+.sub-map { padding: 8px 12px; }
 .sub-card.coming-soon { opacity: 0.55; cursor: default; box-shadow: none; background: var(--color-background); }
 .sub-card.coming-soon .sub-title { color: var(--color-text-muted); }
 .example-card.coming-soon { opacity: 0.55; cursor: default; background: var(--color-background); }
