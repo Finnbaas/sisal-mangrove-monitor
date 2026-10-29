@@ -445,6 +445,7 @@
         {
           "id": "stakeholder-map-interview",
           "title": "Map interview",
+          "image": "img/method/stakeholder-map-interview.png",
           "howMade": "A semi-structured interview in four parts: general, mangrove change and its drivers, communication, and the present and future. Question 5 is the mapping step: the stakeholder draws the areas that changed most on a map and explains what caused each change. Interviews are recorded and transcribed. Each stakeholder type also gets a short module with its own questions (developers, eco-tourism, fishers, government, residents, researchers).",
           "howWeUsed": "We interviewed seven stakeholders in Sisal in September and October 2026. Questions 2 to 5 (change, causes, sudden events and the map) are the basis of the three themes on the Stakeholders page.",
           "howWeUsedLink": "#stakeholders",
@@ -464,6 +465,7 @@
         {
           "id": "stakeholder-table",
           "title": "From interview to table",
+          "image": "img/method/stakeholder-table.png",
           "howMade": "Every statement is sorted into one of three themes (extent, condition, disturbance and recovery) and written as one row: area number, zone, change, period, start and end year, certainty, cause, stakeholder code and type, and a paraphrase in English.",
           "howWeUsed": "The three themes on the Stakeholders page, with one quote per stakeholder per area.",
           "howWeUsedLink": "#stakeholders",
