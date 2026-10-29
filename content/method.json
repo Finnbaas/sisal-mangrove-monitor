@@ -1,5 +1,5 @@
 {
-  "exampleContent": true,
+  "exampleContent": false,
   "title": "Method and code",
   "intro": "This page explains the methods behind the research pages and gives the code to run the same analyses on your own data, location and question. Our Sisal results are one example of each analysis.",
 
@@ -414,18 +414,77 @@
     {
       "id": "stakeholders",
       "title": "Stakeholder mapping",
-      "description": "The stakeholder map shows where and when local people have seen the mangrove change. It comes from interviews with seven stakeholders in 2026, each shown only by a code (for example AC1 or NGO1), never by name. They represent six types: academic, community restoration group, community cooperative, conservation NGO, eco-tourism and government. Each interview table was sorted into three themes: extent, condition, and disturbance and recovery.",
-      "sources": [{ "label": "Stakeholder interviews, Sisal, 2026 (TU Delft and UNAM)" }],
-      "keyChoices": [
-        "The areas are drawn as ellipses by hand on the base map, from what the stakeholders described. They show roughly where, not exact borders.",
-        "The years on the timeline come from the period each stakeholder gave, such as 1996 or since 2010. Where a period was vague, the bar is marked approximate or expected.",
-        "The quotes are paraphrased, not word for word, and are shown with the stakeholder code and type only."
+      "galleryHint": "Methods you can use with people in your own area. Pick one to see how it works and what you need.",
+      "datasets": [
+        "Interviews with seven stakeholders in Sisal, September and October 2026: semi-structured, held in Spanish with translation support, recorded and transcribed.",
+        "Stakeholder types, each shown only by a code: academic (AC), community restoration group (CR), conservation NGO (NGO), eco-tourism (ET), government (GOV).",
+        "Areas drawn by the stakeholders on a map during the interview (question 5), then placed on the Sentinel-2 base map (January–May 2024)."
       ],
-      "requirements": "Nothing to install: the stakeholder map only shows the interview results. There is no code to run for this analysis.",
-      "folder": "",
+      "limitations": [
+        "Seven stakeholders, so it does not represent the whole community.",
+        "Areas are approximate: they show where people meant, not exact boundaries.",
+        "Periods come from memory; vague periods (\"recent\", \"over 30 years\") are shown as approximate on the timeline.",
+        "Interviews went through translation, so the format was mostly question and answer, with few follow-up questions. Statements are paraphrased in English from the translated transcripts; hearsay is marked as such."
+      ],
+      "license": "Templates under CC BY 4.0, code under MIT",
+      "folder": "https://github.com/Finnbaas/sisal-mangrove-analyses/tree/main/stakeholder-mapping",
       "zip": "",
-      "files": [],
-      "useCases": []
+      "files": [
+        { "name": "map-interview/README.md", "description": "What the method is, what is in the folder and the steps.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/stakeholder-mapping/map-interview/README.md" },
+        { "name": "interview_guide_en.pdf", "description": "The interview guide in English, with the modules per stakeholder type.", "format": "PDF", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/stakeholder-mapping/map-interview/interview_guide_en.pdf" },
+        { "name": "interview_guide_es.pdf", "description": "The interview guide in Spanish, with the modules per stakeholder type.", "format": "PDF", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/stakeholder-mapping/map-interview/interview_guide_es.pdf" },
+        { "name": "consent_form_en.pdf", "description": "The consent form in English: recording, use of answers and drawings, data storage.", "format": "PDF", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/stakeholder-mapping/map-interview/consent_form_en.pdf" },
+        { "name": "consent_form_es.pdf", "description": "The consent form in Spanish: recording, use of answers and drawings, data storage.", "format": "PDF", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/stakeholder-mapping/map-interview/consent_form_es.pdf" },
+        { "name": "sisal_base_map.pdf", "description": "Base map of Sisal on an A3 page, black and white, with scale bar, north arrow, grid and space to number the areas.", "format": "PDF", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/stakeholder-mapping/map-interview/sisal_base_map.pdf" },
+        { "name": "interview-to-table/README.md", "description": "What the method is, the columns of the table and the steps.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/stakeholder-mapping/interview-to-table/README.md" },
+        { "name": "coding_sheet_template.csv", "description": "The empty coding sheet: the columns and one example row.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/stakeholder-mapping/interview-to-table/coding_sheet_template.csv" },
+        { "name": "theme_rules.md", "description": "What goes into each theme, and the rules for years and certainty.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/stakeholder-mapping/interview-to-table/theme_rules.md" },
+        { "name": "sisal_example.csv", "description": "Our Sisal table: one row per quote, stakeholder codes only.", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/stakeholder-mapping/interview-to-table/sisal_example.csv" }
+      ],
+      "useCases": [
+        {
+          "id": "stakeholder-map-interview",
+          "title": "Map interview",
+          "howMade": "A semi-structured interview in four parts: general, mangrove change and its drivers, communication, and the present and future. Question 5 is the mapping step: the stakeholder draws the areas that changed most on a map and explains what caused each change. Interviews are recorded and transcribed. Each stakeholder type also gets a short module with its own questions (developers, eco-tourism, fishers, government, residents, researchers).",
+          "howWeUsed": "We interviewed seven stakeholders in Sisal in September and October 2026. Questions 2 to 5 (change, causes, sudden events and the map) are the basis of the three themes on the Stakeholders page.",
+          "howWeUsedLink": "#stakeholders",
+          "howWeUsedLinkLabel": "See it on the Stakeholders page",
+          "whatYouNeed": [
+            "The interview guide and consent form, a printed map of your area for question 5, a recorder, and an interpreter if you don't speak the local language."
+          ],
+          "steps": [
+            "Print a map of your area for the drawing question, or export one with the Sentinel-2 script from the Ecosystem method.",
+            "Read the consent form together and ask for the three consents (recording, use of answers and drawings, data storage). Give the stakeholder a code: type + number, for example NGO1.",
+            "Ask the general questions, then the questions on change and drivers, and add the module for this stakeholder type.",
+            "At question 5, let the stakeholder draw and number each area. Ask when it changed and why, per area.",
+            "Transcribe the recording, photograph the map, and store names and recordings separately from the codes."
+          ],
+          "files": ["map-interview/README.md", "interview_guide_en.pdf", "interview_guide_es.pdf", "consent_form_en.pdf", "consent_form_es.pdf", "sisal_base_map.pdf"]
+        },
+        {
+          "id": "stakeholder-table",
+          "title": "From interview to table",
+          "howMade": "Every statement is sorted into one of three themes (extent, condition, disturbance and recovery) and written as one row: area number, zone, change, period, start and end year, certainty, cause, stakeholder code and type, and a paraphrase in English.",
+          "howWeUsed": "The three themes on the Stakeholders page, with one quote per stakeholder per area.",
+          "howWeUsedLink": "#stakeholders",
+          "howWeUsedLinkLabel": "See it on the Stakeholders page",
+          "whatYouNeed": [
+            "The transcripts and photographed maps from the map interview, and a spreadsheet program."
+          ],
+          "steps": [
+            "Open coding_sheet_template.csv.",
+            "Sort each statement into extent, condition, or disturbance and recovery (see theme_rules.md).",
+            "Write one row per area per stakeholder. The paraphrase gives their view in their words, not your interpretation.",
+            "Turn the period into a start and end year, and mark it exact, approximate, ongoing or expected (see theme_rules.md).",
+            "Check every row for names and personal details, and remove them."
+          ],
+          "files": ["interview-to-table/README.md", "coding_sheet_template.csv", "theme_rules.md", "sisal_example.csv"]
+        },
+        {
+          "title": "Stakeholder map for your area",
+          "comingSoon": true
+        }
+      ]
     }
   ]
 }

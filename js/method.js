@@ -10,6 +10,8 @@
 //   sources and limitations above the cards and the link to its folder on GitHub below them.
 //   A use case with "subCards" (Mangrove maps) shows no steps: its sub-cards sit inside the card (twice as wide); a sub-card is a use case with
 //   a "parent" (#method/mangrove-extent opens both). A use case can have "routes": tabs with their own steps.
+//   A use case with "comingSoon" (and a "title") is a greyed-out card without panel. A section can have its own
+//   "galleryHint" (the line above the cards) and "license" (shown at the bottom while its tab is open).
 // Reads: content/method.json (written by the team) and, for the numbers in the texts, data/storms/storm-counts.json,
 //   data/events.json, data/climate/typical-year.json, data/climate/change.json and data/climate/wave-direction.json.
 // Uses: helpers.js, content.js, navigation.js (lastResearchSection). Used by: main.js, navigation.js.
@@ -68,6 +70,7 @@ function checkMethod(content) {
     if (!s || !s.id || !s.title) { warn('a section without "id" or "title" is not shown.'); return false; }
     s.files = Array.isArray(s.files) ? s.files.filter((f) => f && f.name) : [];
     s.useCases = (Array.isArray(s.useCases) ? s.useCases : []).filter((u) => {
+      if (u && u.comingSoon && u.title) return true;   // a "coming soon" card has no panel, so it needs no id
       // the id is used in the address of the page, so it must be simple and may only occur once
       if (!u || !/^[a-z0-9-]+$/.test(u.id || '')) { warn('a use case in "' + s.id + '" has no valid "id" (lowercase letters, numbers and dashes) and is not shown.'); return false; }
       if (seen.includes(u.id)) { warn('the use case id "' + u.id + '" is used twice; the second one is not shown.'); return false; }
@@ -274,7 +277,7 @@ function buildMethodPage() {
 
   const cite =
     '<div class="cite-block">' +
-      '<div class="cite-license"><div class="method-label">' + escapeHtml(t('labels.license')) + '</div><div class="method-text">' + textOrPlaceholder('method-placeholder', method.license) + '</div></div>' +
+      '<div class="cite-license"><div class="method-label">' + escapeHtml(t('labels.license')) + '</div><div class="method-text" id="cite-license-text"></div></div>' +
       '<div class="cite-citation"><div class="method-label">' + escapeHtml(t('labels.citeThisMethod')) + '</div><div class="method-text">' + textOrPlaceholder('method-placeholder', method.citation) + '</div>' +
       '<div class="cite-doi mono">' + escapeHtml(t('labels.doi')) + ' ' + textOrPlaceholder('method-placeholder', method.doi) + '</div></div>' +
     '</div>';
@@ -299,6 +302,9 @@ function selectMethodTab(id) {
     b.setAttribute('aria-selected', on);
   });
   document.querySelectorAll('#method .method-section').forEach((el) => { el.hidden = el.dataset.section !== id; });
+  // the license of the tab ("license" in the section), or the one of the whole page
+  const section = sectionById(id);
+  $('cite-license-text').innerHTML = textOrPlaceholder('method-placeholder', section && isFilled(section.license) ? section.license : method.license);
   renderUseCases();
 }
 
@@ -346,7 +352,7 @@ function methodSectionHtml(section) {
     (section.useCases.length ?
       '<div class="use-cases">' +
         '<div class="use-cases-heading">' + escapeHtml(t('labels.doItYourselfHeading')) + '</div>' +
-        '<div class="use-cases-hint">' + escapeHtml(t('labels.galleryHint')) + '</div>' +
+        '<div class="use-cases-hint">' + escapeHtml(isFilled(section.galleryHint) ? section.galleryHint : t('labels.galleryHint')) + '</div>' +
         '<div class="example-gallery" id="gallery-' + escapeHtml(section.id) + '"></div>' +
         '<div id="use-case-slot-' + escapeHtml(section.id) + '"></div>' +
       '</div>' : '') +
@@ -387,6 +393,13 @@ function renderUseCases() {
           '<div class="example-group-right">' +
             (isFilled(u.useFor) ? '<span class="example-use"><b>' + escapeHtml(t('labels.useItFor')) + ':</b> ' + escapeHtml(u.useFor) + '</span>' : '') +
             subCardsHtml(u) + '</div></div>';
+      }
+      // a card with "comingSoon" is greyed out, has no panel and does nothing (same look as the coming-soon sub-cards)
+      if (u.comingSoon) {
+        return '<div class="example-card coming-soon" data-section="' + escapeHtml(section.id) + '" aria-disabled="true">' +
+          '<span class="example-thumb">' + (isFilled(u.image) ? '<img src="' + escapeHtml(u.image) + '" alt="">' : '') + '</span>' +
+          '<span class="example-title">' + escapeHtml(u.title) + '</span>' +
+          '<span class="example-badges"><span class="badge">' + escapeHtml(t('labels.comingSoon')) + '</span></span></div>';
       }
       const open = u.id === openUseCase;
       return '<button type="button" class="example-card' + (open ? ' selected' : '') + '" data-section="' + escapeHtml(section.id) + '" data-use-case="' + escapeHtml(u.id) + '"' +

@@ -151,6 +151,8 @@ button.sub-card:hover, button.sub-card:focus-visible { box-shadow: none; }
 /* "Coming soon": greyed out, not clickable */
 .sub-card.coming-soon { opacity: 0.55; cursor: default; box-shadow: none; background: var(--color-background); }
 .sub-card.coming-soon .sub-title { color: var(--color-text-muted); }
+.example-card.coming-soon { opacity: 0.55; cursor: default; background: var(--color-background); }
+.example-card.coming-soon .example-title { color: var(--color-text-muted); }
 
 /* the route tabs in a panel (Quick | Accurate): two small tabs */
 .route-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
