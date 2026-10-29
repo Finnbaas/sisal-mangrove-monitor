@@ -481,10 +481,6 @@
             "Check every row for names and personal details, and remove them."
           ],
           "files": ["interview-to-table/README.md", "coding_sheet_template.csv", "theme_rules.md", "sisal_example.csv"]
-        },
-        {
-          "title": "Stakeholder map for your area",
-          "comingSoon": true
         }
       ]
     }
