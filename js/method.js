@@ -250,7 +250,7 @@ async function downloadFile(link) {
     document.body.appendChild(a);
     a.click();
     a.remove();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 60000);   // not at once: the browser may still be reading the file
   } catch (error) {
     console.warn('Could not download ' + link.href + ': ' + error.message);
     window.open(link.href, '_blank', 'noopener');
@@ -297,14 +297,14 @@ async function downloadZip(button) {
       }
     }));
     if (missing.length < files.length) {
-      const url = URL.createObjectURL(await zip.generateAsync({ type: 'blob' }));
+      const url = URL.createObjectURL(await zip.generateAsync({ type: 'blob', mimeType: 'application/zip' }));
       const a = document.createElement('a');
       a.href = url;
       a.download = id + '.zip';
       document.body.appendChild(a);
       a.click();
       a.remove();
-      URL.revokeObjectURL(url);
+      setTimeout(() => URL.revokeObjectURL(url), 60000);   // not at once: the browser may still be reading the file
     }
     if (missing.length) message.textContent = t(missing.length === files.length ? 'labels.downloadZipFailed' : 'labels.downloadMissing').replace('{files}', missing.join(', '));
   } catch (error) {
