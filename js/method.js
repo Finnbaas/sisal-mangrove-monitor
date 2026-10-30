@@ -128,6 +128,7 @@ function setupMethod() {
     const close = e.target.closest('.use-case-close');
     if (!card && !close) return;
     if (card && !card.dataset.useCase) return;   // a card with sub-cards (Mangrove maps) has no steps itself: only its sub-cards open a panel
+    if (card && !card.classList.contains('sub-card')) openGroup = null;   // another card selected: the Mangrove maps card is no longer selected
     openUseCase = close || openUseCase === card.dataset.useCase ? null : card.dataset.useCase;
     methodArrival = null;   // the visitor is now browsing on their own
     renderUseCases();
