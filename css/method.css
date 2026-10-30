@@ -109,10 +109,14 @@ summary.method-label:focus-visible { outline: 2px solid var(--color-text-body); 
 .use-case-close { position: absolute; top: 8px; right: 10px; z-index: 1; width: 28px; height: 28px; padding: 0; border: none; border-radius: var(--radius-control); background: transparent; font-size: var(--font-size-section); line-height: 1; color: var(--color-text-muted); }
 .use-case-close:hover, .use-case-close:focus-visible { background: var(--color-surface); color: var(--color-text); }
 .use-case-bar + .use-case-close { top: 44px; }
-.use-case-body { display: flex; align-items: flex-start; gap: 32px; padding: 16px 44px 16px 18px; }
+/* "Copy link": a small button left of the close button, in the style of the other small controls (.download-all) */
+.use-case-copy { position: absolute; top: 8px; right: 44px; z-index: 1; padding: 4px 10px; border: none; border-radius: var(--radius-control); background: var(--color-surface); font-size: var(--font-size-small); font-weight: 600; color: var(--color-accent); }
+.use-case-copy:hover, .use-case-copy:focus-visible { box-shadow: 0 0 0 1px var(--color-accent); }
+.use-case-bar ~ .use-case-copy { top: 44px; }
+.use-case-title:focus { outline: none; }   /* the title gets the focus when a panel opens; no ring around it */
+.use-case-body { display: flex; align-items: flex-start; gap: 32px; padding: 44px 44px 16px 18px; }   /* room at the top for Copy link and the close button */
 .use-case-instructions { flex: 0 0 55%; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
 .use-case-title { font-size: var(--font-size-body); font-weight: 700; color: var(--color-text); }
-.use-case-name { margin-top: 2px; font-size: var(--font-size-small); color: var(--color-text-faint); }
 .use-case-steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .use-case-steps li { display: flex; align-items: flex-start; gap: 10px; font-size: var(--font-size-body); line-height: 1.45; color: var(--color-text-body); }
 .use-case-number { width: 20px; height: 20px; border-radius: var(--radius-control); background: var(--color-surface); display: flex; align-items: center; justify-content: center; font-size: var(--font-size-small); font-weight: 600; color: var(--color-text-body); flex-shrink: 0; }

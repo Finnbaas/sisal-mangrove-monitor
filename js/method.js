@@ -89,6 +89,7 @@ function setupMethod() {
     if (tab) {
       if (tab.dataset.section !== activeTab) { openUseCase = null; openGroup = null; methodArrival = null; }   // the panel belongs to the old tab
       selectMethodTab(tab.dataset.section);
+      setMethodAddress(null);
       return;
     }
     // a route tab inside a panel (Quick | Accurate): shows the steps of that route
@@ -101,6 +102,9 @@ function setupMethod() {
     // "Download all files": the files of the open example one after the other (a short pause between them, because browsers can block a burst of downloads)
     const downloadAll = e.target.closest('[data-download-all]');
     if (downloadAll) { downloadZip(downloadAll); return; }
+    // "Copy link" in a panel: copies the address of the panel
+    const copy = e.target.closest('[data-copy-link]');
+    if (copy) { copyPanelLink(copy); return; }
     // the download icon of one file
     const download = e.target.closest('a.file-download');
     if (download) { e.preventDefault(); downloadFile(download); return; }
@@ -122,13 +126,66 @@ function setupMethod() {
     if (!card && !close) return;
     if (card && !card.dataset.useCase) return;   // a card with sub-cards (Mangrove maps) has no steps itself: only its sub-cards open a panel
     if (card && !card.classList.contains('sub-card')) openGroup = null;   // another card selected: the Mangrove maps card is no longer selected
+    const wasOpen = openUseCase;
     openUseCase = close || openUseCase === card.dataset.useCase ? null : card.dataset.useCase;
     methodArrival = null;   // the visitor is now browsing on their own
     renderUseCases();
+    setMethodAddress(openUseCase);
     const panel = openUseCase && $('use-case-' + openUseCase);
-    if (panel) panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    if (panel) showPanel(panel);
+    else if (wasOpen) focusCard(wasOpen);   // closed: back to the card that opened it
   });
   loadMethod();
+}
+
+// ---------- the open panel: scroll, focus, address, link ----------
+
+// The room the sticky tabs take at the top of the page, plus a small gap: a panel scrolls to just below them.
+function stickyOffset() {
+  const bar = document.querySelector('#method .section-nav-bar');
+  return (bar ? bar.getBoundingClientRect().height : 0) + 12;
+}
+
+// Scrolls a panel smoothly to just below the sticky tabs and moves the keyboard focus to its title.
+function showPanel(panel) {
+  panel.style.scrollMarginTop = stickyOffset() + 'px';
+  panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  focusPanelTitle(panel);
+}
+function focusPanelTitle(panel) {
+  const title = panel.querySelector('.use-case-title');
+  if (title) title.focus({ preventScroll: true });
+}
+// After closing a panel the focus goes back to its card (or, for a map, its button inside the Mangrove maps card).
+function focusCard(id) {
+  const card = document.querySelector('#method .example-card[data-use-case="' + id + '"], #method .sub-card[data-use-case="' + id + '"]');
+  if (card) card.focus({ preventScroll: true });
+}
+
+// The address bar follows the panel: #method/<use case id> while one is open, #method/<tab> when none is. Every
+// change is a step in the browser history, so back and forward open and close the panels (openMethodTarget).
+function setMethodAddress(id) {
+  const hash = '#method/' + (id || activeTab);
+  if (location.hash !== hash) history.pushState({ methodPanel: true }, '', hash);
+}
+
+// Copies the full address of a panel; the button says "Copied" for 2 seconds.
+async function copyPanelLink(button) {
+  const id = button.closest('.use-case').id.replace(/^use-case-/, '');
+  const url = location.href.split('#')[0] + '#method/' + id;
+  try {
+    await navigator.clipboard.writeText(url);
+  } catch (error) {
+    const box = document.createElement('textarea');   // older browsers and pages without https
+    box.value = url;
+    document.body.appendChild(box);
+    box.select();
+    document.execCommand('copy');
+    box.remove();
+  }
+  button.textContent = t('labels.copied');
+  clearTimeout(button.copiedTimer);
+  button.copiedTimer = setTimeout(() => { button.textContent = t('labels.copyLink'); }, 2000);
 }
 
 // ---------- the numbers in the texts ----------
@@ -538,9 +595,6 @@ function useCaseHtml(section, useCase) {
     '<div class="route-tabs" role="tablist">' + routes.map((r) =>
       '<button type="button" class="route-tab' + (r === route ? ' current' : '') + '" role="tab" aria-selected="' + (r === route) + '" data-use-case="' + escapeHtml(useCase.id) + '" data-route="' + escapeHtml(r.id) + '">' + escapeHtml(r.title) + '</button>').join('') + '</div>' +
     (isFilled(route.description) ? '<p class="method-text">' + escapeHtml(route.description) + '</p>' : '') + '</div>' : '';
-  const readmeHtml = isFilled(useCase.readmeLink) ?
-    '<a class="github-link small" href="' + escapeHtml(useCase.readmeLink) + '" target="_blank" rel="noopener">' + METHOD_ICONS.github + '<span>' + escapeHtml(useCase.readmeLabel || useCase.readmeLink) + '</span></a>' : '';
-
   const steps = ((route ? route.steps : useCase.steps) || []).filter(isFilled);
   const stepsHtml = steps.length ? '<ol class="use-case-steps">' + steps.map((s, i) =>
     '<li><span class="use-case-number">' + (i + 1) + '</span><span>' + escapeHtml(fillFacts(s)) + '</span></li>').join('') + '</ol>'
@@ -551,6 +605,12 @@ function useCaseHtml(section, useCase) {
   const filesHtml = files.length ? '<div class="file-list">' + files.map(fileRow).join('') + '</div>'
     : '<div class="method-files-empty small">' + escapeHtml(t('messages.filesWillBeAdded')) + '</div>';
 
+  // the README link: set on the card, or else the README in its file list
+  const readmeFile = files.find((f) => /(^|\/)README\.md$/.test(f.name) && isFilled(f.path));
+  const readmeLink = isFilled(useCase.readmeLink) ? useCase.readmeLink : (readmeFile ? readmeFile.path : '');
+  const readmeHtml = isFilled(readmeLink) ?
+    '<a class="github-link small" href="' + escapeHtml(readmeLink) + '" target="_blank" rel="noopener">' + METHOD_ICONS.github + '<span>' + escapeHtml(useCase.readmeLabel || t('labels.readmeOnGithub')) + '</span></a>' : '';
+
   // one button that downloads every available file of this example (only when there is more than one)
   const downloadable = files.filter((f) => isFilled(f.path));
   const downloadAllHtml = downloadable.length > 1 ?
@@ -558,9 +618,9 @@ function useCaseHtml(section, useCase) {
 
   return '<div class="use-case' + (arrived ? ' highlighted' : '') + '" id="use-case-' + escapeHtml(useCase.id) + '">' + bar +
     '<button type="button" class="use-case-close" aria-label="' + escapeHtml(t('labels.closePanel')) + '" title="' + escapeHtml(t('labels.closePanel')) + '">&times;</button>' +
+    '<button type="button" class="ghost use-case-copy" data-copy-link>' + escapeHtml(t('labels.copyLink')) + '</button>' +
     '<div class="use-case-body">' +
-      '<div class="use-case-instructions"><div><div class="use-case-title">' + textOrPlaceholder('method-placeholder', useCase.title) + '</div>' +
-      '<div class="use-case-name mono">#method/' + escapeHtml(useCase.id) + '</div></div>' + madeHtml + choicesHtml + usedHtml + needHtml + routesHtml + stepsHtml + readmeHtml + '</div>' +
+      '<div class="use-case-instructions"><div><div class="use-case-title" tabindex="-1">' + textOrPlaceholder('method-placeholder', useCase.title) + '</div></div>' + madeHtml + choicesHtml + usedHtml + needHtml + routesHtml + stepsHtml + readmeHtml + '</div>' +
       '<div class="use-case-files">' + filesHtml + (isFilled(section.folder) || downloadAllHtml ? filesActions(section, downloadAllHtml) : '') + '</div>' +   // "Download all files", the folder link (and zip) under the downloads
     '</div></div>';
 }
@@ -581,35 +641,39 @@ function openMethodTarget() {
     methodCameFrom = null;
     // #method/<section id> opens that tab
     const tab = parts[0] === 'method' && parts[1] ? sectionById(parts[1]) : null;
-    if (tab) { if (tab.id !== activeTab) openUseCase = null; selectMethodTab(tab.id); }
+    if (tab) { openUseCase = null; if (tab.id !== activeTab) openGroup = null; selectMethodTab(tab.id); }   // the address names a tab only: no panel
     else if (hadArrival) renderUseCases();
     return false;
   }
-  methodArrival = { useCase: found.useCase.id, from: methodCameFrom };
+  // an address made by this page (a click, or back and forward) is not an arrival: no highlight and no "came from" bar
+  const ownStep = !!(history.state && history.state.methodPanel);
+  methodArrival = ownStep ? null : { useCase: found.useCase.id, from: methodCameFrom };
   methodCameFrom = null;
   openUseCase = found.useCase.id;
   openGroup = found.useCase.parent || null;              // a map of Extent: Extent opens in the card
   selectMethodTab(found.section.id);                      // shows the tab and opens the panel
   const el = $('use-case-' + found.useCase.id);
-  if (el && !$('method').hidden) {
+  if (el && !$('method').hidden && ownStep) {
+    showPanel(el);
+  } else if (el && !$('method').hidden) {
     // start at the top of the page so the visitor sees which page they landed on (the selected card is
     // visible there), then scroll slowly down to the steps after a short pause
     window.scrollTo(0, 0);
     const address = location.hash;
     setTimeout(() => {
-      if (location.hash === address) scrollSlowlyTo(el);   // not if the visitor already went elsewhere
+      if (location.hash === address) { scrollSlowlyTo(el); focusPanelTitle(el); }   // not if the visitor already went elsewhere
     }, 700);
   }
   return true;
 }
 
 // Scrolls down to an element in about 1.6 seconds (the browser's own smooth scroll is too fast and cannot be slowed down),
-// so the element ends up in the middle of the screen. With "reduce motion" switched on it jumps instead.
+// so the element ends up just below the sticky tabs. With "reduce motion" switched on it jumps instead.
 const SLOW_SCROLL_MS = 1600;
 function scrollSlowlyTo(el) {
   const start = window.scrollY;
   const rect = el.getBoundingClientRect();
-  const target = Math.max(0, start + rect.top - (window.innerHeight - rect.height) / 2);
+  const target = Math.max(0, start + rect.top - stickyOffset());
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { window.scrollTo(0, target); return; }
   const begin = performance.now();
   const address = location.hash;

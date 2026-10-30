@@ -137,6 +137,9 @@
             "The number of images per year increases over time, which pushes the monthly maximum upwards; this drift is removed in the detrending.",
             "Landsat and Sentinel-2 are not merged, because of sensor differences."
           ],
+          "howWeUsed": "In Sisal we extracted the monthly maximum NDVI of random points in the Sisal area from Landsat; the NDVI section of the Ecosystem page shows the raw NDVI and the deseasonalised STL trend of each point.",
+          "howWeUsedLink": "#satellite/ndvi",
+          "howWeUsedLinkLabel": "See NDVI on the Ecosystem page",
           "whatYouNeed": [
             "A free Google Earth Engine account. Python 3 with pandas, numpy, matplotlib, statsmodels (STL) and scipy (Kendall's tau and smoothing)."
           ],
@@ -151,12 +154,38 @@
           "cards": ["point-chart"]
         },
         {
+          "id": "change-map",
+          "title": "Shape-class map of your area",
+          "image": "img/method/shape-classes-map-n1138.png",
+          "howMade": "For every point we compute the net NDVI change and the turnover of its deseasonalised series and assign a shape class: stable, gain, loss, loss + recovery, high turnover or non-mangrove, with fixed thresholds. The notebook saves a scatter plot of the classes, the NDVI lines per class, a map of the points coloured by class and the table of classes.",
+          "keyChoices": [
+            { "text": "Shape classes are based on the net NDVI change and the turnover of each series, with fixed thresholds.", "more": "The start and end level are the median of the first and last 3 years. Loss: net change of −0.3 or less. Gain: net change of +0.3 or more. Loss + recovery: mangrove (NDVI 0.3 or more) at the start and the end, but below 0.3 for at least 2 years in between. High turnover: turnover of 1.4 or more, a whole year below NDVI 0.25, or a monthly trend below 0. Non-mangrove: below 0.3 at the start and the end, with a mean NDVI below 0.25. All other points are stable.", "moreLabel": "Show thresholds" }
+          ],
+          "howWeUsed": "In Sisal we gave every monitoring point a shape class, which the map in the NDVI section of the Ecosystem page shows.",
+          "howWeUsedLink": "#satellite/ndvi",
+          "howWeUsedLinkLabel": "See NDVI on the Ecosystem page",
+          "whatYouNeed": [
+            "A free Google Earth Engine account. Python 3 with pandas, numpy, matplotlib, statsmodels (STL) and scipy (Kendall's tau and smoothing)."
+          ],
+          "steps": [
+            "Make the NDVI time series as in the example \"NDVI time series for your location\", for many random points in your area.",
+            "In the notebook, compute the net NDVI change and turnover per point and assign the shape classes (stable, gain, loss, loss + recovery, high turnover, non-mangrove).",
+            "Plot the classes on a map using the point coordinates."
+          ],
+          "files": ["shape-class-map/GEE_NDVI.js", "shape-class-map/ndvi_monthly_classification.ipynb", "shape-class-map/README.md", "shape-class-map/requirements.txt", "shape-class-map/monthly_max_NDVI_per_point.csv"],
+          "cards": ["point-map"]
+        },
+        {
           "id": "tipping-point-custom-location",
           "title": "Tipping point analysis for your own location",
           "image": "img/satellite/point_base_69.png",
+          "howMade": "Breakpoints are found on the deseasonalised and detrended (STL) monthly maximum NDVI of each point: a change of at least 0.25 NDVI within 12 months, after which the new level persists for at least 2 years. A drop followed by a quick recovery is resilience, not a breakpoint. The notebook lists every point with a lasting drop, with its date and magnitude.",
           "keyChoices": [
             "Breakpoint: a change of at least 0.25 NDVI within 12 months, after which the new level persists for at least 2 years. A drop followed by a quick recovery is resilience, not a breakpoint."
           ],
+          "howWeUsed": "In Sisal we looked for breakpoints at all monitoring points; the Tipping points & Early Warning Signals section of the Ecosystem page shows whether each point had a lasting loss.",
+          "howWeUsedLink": "#satellite/tipping",
+          "howWeUsedLinkLabel": "See Tipping points & Early Warning Signals on the Ecosystem page",
           "whatYouNeed": [
             "A free Google Earth Engine account. Python 3 with pandas, numpy, matplotlib and statsmodels (STL)."
           ],
@@ -171,10 +200,14 @@
           "id": "ews",
           "title": "Early warning signals for your own location",
           "image": "img/method/ews-base-86.png",
+          "howMade": "For each point with a lasting loss we take the deseasonalised NDVI before the start of the loss (at least 5 years needed), detrend it and compute the rolling standard deviation, AR1, kurtosis and skewness, with Kendall's tau per metric. The trends are tested against AR(1) surrogates and compared with control points without a breakpoint, and each point is placed in the scenario matrix.",
           "keyChoices": [
             "Early warning signals are computed only on the deseasonalised NDVI before the start of each loss, because an abrupt drop inside the rolling window would create false increases in variance and autocorrelation.",
             "The significance of the early warning signals is tested against AR(1) surrogates; points without a breakpoint serve as controls."
           ],
+          "howWeUsed": "In Sisal we tested every point with a lasting loss for warning signals before the loss; the Tipping points & Early Warning Signals section of the Ecosystem page shows whether there was a warning.",
+          "howWeUsedLink": "#satellite/tipping",
+          "howWeUsedLinkLabel": "See Tipping points & Early Warning Signals on the Ecosystem page",
           "whatYouNeed": [
             "A free Google Earth Engine account. Python 3 with pandas, numpy, matplotlib, statsmodels (STL) and scipy (Kendall's tau and smoothing)."
           ],
@@ -189,28 +222,11 @@
           "cards": []
         },
         {
-          "id": "change-map",
-          "title": "Shape-class map of your area",
-          "image": "img/method/shape-classes-map-n1138.png",
-          "keyChoices": [
-            { "text": "Shape classes are based on the net NDVI change and the turnover of each series, with fixed thresholds.", "more": "The start and end level are the median of the first and last 3 years. Loss: net change of −0.3 or less. Gain: net change of +0.3 or more. Loss + recovery: mangrove (NDVI 0.3 or more) at the start and the end, but below 0.3 for at least 2 years in between. High turnover: turnover of 1.4 or more, a whole year below NDVI 0.25, or a monthly trend below 0. Non-mangrove: below 0.3 at the start and the end, with a mean NDVI below 0.25. All other points are stable.", "moreLabel": "Show thresholds" }
-          ],
-          "whatYouNeed": [
-            "A free Google Earth Engine account. Python 3 with pandas, numpy, matplotlib, statsmodels (STL) and scipy (Kendall's tau and smoothing)."
-          ],
-          "steps": [
-            "Make the NDVI time series as in the example \"NDVI time series for your location\", for many random points in your area.",
-            "In the notebook, compute the net NDVI change and turnover per point and assign the shape classes (stable, gain, loss, loss + recovery, high turnover, non-mangrove).",
-            "Plot the classes on a map using the point coordinates."
-          ],
-          "files": ["shape-class-map/GEE_NDVI.js", "shape-class-map/ndvi_monthly_classification.ipynb", "shape-class-map/README.md", "shape-class-map/requirements.txt", "shape-class-map/monthly_max_NDVI_per_point.csv"],
-          "cards": ["point-map"]
-        },
-        {
           "id": "mangrove-change-classes",
           "parent": "mangrove-extent",
           "tabLabel": "Change classes",
           "title": "Change classes map for your area",
+          "howMade": "Land cover is classified per period from Landsat dry-season images (seven periods, 1993–2025), and the periods are compared pixel by pixel. A loss or gain only counts as confirmed when NDVI agrees: the drop or rise is larger than in 95% of stable mangrove over the same interval. The result has four classes: stable mangrove, confirmed loss, confirmed gain and uncertain change.",
           "howWeUsed": "This is the method behind the Change classes map (Extent) on the Ecosystem page: stable mangrove, confirmed loss, confirmed gain and uncertain change.",
           "howWeUsedLink": "#satellite/maps/change-classes",
           "howWeUsedLinkLabel": "See Change classes on the Ecosystem page",
@@ -266,6 +282,7 @@
           "parent": "mangrove-extent",
           "tabLabel": "Change per period",
           "title": "Change per period map for your area",
+          "howMade": "Same method as the Change classes map: each confirmed loss or gain pixel is coloured by the interval between two periods in which its new state started, and the table gives the loss and gain in hectares per interval. The last interval is provisional: a change that shows only in the last period is not yet confirmed by a later one.",
           "howWeUsed": "This is the method behind the Change per period map (Extent) on the Ecosystem page: when the confirmed loss and gain happened, per interval. The last interval is provisional.",
           "howWeUsedLink": "#satellite/maps/change-per-period",
           "howWeUsedLinkLabel": "See Change per period on the Ecosystem page",
@@ -321,6 +338,7 @@
           "parent": "mangrove-extent",
           "tabLabel": "dNDVI 2014-2025",
           "title": "dNDVI map for your area",
+          "howMade": "The NDVI change of each pixel between two periods (default 2014–2018 and 2024–2025) minus the median change of stable mangrove, so site-wide effects of climate and sensor are removed. A change beyond the 5th or 95th percentile of stable mangrove counts as a clear drop or rise, and the map gives the share of mangrove in each class.",
           "howWeUsed": "This is the method behind the dNDVI 2014-2025 map (Extent) on the Ecosystem page: how much the NDVI of mangrove changed between two periods, compared with stable mangrove.",
           "howWeUsedLink": "#satellite/maps/dndvi",
           "howWeUsedLinkLabel": "See dNDVI 2014-2025 on the Ecosystem page",
@@ -376,6 +394,7 @@
           "parent": "mangrove-condition",
           "tabLabel": "Status",
           "title": "Status map for your area",
+          "howMade": "Per pixel of persistent mangrove (mangrove in every period) we calculate the NDVI trend over the sensor period (Theil-Sen slope, Mann-Kendall test, p < 0.05) and how far the chosen year lies from that pixel's normal (Z-score). Improving and Declining are significant trends, Recently stressed is a Z-score below -2, and patches smaller than 6 pixels count as Stable.",
           "howWeUsed": "This is the method behind the Status map (Condition) on the Ecosystem page: the condition of persistent mangrove for one chosen year, as improving, stable, recently stressed or declining.",
           "howWeUsedLink": "#satellite/maps/status-2025",
           "howWeUsedLinkLabel": "See Status on the Ecosystem page",
@@ -434,6 +453,7 @@
           "parent": "mangrove-condition",
           "tabLabel": "Trend",
           "title": "Trend map for your area",
+          "howMade": "Per pixel of persistent mangrove, the Theil-Sen slope of the yearly dry-season NDVI, in NDVI per year, for two windows: 1993–2012 (Landsat 5/7) and 2014–2025 (Landsat 8/9). Only pixels with a significant trend (Mann-Kendall, p < 0.05) are coloured: red is declining, blue is increasing. Uncoloured mangrove has no significant trend.",
           "howWeUsed": "This is the method behind the Trend map (Condition) on the Ecosystem page: where the NDVI of persistent mangrove went up or down over 1993–2012 and 2014–2025, with significant trends only.",
           "howWeUsedLink": "#satellite/maps/trend-2014-2025",
           "howWeUsedLinkLabel": "See Trend on the Ecosystem page",
@@ -492,6 +512,7 @@
           "parent": "mangrove-condition",
           "tabLabel": "Canopy density",
           "title": "Canopy density map for your area",
+          "howMade": "The median Sentinel-2 NDVI (10 m) of the dry seasons 2019–2025, for pixels that were mangrove in both 2019–2023 and 2024–2025. Teal is dense canopy; brown is sparse canopy, dwarf mangrove or a wet background. It shows canopy structure, not health.",
           "howWeUsed": "This is the method behind the Canopy density map (Condition) on the Ecosystem page: how dense the mangrove canopy is in 2019–2025, from Sentinel-2 NDVI at 10 m. It shows canopy structure, not health.",
           "howWeUsedLink": "#satellite/maps/canopy",
           "howWeUsedLinkLabel": "See Canopy density on the Ecosystem page",
@@ -547,6 +568,7 @@
           "parent": "mangrove-disturbance-recovery",
           "tabLabel": "Damage classes",
           "title": "Damage classes map for your area",
+          "howMade": "The first dry season after the storm (January–May) is compared with the normal of the same sensor period, storm years left out, as a Z-score of NDVI per pixel. Moderate damage is a Z-score between -2 and -1 and severe damage below -2. Cover lost is mangrove before the storm that is no longer mangrove in the next period and has not recovered; it needs the accurate route.",
           "howWeUsed": "This is the method behind the Damage classes map (Disturbance & recovery) on the Ecosystem page: how much the mangrove was damaged by a storm in the first dry season after it, as no detectable impact, moderate, severe or cover lost.",
           "howWeUsedLink": "#satellite/maps/isidore-damage",
           "howWeUsedLinkLabel": "See Damage classes on the Ecosystem page",
@@ -606,6 +628,7 @@
           "parent": "mangrove-disturbance-recovery",
           "tabLabel": "Lasting NDVI change",
           "title": "Lasting NDVI change map for your area",
+          "howMade": "For the mangrove that was there before the storm, the NDVI of the first dry season after the storm (January–May) is compared with the normal of the same sensor period, storm years left out. The map shows this Z-score on a scale from -3 (far below normal, red) to +3 (far above normal, blue).",
           "howWeUsed": "This is the method behind the Lasting NDVI change map (Disturbance & recovery) on the Ecosystem page: how far the NDVI of the first dry season after a storm lies below or above the normal.",
           "howWeUsedLink": "#satellite/maps/isidore-lasting",
           "howWeUsedLinkLabel": "See Lasting NDVI change on the Ecosystem page",
@@ -665,6 +688,7 @@
           "parent": "mangrove-disturbance-recovery",
           "tabLabel": "Acute NDVI change",
           "title": "Acute NDVI change map for your area",
+          "howMade": "Landsat images from a short window right after the storm are compared with the same calendar window in other years, storm-affected years left out, as a Z-score of NDVI per pixel. Short windows mean few images, so single pixels can be noisy.",
           "howWeUsed": "This is the method behind the Acute NDVI change map (Disturbance & recovery) on the Ecosystem page: the effect on vegetation in the first weeks after a storm, compared with the same days in other years.",
           "howWeUsedLink": "#satellite/maps/isidore-acute-ndvi",
           "howWeUsedLinkLabel": "See Acute NDVI change on the Ecosystem page",
@@ -694,6 +718,7 @@
           "parent": "mangrove-disturbance-recovery",
           "tabLabel": "Acute wetness",
           "title": "Acute wetness map for your area",
+          "howMade": "The same method as the Acute NDVI change map, with MNDWI instead of NDVI: Landsat images from a short window right after the storm are compared with the same calendar window in other years. MNDWI shows surface wetness (flooding), so blue is wetter than normal and red drier. Short windows mean few images, so single pixels can be noisy.",
           "howWeUsed": "This is the method behind the Acute wetness map (Disturbance & recovery) on the Ecosystem page: how much drier or wetter than normal the surface (MNDWI) was in the first weeks after a storm.",
           "howWeUsedLink": "#satellite/maps/isidore-acute-wetness",
           "howWeUsedLinkLabel": "See Acute wetness on the Ecosystem page",
