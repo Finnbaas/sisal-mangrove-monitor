@@ -61,6 +61,29 @@
         { "name": "dndvi/3_dndvi_map.js", "description": "Script 3: calculates the relative NDVI change, the thresholds and the share per class, and draws the map and legend.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/extent/dndvi/3_dndvi_map.js" },
         { "name": "dndvi/sisal_aoi.geojson", "description": "Example study area (Sisal) to test the scripts on.", "format": "GeoJSON", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/extent/dndvi/example/sisal_aoi.geojson" },
         { "name": "dndvi/sisal_training_points.csv", "description": "Example training points for Sisal (accurate route).", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/extent/dndvi/example/sisal_training_points.csv" },
+        { "name": "status/README.md", "description": "Full instructions, settings and troubleshooting for the Status map.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/status/README.md" },
+        { "name": "status/1_period_images.js", "description": "Script 1: builds one cloud-free Landsat image per period and saves it in your project.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/status/1_period_images.js" },
+        { "name": "status/2a_training_points_conabio.js", "description": "Script 2a (accurate route, Mexico): makes training points from the CONABIO maps.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/status/2a_training_points_conabio.js" },
+        { "name": "status/2_mangrove_maps.js", "description": "Script 2: decides per period which pixels are mangrove; persistent mangrove is the result.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/status/2_mangrove_maps.js" },
+        { "name": "status/2b_yearly_ndvi.js", "description": "Script 2b: builds one dry-season NDVI image per year (one band per year) and saves it in your project.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/status/2b_yearly_ndvi.js" },
+        { "name": "status/3_status_map.js", "description": "Script 3: trend and Z-score per pixel, the four classes for your chosen year; draws the map, legend and areas.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/status/3_status_map.js" },
+        { "name": "status/sisal_aoi.geojson", "description": "Example study area (Sisal) to test the scripts on.", "format": "GeoJSON", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/status/example/sisal_aoi.geojson" },
+        { "name": "status/sisal_training_points.csv", "description": "Example training points for Sisal (accurate route).", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/status/example/sisal_training_points.csv" },
+        { "name": "trend/README.md", "description": "Full instructions, settings and troubleshooting for the Trend map.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/trend/README.md" },
+        { "name": "trend/1_period_images.js", "description": "Script 1: builds one cloud-free Landsat image per period and saves it in your project.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/trend/1_period_images.js" },
+        { "name": "trend/2a_training_points_conabio.js", "description": "Script 2a (accurate route, Mexico): makes training points from the CONABIO maps.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/trend/2a_training_points_conabio.js" },
+        { "name": "trend/2_mangrove_maps.js", "description": "Script 2: decides per period which pixels are mangrove; persistent mangrove is the result.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/trend/2_mangrove_maps.js" },
+        { "name": "trend/2b_yearly_ndvi.js", "description": "Script 2b: builds one dry-season NDVI image per year (one band per year) and saves it in your project.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/trend/2b_yearly_ndvi.js" },
+        { "name": "trend/3_trend_map.js", "description": "Script 3: Theil-Sen slope and Mann-Kendall test per window; draws the map, legend and shares.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/trend/3_trend_map.js" },
+        { "name": "trend/sisal_aoi.geojson", "description": "Example study area (Sisal) to test the scripts on.", "format": "GeoJSON", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/trend/example/sisal_aoi.geojson" },
+        { "name": "trend/sisal_training_points.csv", "description": "Example training points for Sisal (accurate route).", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/trend/example/sisal_training_points.csv" },
+        { "name": "canopy-density/README.md", "description": "Full instructions, settings and troubleshooting for the Canopy density map.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/canopy-density/README.md" },
+        { "name": "canopy-density/1_period_images.js", "description": "Script 1: builds one cloud-free Landsat image per period and saves it in your project.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/canopy-density/1_period_images.js" },
+        { "name": "canopy-density/2a_training_points_conabio.js", "description": "Script 2a (accurate route, Mexico): makes training points from the CONABIO maps.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/canopy-density/2a_training_points_conabio.js" },
+        { "name": "canopy-density/2_mangrove_maps.js", "description": "Script 2: decides per period which pixels are mangrove; persistent mangrove is the result.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/canopy-density/2_mangrove_maps.js" },
+        { "name": "canopy-density/3_canopy_density_map.js", "description": "Script 3: median Sentinel-2 NDVI over the mangrove; draws the map, legend and percentiles.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/canopy-density/3_canopy_density_map.js" },
+        { "name": "canopy-density/sisal_aoi.geojson", "description": "Example study area (Sisal) to test the scripts on.", "format": "GeoJSON", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/canopy-density/example/sisal_aoi.geojson" },
+        { "name": "canopy-density/sisal_training_points.csv", "description": "Example training points for Sisal (accurate route).", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/canopy-density/example/sisal_training_points.csv" },
         { "name": "export_points.py", "description": "Turns the results into the website data.", "format": "Python", "path": "analysis/satellite/export_points.py" }
       ],
       "useCases": [
@@ -70,7 +93,7 @@
           "image": "data/vegetation/change.png",
           "subCards": [
             { "id": "mangrove-extent", "title": "Extent", "maps": ["mangrove-change-classes", "mangrove-change-per-period", "mangrove-dndvi"] },
-            { "title": "Condition", "comingSoon": true },
+            { "id": "mangrove-condition", "title": "Condition", "maps": ["mangrove-status", "mangrove-trend", "mangrove-canopy-density"] },
             { "title": "Disturbance & recovery", "comingSoon": true }
           ]
         },
@@ -317,6 +340,177 @@
             "dndvi/3_dndvi_map.js",
             "dndvi/sisal_aoi.geojson",
             "dndvi/sisal_training_points.csv"
+          ]
+        },
+        {
+          "id": "mangrove-status",
+          "parent": "mangrove-condition",
+          "tabLabel": "Status",
+          "title": "Status map for your area",
+          "howWeUsed": "This is the method behind the Status map (Condition) on the Ecosystem page: the condition of persistent mangrove for one chosen year, as improving, stable, recently stressed or declining.",
+          "howWeUsedLink": "#satellite/maps/status-2025",
+          "howWeUsedLinkLabel": "See Status on the Ecosystem page",
+          "whatYouNeed": [
+            "A free Google Earth Engine account with a non-commercial Cloud project.",
+            "Your study area: drawn in the Code Editor, a rectangle or a shapefile.",
+            "For the accurate route also: CONABIO land-use maps (clipped to your area before uploading, in Mapshaper or QGIS) or your own labelled points."
+          ],
+          "routes": [
+            {
+              "id": "quick",
+              "title": "Quick (Global Mangrove Watch)",
+              "description": "Works anywhere and needs nothing to prepare. The map covers persistent mangrove, the mangrove present in every period. About 2–3 hours, mostly waiting for exports. Coarser mask.",
+              "steps": [
+                "Create a free Earth Engine account and a non-commercial Cloud project.",
+                "Make scripts 1, 2, 2b and 3 in the Code Editor and set MY_ASSETS and NAME at the top of each.",
+                "Test on Sisal first (draw nothing), then draw your own area.",
+                "Run script 1 and start the export in Tasks; wait.",
+                "Run script 2 with MASK_SOURCE = 'GMW' and export; wait. This makes the persistent mangrove mask.",
+                "Run script 2b and start the export in Tasks; wait. It builds one dry-season NDVI image per year.",
+                "Run script 3 with the YEAR you want: map, legend, and hectares and percentage per class in the Console. Run it again for another year."
+              ]
+            },
+            {
+              "id": "accurate",
+              "title": "Accurate (training points, our method)",
+              "description": "Mexico via CONABIO, or anywhere with your own points. About 3–4 hours. Best accuracy of the persistent mangrove mask.",
+              "steps": [
+                "Create a free Earth Engine account and a non-commercial Cloud project.",
+                "Make scripts 1, 2a, 2, 2b and 3 in the Code Editor and set MY_ASSETS and NAME at the top of each.",
+                "Test on Sisal first (draw nothing), then draw your own area.",
+                "Run script 1 and start the export in Tasks; wait.",
+                "Download the CONABIO land-use maps of your area (or prepare your own points CSV). Clip each map to your study area first, in Mapshaper or QGIS: the Mexico files are too big to upload to Earth Engine. Then upload the clipped files to your assets.",
+                "Run script 2a to make the training points, and export.",
+                "Run script 2 with MASK_SOURCE = 'POINTS' and export; wait. This makes the persistent mangrove mask.",
+                "Run script 2b and start the export in Tasks; wait. It builds one dry-season NDVI image per year.",
+                "Run script 3 with the YEAR you want: map, legend, and hectares and percentage per class in the Console. Run it again for another year."
+              ]
+            }
+          ],
+          "readmeLabel": "Full instructions, settings and troubleshooting: README on GitHub",
+          "readmeLink": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/status/README.md",
+          "files": [
+            "status/README.md",
+            "status/1_period_images.js",
+            "status/2a_training_points_conabio.js",
+            "status/2_mangrove_maps.js",
+            "status/2b_yearly_ndvi.js",
+            "status/3_status_map.js",
+            "status/sisal_aoi.geojson",
+            "status/sisal_training_points.csv"
+          ]
+        },
+        {
+          "id": "mangrove-trend",
+          "parent": "mangrove-condition",
+          "tabLabel": "Trend",
+          "title": "Trend map for your area",
+          "howWeUsed": "This is the method behind the Trend map (Condition) on the Ecosystem page: where the NDVI of persistent mangrove went up or down over 1993–2012 and 2014–2025, with significant trends only.",
+          "howWeUsedLink": "#satellite/maps/trend-2014-2025",
+          "howWeUsedLinkLabel": "See Trend on the Ecosystem page",
+          "whatYouNeed": [
+            "A free Google Earth Engine account with a non-commercial Cloud project.",
+            "Your study area: drawn in the Code Editor, a rectangle or a shapefile.",
+            "For the accurate route also: CONABIO land-use maps (clipped to your area before uploading, in Mapshaper or QGIS) or your own labelled points."
+          ],
+          "routes": [
+            {
+              "id": "quick",
+              "title": "Quick (Global Mangrove Watch)",
+              "description": "Works anywhere and needs nothing to prepare. The map covers persistent mangrove, the mangrove present in every period. About 2–3 hours, mostly waiting for exports. Coarser mask.",
+              "steps": [
+                "Create a free Earth Engine account and a non-commercial Cloud project.",
+                "Make scripts 1, 2, 2b and 3 in the Code Editor and set MY_ASSETS and NAME at the top of each.",
+                "Test on Sisal first (draw nothing), then draw your own area.",
+                "Run script 1 and start the export in Tasks; wait.",
+                "Run script 2 with MASK_SOURCE = 'GMW' and export; wait. This makes the persistent mangrove mask.",
+                "Run script 2b and start the export in Tasks; wait. It builds one dry-season NDVI image per year.",
+                "Run script 3: map and legend per window, and the share of persistent mangrove with a significant increase and decrease in the Console. Set your own windows in WINDOWS if you want."
+              ]
+            },
+            {
+              "id": "accurate",
+              "title": "Accurate (training points, our method)",
+              "description": "Mexico via CONABIO, or anywhere with your own points. About 3–4 hours. Best accuracy of the persistent mangrove mask.",
+              "steps": [
+                "Create a free Earth Engine account and a non-commercial Cloud project.",
+                "Make scripts 1, 2a, 2, 2b and 3 in the Code Editor and set MY_ASSETS and NAME at the top of each.",
+                "Test on Sisal first (draw nothing), then draw your own area.",
+                "Run script 1 and start the export in Tasks; wait.",
+                "Download the CONABIO land-use maps of your area (or prepare your own points CSV). Clip each map to your study area first, in Mapshaper or QGIS: the Mexico files are too big to upload to Earth Engine. Then upload the clipped files to your assets.",
+                "Run script 2a to make the training points, and export.",
+                "Run script 2 with MASK_SOURCE = 'POINTS' and export; wait. This makes the persistent mangrove mask.",
+                "Run script 2b and start the export in Tasks; wait. It builds one dry-season NDVI image per year.",
+                "Run script 3: map and legend per window, and the share of persistent mangrove with a significant increase and decrease in the Console. Set your own windows in WINDOWS if you want."
+              ]
+            }
+          ],
+          "readmeLabel": "Full instructions, settings and troubleshooting: README on GitHub",
+          "readmeLink": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/trend/README.md",
+          "files": [
+            "trend/README.md",
+            "trend/1_period_images.js",
+            "trend/2a_training_points_conabio.js",
+            "trend/2_mangrove_maps.js",
+            "trend/2b_yearly_ndvi.js",
+            "trend/3_trend_map.js",
+            "trend/sisal_aoi.geojson",
+            "trend/sisal_training_points.csv"
+          ]
+        },
+        {
+          "id": "mangrove-canopy-density",
+          "parent": "mangrove-condition",
+          "tabLabel": "Canopy density",
+          "title": "Canopy density map for your area",
+          "howWeUsed": "This is the method behind the Canopy density map (Condition) on the Ecosystem page: how dense the mangrove canopy is in 2019–2025, from Sentinel-2 NDVI at 10 m. It shows canopy structure, not health.",
+          "howWeUsedLink": "#satellite/maps/canopy",
+          "howWeUsedLinkLabel": "See Canopy density on the Ecosystem page",
+          "whatYouNeed": [
+            "A free Google Earth Engine account with a non-commercial Cloud project.",
+            "Your study area: drawn in the Code Editor, a rectangle or a shapefile.",
+            "For the accurate route also: CONABIO land-use maps (clipped to your area before uploading, in Mapshaper or QGIS) or your own labelled points."
+          ],
+          "routes": [
+            {
+              "id": "quick",
+              "title": "Quick (Global Mangrove Watch)",
+              "description": "Works anywhere and needs nothing to prepare. The map covers persistent mangrove, the mangrove present in every period. About 2–3 hours, mostly waiting for exports. Coarser mask.",
+              "steps": [
+                "Create a free Earth Engine account and a non-commercial Cloud project.",
+                "Make scripts 1, 2 and 3 in the Code Editor and set MY_ASSETS and NAME at the top of each.",
+                "Test on Sisal first (draw nothing), then draw your own area.",
+                "Run script 1 and start the export in Tasks; wait.",
+                "Run script 2 with MASK_SOURCE = 'GMW' and export; wait. This makes the persistent mangrove mask.",
+                "Run script 3: map with the teal–brown scale, and the 10th percentile, median and 90th percentile of the NDVI in the Console."
+              ]
+            },
+            {
+              "id": "accurate",
+              "title": "Accurate (training points, our method)",
+              "description": "Mexico via CONABIO, or anywhere with your own points. About 3–4 hours. Best accuracy of the persistent mangrove mask.",
+              "steps": [
+                "Create a free Earth Engine account and a non-commercial Cloud project.",
+                "Make scripts 1, 2a, 2 and 3 in the Code Editor and set MY_ASSETS and NAME at the top of each.",
+                "Test on Sisal first (draw nothing), then draw your own area.",
+                "Run script 1 and start the export in Tasks; wait.",
+                "Download the CONABIO land-use maps of your area (or prepare your own points CSV). Clip each map to your study area first, in Mapshaper or QGIS: the Mexico files are too big to upload to Earth Engine. Then upload the clipped files to your assets.",
+                "Run script 2a to make the training points, and export.",
+                "Run script 2 with MASK_SOURCE = 'POINTS' and export; wait. This makes the persistent mangrove mask.",
+                "Run script 3: map with the teal–brown scale, and the 10th percentile, median and 90th percentile of the NDVI in the Console."
+              ]
+            }
+          ],
+          "readmeLabel": "Full instructions, settings and troubleshooting: README on GitHub",
+          "readmeLink": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/canopy-density/README.md",
+          "files": [
+            "canopy-density/README.md",
+            "canopy-density/1_period_images.js",
+            "canopy-density/2a_training_points_conabio.js",
+            "canopy-density/2_mangrove_maps.js",
+            "canopy-density/3_canopy_density_map.js",
+            "canopy-density/sisal_aoi.geojson",
+            "canopy-density/sisal_training_points.csv"
           ]
         }
       ]
