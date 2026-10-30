@@ -176,4 +176,4 @@ button.sub-card:hover, button.sub-card:focus-visible { box-shadow: none; }
   .use-case-files { width: 100%; }
   .example-gallery { grid-template-columns: repeat(2, 1fr); }
 }
-
+.download-message { margin: 8px 0 0 10px; }   /* the file that is missing from the ZIP */

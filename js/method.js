@@ -100,15 +100,7 @@ function setupMethod() {
     }
     // "Download all files": the files of the open example one after the other (a short pause between them, because browsers can block a burst of downloads)
     const downloadAll = e.target.closest('[data-download-all]');
-    if (downloadAll) {
-      downloadAll.disabled = true;
-      const links = [...downloadAll.closest('.use-case').querySelectorAll('a.file-download')];
-      (async () => {
-        for (const link of links) { await downloadFile(link); await new Promise((resolve) => setTimeout(resolve, 400)); }
-        downloadAll.disabled = false;
-      })();
-      return;
-    }
+    if (downloadAll) { downloadZip(downloadAll); return; }
     // the download icon of one file
     const download = e.target.closest('a.file-download');
     if (download) { e.preventDefault(); downloadFile(download); return; }
@@ -212,11 +204,10 @@ function choiceHtml(c) {
     escapeHtml(isFilled(c.moreLabel) ? c.moreLabel : t('labels.showMore')) + '</summary><span class="choice-more-text">' + escapeHtml(c.more) + '</span></details></span>';
 }
 
-// The row under the cards of a tab: the link to the folder on GitHub and, when the section has one, the zip file.
+// The row under the cards of a tab: "Download all files" (when the card has more than one file) and the link to the folder on GitHub.
 function filesActions(section, downloadAllButton) {
   return '<div class="method-files-actions">' + (downloadAllButton || '') +
     githubLink('small', t(isFilled(section.folder) ? 'labels.viewFolderOnGithub' : 'labels.viewOnGithub'), section.folder) +
-    (isFilled(section.zip) ? '<a class="ghost download-all" href="' + escapeHtml(section.zip) + '" download>' + escapeHtml(t('labels.downloadAll')) + '</a>' : '') +
     '</div>';
 }
 
@@ -264,6 +255,64 @@ async function downloadFile(link) {
     console.warn('Could not download ' + link.href + ': ' + error.message);
     window.open(link.href, '_blank', 'noopener');
   }
+}
+
+// "Download all files": fetches every file of the card from raw.githubusercontent.com and saves them as one ZIP, built here
+// with JSZip (script tag in index.html). The ZIP is named after the card id and keeps the folders: the part of the
+// path that all files share is left out. A file that cannot be fetched is skipped and named in a short message.
+async function downloadZip(button) {
+  const panel = button.closest('.use-case');
+  const id = panel.id.replace(/^use-case-/, '');
+  const label = button.querySelector('span');
+  const original = label.textContent;
+  let message = panel.querySelector('.download-message');
+  if (!message) {
+    message = document.createElement('div');
+    message.className = 'download-message small';
+    message.setAttribute('role', 'status');
+    button.parentNode.after(message);
+  }
+  message.textContent = '';
+  if (typeof JSZip === 'undefined') { message.textContent = t('labels.downloadZipFailed'); return; }
+  button.disabled = true;
+  label.textContent = t('labels.downloadPreparing');
+  try {
+    // the path of each file in the repository: raw.githubusercontent.com/owner/repo/branch/<path>
+    const files = [...panel.querySelectorAll('a.file-download')].map((link) => ({
+      url: link.href,
+      parts: decodeURIComponent(new URL(link.href).pathname).split('/').slice(4).filter(Boolean)
+    }));
+    let shared = 0;   // number of folders that all files have in common
+    while (files.every((f) => f.parts.length > shared + 1 && f.parts[shared] === files[0].parts[shared])) shared++;
+    const zip = new JSZip();
+    const missing = [];
+    await Promise.all(files.map(async (f) => {
+      try {
+        const response = await fetch(f.url);
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        zip.file(id + '/' + f.parts.slice(shared).join('/'), await response.arrayBuffer());
+      } catch (error) {
+        console.warn('Could not download ' + f.url + ': ' + error.message);
+        missing.push(f.parts[f.parts.length - 1]);
+      }
+    }));
+    if (missing.length < files.length) {
+      const url = URL.createObjectURL(await zip.generateAsync({ type: 'blob' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = id + '.zip';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+    if (missing.length) message.textContent = t(missing.length === files.length ? 'labels.downloadZipFailed' : 'labels.downloadMissing').replace('{files}', missing.join(', '));
+  } catch (error) {
+    console.warn('Could not make the ZIP: ' + error.message);
+    message.textContent = t('labels.downloadZipFailed');
+  }
+  label.textContent = original;
+  button.disabled = false;
 }
 
 function sectionById(id) {

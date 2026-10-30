@@ -16,13 +16,20 @@
       "id": "satellite",
       "title": "Ecosystem analysis",
       "datasets": [
-        "Landsat 5 TM, 7 ETM+, 8 and 9 OLI, Collection 2 Tier 1 Level-2 (surface reflectance), via Google Earth Engine",
-        "Global Mangrove Watch: used for the first mangrove mask, to select the points. The final mangrove map is based on NDVI, so Global Mangrove Watch is not the definitive mask.",
-        "Sentinel-2 SR Harmonized: only the background image of the map (January–May 2024). Not used for NDVI, because its record is too short to detect tipping points and early warning signals."
+        "Landsat 5 TM, 7 ETM+, 8 and 9 OLI, Collection 2 Tier 1 Level-2 (surface reflectance), via Google Earth Engine: all NDVI time series and the mangrove maps (Extent, Condition, Disturbance & recovery). Dry season January–May.",
+        "Sentinel-2 SR Harmonized (10 m): the canopy density map (2019–2025) and the background image of the maps (January–May 2024).",
+        "Global Mangrove Watch (2020 extent): the first mangrove mask to select the monitoring points, and the mangrove mask of the quick route in the mangrove maps.",
+        "CONABIO, Sistema de Monitoreo de los Manglares de México: land-use maps used to make training points for the accurate route in the mangrove maps. The maps are not included in the downloads (only the example training points for Sisal that are derived from them); see the README for where to get them."
       ],
-      "limitations": [],
+      "limitations": [
+        "One Landsat pixel is 30 m: patches smaller than about 0.5 ha are not reliable.",
+        "Areas are mapped areas, not error-adjusted, and not yet validated in the field.",
+        "Landsat 7 has striping after 2003; the median removes most of it, but some noise can remain between 2003 and 2013.",
+        "In the trend and status maps about 2.5 % of pixels per direction can be significant by chance: read patches, not single pixels.",
+        "Dry-season images miss short events such as flooding right after a storm; the acute maps cover those, with fewer images.",
+        "NDVI shows greenness, not species or tree height; dwarf and basin mangrove are naturally low."
+      ],
       "folder": "https://github.com/Finnbaas/sisal-mangrove-analyses/tree/main/satellite",
-      "zip": "",
       "files": [
         { "name": "GEE_NDVI.js", "description": "Extracts the monthly maximum NDVI per point.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/ndvi-time-series/GEE_NDVI.js" },
         { "name": "ndvi_monthly_classification.ipynb", "description": "Deseasonalising, breakpoints and shape classes.", "format": "Notebook", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/ndvi-time-series/ndvi_monthly_classification.ipynb" },
@@ -729,7 +736,6 @@
         "Too few storms ({storms.total} in {storms.start} to {storms.end}) for a trend test."
       ],
       "folder": "https://github.com/Finnbaas/sisal-mangrove-analyses/tree/main/climatology",
-      "zip": "",
       "files": [
         { "name": "Clima_Baseline.ipynb", "description": "The notebook with the analysis and the figures of the Climatology page.", "format": "Notebook", "path": "analysis/climatology/Clima_Baseline.ipynb" },
         { "name": "export_typical_year.py", "description": "Calculates the numbers and writes the JSON files that the page shows.", "format": "Python", "path": "analysis/climatology/export_typical_year.py" },
@@ -953,7 +959,6 @@
       ],
       "license": "Templates under CC BY 4.0, code under MIT",
       "folder": "https://github.com/Finnbaas/sisal-mangrove-analyses/tree/main/stakeholder-mapping",
-      "zip": "",
       "files": [
         { "name": "map-interview/README.md", "description": "What the method is, what is in the folder and the steps.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/stakeholder-mapping/map-interview/README.md" },
         { "name": "interview_guide_en.pdf", "description": "The interview guide in English, with the modules per stakeholder type.", "format": "PDF", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/stakeholder-mapping/map-interview/interview_guide_en.pdf" },
