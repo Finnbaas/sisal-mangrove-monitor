@@ -120,6 +120,7 @@ function setupMethod() {
       openGroup = closing ? null : id;
       const open = findUseCase(openUseCase);
       if (closing && open && open.useCase.parent === id) openUseCase = null;   // the panel of one of its maps closes with it
+      if (!closing && open && open.useCase.parent !== id) openUseCase = null;   // opening a group: a panel of another card closes
       methodArrival = null;
       renderUseCases();
       return;
