@@ -214,6 +214,7 @@ function placeBand(section, s) {
   const band = buildBand(s);
   if (!band) return;
   section.appendChild(band);
+  if (s.hideAnswersLine) return;   // pages.json: this page shows no "This page answers ..." line
   const answers = buildAnswersLine(s.id);
   if (answers) section.appendChild(answers);
 }

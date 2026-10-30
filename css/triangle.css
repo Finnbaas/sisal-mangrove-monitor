@@ -56,6 +56,8 @@
 
 /* ---------- the small triangle in the image band of a research page ---------- */
 .page-band { position: relative; }
+/* keep the title and intro clear of the small triangle: its width (48px + 2 x 4px padding) plus the gap on both sides */
+.page-band:has(.triangle-mini) { padding-right: calc(var(--space-4) * 2 + 56px); }
 .triangle-mini { position: absolute; right: var(--space-4); top: 50%; transform: translateY(-50%); display: flex; padding: var(--space-1); border-radius: var(--radius-card); background: var(--color-surface); }
 .triangle-mini:hover { box-shadow: 0 0 0 2px var(--color-on-dark); }
 .triangle-mini:focus-visible { outline: 2px solid var(--color-on-dark); outline-offset: 3px; }

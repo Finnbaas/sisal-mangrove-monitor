@@ -5,6 +5,7 @@
       "label": "Ecosystem",
       "title": "Ecosystem",
       "band": "data/vegetation/basemap.png",
+      "hideAnswersLine": true,
       "intro": "Satellite analysis of the mangrove forest at Sisal, Yucatán, 1993–2025. Maps show where the forest has grown, thinned or been lost. An early-warning analysis at {total} sample locations tests whether parts of it are approaching a tipping point.",
       "parts": [
         {
