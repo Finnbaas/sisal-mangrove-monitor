@@ -27,6 +27,12 @@
   --color-text-on-accent: #FFFFFF;
   --color-map-bg: #CFD8CC;           /* shown while the map image loads */
   --color-error: #D93A2B;            /* border of the content error message; not yet a Figma variable */
+  /* the words in the picture of code (.code-image; Figma "Landing - v4 (how to use)") */
+  --code-text: #CAD8D0;
+  --code-comment: #6F8B7C;
+  --code-keyword: #8FB8DE;
+  --code-number: #E3B23C;
+  --code-string: #A8D0A0;
 
   /* STYLE SYSTEM (Figma "Vegetation – research style v3", variables "Research style"). One place for the look of every page. */
   /* shape */
@@ -303,6 +309,17 @@ button { font-family: inherit; cursor: pointer; }
   background: linear-gradient(color-mix(in srgb, var(--color-band-overlay) 65%, transparent), color-mix(in srgb, var(--color-band-overlay) 65%, transparent)), var(--band-image, none) center / cover, var(--color-band-overlay);
 }
 .research-grid > .page-band { grid-column: 1 / -1; }
+/* the picture of code (js/helpers.js buildCodeImage): a code editor on the dark page color. Everything is in em, so the
+   font-size of the place that uses it sets the size (12px = the Method page band, 8px = the Method card on the landing page). */
+.code-image { position: relative; overflow: hidden; flex-shrink: 0; background: var(--color-band-overlay); color: var(--code-text); font-family: 'Space Mono', monospace; font-size: 12px; line-height: 1.5; }
+.code-image-bar { height: 2.667em; padding: 0 1.333em; display: flex; align-items: center; background: var(--color-accent); font-family: var(--font-body); font-weight: 500; line-height: 1; }
+.code-image-body { display: flex; gap: 1.9em; padding: 1.167em 0 0 1.167em; }
+.code-image pre { margin: 0; font: inherit; white-space: pre; }
+.code-image-numbers { text-align: right; color: var(--code-comment); }
+.code-comment { color: var(--code-comment); }
+.code-keyword { color: var(--code-keyword); }
+.code-number { color: var(--code-number); }
+.code-string { color: var(--code-string); }
 .page-band h2 { margin: 0; font-family: var(--font-heading); font-weight: 600; font-size: var(--font-size-title); letter-spacing: var(--letter-spacing-title); line-height: normal; color: var(--color-on-dark); }
 .page-band p { margin: 0; font-size: var(--font-size-body); line-height: 1.6; color: var(--color-on-dark); }
 /* the section navigation stays at the top while scrolling (Figma section-nav): text tabs on the page background;

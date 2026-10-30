@@ -5,12 +5,12 @@
       "label": "Ecosystem",
       "title": "Ecosystem",
       "band": "data/vegetation/basemap.png",
-      "intro": "Two analyses of the same mangrove: the condition of the whole area, and tipping points at {total} points.",
+      "intro": "Satellite analysis of the mangrove forest at Sisal, Yucatán, 1993–2025. Maps show where the forest has grown, thinned or been lost. An early-warning analysis at {total} sample locations tests whether parts of it are approaching a tipping point.",
       "parts": [
         {
           "id": "maps",
           "title": "Mangrove maps",
-          "intro": "Condition of the whole mangrove area as a map, with three layers.",
+          "intro": "Vegetation data from Landsat and Sentinel-2 imagery across the full mangrove area. Three layers: extent, condition, disturbance and recovery.",
           "columns": [["eco-map", "eco-source"], ["eco-about", "eco-chart"]]
         },
         {

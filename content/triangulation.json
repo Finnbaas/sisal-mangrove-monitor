@@ -1,0 +1,60 @@
+{
+  "_about": "Everything the triangulation design says: the triangle (three sources and how they relate), the landing sections 'How the three sources fit together' and 'What we found in Sisal' (its rows are the relations above) and the line under the intro of each research page. Built by js/triangle.js (the triangle and the lines) and js/landing.js. The names of the three sources are the page labels of content/pages.json ('page' is the page id). {name}, {question}, {short}, {label}, {from} and {to} are filled in by the code.",
+
+  "center": { "name": "Sisal Mangrove Monitor" },
+
+  "sources": [
+    { "page": "satellite", "question": "Where and how much?", "short": "where" },
+    { "page": "climatology", "question": "When and how strong?", "short": "when" },
+    { "page": "stakeholders", "question": "Why?", "short": "why" }
+  ],
+
+  "relations": [
+    {
+      "id": "ec",
+      "between": ["satellite", "climatology"],
+      "label": ["Complementary"],
+      "text": "The climate data show the drivers of change, such as storms, rain and sea level; the ecosystem data show how the mangrove reacted."
+    },
+    {
+      "id": "es",
+      "between": ["satellite", "stakeholders"],
+      "label": ["Mostly complementary,", "partly convergent"],
+      "text": "The maps show what changed, the stakeholders explain why. They agree where the gain areas match the reforestation sites people described."
+    },
+    {
+      "id": "cs",
+      "between": ["climatology", "stakeholders"],
+      "label": ["Silent, partly complementary"],
+      "text": "The climate record is continuous, memories are tied to moments, so most storms are not mentioned. Where they meet, flooding and seawater intrusion explain what a storm did."
+    }
+  ],
+
+  "texts": {
+    "triangleAria": "The three sources of this study and how they relate",
+    "sourceAria": "{name}: {question} Open the {name} page.",
+    "relationAria": "{label}: {from} and {to}. Show what this relation means.",
+    "miniAria": "{name} is one of three sources. Show the triangle of the three sources on the landing page.",
+    "answersLead": "This page answers:",
+    "answersSee": "For {short}, see"
+  },
+
+  "landing": {
+    "title": "How the three sources fit together",
+    "text": "We look at the mangrove of Sisal through three sources: satellite data of the ecosystem, climate data, and the stories of the people who live and work there. Each answers a different question, and none can assess the health of the mangrove on its own. Together they give a more complete picture.",
+    "methodText": "We use triangulation: we compare what each source shows. Findings of different sources can be convergent, complementary, divergent or silent (Erzberger & Kelle 2003; Farmer et al. 2006). The pairwise comparison of our three sources is in our report. This site gives the three sources and their methods, so you can do the same for your own area.",
+    "exploreLinks": [
+      { "page": "satellite", "label": "Explore the ecosystem →" },
+      { "page": "climatology", "label": "Explore the climatology →" },
+      { "page": "stakeholders", "label": "Explore the stakeholders →" }
+    ]
+  },
+
+  "found": {
+    "title": "What we found in Sisal",
+    "intro": "We compared the three sources in pairs. This is how they relate in Sisal.",
+    "and": "and",
+    "closing": "Each source covers what the others cannot.",
+    "source": "From our report: TU Delft MDP × UNAM Sisal, 2026."
+  }
+}

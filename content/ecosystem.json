@@ -13,16 +13,19 @@
           {
             "view": "classes",
             "slug": "change-classes",
+"methodTarget": "#method/mangrove-change-classes",
             "label": "Change classes"
           },
           {
             "view": "per-period",
             "slug": "change-per-period",
+"methodTarget": "#method/mangrove-change-per-period",
             "label": "Change per period"
           },
           {
             "view": "dndvi",
             "slug": "dndvi",
+"methodTarget": "#method/mangrove-dndvi",
             "label": "dNDVI 2014-2025"
           }
         ]
@@ -34,16 +37,19 @@
           {
             "view": "status",
             "slug": "status",
+"methodTarget": "#method/mangrove-status",
             "label": "Status"
           },
           {
             "view": "trend",
             "slug": "trend",
+"methodTarget": "#method/mangrove-trend",
             "label": "Trend"
           },
           {
             "view": "canopy",
             "slug": "canopy",
+"methodTarget": "#method/mangrove-canopy-density",
             "label": "Canopy density 2019-2025"
           }
         ]
@@ -59,21 +65,25 @@
           {
             "view": "damage",
             "slug": "damage",
+            "methodTarget": "#method/mangrove-damage-classes",
             "label": "Damage classes"
           },
           {
             "view": "lasting",
             "slug": "lasting",
+            "methodTarget": "#method/mangrove-lasting-ndvi-change",
             "label": "Lasting NDVI change"
           },
           {
             "view": "acute-ndvi",
             "slug": "acute-ndvi",
+            "methodTarget": "#method/mangrove-acute-ndvi-change",
             "label": "Acute NDVI change"
           },
           {
             "view": "acute-wetness",
             "slug": "acute-wetness",
+            "methodTarget": "#method/mangrove-acute-wetness",
             "label": "Acute wetness"
           }
         ]
@@ -126,7 +136,7 @@
     "sourcePeriod": "Period",
     "sourceArea": "Study area",
     "mapsLink": "Use this code for your area (adapt)",
-    "mapsLinkTarget": "#method/mangrove-extent",
+    "mapsLinkTarget": "#method/mangrove-change-classes",
     "pointsLink": "Run this analysis on your own data",
     "pointsLinkTarget": "#method/ews",
     "ndviSeries": "NDVI",

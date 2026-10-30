@@ -1,7 +1,7 @@
-/* landing.css: the landing page (#home): hero, the four page cards, the study area and the About card.
-   Built by js/landing.js from content/landing.json. Uses the style system of base.css (variables, .page-band, .card,
-   .about-label); a page card has data-section="<page id>", so the theme colors of that page apply inside it.
-   Loaded after method.css. */
+/* landing.css: the landing page (#home): hero, "How the three sources fit together", the Method card, "What we found in Sisal" and the About card.
+   Built by js/landing.js from content/landing.json and content/triangulation.json. Uses the style system of base.css (variables,
+   .page-band, .card, .about-label); a link has data-section="<page id>", so the theme colors of that page apply to it.
+   Loaded after triangle.css. */
 
 .landing { display: flex; flex-direction: column; gap: var(--space-5); }
 
@@ -19,51 +19,58 @@
 .landing-section { display: flex; flex-direction: column; gap: var(--space-2); }
 .landing-title { margin: 0; font-family: var(--font-heading); font-weight: 600; font-size: var(--font-size-section); letter-spacing: var(--letter-spacing-title); line-height: normal; color: var(--color-text); }
 
-/* the page cards: the whole card is the link; the page name and "Open" are in the color of that page,
-   and the card gets a 2 px border in that page's color when hovered */
-.landing-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
-.landing-card { display: flex; flex-direction: column; overflow: hidden; background: var(--color-surface); border: 1px solid var(--color-card-border); border-radius: var(--radius-card); color: inherit; text-decoration: none; }
-.landing-card:hover, .landing-card:focus-visible { border-color: var(--color-header-bg); box-shadow: inset 0 0 0 1px var(--color-header-bg); }
-.landing-card:focus-visible { outline: 2px solid var(--color-header-bg); outline-offset: 2px; }
-.landing-thumb { position: relative; height: 168px; overflow: hidden; background: var(--color-header-bg); }
-/* on hover (or keyboard focus) the picture gets a filter in the color of that page */
-.landing-thumb::after { content: ''; position: absolute; inset: 0; background: var(--color-header-bg); opacity: 0; transition: opacity 0.15s; pointer-events: none; }
-.landing-card:hover .landing-thumb::after, .landing-card:focus-visible .landing-thumb::after { opacity: 0.45; }
-.landing-thumb > img { display: block; width: 100%; height: 100%; object-fit: cover; }
-/* the Ecosystem thumbnail: the base map zoomed in, with the change layer on it (placed by landing.js) */
-.landing-stage { position: absolute; left: 50%; top: 50%; width: 157%; transform: translate(-50%, -50%); }
-.landing-stage > img { display: block; width: 100%; height: auto; }
-.landing-stage > .landing-layer { position: absolute; width: auto; }
-.landing-card-body { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-2); }
-.landing-card-name { font-weight: 600; color: var(--color-accent); }
-.landing-card-question { color: var(--color-text-body); }
-.landing-card-open { font-weight: 500; color: var(--color-accent); }
+/* "How the three sources fit together": one card, the triangle (js/triangle.js) on the left and the text on the right, starting at the top of the triangle */
+.landing-triangle { display: grid; grid-template-columns: minmax(0, 640px) 1fr; gap: var(--space-5); align-items: start; padding: var(--space-4); }
+.landing-triangle-text { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+.landing-triangle-text p { margin: 0; line-height: 22px; color: var(--color-text-body); }
+.landing-triangle-links { display: flex; flex-direction: column; gap: var(--space-1); }
+/* a small card per page: its image band on the left, "Explore ..." in the color of the page (the card has data-section="<page id>").
+   Like the Method card, but smaller */
+.landing-link { display: flex; align-items: stretch; height: 56px; padding: 0; overflow: hidden; color: inherit; text-decoration: none; }
+.landing-link:hover, .landing-method:hover { border-color: var(--color-accent); box-shadow: 0 0 0 1px var(--color-accent); }   /* the colored border */
+.landing-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.landing-link-image { position: relative; width: 88px; flex-shrink: 0; background: var(--card-image, none) center / cover, var(--color-map-bg); }
+/* the colored filter over the image (or the picture of code) while the pointer is on the card */
+.landing-link-image::after, .landing-method .code-image::after { content: ''; position: absolute; inset: 0; background: color-mix(in srgb, var(--color-accent) 55%, transparent); opacity: 0; transition: opacity 0.15s; }
+.landing-link:hover .landing-link-image::after, .landing-method:hover .code-image::after { opacity: 1; }
+.landing-link-label { display: flex; align-items: center; padding: 0 var(--space-2); font-weight: 500; color: var(--color-accent); }
+.landing-link:hover .landing-link-label { text-decoration: underline; }
 
-/* a wide card (content/landing.json "wide": true): a long block under the other cards, the picture on the left */
-.landing-card-wide { flex-direction: row; }
-.landing-card-wide .landing-thumb { flex: 0 0 240px; height: auto; min-height: 120px; }
-.landing-card-wide .landing-card-body { justify-content: center; }
+/* the Method card: a link to the Method page. A picture of code (.code-image in base.css, 240 x 120) and next to it the text */
+.landing-method { display: flex; align-items: stretch; padding: 0; overflow: hidden; color: inherit; text-decoration: none; }
+.landing-method:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.landing-method .code-image { width: 240px; height: 120px; font-size: 8px; }
+.landing-method-body { display: flex; flex-direction: column; justify-content: center; gap: var(--space-1); min-width: 0; padding: var(--space-2); }
+.landing-method-title { font-weight: 600; color: var(--color-accent); }
+.landing-method-text { margin: 0; color: var(--color-text-body); }
+.landing-method-link { font-weight: 500; color: var(--color-accent); }
+.landing-method:hover .landing-method-link { text-decoration: underline; }
 
-/* study area: the map with the outline (640 px) and the text next to it */
-.landing-study { display: grid; grid-template-columns: 640px 1fr; gap: var(--space-3); align-items: start; }
-.landing-map { position: relative; border-radius: var(--radius-card); overflow: hidden; background: var(--color-map-bg); }
-.landing-map > img { display: block; width: 100%; height: auto; }
-.landing-outline { position: absolute; inset: 0; width: 100%; height: 100%; }
-.landing-outline polygon { fill: none; stroke: var(--color-on-dark); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
-.landing-map-message { position: absolute; left: 12px; top: 12px; padding: 4px 8px; border-radius: var(--radius-control); background: var(--color-surface); font-size: var(--font-size-small); color: var(--color-text-muted); }
-.landing-study-text { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
-.landing-study-text p { margin: 0; line-height: 22px; color: var(--color-text-body); }
-/* sentences that are still a draft (content/landing.json "draft": true): in grey */
-.landing-study-text p.is-draft { color: var(--color-text-faint); }
+/* "What we found in Sisal": one card with a row per pair of sources: the two sources, the relation (small label) and a sentence */
+.landing-intro { margin: 0; line-height: 22px; color: var(--color-text-body); }
+.landing-found { padding: var(--space-1) var(--space-3); }
+.landing-relation { display: grid; grid-template-columns: 340px 260px 1fr; gap: var(--space-4); align-items: start; padding: var(--space-2) 0; }
+.landing-relation + .landing-relation { border-top: 1px solid var(--color-card-border); }
+.landing-relation p { margin: 0; line-height: 22px; color: var(--color-text-body); }
+.landing-relation-sources { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); }
+.landing-relation-source { display: inline-flex; align-items: center; gap: var(--space-1); }   /* has data-section: the mark takes the page color */
+.landing-mark { width: 12px; height: 12px; border-radius: 3px; background: var(--color-accent); }
+.landing-relation-name { font-weight: 600; color: var(--color-text); }
+.landing-relation-and { color: var(--color-text-muted); }
+.landing-found-closing { display: flex; flex-direction: column; gap: 4px; }
+.landing-found-closing p { margin: 0; }
+.landing-found-line { font-weight: 600; color: var(--color-text); }
+.landing-found-source { font-size: var(--font-size-small); line-height: 16px; color: var(--color-text-muted); }
 
-/* About: three columns in one card */
-.landing-about { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); }
+/* About: four columns in one card */
+.landing-about { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); }
 .landing-about-col { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
 .landing-about-col p { margin: 0; line-height: 22px; color: var(--color-text-body); }
 
 @media (max-width: 960px) {
-  .landing-cards { grid-template-columns: repeat(2, 1fr); }
-  .landing-card-wide .landing-thumb { flex-basis: 120px; }
-  .landing-study { grid-template-columns: 1fr; }
+  .landing-triangle { grid-template-columns: 1fr; gap: var(--space-3); }
+  .landing-method { flex-direction: column; }
+  .landing-method .code-image { width: 100%; }
+  .landing-relation { grid-template-columns: 1fr; gap: var(--space-1); }
   .landing-about { grid-template-columns: 1fr; }
 }

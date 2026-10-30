@@ -1,0 +1,73 @@
+/* triangle.css: the triangle of the three sources (triangulation), its small version and the "This page answers" line.
+   Built by js/triangle.js from content/triangulation.json (Figma Playground: "Triangle A - Refined report", "Triangle A mini").
+   Every source has data-section="<page id>", so the colors of its page (css/base.css) apply to it; the other colors are the
+   shared ones of base.css. Loaded after method.css. */
+
+/* ---------- the big triangle ---------- */
+.triangle { position: relative; width: 100%; }
+.triangle-svg { display: block; width: 100%; height: auto; overflow: visible; font-family: var(--font-body); }
+
+/* the middle: white triangle with the logo and the name */
+.triangle-middle { fill: var(--color-surface); stroke: var(--color-card-border); stroke-linejoin: round; }
+.triangle-logo { fill: var(--color-header-bg); }
+.triangle-logo-letter { fill: var(--color-text-on-accent); font-size: 16px; font-weight: 600; }
+.triangle-center-name { fill: var(--color-text); font-size: 13px; font-weight: 600; }
+
+/* the sources: a light tint of the page color; the highlighted one is stronger and gets an outline.
+   --tri-fill and --tri-hot are the share of the page color (matched by eye to the Figma tints). */
+.triangle-source { cursor: pointer; outline: none; transition: opacity 0.15s; }
+.triangle-source[data-section="satellite"] { --tri-fill: 20%; --tri-hot: 38%; }
+.triangle-source[data-section="climatology"] { --tri-fill: 34%; --tri-hot: 62%; }
+.triangle-source[data-section="stakeholders"] { --tri-fill: 17%; --tri-hot: 32%; }
+.triangle-shape { fill: color-mix(in srgb, var(--color-header-bg) var(--tri-fill), var(--color-surface)); stroke: transparent; stroke-width: 1.5; stroke-linejoin: round; transition: fill 0.15s; }
+.triangle-source.is-hot .triangle-shape { fill: color-mix(in srgb, var(--color-header-bg) var(--tri-hot), var(--color-surface)); stroke: var(--color-accent); }
+.triangle-name { fill: var(--color-text); font-size: 16px; font-weight: 600; }
+.triangle-question { fill: var(--color-text-muted); font-size: 13px; }
+
+/* the relations: a grey arrow with its name; highlighted in dark. The wide invisible line is the target for the pointer. */
+.triangle-relation { cursor: pointer; outline: none; transition: opacity 0.15s; }
+.triangle-hit { fill: none; stroke: transparent; stroke-width: 22; pointer-events: stroke; }
+.triangle-line { fill: none; stroke: var(--color-text-faint); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.triangle-relation-label { fill: var(--color-text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: var(--letter-spacing-label); }
+.triangle-relation.is-on .triangle-line { stroke: var(--color-text); }
+.triangle-relation.is-on .triangle-relation-label { fill: var(--color-text); }
+.triangle-source.is-dim, .triangle-relation.is-dim { opacity: 0.3; }
+
+/* the text of a relation: a dark box outside the triangle (left or right of the top, or under it) */
+.triangle-tooltip { position: absolute; z-index: 5; padding: 10px 12px; border-radius: var(--radius-control); background: var(--color-text); color: var(--color-text-on-accent); font-size: 13px; line-height: 17px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18); pointer-events: none; }
+.triangle-tooltip[data-place="left"] { left: 0; top: 0; width: 33%; }
+.triangle-tooltip[data-place="right"] { right: 0; top: 0; width: 33%; }
+.triangle-tooltip[data-place="below"] { left: 50%; top: calc(100% + 8px); width: min(300px, 90%); transform: translateX(-50%); }
+
+/* phone only: the names of the relations as a list under the triangle */
+.triangle-legend { display: none; }
+.triangle-legend-item { padding: 8px 12px; border: 1px solid var(--color-divider); border-radius: var(--radius-control); background: var(--color-surface); font-size: var(--font-size-small); font-weight: 600; text-transform: uppercase; letter-spacing: var(--letter-spacing-label); text-align: left; color: var(--color-text-muted); }
+.triangle-legend-item.is-on { border-color: var(--color-text); color: var(--color-text); }
+.triangle-legend-item.is-dim { opacity: 0.5; }
+.triangle-legend-item:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
+
+@media (max-width: 640px) {
+  .triangle-relation-label { display: none; }
+  .triangle-question { font-size: 14px; }
+  .triangle-legend { display: flex; flex-direction: column; gap: var(--space-1); margin-top: var(--space-2); }
+  .triangle-tooltip { position: static; margin-top: var(--space-1); }
+  .triangle-tooltip[data-place] { width: auto; transform: none; }
+}
+
+/* ---------- the small triangle in the image band of a research page ---------- */
+.page-band { position: relative; }
+.triangle-mini { position: absolute; right: var(--space-4); top: 50%; transform: translateY(-50%); display: flex; padding: var(--space-1); border-radius: var(--radius-card); background: var(--color-surface); }
+.triangle-mini:hover { box-shadow: 0 0 0 2px var(--color-on-dark); }
+.triangle-mini:focus-visible { outline: 2px solid var(--color-on-dark); outline-offset: 3px; }
+.triangle-mini svg { display: block; }
+.triangle-mini-middle { fill: var(--color-surface); stroke: color-mix(in srgb, var(--color-text-faint) 38%, var(--color-surface)); stroke-linejoin: round; }
+.triangle-mini-shape { fill: color-mix(in srgb, var(--color-text-faint) 38%, var(--color-surface)); }
+.triangle-mini-shape.is-hot { fill: var(--color-accent); }
+
+/* ---------- the line under the intro of a research page ---------- */
+.triangle-answers { margin: 0; font-size: var(--font-size-body); line-height: 1.6; color: var(--color-text-body); }
+.research-grid > .triangle-answers { grid-column: 1 / -1; }
+.triangle-answers-link { font-weight: 500; color: var(--color-accent); text-decoration: none; }
+.triangle-answers-link:hover { text-decoration: underline; }
+.triangle-answers-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: var(--radius-control); }
+
