@@ -84,6 +84,28 @@
         { "name": "canopy-density/3_canopy_density_map.js", "description": "Script 3: median Sentinel-2 NDVI over the mangrove; draws the map, legend and percentiles.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/canopy-density/3_canopy_density_map.js" },
         { "name": "canopy-density/sisal_aoi.geojson", "description": "Example study area (Sisal) to test the scripts on.", "format": "GeoJSON", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/canopy-density/example/sisal_aoi.geojson" },
         { "name": "canopy-density/sisal_training_points.csv", "description": "Example training points for Sisal (accurate route).", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/condition/canopy-density/example/sisal_training_points.csv" },
+        { "name": "damage-classes/README.md", "description": "Full instructions, settings and troubleshooting for the Damage classes map.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/damage-classes/README.md" },
+        { "name": "damage-classes/1_period_images.js", "description": "Script 1: builds one cloud-free Landsat image per period and saves it in your project.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/damage-classes/1_period_images.js" },
+        { "name": "damage-classes/2a_training_points_conabio.js", "description": "Script 2a (accurate route, Mexico): makes training points from the CONABIO maps.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/damage-classes/2a_training_points_conabio.js" },
+        { "name": "damage-classes/2_mangrove_maps.js", "description": "Script 2: decides per period which pixels are mangrove (the mask before the storm).", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/damage-classes/2_mangrove_maps.js" },
+        { "name": "damage-classes/2b_yearly_ndvi.js", "description": "Script 2b: builds one dry-season NDVI image per year (one band per year) and saves it in your project.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/damage-classes/2b_yearly_ndvi.js" },
+        { "name": "damage-classes/3_damage_classes_map.js", "description": "Script 3: Z-score and damage classes for the chosen storm; draws the map, legend, areas and recovery chart.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/damage-classes/3_damage_classes_map.js" },
+        { "name": "damage-classes/sisal_aoi.geojson", "description": "Example study area (Sisal) to test the scripts on.", "format": "GeoJSON", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/damage-classes/example/sisal_aoi.geojson" },
+        { "name": "damage-classes/sisal_training_points.csv", "description": "Example training points for Sisal (accurate route).", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/damage-classes/example/sisal_training_points.csv" },
+        { "name": "lasting-ndvi-change/README.md", "description": "Full instructions, settings and troubleshooting for the Lasting NDVI change map.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/lasting-ndvi-change/README.md" },
+        { "name": "lasting-ndvi-change/1_period_images.js", "description": "Script 1: builds one cloud-free Landsat image per period and saves it in your project.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/lasting-ndvi-change/1_period_images.js" },
+        { "name": "lasting-ndvi-change/2a_training_points_conabio.js", "description": "Script 2a (accurate route, Mexico): makes training points from the CONABIO maps.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/lasting-ndvi-change/2a_training_points_conabio.js" },
+        { "name": "lasting-ndvi-change/2_mangrove_maps.js", "description": "Script 2: decides per period which pixels are mangrove (the mask before the storm).", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/lasting-ndvi-change/2_mangrove_maps.js" },
+        { "name": "lasting-ndvi-change/2b_yearly_ndvi.js", "description": "Script 2b: builds one dry-season NDVI image per year (one band per year) and saves it in your project.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/lasting-ndvi-change/2b_yearly_ndvi.js" },
+        { "name": "lasting-ndvi-change/3_lasting_ndvi_map.js", "description": "Script 3: Z-score of the year after the storm as a continuous map; draws the map, gradient legend and median Z.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/lasting-ndvi-change/3_lasting_ndvi_map.js" },
+        { "name": "lasting-ndvi-change/sisal_aoi.geojson", "description": "Example study area (Sisal) to test the scripts on.", "format": "GeoJSON", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/lasting-ndvi-change/example/sisal_aoi.geojson" },
+        { "name": "lasting-ndvi-change/sisal_training_points.csv", "description": "Example training points for Sisal (accurate route).", "format": "CSV", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/lasting-ndvi-change/example/sisal_training_points.csv" },
+        { "name": "acute-ndvi-change/README.md", "description": "Full instructions, settings and troubleshooting for the Acute NDVI change map.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/acute-ndvi-change/README.md" },
+        { "name": "acute-ndvi-change/1_acute_ndvi_map.js", "description": "The only script: NDVI Z-score of the short window after the storm; draws the map, gradient legend, whole-area Z and image count.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/acute-ndvi-change/1_acute_ndvi_map.js" },
+        { "name": "acute-ndvi-change/sisal_aoi.geojson", "description": "Example study area (Sisal) to test the scripts on.", "format": "GeoJSON", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/acute-ndvi-change/example/sisal_aoi.geojson" },
+        { "name": "acute-wetness/README.md", "description": "Full instructions, settings and troubleshooting for the Acute wetness map.", "format": "Markdown", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/acute-wetness/README.md" },
+        { "name": "acute-wetness/1_acute_wetness_map.js", "description": "The only script: MNDWI Z-score of the short window after the storm; draws the map, gradient legend, whole-area Z and image count.", "format": "Earth Engine", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/acute-wetness/1_acute_wetness_map.js" },
+        { "name": "acute-wetness/sisal_aoi.geojson", "description": "Example study area (Sisal) to test the scripts on.", "format": "GeoJSON", "path": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/acute-wetness/example/sisal_aoi.geojson" },
         { "name": "export_points.py", "description": "Turns the results into the website data.", "format": "Python", "path": "analysis/satellite/export_points.py" }
       ],
       "useCases": [
@@ -94,7 +116,7 @@
           "subCards": [
             { "id": "mangrove-extent", "title": "Extent", "maps": ["mangrove-change-classes", "mangrove-change-per-period", "mangrove-dndvi"] },
             { "id": "mangrove-condition", "title": "Condition", "maps": ["mangrove-status", "mangrove-trend", "mangrove-canopy-density"] },
-            { "title": "Disturbance & recovery", "comingSoon": true }
+            { "id": "mangrove-disturbance-recovery", "title": "Disturbance & recovery", "maps": ["mangrove-damage-classes", "mangrove-lasting-ndvi-change", "mangrove-acute-ndvi-change", "mangrove-acute-wetness"] }
           ]
         },
         {
@@ -511,6 +533,182 @@
             "canopy-density/3_canopy_density_map.js",
             "canopy-density/sisal_aoi.geojson",
             "canopy-density/sisal_training_points.csv"
+          ]
+        },
+        {
+          "id": "mangrove-damage-classes",
+          "parent": "mangrove-disturbance-recovery",
+          "tabLabel": "Damage classes",
+          "title": "Damage classes map for your area",
+          "howWeUsed": "This is the method behind the Damage classes map (Disturbance & recovery) on the Ecosystem page: how much the mangrove was damaged by a storm in the first dry season after it, as no detectable impact, moderate, severe or cover lost.",
+          "howWeUsedLink": "#satellite/maps/isidore-damage",
+          "howWeUsedLinkLabel": "See Damage classes on the Ecosystem page",
+          "whatYouNeed": [
+            "A free Google Earth Engine account with a non-commercial Cloud project.",
+            "Your study area: drawn in the Code Editor, a rectangle or a shapefile.",
+            "The date of the storm and the years around it. Presets for Opal 1995, Isidore 2002 and the 2020 storms are in the script; for another storm see the README.",
+            "For the accurate route also: CONABIO land-use maps (clipped to your area before uploading, in Mapshaper or QGIS) or your own labelled points."
+          ],
+          "routes": [
+            {
+              "id": "quick",
+              "title": "Quick (Global Mangrove Watch)",
+              "description": "Works anywhere and needs nothing to prepare. About 2–3 hours, mostly waiting for exports. Coarser mask; no Cover lost class.",
+              "steps": [
+                "Create a free Earth Engine account and a non-commercial Cloud project.",
+                "Make scripts 1, 2, 2b and 3 in the Code Editor and set MY_ASSETS and NAME at the top of each.",
+                "Test on Sisal first (draw nothing), then draw your own area.",
+                "Run script 1 and start the export in Tasks; wait.",
+                "Run script 2 with MASK_SOURCE = 'GMW' and export; wait. This makes the mangrove maps per period.",
+                "Run script 2b and start the export in Tasks; wait. It builds one dry-season NDVI image per year.",
+                "Run script 3 with the storm you want (STORM): map, legend, hectares per class and a recovery chart in the Console. Cover lost only exists on the accurate route."
+              ]
+            },
+            {
+              "id": "accurate",
+              "title": "Accurate (training points, our method)",
+              "description": "Mexico via CONABIO, or anywhere with your own points. About 3–4 hours. Best accuracy of the mask, and the Cover lost class.",
+              "steps": [
+                "Create a free Earth Engine account and a non-commercial Cloud project.",
+                "Make scripts 1, 2a, 2, 2b and 3 in the Code Editor and set MY_ASSETS and NAME at the top of each.",
+                "Test on Sisal first (draw nothing), then draw your own area.",
+                "Run script 1 and start the export in Tasks; wait.",
+                "Download the CONABIO land-use maps of your area (or prepare your own points CSV). Clip each map to your study area first, in Mapshaper or QGIS: the Mexico files are too big to upload to Earth Engine. Then upload the clipped files to your assets.",
+                "Run script 2a to make the training points, and export.",
+                "Run script 2 with MASK_SOURCE = 'POINTS' and export; wait. This makes the mangrove maps per period.",
+                "Run script 2b and start the export in Tasks; wait. It builds one dry-season NDVI image per year.",
+                "Run script 3 with the storm you want (STORM): map, legend, hectares per class and a recovery chart in the Console. Cover lost only exists on the accurate route."
+              ]
+            }
+          ],
+          "readmeLabel": "Full instructions, settings and troubleshooting: README on GitHub",
+          "readmeLink": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/damage-classes/README.md",
+          "files": [
+            "damage-classes/README.md",
+            "damage-classes/1_period_images.js",
+            "damage-classes/2a_training_points_conabio.js",
+            "damage-classes/2_mangrove_maps.js",
+            "damage-classes/2b_yearly_ndvi.js",
+            "damage-classes/3_damage_classes_map.js",
+            "damage-classes/sisal_aoi.geojson",
+            "damage-classes/sisal_training_points.csv"
+          ]
+        },
+        {
+          "id": "mangrove-lasting-ndvi-change",
+          "parent": "mangrove-disturbance-recovery",
+          "tabLabel": "Lasting NDVI change",
+          "title": "Lasting NDVI change map for your area",
+          "howWeUsed": "This is the method behind the Lasting NDVI change map (Disturbance & recovery) on the Ecosystem page: how far the NDVI of the first dry season after a storm lies below or above the normal.",
+          "howWeUsedLink": "#satellite/maps/isidore-lasting",
+          "howWeUsedLinkLabel": "See Lasting NDVI change on the Ecosystem page",
+          "whatYouNeed": [
+            "A free Google Earth Engine account with a non-commercial Cloud project.",
+            "Your study area: drawn in the Code Editor, a rectangle or a shapefile.",
+            "The date of the storm and the years around it. Presets for Opal 1995, Isidore 2002 and the 2020 storms are in the script; for another storm see the README.",
+            "For the accurate route also: CONABIO land-use maps (clipped to your area before uploading, in Mapshaper or QGIS) or your own labelled points."
+          ],
+          "routes": [
+            {
+              "id": "quick",
+              "title": "Quick (Global Mangrove Watch)",
+              "description": "Works anywhere and needs nothing to prepare. About 2–3 hours, mostly waiting for exports. Coarser mask; no Cover lost class.",
+              "steps": [
+                "Create a free Earth Engine account and a non-commercial Cloud project.",
+                "Make scripts 1, 2, 2b and 3 in the Code Editor and set MY_ASSETS and NAME at the top of each.",
+                "Test on Sisal first (draw nothing), then draw your own area.",
+                "Run script 1 and start the export in Tasks; wait.",
+                "Run script 2 with MASK_SOURCE = 'GMW' and export; wait. This makes the mangrove maps per period.",
+                "Run script 2b and start the export in Tasks; wait. It builds one dry-season NDVI image per year.",
+                "Run script 3 with the storm you want (STORM): map, gradient legend and the median Z-score over the mangrove in the Console."
+              ]
+            },
+            {
+              "id": "accurate",
+              "title": "Accurate (training points, our method)",
+              "description": "Mexico via CONABIO, or anywhere with your own points. About 3–4 hours. Best accuracy of the mask, and the Cover lost class.",
+              "steps": [
+                "Create a free Earth Engine account and a non-commercial Cloud project.",
+                "Make scripts 1, 2a, 2, 2b and 3 in the Code Editor and set MY_ASSETS and NAME at the top of each.",
+                "Test on Sisal first (draw nothing), then draw your own area.",
+                "Run script 1 and start the export in Tasks; wait.",
+                "Download the CONABIO land-use maps of your area (or prepare your own points CSV). Clip each map to your study area first, in Mapshaper or QGIS: the Mexico files are too big to upload to Earth Engine. Then upload the clipped files to your assets.",
+                "Run script 2a to make the training points, and export.",
+                "Run script 2 with MASK_SOURCE = 'POINTS' and export; wait. This makes the mangrove maps per period.",
+                "Run script 2b and start the export in Tasks; wait. It builds one dry-season NDVI image per year.",
+                "Run script 3 with the storm you want (STORM): map, gradient legend and the median Z-score over the mangrove in the Console."
+              ]
+            }
+          ],
+          "readmeLabel": "Full instructions, settings and troubleshooting: README on GitHub",
+          "readmeLink": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/lasting-ndvi-change/README.md",
+          "files": [
+            "lasting-ndvi-change/README.md",
+            "lasting-ndvi-change/1_period_images.js",
+            "lasting-ndvi-change/2a_training_points_conabio.js",
+            "lasting-ndvi-change/2_mangrove_maps.js",
+            "lasting-ndvi-change/2b_yearly_ndvi.js",
+            "lasting-ndvi-change/3_lasting_ndvi_map.js",
+            "lasting-ndvi-change/sisal_aoi.geojson",
+            "lasting-ndvi-change/sisal_training_points.csv"
+          ]
+        },
+        {
+          "id": "mangrove-acute-ndvi-change",
+          "parent": "mangrove-disturbance-recovery",
+          "tabLabel": "Acute NDVI change",
+          "title": "Acute NDVI change map for your area",
+          "howWeUsed": "This is the method behind the Acute NDVI change map (Disturbance & recovery) on the Ecosystem page: the effect on vegetation in the first weeks after a storm, compared with the same days in other years.",
+          "howWeUsedLink": "#satellite/maps/isidore-acute-ndvi",
+          "howWeUsedLinkLabel": "See Acute NDVI change on the Ecosystem page",
+          "whatYouNeed": [
+            "A free Google Earth Engine account with a non-commercial Cloud project.",
+            "Your study area: drawn in the Code Editor, a rectangle or a shapefile.",
+            "The date of the storm and a short window right after it. Presets for Opal 1995, Isidore 2002 and Cristobal 2020 are in the script; for another storm see the README.",
+            "No assets and no mangrove mask: the script is the only file you need."
+          ],
+          "steps": [
+            "Create a free Earth Engine account and a non-commercial Cloud project.",
+            "Make the script in the Code Editor (nothing to fill in except the storm).",
+            "Test on Sisal first (draw nothing), then draw your own area.",
+            "Choose the storm with STORM (opal, isidore, 2020) or fill in CUSTOM with your own dates.",
+            "Run the script. Check the number of image dates in the window (at least 2): the map, gradient legend and the whole-area Z-score appear."
+          ],
+          "readmeLabel": "Full instructions, settings and troubleshooting: README on GitHub",
+          "readmeLink": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/acute-ndvi-change/README.md",
+          "files": [
+            "acute-ndvi-change/README.md",
+            "acute-ndvi-change/1_acute_ndvi_map.js",
+            "acute-ndvi-change/sisal_aoi.geojson"
+          ]
+        },
+        {
+          "id": "mangrove-acute-wetness",
+          "parent": "mangrove-disturbance-recovery",
+          "tabLabel": "Acute wetness",
+          "title": "Acute wetness map for your area",
+          "howWeUsed": "This is the method behind the Acute wetness map (Disturbance & recovery) on the Ecosystem page: how much drier or wetter than normal the surface (MNDWI) was in the first weeks after a storm.",
+          "howWeUsedLink": "#satellite/maps/isidore-acute-wetness",
+          "howWeUsedLinkLabel": "See Acute wetness on the Ecosystem page",
+          "whatYouNeed": [
+            "A free Google Earth Engine account with a non-commercial Cloud project.",
+            "Your study area: drawn in the Code Editor, a rectangle or a shapefile.",
+            "The date of the storm and a short window right after it. Presets for Opal 1995, Isidore 2002 and Cristobal 2020 are in the script; for another storm see the README.",
+            "No assets and no mangrove mask: the script is the only file you need."
+          ],
+          "steps": [
+            "Create a free Earth Engine account and a non-commercial Cloud project.",
+            "Make the script in the Code Editor (nothing to fill in except the storm).",
+            "Test on Sisal first (draw nothing), then draw your own area.",
+            "Choose the storm with STORM (opal, isidore, 2020) or fill in CUSTOM with your own dates.",
+            "Run the script. Check the number of image dates in the window (at least 2): the map, gradient legend and the whole-area Z-score appear."
+          ],
+          "readmeLabel": "Full instructions, settings and troubleshooting: README on GitHub",
+          "readmeLink": "https://github.com/Finnbaas/sisal-mangrove-analyses/blob/main/satellite/mangrove-maps/disturbance-recovery/acute-wetness/README.md",
+          "files": [
+            "acute-wetness/README.md",
+            "acute-wetness/1_acute_wetness_map.js",
+            "acute-wetness/sisal_aoi.geojson"
           ]
         }
       ]

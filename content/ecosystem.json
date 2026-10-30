@@ -65,21 +65,25 @@
           {
             "view": "damage",
             "slug": "damage",
+            "methodTarget": "#method/mangrove-damage-classes",
             "label": "Damage classes"
           },
           {
             "view": "lasting",
             "slug": "lasting",
+            "methodTarget": "#method/mangrove-lasting-ndvi-change",
             "label": "Lasting NDVI change"
           },
           {
             "view": "acute-ndvi",
             "slug": "acute-ndvi",
+            "methodTarget": "#method/mangrove-acute-ndvi-change",
             "label": "Acute NDVI change"
           },
           {
             "view": "acute-wetness",
             "slug": "acute-wetness",
+            "methodTarget": "#method/mangrove-acute-wetness",
             "label": "Acute wetness"
           }
         ]
