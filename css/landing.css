@@ -1,4 +1,4 @@
-/* landing.css: the landing page (#home): hero, "Three sources, one picture", "One event, three views", the study area and the About card.
+/* landing.css: the landing page (#home): hero, "Three sources, one picture", the study area and the About card.
    Built by js/landing.js from content/landing.json and content/triangulation.json. Uses the style system of base.css (variables,
    .page-band, .card, .about-label); a link has data-section="<page id>", so the theme colors of that page apply to it.
    Loaded after triangle.css. */
@@ -29,15 +29,6 @@
 .landing-link:hover { text-decoration: underline; }
 .landing-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: var(--radius-control); }
 
-/* "One event, three views": three cards of the same height, the links at the bottom */
-.landing-events { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); align-items: stretch; }
-.landing-event { display: flex; flex-direction: column; gap: 10px; padding: 20px; }
-.landing-event-kind { font-size: var(--font-size-small); font-weight: 600; text-transform: uppercase; letter-spacing: var(--letter-spacing-label); color: var(--color-text-faint); }
-.landing-event-name { font-size: 16px; font-weight: 600; color: var(--color-text); }
-.landing-event-text { margin: 0; line-height: 20px; color: var(--color-text-body); }
-.landing-event-links { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-top: auto; padding-top: 6px; font-size: 13px; }
-.landing-event-grey { color: var(--color-text-faint); }
-
 /* study area: the map with the outline (640 px) and the text next to it */
 .landing-study { display: grid; grid-template-columns: 640px 1fr; gap: var(--space-3); align-items: start; }
 .landing-map { position: relative; border-radius: var(--radius-card); overflow: hidden; background: var(--color-map-bg); }
@@ -57,7 +48,6 @@
 
 @media (max-width: 960px) {
   .landing-triangle { grid-template-columns: 1fr; gap: var(--space-3); }
-  .landing-events { grid-template-columns: 1fr; }
   .landing-study { grid-template-columns: 1fr; }
   .landing-about { grid-template-columns: 1fr; }
 }

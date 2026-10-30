@@ -24,7 +24,7 @@ files. Changes to the files show after saving; Live Server reloads the page.
 
 | Address | Page |
 |---|---|
-| `#home` | Landing page: hero, three sources (triangle), one event three views, study area and About (content/landing.json, content/triangulation.json). An empty address and the old `#overview` also show it |
+| `#home` | Landing page: hero, three sources (triangle), study area and About (content/landing.json, content/triangulation.json). An empty address and the old `#overview` also show it |
 | `#satellite` | The same cards for the ecosystem analysis |
 | `#climatology` | "Storms at Sisal" (event list, storm charts) and "Climate at Sisal" (a typical year, change since 1950, in detail) |
 | `#stakeholders` | One map with a theme menu (Extent, Condition, Disturbance & recovery): the areas where stakeholders saw change, a timeline with a year slider, and what they said about the clicked area (`#stakeholders/<theme>` and `#stakeholders/<theme>/<number>` open a theme or an area) |

@@ -20,7 +20,7 @@ touching the code (the `js/` and `css/` folders).
 | `stakeholders.json` | The Stakeholder page: three themes, the areas on the map (ellipses) and what stakeholders said about them |
 | `method.json` | The Method page: the analyses, their code files, and the "do it yourself" examples that the research cards link to |
 | `landing.json` | The landing page (`#home`): hero, study area and About card |
-| `triangulation.json` | The triangle of the three sources, "Three sources, one picture", "One event, three views" (with their links), the "This page answers" line of the research pages and the block on the Method page |
+| `triangulation.json` | The triangle of the three sources, "Three sources, one picture", the "This page answers" line of the research pages and the block on the Method page |
 | `climate.json` | "Climate at Sisal" on the Climatology page: the year range of "Change since 1950", the trends and their badges |
 
 Images go in `img/` (outside this folder) and are referred to as `img/name.png`.

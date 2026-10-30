@@ -85,13 +85,12 @@ function buildTriangle() {
   const drawing = svgEl('g', { transform: 'translate(40 0)' });
   svg.appendChild(drawing);
 
-  // the middle: the white triangle with the logo, the name and what the site does
+  // the middle: the white triangle with the logo and the name
   drawing.appendChild(svgEl('path', { class: 'triangle-middle', d: TRIANGLE_MIDDLE }));
   const center = svgEl('g', { class: 'triangle-center' });
-  center.appendChild(svgEl('rect', { class: 'triangle-logo', x: 267, y: 212, width: 26, height: 26, rx: 6 }));
-  center.appendChild(svgEl('text', { class: 'triangle-logo-letter', x: 280, y: 231, 'text-anchor': 'middle' }, $('brand-mark').textContent));
-  center.appendChild(svgLines('triangle-center-name', wrapWords(c.center.name, 14), 280, 256, 15));
-  center.appendChild(svgLines('triangle-center-subline', wrapWords(c.center.subline, 15), 280, 288, 12));
+  center.appendChild(svgEl('rect', { class: 'triangle-logo', x: 267, y: 222, width: 26, height: 26, rx: 6 }));
+  center.appendChild(svgEl('text', { class: 'triangle-logo-letter', x: 280, y: 241, 'text-anchor': 'middle' }, $('brand-mark').textContent));
+  center.appendChild(svgLines('triangle-center-name', wrapWords(c.center.name, 14), 280, 268, 15));
   drawing.appendChild(center);
 
   // the three sources: a link to their page, with the name and the question

@@ -1,7 +1,7 @@
 {
-  "_about": "Everything the triangulation design says: the triangle (three sources and how they relate), the landing section 'Three sources, one picture' and 'One event, three views', the line under the intro of each research page, and the block on the Method page. Built by js/triangle.js (the triangle and the lines), js/landing.js and js/method.js. The names of the three sources are the page labels of content/pages.json ('page' is the page id). {name}, {question}, {short}, {label}, {from} and {to} are filled in by the code.",
+  "_about": "Everything the triangulation design says: the triangle (three sources and how they relate), the landing section 'Three sources, one picture', the line under the intro of each research page, and the block on the Method page. Built by js/triangle.js (the triangle and the lines), js/landing.js and js/method.js. The names of the three sources are the page labels of content/pages.json ('page' is the page id). {name}, {question}, {short}, {label}, {from} and {to} are filled in by the code.",
 
-  "center": { "name": "Sisal Mangrove Monitor", "subline": "assessing mangrove health" },
+  "center": { "name": "Sisal Mangrove Monitor" },
 
   "sources": [
     { "page": "satellite", "question": "Where and how much?", "short": "where" },
@@ -46,43 +46,6 @@
       { "page": "satellite", "label": "Explore the ecosystem →" },
       { "page": "climatology", "label": "Explore the climatology →" },
       { "page": "stakeholders", "label": "Explore the stakeholders →" }
-    ]
-  },
-
-  "events": {
-    "title": "One event, three views",
-    "_about": "One card per event. 'links' has one entry per source, in this order. An entry with 'href' is a link (its text is the page name and an arrow); an entry with 'grey' is a source that has nothing on this event: the page name and the reason, in grey. The addresses are the existing deep links: #satellite/maps/<storm>-damage (Ecosystem, the Disturbance & recovery map of that storm), #climatology/storms (the storm list; there is no address per storm yet), #stakeholders/<theme>/<area number>.",
-    "cards": [
-      {
-        "kind": "Convergent",
-        "name": "2020 storms",
-        "text": "Satellite, climate data and people all show months of flooding across the mangrove.",
-        "links": [
-          { "page": "satellite", "href": "#satellite/maps/2020-damage" },
-          { "page": "climatology", "href": "#climatology/storms" },
-          { "page": "stakeholders", "href": "#stakeholders/disturbance-recovery/5" }
-        ]
-      },
-      {
-        "kind": "Silent",
-        "name": "Hurricane Isidore, 2002",
-        "text": "The maps and the climate data show heavy damage, but people barely mention it.",
-        "links": [
-          { "page": "satellite", "href": "#satellite/maps/isidore-damage" },
-          { "page": "climatology", "href": "#climatology/storms" },
-          { "page": "stakeholders", "grey": "not mentioned" }
-        ]
-      },
-      {
-        "kind": "Complementary",
-        "name": "Hurricane Gilbert, 1988",
-        "text": "The climate data and people both record it, but it is before the satellite record.",
-        "links": [
-          { "page": "satellite", "grey": "before the satellite record (1993)" },
-          { "page": "climatology", "href": "#climatology/storms" },
-          { "page": "stakeholders", "href": "#stakeholders/disturbance-recovery/1" }
-        ]
-      }
     ]
   },
 

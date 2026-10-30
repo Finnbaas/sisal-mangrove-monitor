@@ -1,6 +1,6 @@
 // landing.js: builds the landing page (#home) from content/landing.json and content/triangulation.json.
 //   Hero (image band with two buttons), "Three sources, one picture" (the triangle of js/triangle.js with the text),
-//   "One event, three views" (three cards with a link per source), the study area (map with its outline) and the About card.
+//   the study area (map with its outline) and the About card.
 //   A link has data-section="<page id>", so it takes the color of that page (css/base.css). The study-area map uses
 //   data/vegetation/layers.json (bounds of the image, outline of the study area).
 // Reads: content/landing.json and content/triangulation.json (through content.js), data/vegetation/layers.json.
@@ -42,9 +42,6 @@ function buildLanding() {
 
   // ----- three sources, one picture: the triangle with the text next to it (js/triangle.js, content/triangulation.json)
   section.appendChild(buildTriangleSection());
-
-  // ----- one event, three views: three cards with a link per source
-  section.appendChild(buildEventSection());
 
   // ----- study area: the map with the outline, and the text
   const study = landingEl('div', 'landing-study');
@@ -96,37 +93,6 @@ function buildTriangleSection() {
   text.appendChild(links);
   card.appendChild(text);
   part.appendChild(card);
-  return part;
-}
-
-// "One event, three views": one card per event (content/triangulation.json "events"): how the sources agree, the name, one
-// sentence and a link per source. A source without anything on the event is shown in grey with the reason instead of a link.
-function buildEventSection() {
-  const c = CONTENT.triangulation.events;
-  const part = landingEl('div', 'landing-section');
-  part.appendChild(landingEl('h2', 'landing-title', c.title));
-  const cards = landingEl('div', 'landing-events');
-  c.cards.forEach((card) => {
-    const el = landingEl('div', 'card landing-event');
-    el.appendChild(landingEl('div', 'landing-event-kind', card.kind));
-    el.appendChild(landingEl('div', 'landing-event-name', card.name));
-    el.appendChild(landingEl('p', 'landing-event-text', card.text));
-    const links = landingEl('div', 'landing-event-links');
-    card.links.forEach((l) => {
-      const name = pageLabelOf(l.page);
-      if (l.href) {
-        const a = landingEl('a', 'landing-link', name + ' →');
-        a.href = l.href;
-        a.dataset.section = l.page;
-        links.appendChild(a);
-      } else {
-        links.appendChild(landingEl('span', 'landing-event-grey', name + ' · ' + l.grey));
-      }
-    });
-    el.appendChild(links);
-    cards.appendChild(el);
-  });
-  part.appendChild(cards);
   return part;
 }
 

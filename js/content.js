@@ -115,7 +115,7 @@ function checkContent(c) {
   ['sources', 'relations'].forEach((k) => {
     if (!Array.isArray(T[k]) || T[k].length !== 3) throw new ContentError(tf, '"' + k + '" must be a list of three items.');
   });
-  if (!T.texts || !T.landing || !T.events || !Array.isArray(T.events.cards) || !T.method || !T.center) throw new ContentError(tf, 'it needs "center", "texts", "landing", "events" (with "cards") and "method".');
+  if (!T.texts || !T.landing || !T.method || !T.center) throw new ContentError(tf, 'it needs "center", "texts", "landing" and "method".');
 }
 
 // Shown instead of the site when a content file cannot be used.

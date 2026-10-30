@@ -7,12 +7,11 @@
 .triangle { position: relative; width: 100%; }
 .triangle-svg { display: block; width: 100%; height: auto; overflow: visible; font-family: var(--font-body); }
 
-/* the middle: white triangle with the logo, the name and what the site does */
+/* the middle: white triangle with the logo and the name */
 .triangle-middle { fill: var(--color-surface); stroke: var(--color-card-border); stroke-linejoin: round; }
 .triangle-logo { fill: var(--color-header-bg); }
 .triangle-logo-letter { fill: var(--color-text-on-accent); font-size: 16px; font-weight: 600; }
 .triangle-center-name { fill: var(--color-text); font-size: 13px; font-weight: 600; }
-.triangle-center-subline { fill: var(--color-text-muted); font-size: 10px; }
 
 /* the sources: a light tint of the page color; the highlighted one is stronger and gets an outline.
    --tri-fill and --tri-hot are the share of the page color (matched by eye to the Figma tints). */
