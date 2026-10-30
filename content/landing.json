@@ -1,5 +1,5 @@
 {
-  "_about": "The landing page (#home, the page you land on): hero, the four page cards, the study area and the About card. Built by js/landing.js. Images: a path in the repo (img/ or data/vegetation/). A card with \"image\": null shows the solid color of its page. A card with \"wide\": true is a long block under the other cards (the others sit next to each other). The page color of a card comes from its \"page\" (the page id in content/pages.json, or \"method\"). \"draft\": true in the study area marks its sentences as not final: they are shown in grey.",
+  "_about": "The landing page (#home, the page you land on): hero, the study area and the About card. \"Three sources, one picture\" and \"One event, three views\" are in content/triangulation.json. Built by js/landing.js. Images: a path in the repo (img/ or data/vegetation/). \"draft\": true in the study area marks its sentences as not final: they are shown in grey.",
 
   "hero": {
     "title": "Sisal Mangrove Monitor",
@@ -11,44 +11,13 @@
     ]
   },
 
-  "pagesTitle": "What you'll find",
-  "openLabel": "Open →",
-  "cards": [
-    {
-      "page": "satellite",
-      "name": "Ecosystem",
-      "question": "Where did the mangrove change, and how healthy is it?",
-      "image": { "base": "data/vegetation/basemap.png", "layer": "data/vegetation/change.png" }
-    },
-    {
-      "page": "climatology",
-      "name": "Climatology",
-      "question": "Which storms hit Sisal, and how has the climate changed?",
-      "image": "img/climatology-band-milton.jpg"
-    },
-    {
-      "page": "stakeholders",
-      "name": "Stakeholders",
-      "question": "Who uses and manages the mangrove?",
-      "image": "img/stakeholder-map-placeholder.jpg"
-    },
-    {
-      "page": "method",
-      "name": "Method",
-      "question": "How was this made, and can I do it for my own area?",
-      "image": null,
-      "wide": true
-    }
-  ],
-
   "studyArea": {
     "title": "Study area",
     "draft": true,
     "image": "data/vegetation/basemap.png",
     "sentences": [
       "Sisal lies on the north coast of the Yucatán Peninsula, Mexico, where the coast is lined with lagoons and mangrove forest.",
-      "Mangroves protect the coast from storms, store carbon, and give shelter to fish, birds and the people who depend on them.",
-      "We compare an area with human intervention to an area without, to see what drives the changes we measure."
+      "Mangroves protect the coast from storms, store carbon, and give shelter to fish, birds and the people who depend on them."
     ]
   },
 

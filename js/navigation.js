@@ -1,9 +1,9 @@
 // navigation.js: switching between the screens.
-//   Every page has its own address (#home, #satellite, #climatology, #stakeholders, #method).
+//   Every page has its own address (#home, #satellite, #climatology, #stakeholders, #method; #home/triangle scrolls to a block of the landing page).
 //   Links only change the address; showScreen() then shows that screen, moves the cards it needs into
 //   place (placeCards) and sets the section colors. The back and forward buttons work too.
 // Reads: the page list of content/pages.json (through content.js).
-// Uses: helpers.js, content.js, method.js (openMethodTarget). Used by: main.js, method.js.
+// Uses: helpers.js, content.js, method.js (openMethodTarget), landing.js (scrollToLandingTarget). Used by: main.js, method.js.
 
 // ---------- navigation: screens and the address (#...) ----------
 //
@@ -140,9 +140,10 @@ function setupNavigation() {
   // e.g. #satellite/ndvi, scrolls to that part)
   window.addEventListener('hashchange', () => {
     showScreen();
-    if (!openMethodTarget() && !scrollToPart()) window.scrollTo(0, 0);
+    if (!openMethodTarget() && !scrollToPart() && !scrollToLandingTarget()) window.scrollTo(0, 0);
   });
 
   showScreen();
   scrollToPartWhileLoading();   // the page was opened (or reloaded) with the address of a part
+  scrollToLandingTarget();      // ... or with the address of a block of the landing page (#home/triangle)
 }

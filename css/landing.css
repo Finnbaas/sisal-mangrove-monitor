@@ -1,7 +1,7 @@
-/* landing.css: the landing page (#home): hero, the four page cards, the study area and the About card.
-   Built by js/landing.js from content/landing.json. Uses the style system of base.css (variables, .page-band, .card,
-   .about-label); a page card has data-section="<page id>", so the theme colors of that page apply inside it.
-   Loaded after method.css. */
+/* landing.css: the landing page (#home): hero, "Three sources, one picture", "One event, three views", the study area and the About card.
+   Built by js/landing.js from content/landing.json and content/triangulation.json. Uses the style system of base.css (variables,
+   .page-band, .card, .about-label); a link has data-section="<page id>", so the theme colors of that page apply to it.
+   Loaded after triangle.css. */
 
 .landing { display: flex; flex-direction: column; gap: var(--space-5); }
 
@@ -19,30 +19,24 @@
 .landing-section { display: flex; flex-direction: column; gap: var(--space-2); }
 .landing-title { margin: 0; font-family: var(--font-heading); font-weight: 600; font-size: var(--font-size-section); letter-spacing: var(--letter-spacing-title); line-height: normal; color: var(--color-text); }
 
-/* the page cards: the whole card is the link; the page name and "Open" are in the color of that page,
-   and the card gets a 2 px border in that page's color when hovered */
-.landing-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
-.landing-card { display: flex; flex-direction: column; overflow: hidden; background: var(--color-surface); border: 1px solid var(--color-card-border); border-radius: var(--radius-card); color: inherit; text-decoration: none; }
-.landing-card:hover, .landing-card:focus-visible { border-color: var(--color-header-bg); box-shadow: inset 0 0 0 1px var(--color-header-bg); }
-.landing-card:focus-visible { outline: 2px solid var(--color-header-bg); outline-offset: 2px; }
-.landing-thumb { position: relative; height: 168px; overflow: hidden; background: var(--color-header-bg); }
-/* on hover (or keyboard focus) the picture gets a filter in the color of that page */
-.landing-thumb::after { content: ''; position: absolute; inset: 0; background: var(--color-header-bg); opacity: 0; transition: opacity 0.15s; pointer-events: none; }
-.landing-card:hover .landing-thumb::after, .landing-card:focus-visible .landing-thumb::after { opacity: 0.45; }
-.landing-thumb > img { display: block; width: 100%; height: 100%; object-fit: cover; }
-/* the Ecosystem thumbnail: the base map zoomed in, with the change layer on it (placed by landing.js) */
-.landing-stage { position: absolute; left: 50%; top: 50%; width: 157%; transform: translate(-50%, -50%); }
-.landing-stage > img { display: block; width: 100%; height: auto; }
-.landing-stage > .landing-layer { position: absolute; width: auto; }
-.landing-card-body { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-2); }
-.landing-card-name { font-weight: 600; color: var(--color-accent); }
-.landing-card-question { color: var(--color-text-body); }
-.landing-card-open { font-weight: 500; color: var(--color-accent); }
+/* "Three sources, one picture": one card, the triangle (js/triangle.js) on the left and the text on the right, starting at the top of the triangle */
+.landing-triangle { display: grid; grid-template-columns: minmax(0, 640px) 1fr; gap: var(--space-5); align-items: start; padding: var(--space-4); }
+.landing-triangle-text { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+.landing-triangle-text p { margin: 0; line-height: 22px; color: var(--color-text-body); }
+.landing-triangle-links { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+/* a link in the color of the page it goes to (the link has data-section="<page id>") */
+.landing-link { font-weight: 500; color: var(--color-accent); text-decoration: none; }
+.landing-link:hover { text-decoration: underline; }
+.landing-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: var(--radius-control); }
 
-/* a wide card (content/landing.json "wide": true): a long block under the other cards, the picture on the left */
-.landing-card-wide { flex-direction: row; }
-.landing-card-wide .landing-thumb { flex: 0 0 240px; height: auto; min-height: 120px; }
-.landing-card-wide .landing-card-body { justify-content: center; }
+/* "One event, three views": three cards of the same height, the links at the bottom */
+.landing-events { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); align-items: stretch; }
+.landing-event { display: flex; flex-direction: column; gap: 10px; padding: 20px; }
+.landing-event-kind { font-size: var(--font-size-small); font-weight: 600; text-transform: uppercase; letter-spacing: var(--letter-spacing-label); color: var(--color-text-faint); }
+.landing-event-name { font-size: 16px; font-weight: 600; color: var(--color-text); }
+.landing-event-text { margin: 0; line-height: 20px; color: var(--color-text-body); }
+.landing-event-links { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-top: auto; padding-top: 6px; font-size: 13px; }
+.landing-event-grey { color: var(--color-text-faint); }
 
 /* study area: the map with the outline (640 px) and the text next to it */
 .landing-study { display: grid; grid-template-columns: 640px 1fr; gap: var(--space-3); align-items: start; }
@@ -62,8 +56,8 @@
 .landing-about-col p { margin: 0; line-height: 22px; color: var(--color-text-body); }
 
 @media (max-width: 960px) {
-  .landing-cards { grid-template-columns: repeat(2, 1fr); }
-  .landing-card-wide .landing-thumb { flex-basis: 120px; }
+  .landing-triangle { grid-template-columns: 1fr; gap: var(--space-3); }
+  .landing-events { grid-template-columns: 1fr; }
   .landing-study { grid-template-columns: 1fr; }
   .landing-about { grid-template-columns: 1fr; }
 }

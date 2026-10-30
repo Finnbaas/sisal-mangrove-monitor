@@ -4,7 +4,7 @@
 //   - fills every element with data-text="..." from texts.json; t('labels.year') gives one text
 //   - builds the sub-navigation, the pages, the parts with their section navigation, and the simple
 //     cards (image, text, placeholder, planned, group) from pages.json
-// Reads: content/pages.json, content/variables.json, content/texts.json, content/ecosystem.json, content/landing.json (see content/README.md).
+// Reads: content/pages.json, content/variables.json, content/texts.json, content/ecosystem.json, content/landing.json, content/triangulation.json (see content/README.md).
 // Used by: every screen file (CONTENT, t, parseJsonFile); main.js calls loadContent() first.
 
 let CONTENT = null;   // { pages, variables, texts, ecosystem } once loaded
@@ -30,7 +30,8 @@ const CONTENT_FILES = [
   { key: 'variables', path: 'content/variables.json', json: true },
   { key: 'texts', path: 'content/texts.json', json: true },
   { key: 'ecosystem', path: 'content/ecosystem.json', json: true },
-  { key: 'landing', path: 'content/landing.json', json: true }
+  { key: 'landing', path: 'content/landing.json', json: true },
+  { key: 'triangulation', path: 'content/triangulation.json', json: true }
 ];
 
 async function loadContent() {
@@ -108,9 +109,13 @@ function checkContent(c) {
   if (!c.texts || typeof c.texts !== 'object') throw new ContentError('content/texts.json', 'the file must contain an object ({ ... }).');
   const lf = 'content/landing.json', L = c.landing || {};
   if (!L.hero || typeof L.hero.title !== 'string' || !Array.isArray(L.hero.buttons)) throw new ContentError(lf, 'it needs a "hero" with a "title" and a list of "buttons".');
-  if (!Array.isArray(L.cards)) throw new ContentError(lf, 'it needs a list called "cards".');
   if (!L.studyArea || !Array.isArray(L.studyArea.sentences)) throw new ContentError(lf, 'it needs a "studyArea" with a list of "sentences".');
   if (!L.about || !Array.isArray(L.about.columns)) throw new ContentError(lf, 'it needs an "about" with a list of "columns".');
+  const tf = 'content/triangulation.json', T = c.triangulation || {};
+  ['sources', 'relations'].forEach((k) => {
+    if (!Array.isArray(T[k]) || T[k].length !== 3) throw new ContentError(tf, '"' + k + '" must be a list of three items.');
+  });
+  if (!T.texts || !T.landing || !T.events || !Array.isArray(T.events.cards) || !T.method || !T.center) throw new ContentError(tf, 'it needs "center", "texts", "landing", "events" (with "cards") and "method".');
 }
 
 // Shown instead of the site when a content file cannot be used.
@@ -197,7 +202,19 @@ function buildBand(s) {
     else intro.textContent = s.intro;
     top.appendChild(intro);
   }
+  // the small triangle of the three sources on the right (js/triangle.js): this page's source highlighted
+  const mini = buildMiniTriangle(s.id);
+  if (mini) top.appendChild(mini);
   return top;
+}
+
+// The image band of a page, and under it the line "This page answers ..." (js/triangle.js).
+function placeBand(section, s) {
+  const band = buildBand(s);
+  if (!band) return;
+  section.appendChild(band);
+  const answers = buildAnswersLine(s.id);
+  if (answers) section.appendChild(answers);
 }
 
 // Builds the page navigation in the top bar (one link per page, a divider, "Method") and one <section> per page from pages.json.
@@ -234,8 +251,7 @@ function buildPages() {
       buildParts(section, s, ready);
     } else {
       section.className = 'research-grid';
-      const band = buildBand(s);
-      if (band) section.appendChild(band);
+      placeBand(section, s);
       fillGrid(section, s, ready, s.id);
     }
     library.parentNode.insertBefore(section, library);
@@ -276,8 +292,7 @@ function buildParts(section, s, ready) {
   // the bar stays at the top in the page background color, so cards and axis labels never show behind the navigation
   // an optional page title (and intro) in an image band above the section navigation (Figma: v3 image band). An intro with
   // {placeholders} is filled in later, when the numbers have loaded (ecosystem.js)
-  const band = buildBand(s);
-  if (band) section.appendChild(band);
+  placeBand(section, s);
   const bar = document.createElement('div');
   bar.className = 'section-nav-bar';
   bar.appendChild(nav);

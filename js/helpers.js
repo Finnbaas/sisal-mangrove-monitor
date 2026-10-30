@@ -82,6 +82,12 @@ function isFilled(value) {
   return value !== undefined && value !== null && String(value).trim() !== '';
 }
 
+// A text with {name} placeholders filled in: fillPlaceholders('{a} and {b}', { a: 1, b: 2 }) gives "1 and 2".
+function fillPlaceholders(text, values) {
+  Object.entries(values).forEach(([k, v]) => { text = text.split('{' + k + '}').join(v); });
+  return text;
+}
+
 // A text from a content file as HTML, or "Not yet available" (or placeholderText) in a lighter
 // color when it is empty. cssClass is the class of that lighter text (per screen, see css/).
 function textOrPlaceholder(cssClass, value, placeholderText) {
