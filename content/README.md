@@ -16,11 +16,11 @@ touching the code (the `js/` and `css/` folders).
 |---|---|
 | `pages.json` | Which pages (sections) exist and which cards each page shows, in which order |
 | `variables.json` | Which variables are shown (point charts and storm charts), their labels, units and colors; trend metrics; change classes; scenarios; data sources; the year range |
-| `texts.json` | Short texts: card titles, labels, messages, footer |
+| `texts.json` | Short texts: card titles, labels, messages, footer, and the lines of code in the little code picture (`codeImage`) |
 | `stakeholders.json` | The Stakeholder page: three themes, the areas on the map (ellipses) and what stakeholders said about them |
 | `method.json` | The Method page: the analyses, their code files, and the "do it yourself" examples that the research cards link to |
-| `landing.json` | The landing page (`#home`): hero, study area and About card |
-| `triangulation.json` | The triangle of the three sources, "Three sources, one picture", the "This page answers" line of the research pages and the block on the Method page |
+| `landing.json` | The landing page (`#home`): hero, the Method card and About card |
+| `triangulation.json` | The triangle of the three sources, "How the three sources fit together", "What we found in Sisal", and the "This page answers" line of the research pages |
 | `climate.json` | "Climate at Sisal" on the Climatology page: the year range of "Change since 1950", the trends and their badges |
 
 Images go in `img/` (outside this folder) and are referred to as `img/name.png`.

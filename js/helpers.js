@@ -1,6 +1,7 @@
 // helpers.js: small tools used by every screen.
 //   - $ (find an element by id), color() and colorVarOf() (colors from the css), formatLike()
 //     (a number with as many decimals as the data has), escapeHtml(), textOrPlaceholder(), download()
+//   - buildCodeImage(): the little code-editor picture of the Method card and the Method page band
 //   - the values every screen shares: the year range, the change classes and the "No data" text,
 //     filled from content/variables.json and texts.json by readSharedContent()
 // Uses: content.js (CONTENT, t) once the content is loaded.
@@ -100,6 +101,45 @@ function textOrPlaceholder(cssClass, value, placeholderText) {
 function showPlaceholderTag(el, flag) {
   const tag = el && el.querySelector(".placeholder-tag");
   if (tag) tag.hidden = !flag;
+}
+
+// The little picture of a code editor (content/texts.json "codeImage": a file name and real lines of our analysis code).
+// Used by the Method card on the landing page and the band of the Method page; it is decoration, so screen readers skip it.
+// The colors of the words are in css/base.css (.code-image). Returns the element.
+const CODE_WORDS = /(#.*$)|('[^']*')|\b(with|for|in|if|continue|as)\b|\b(\d+(?:\.\d+)?)\b/g;   // comment, string, keyword, number
+const CODE_WORD_CLASSES = ['comment', 'string', 'keyword', 'number'];
+function buildCodeImage() {
+  const c = CONTENT.texts.codeImage;
+  const image = document.createElement('div');
+  image.className = 'code-image';
+  image.setAttribute('aria-hidden', 'true');
+  const bar = document.createElement('div');
+  bar.className = 'code-image-bar';
+  bar.textContent = c.file;
+  const numbers = document.createElement('pre');
+  numbers.className = 'code-image-numbers';
+  numbers.textContent = c.lines.map((line, i) => c.firstLine + i).join('\n');
+  const code = document.createElement('pre');
+  code.className = 'code-image-code';
+  c.lines.forEach((line, i) => {
+    let last = 0;
+    for (const m of line.matchAll(CODE_WORDS)) {
+      code.appendChild(document.createTextNode(line.slice(last, m.index)));
+      const word = document.createElement('span');
+      word.className = 'code-' + CODE_WORD_CLASSES[m.slice(1).findIndex(Boolean)];
+      word.textContent = m[0];
+      code.appendChild(word);
+      last = m.index + m[0].length;
+    }
+    code.appendChild(document.createTextNode(line.slice(last) + (i < c.lines.length - 1 ? '\n' : '')));
+  });
+  const body = document.createElement('div');
+  body.className = 'code-image-body';
+  body.appendChild(numbers);
+  body.appendChild(code);
+  image.appendChild(bar);
+  image.appendChild(body);
+  return image;
 }
 
 // Fills the values every screen shares from content/ (called by main.js before the screens start).

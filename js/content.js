@@ -109,13 +109,14 @@ function checkContent(c) {
   if (!c.texts || typeof c.texts !== 'object') throw new ContentError('content/texts.json', 'the file must contain an object ({ ... }).');
   const lf = 'content/landing.json', L = c.landing || {};
   if (!L.hero || typeof L.hero.title !== 'string' || !Array.isArray(L.hero.buttons)) throw new ContentError(lf, 'it needs a "hero" with a "title" and a list of "buttons".');
-  if (!L.studyArea || !Array.isArray(L.studyArea.sentences)) throw new ContentError(lf, 'it needs a "studyArea" with a list of "sentences".');
+  if (!L.method || typeof L.method.title !== 'string' || typeof L.method.href !== 'string') throw new ContentError(lf, 'it needs a "method" with a "title", a "text" and an "href".');
+  if (!c.texts.codeImage || !Array.isArray(c.texts.codeImage.lines)) throw new ContentError('content/texts.json', 'it needs a "codeImage" with a "file", a "firstLine" and a list of "lines".');
   if (!L.about || !Array.isArray(L.about.columns)) throw new ContentError(lf, 'it needs an "about" with a list of "columns".');
   const tf = 'content/triangulation.json', T = c.triangulation || {};
   ['sources', 'relations'].forEach((k) => {
     if (!Array.isArray(T[k]) || T[k].length !== 3) throw new ContentError(tf, '"' + k + '" must be a list of three items.');
   });
-  if (!T.texts || !T.landing || !T.method || !T.center) throw new ContentError(tf, 'it needs "center", "texts", "landing" and "method".');
+  if (!T.texts || !T.landing || !T.found || !T.center) throw new ContentError(tf, 'it needs "center", "texts", "landing" and "found".');
 }
 
 // Shown instead of the site when a content file cannot be used.

@@ -1,5 +1,5 @@
 {
-  "_about": "Everything the triangulation design says: the triangle (three sources and how they relate), the landing section 'Three sources, one picture', the line under the intro of each research page, and the block on the Method page. Built by js/triangle.js (the triangle and the lines), js/landing.js and js/method.js. The names of the three sources are the page labels of content/pages.json ('page' is the page id). {name}, {question}, {short}, {label}, {from} and {to} are filled in by the code.",
+  "_about": "Everything the triangulation design says: the triangle (three sources and how they relate), the landing sections 'How the three sources fit together' and 'What we found in Sisal' (its rows are the relations above) and the line under the intro of each research page. Built by js/triangle.js (the triangle and the lines) and js/landing.js. The names of the three sources are the page labels of content/pages.json ('page' is the page id). {name}, {question}, {short}, {label}, {from} and {to} are filled in by the code.",
 
   "center": { "name": "Sisal Mangrove Monitor" },
 
@@ -40,8 +40,9 @@
   },
 
   "landing": {
-    "title": "Three sources, one picture",
+    "title": "How the three sources fit together",
     "text": "We look at the mangrove of Sisal through three sources: satellite data of the ecosystem, climate data, and the stories of the people who live and work there. Each answers a different question, and none can assess the health of the mangrove on its own. Together they give a more complete picture.",
+    "methodText": "We use triangulation: we compare what each source shows. Findings of different sources can be convergent, complementary, divergent or silent (Erzberger & Kelle 2003; Farmer et al. 2006). The pairwise comparison of our three sources is in our report. This site gives the three sources and their methods, so you can do the same for your own area.",
     "exploreLinks": [
       { "page": "satellite", "label": "Explore the ecosystem →" },
       { "page": "climatology", "label": "Explore the climatology →" },
@@ -49,8 +50,11 @@
     ]
   },
 
-  "method": {
-    "title": "How the three sources fit together",
-    "text": "We use triangulation: we look at the mangrove through three sources and compare what each one shows. Findings of different sources can be convergent, complementary, divergent or silent (Erzberger & Kelle 2003; Farmer et al. 2006). The pairwise comparison of our three sources is in our report. This site gives the three sources and their methods, so you can do the same for your own area."
+  "found": {
+    "title": "What we found in Sisal",
+    "intro": "We compared the three sources in pairs. This is how they relate in Sisal.",
+    "and": "and",
+    "closing": "Each source covers what the others cannot.",
+    "source": "From our report: TU Delft MDP × UNAM Sisal, 2026."
   }
 }

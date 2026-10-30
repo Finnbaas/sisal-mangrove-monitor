@@ -9,7 +9,13 @@
 
 /* page header */
 /* the page header is the image band of the other pages (.page-band in base.css), here a solid band: title, intro and the GitHub button in white */
-.method-header { align-items: flex-start; gap: 12px; }
+.method-header { position: relative; align-items: flex-start; gap: 12px; }
+/* the picture of code fills the whole band (.code-image in base.css), zoomed in. A dark fade from the left keeps the white text readable;
+   the text sits above the picture. The tab bar with the file name is left out here. */
+.method-header .code-image { position: absolute; inset: 0; font-size: 20px; }
+.method-header .code-image::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, color-mix(in srgb, var(--color-band-overlay) 80%, transparent) 0%, color-mix(in srgb, var(--color-band-overlay) 55%, transparent) 55%, transparent 100%); }
+.method-header .code-image-bar { display: none; }
+.method-header > :not(.code-image) { position: relative; z-index: 1; }
 .method-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
 .method-header .github-link.large { background: var(--color-on-dark); color: var(--color-band-overlay); }
 .method-intro { margin: 0; max-width: 760px; font-size: var(--font-size-body); line-height: 1.6; color: var(--color-on-dark); }

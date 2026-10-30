@@ -1,9 +1,9 @@
 {
-  "_about": "The landing page (#home, the page you land on): hero, the study area and the About card. \"Three sources, one picture\" and \"One event, three views\" are in content/triangulation.json. Built by js/landing.js. Images: a path in the repo (img/ or data/vegetation/). \"draft\": true in the study area marks its sentences as not final: they are shown in grey.",
+  "_about": "The landing page (#home, the page you land on): hero, the Method card and the About card. \"How the three sources fit together\" and \"What we found in Sisal\" are in content/triangulation.json; the picture of code in the Method card is \"codeImage\" in content/texts.json. Built by js/landing.js. Images: a path in the repo (img/ or data/vegetation/).",
 
   "hero": {
     "title": "Sisal Mangrove Monitor",
-    "text": "How the mangrove around Sisal, Yucatán has changed since 1993, and what drives it: storms, climate and people.",
+    "text": "Sisal Mangrove Monitor puts three views of the mangrove side by side: satellite data, climate data, and the people of Sisal.",
     "image": "data/vegetation/basemap.png",
     "buttons": [
       { "label": "Explore the data", "href": "#satellite", "style": "filled" },
@@ -11,21 +11,19 @@
     ]
   },
 
-  "studyArea": {
-    "title": "Study area",
-    "draft": true,
-    "image": "data/vegetation/basemap.png",
-    "sentences": [
-      "Sisal lies on the north coast of the Yucatán Peninsula, Mexico, where the coast is lined with lagoons and mangrove forest.",
-      "Mangroves protect the coast from storms, store carbon, and give shelter to fish, birds and the people who depend on them."
-    ]
+  "method": {
+    "title": "Method",
+    "text": "This page explains the methods behind the research pages and gives the code to run the same analyses on your own data, location and question.",
+    "link": "Open →",
+    "href": "#method"
   },
 
   "about": {
     "columns": [
       { "label": "Who", "text": "TU Delft MDP × UNAM Sisal, 2026. A team of six from strategic product design, applied earth sciences and aerospace engineering." },
       { "label": "Data", "text": "Landsat 5, 7, 8 and 9 (via Google Earth Engine), Sentinel-2 (base map), Global Mangrove Watch, ERA5 and ERA5-Land, HYCOM, satellite altimetry, and HURDAT2 (NOAA National Hurricane Center)." },
-      { "label": "Status", "text": "Beta. Areas are mapped, not yet validated in the field." }
+      { "label": "Status", "text": "Beta. Areas are mapped, not yet validated in the field." },
+      { "label": "Where", "text": "Sisal, on the north coast of the Yucatán Peninsula, Mexico." }
     ]
   }
 }

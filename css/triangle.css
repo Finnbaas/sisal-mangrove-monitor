@@ -71,11 +71,3 @@
 .triangle-answers-link:hover { text-decoration: underline; }
 .triangle-answers-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: var(--radius-control); }
 
-/* ---------- the block on the Method page: text next to a smaller triangle ---------- */
-.triangle-method { display: grid; grid-template-columns: 1fr minmax(0, 520px); gap: 56px; align-items: center; padding: var(--space-4); }
-.triangle-method-text { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
-.triangle-method-text h3 { margin: 0; font-family: var(--font-heading); font-weight: 600; font-size: var(--font-size-section); letter-spacing: var(--letter-spacing-title); color: var(--color-text); }
-.triangle-method-text p { margin: 0; line-height: 22px; color: var(--color-text-body); }
-@media (max-width: 960px) {
-  .triangle-method { grid-template-columns: 1fr; gap: var(--space-3); }
-}

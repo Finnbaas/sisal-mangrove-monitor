@@ -14,7 +14,7 @@
 //   "galleryHint" (the line above the cards) and "license" (shown at the bottom while its tab is open).
 // Reads: content/method.json (written by the team) and, for the numbers in the texts, data/storms/storm-counts.json,
 //   data/events.json, data/climate/typical-year.json, data/climate/change.json and data/climate/wave-direction.json.
-// Uses: helpers.js, content.js, navigation.js (lastResearchSection), triangle.js (buildTriangle, for the triangulation block). Used by: main.js, navigation.js.
+// Uses: helpers.js, content.js, navigation.js (lastResearchSection). Used by: main.js, navigation.js.
 
 const METHOD_FILE = 'content/method.json';
 
@@ -388,27 +388,9 @@ function buildMethodPage() {
     '</div></div>';
 
   $('method').innerHTML = header + tabs + method.sections.map(methodSectionHtml).join('') + cite;
-  $('method').querySelector('.method-header').after(buildMethodTriangulation());   // the triangulation block: under the page intro, above the tabs
+  $('method').querySelector('.method-header').appendChild(buildCodeImage());   // the picture of code on the right of the band (helpers.js)
   if (!activeTab || !sectionById(activeTab)) activeTab = method.sections.length ? method.sections[0].id : null;
   selectMethodTab(activeTab);
-}
-
-// The block under the page intro: the text on triangulation and, next to it, the triangle (js/triangle.js, content/triangulation.json "method").
-function buildMethodTriangulation() {
-  const c = CONTENT.triangulation.method;
-  const block = document.createElement('div');
-  block.className = 'card triangle-method';
-  const text = document.createElement('div');
-  text.className = 'triangle-method-text';
-  const title = document.createElement('h3');
-  title.textContent = c.title;
-  const paragraph = document.createElement('p');
-  paragraph.textContent = c.text;
-  text.appendChild(title);
-  text.appendChild(paragraph);
-  block.appendChild(text);
-  block.appendChild(buildTriangle());
-  return block;
 }
 
 // Shows the content of one tab and hides the others.

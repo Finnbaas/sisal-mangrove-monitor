@@ -3,6 +3,26 @@
   "tabs": { "research": "Research", "method": "Method" },
   "defaultStorm": "milton-2024",
 
+  "codeImage": {
+    "_about": "The little picture of a code editor on the landing page (Method card) and in the band of the Method page. The lines are copied as they are from analysis/climatology/reference/storm_selection.py, starting at line number firstLine.",
+    "file": "storm_selection.py",
+    "firstLine": 8,
+    "lines": [
+      "SITE = (21.165, -90.03)     # Sisal",
+      "RADIUS_KM = 100",
+      "YEAR0, YEAR1 = 1950, 2025   # same period as the ERA5-Land baseline",
+      "",
+      "# --- read HURDAT2: one row per 6-hourly track point ---",
+      "rows, sid, name = [], None, None",
+      "with open(HURDAT) as f:",
+      "    for line in f:",
+      "        p = [x.strip() for x in line.split(',')]",
+      "        if p[0].startswith('AL'):",
+      "            sid, name = p[0], p[1]",
+      "            continue"
+    ]
+  },
+
   "cardTitles": {
     "point-map": "Sisal: monitoring points",
     "point-description": "About this point",
