@@ -756,9 +756,10 @@
         "HURDAT2 (NOAA National Hurricane Center): storm tracks. Every 6 hours, {storms.start} to {storms.end}."
       ],
       "limitations": [
-        "One grid cell per variable, not an area average; reanalysis (model) data, not local measurements.",
-        "The record periods differ per variable; salinity only covers {record.salinity.start} to {record.salinity.end}, so later storms have no salinity.",
-        "Too few storms ({storms.total} in {storms.start} to {storms.end}) for a trend test."
+        "Reanalysis data are model estimates over a grid cell (about 9 km on land, 31 km at sea), not measurements at one location.",
+        "Data before the satellite era (before about 1979) are less reliable.",
+        "Record periods differ per variable, so not every variable can be compared across the full period.",
+        "Hurricanes are rare events; the record is too short for a reliable trend test."
       ],
       "folder": "https://github.com/Finnbaas/sisal-mangrove-analyses/tree/main/climatology",
       "files": [
@@ -969,18 +970,15 @@
     },
     {
       "id": "stakeholders",
-      "title": "Stakeholder mapping",
+      "title": "Stakeholder analysis",
       "galleryHint": "Methods you can use with people in your own area. Pick one to see how it works and what you need.",
       "datasets": [
-        "Interviews with seven stakeholders in Sisal, September and October 2026: semi-structured, held in Spanish with translation support, recorded and transcribed.",
         "Stakeholder types, each shown only by a code: academic (AC), community restoration group (CR), conservation NGO (NGO), eco-tourism (ET), government (GOV).",
         "Areas drawn by the stakeholders on a map during the interview (question 5), then placed on the Sentinel-2 base map (January–May 2024)."
       ],
       "limitations": [
-        "Seven stakeholders, so it does not represent the whole community.",
         "Areas are approximate: they show where people meant, not exact boundaries.",
-        "Periods come from memory; vague periods (\"recent\", \"over 30 years\") are shown as approximate on the timeline.",
-        "Interviews went through translation, so the format was mostly question and answer, with few follow-up questions. Statements are paraphrased in English from the translated transcripts; hearsay is marked as such."
+        "Periods come from memory; vague periods (\"recent\", \"over 30 years\") can be shown as approximate on the timeline."
       ],
       "license": "Templates under CC BY 4.0, code under MIT",
       "folder": "https://github.com/Finnbaas/sisal-mangrove-analyses/tree/main/stakeholder-mapping",
