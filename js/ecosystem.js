@@ -703,7 +703,14 @@ function aboutText(text) {
   return p;
 }
 
+// The "Use this code" link opens the Method panel of the map shown ("methodTarget" in ecosystem.json); other maps keep the default.
+function updateMapsLink() {
+  const { item } = currentMap();
+  $('eco-maps-link').href = item.methodTarget || CONTENT.ecosystem.texts.mapsLinkTarget;
+}
+
 function renderAbout() {
+  updateMapsLink();
   const layer = currentLayer();
   const body = $('eco-about-body');
   body.innerHTML = '';

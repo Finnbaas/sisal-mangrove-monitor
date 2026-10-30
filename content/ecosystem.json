@@ -13,16 +13,19 @@
           {
             "view": "classes",
             "slug": "change-classes",
+"methodTarget": "#method/mangrove-change-classes",
             "label": "Change classes"
           },
           {
             "view": "per-period",
             "slug": "change-per-period",
+"methodTarget": "#method/mangrove-change-per-period",
             "label": "Change per period"
           },
           {
             "view": "dndvi",
             "slug": "dndvi",
+"methodTarget": "#method/mangrove-dndvi",
             "label": "dNDVI 2014-2025"
           }
         ]
@@ -34,16 +37,19 @@
           {
             "view": "status",
             "slug": "status",
+"methodTarget": "#method/mangrove-status",
             "label": "Status"
           },
           {
             "view": "trend",
             "slug": "trend",
+"methodTarget": "#method/mangrove-trend",
             "label": "Trend"
           },
           {
             "view": "canopy",
             "slug": "canopy",
+"methodTarget": "#method/mangrove-canopy-density",
             "label": "Canopy density 2019-2025"
           }
         ]
