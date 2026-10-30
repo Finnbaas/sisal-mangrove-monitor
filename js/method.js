@@ -102,9 +102,6 @@ function setupMethod() {
     // "Download all files": the files of the open example one after the other (a short pause between them, because browsers can block a burst of downloads)
     const downloadAll = e.target.closest('[data-download-all]');
     if (downloadAll) { downloadZip(downloadAll); return; }
-    // "Copy link" in a panel: copies the address of the panel
-    const copy = e.target.closest('[data-copy-link]');
-    if (copy) { copyPanelLink(copy); return; }
     // the download icon of one file
     const download = e.target.closest('a.file-download');
     if (download) { e.preventDefault(); downloadFile(download); return; }
@@ -167,25 +164,6 @@ function focusCard(id) {
 function setMethodAddress(id) {
   const hash = '#method/' + (id || activeTab);
   if (location.hash !== hash) history.pushState({ methodPanel: true }, '', hash);
-}
-
-// Copies the full address of a panel; the button says "Copied" for 2 seconds.
-async function copyPanelLink(button) {
-  const id = button.closest('.use-case').id.replace(/^use-case-/, '');
-  const url = location.href.split('#')[0] + '#method/' + id;
-  try {
-    await navigator.clipboard.writeText(url);
-  } catch (error) {
-    const box = document.createElement('textarea');   // older browsers and pages without https
-    box.value = url;
-    document.body.appendChild(box);
-    box.select();
-    document.execCommand('copy');
-    box.remove();
-  }
-  button.textContent = t('labels.copied');
-  clearTimeout(button.copiedTimer);
-  button.copiedTimer = setTimeout(() => { button.textContent = t('labels.copyLink'); }, 2000);
 }
 
 // ---------- the numbers in the texts ----------
@@ -618,7 +596,6 @@ function useCaseHtml(section, useCase) {
 
   return '<div class="use-case' + (arrived ? ' highlighted' : '') + '" id="use-case-' + escapeHtml(useCase.id) + '">' + bar +
     '<button type="button" class="use-case-close" aria-label="' + escapeHtml(t('labels.closePanel')) + '" title="' + escapeHtml(t('labels.closePanel')) + '">&times;</button>' +
-    '<button type="button" class="ghost use-case-copy" data-copy-link>' + escapeHtml(t('labels.copyLink')) + '</button>' +
     '<div class="use-case-body">' +
       '<div class="use-case-instructions"><div><div class="use-case-title" tabindex="-1">' + textOrPlaceholder('method-placeholder', useCase.title) + '</div></div>' + madeHtml + choicesHtml + usedHtml + needHtml + routesHtml + stepsHtml + readmeHtml + '</div>' +
       '<div class="use-case-files">' + filesHtml + (isFilled(section.folder) || downloadAllHtml ? filesActions(section, downloadAllHtml) : '') + '</div>' +   // "Download all files", the folder link (and zip) under the downloads
