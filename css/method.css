@@ -9,7 +9,13 @@
 
 /* page header */
 /* the page header is the image band of the other pages (.page-band in base.css), here a solid band: title, intro and the GitHub button in white */
-.method-header { align-items: flex-start; gap: 12px; }
+.method-header { position: relative; align-items: flex-start; gap: 12px; }
+/* the picture of code fills the whole band (.code-image in base.css), zoomed in. A dark fade from the left keeps the white text readable;
+   the text sits above the picture. The tab bar with the file name is left out here. */
+.method-header .code-image { position: absolute; inset: 0; font-size: 20px; }
+.method-header .code-image::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, color-mix(in srgb, var(--color-band-overlay) 80%, transparent) 0%, color-mix(in srgb, var(--color-band-overlay) 55%, transparent) 55%, transparent 100%); }
+.method-header .code-image-bar { display: none; }
+.method-header > :not(.code-image) { position: relative; z-index: 1; }
 .method-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
 .method-header .github-link.large { background: var(--color-on-dark); color: var(--color-band-overlay); }
 .method-intro { margin: 0; max-width: 760px; font-size: var(--font-size-body); line-height: 1.6; color: var(--color-on-dark); }
@@ -109,10 +115,10 @@ summary.method-label:focus-visible { outline: 2px solid var(--color-text-body); 
 .use-case-close { position: absolute; top: 8px; right: 10px; z-index: 1; width: 28px; height: 28px; padding: 0; border: none; border-radius: var(--radius-control); background: transparent; font-size: var(--font-size-section); line-height: 1; color: var(--color-text-muted); }
 .use-case-close:hover, .use-case-close:focus-visible { background: var(--color-surface); color: var(--color-text); }
 .use-case-bar + .use-case-close { top: 44px; }
+.use-case-title:focus { outline: none; }   /* the title gets the focus when a panel opens; no ring around it */
 .use-case-body { display: flex; align-items: flex-start; gap: 32px; padding: 16px 44px 16px 18px; }
 .use-case-instructions { flex: 0 0 55%; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
 .use-case-title { font-size: var(--font-size-body); font-weight: 700; color: var(--color-text); }
-.use-case-name { margin-top: 2px; font-size: var(--font-size-small); color: var(--color-text-faint); }
 .use-case-steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .use-case-steps li { display: flex; align-items: flex-start; gap: 10px; font-size: var(--font-size-body); line-height: 1.45; color: var(--color-text-body); }
 .use-case-number { width: 20px; height: 20px; border-radius: var(--radius-control); background: var(--color-surface); display: flex; align-items: center; justify-content: center; font-size: var(--font-size-small); font-weight: 600; color: var(--color-text-body); flex-shrink: 0; }
@@ -149,6 +155,9 @@ button.sub-card:hover, button.sub-card:focus-visible { box-shadow: none; }
 .sub-title { font-size: var(--font-size-body); line-height: 1.4; color: var(--color-text); }
 .sub-card.selected .sub-title { color: var(--color-accent); }
 /* "Coming soon": greyed out, not clickable */
+/* the maps of a sub-card (Extent), under it and indented */
+.sub-maps { display: flex; flex-direction: column; gap: 6px; margin: -2px 0 2px 16px; }
+.sub-map { padding: 8px 12px; }
 .sub-card.coming-soon { opacity: 0.55; cursor: default; box-shadow: none; background: var(--color-background); }
 .sub-card.coming-soon .sub-title { color: var(--color-text-muted); }
 .example-card.coming-soon { opacity: 0.55; cursor: default; background: var(--color-background); }
@@ -173,4 +182,4 @@ button.sub-card:hover, button.sub-card:focus-visible { box-shadow: none; }
   .use-case-files { width: 100%; }
   .example-gallery { grid-template-columns: repeat(2, 1fr); }
 }
-
+.download-message { margin: 8px 0 0 10px; }   /* the file that is missing from the ZIP */

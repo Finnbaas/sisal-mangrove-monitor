@@ -24,7 +24,7 @@ files. Changes to the files show after saving; Live Server reloads the page.
 
 | Address | Page |
 |---|---|
-| `#home` | Landing page: hero, the four pages, study area and About (content/landing.json). An empty address and the old `#overview` also show it |
+| `#home` | Landing page: hero, three sources (triangle), study area and About (content/landing.json, content/triangulation.json). An empty address and the old `#overview` also show it |
 | `#satellite` | The same cards for the ecosystem analysis |
 | `#climatology` | "Storms at Sisal" (event list, storm charts) and "Climate at Sisal" (a typical year, change since 1950, in detail) |
 | `#stakeholders` | One map with a theme menu (Extent, Condition, Disturbance & recovery): the areas where stakeholders saw change, a timeline with a year slider, and what they said about the clicked area (`#stakeholders/<theme>` and `#stakeholders/<theme>/<number>` open a theme or an area) |
@@ -121,13 +121,13 @@ Claude Code reads CLAUDE.md in every session, so the long descriptions live here
 - index.html: page structure (top bar, footer, the card library); loads the css and js files
 - css/: one shared file plus one per screen. Load order in index.html: base, points, charts, climatology, stakeholders, method.
   - css/base.css: design tokens (colors as CSS variables at the top, named like the Figma Tokens), section themes, page, top bar, navigation, cards, placeholders, research layout, card actions, footer
-  - css/points.css (Ecosystem: points map and chart), css/landing.css (landing page), css/charts.css (stacked charts shared by storms and climate), css/climatology.css, css/stakeholders.css, css/method.css
+  - css/points.css (Ecosystem: points map and chart), css/landing.css (landing page), css/triangle.css (the triangle, its mini version and the "This page answers" line), css/charts.css (stacked charts shared by storms and climate), css/climatology.css, css/stakeholders.css, css/method.css
 - js/: one file per screen plus shared helpers. All files share global names, so the script order in index.html matters (helpers.js first, main.js last); only main.js runs code, the others only define functions.
   - js/helpers.js: $, colors, number formatting (formatLike), escapeHtml, textOrPlaceholder, download, and the values every screen shares (year range, change classes, NO_DATA; filled by readSharedContent)
   - js/content.js: loads and checks content/pages.json, variables.json and texts.json, fills the texts, builds the pages, parts and simple cards, shows placeholder states
   - js/charts.js: the chart parts and the comparison line, shared by the storm charts and the climate charts
   - js/navigation.js: switching screens by the address (#home ... #method), moving cards into place
-  - js/points.js: Ecosystem (map with the points, point chart, downloads); js/landing.js: the landing page
+  - js/points.js: Ecosystem (map with the points, point chart, downloads); js/landing.js: the landing page; js/triangle.js: the triangle of the three sources
   - js/climatology-storms.js: "Storms at Sisal" (event list, storm anomaly charts)
   - js/climatology-climate.js: "Climate at Sisal" (A typical year, Change since 1950, In detail)
   - js/stakeholders.js: the Stakeholder screen (one Leaflet map with the areas of the chosen theme, the timeline with the year slider, the area panel); reuses the map code and the menu tabs of js/ecosystem.js

@@ -9,7 +9,7 @@
 //   "Key choices"), "howWeUsed" and "whatYouNeed". A section with "datasets" (Climatology, Ecosystem) shows its data
 //   sources and limitations above the cards and the link to its folder on GitHub below them.
 //   A use case with "subCards" (Mangrove maps) shows no steps: its sub-cards sit inside the card (twice as wide); a sub-card is a use case with
-//   a "parent" (#method/mangrove-extent opens both). A use case can have "routes": tabs with their own steps.
+//   a "parent" (#method/mangrove-dndvi opens both). A sub-card can have "maps" (ids of use cases whose "parent" is the sub-card): clicking it shows those maps inside the card, and each opens its own panel. A use case can have "routes": tabs with their own steps.
 //   A use case with "comingSoon" (and a "title") is a greyed-out card without panel. A section can have its own
 //   "galleryHint" (the line above the cards) and "license" (shown at the bottom while its tab is open).
 // Reads: content/method.json (written by the team) and, for the numbers in the texts, data/storms/storm-counts.json,
@@ -20,6 +20,7 @@ const METHOD_FILE = 'content/method.json';
 
 let method = null;           // contents of content/method.json, or null if it could not be loaded
 let activeTab = null;        // id of the section (tab) that is shown
+let openGroup = null;        // id of the sub-card (Extent) whose maps are shown inside the Mangrove maps card
 let openUseCase = null;      // id of the use case whose panel is open (only one on the whole page; none at the start)
 let methodFacts = {};        // the numbers that the texts can use, from the data files (see loadMethodFacts)
 let routeChoice = {};        // the chosen route per use case id (use cases with "routes": tabs above the steps)
@@ -86,8 +87,9 @@ function setupMethod() {
   $('method').addEventListener('click', (e) => {
     const tab = e.target.closest('.method-tab');
     if (tab) {
-      if (tab.dataset.section !== activeTab) { openUseCase = null; methodArrival = null; }   // the panel belongs to the old tab
+      if (tab.dataset.section !== activeTab) { openUseCase = null; openGroup = null; methodArrival = null; }   // the panel belongs to the old tab
       selectMethodTab(tab.dataset.section);
+      setMethodAddress(null);
       return;
     }
     // a route tab inside a panel (Quick | Accurate): shows the steps of that route
@@ -99,29 +101,69 @@ function setupMethod() {
     }
     // "Download all files": the files of the open example one after the other (a short pause between them, because browsers can block a burst of downloads)
     const downloadAll = e.target.closest('[data-download-all]');
-    if (downloadAll) {
-      downloadAll.disabled = true;
-      const links = [...downloadAll.closest('.use-case').querySelectorAll('a.file-download')];
-      (async () => {
-        for (const link of links) { await downloadFile(link); await new Promise((resolve) => setTimeout(resolve, 400)); }
-        downloadAll.disabled = false;
-      })();
-      return;
-    }
+    if (downloadAll) { downloadZip(downloadAll); return; }
     // the download icon of one file
     const download = e.target.closest('a.file-download');
     if (download) { e.preventDefault(); downloadFile(download); return; }
+    // a sub-card with "maps" (Extent): shows or hides its maps inside the card; the panel opens when a map is clicked
+    const groupButton = e.target.closest('.sub-card[data-group]');
+    if (groupButton) {
+      const id = groupButton.dataset.group;
+      const closing = openGroup === id;
+      openGroup = closing ? null : id;
+      const open = findUseCase(openUseCase);
+      if (closing && open && open.useCase.parent === id) openUseCase = null;   // the panel of one of its maps closes with it
+      if (!closing && open && open.useCase.parent !== id) openUseCase = null;   // opening a group: a panel of another card closes
+      methodArrival = null;
+      renderUseCases();
+      return;
+    }
     const card = e.target.closest('.example-card, .sub-card');
     const close = e.target.closest('.use-case-close');
     if (!card && !close) return;
     if (card && !card.dataset.useCase) return;   // a card with sub-cards (Mangrove maps) has no steps itself: only its sub-cards open a panel
+    if (card && !card.classList.contains('sub-card')) openGroup = null;   // another card selected: the Mangrove maps card is no longer selected
+    const wasOpen = openUseCase;
     openUseCase = close || openUseCase === card.dataset.useCase ? null : card.dataset.useCase;
     methodArrival = null;   // the visitor is now browsing on their own
     renderUseCases();
+    setMethodAddress(openUseCase);
     const panel = openUseCase && $('use-case-' + openUseCase);
-    if (panel) panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    if (panel) showPanel(panel);
+    else if (wasOpen) focusCard(wasOpen);   // closed: back to the card that opened it
   });
   loadMethod();
+}
+
+// ---------- the open panel: scroll, focus, address, link ----------
+
+// The room the sticky tabs take at the top of the page, plus a small gap: a panel scrolls to just below them.
+function stickyOffset() {
+  const bar = document.querySelector('#method .section-nav-bar');
+  return (bar ? bar.getBoundingClientRect().height : 0) + 12;
+}
+
+// Scrolls a panel smoothly to just below the sticky tabs and moves the keyboard focus to its title.
+function showPanel(panel) {
+  panel.style.scrollMarginTop = stickyOffset() + 'px';
+  panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  focusPanelTitle(panel);
+}
+function focusPanelTitle(panel) {
+  const title = panel.querySelector('.use-case-title');
+  if (title) title.focus({ preventScroll: true });
+}
+// After closing a panel the focus goes back to its card (or, for a map, its button inside the Mangrove maps card).
+function focusCard(id) {
+  const card = document.querySelector('#method .example-card[data-use-case="' + id + '"], #method .sub-card[data-use-case="' + id + '"]');
+  if (card) card.focus({ preventScroll: true });
+}
+
+// The address bar follows the panel: #method/<use case id> while one is open, #method/<tab> when none is. Every
+// change is a step in the browser history, so back and forward open and close the panels (openMethodTarget).
+function setMethodAddress(id) {
+  const hash = '#method/' + (id || activeTab);
+  if (location.hash !== hash) history.pushState({ methodPanel: true }, '', hash);
 }
 
 // ---------- the numbers in the texts ----------
@@ -197,11 +239,10 @@ function choiceHtml(c) {
     escapeHtml(isFilled(c.moreLabel) ? c.moreLabel : t('labels.showMore')) + '</summary><span class="choice-more-text">' + escapeHtml(c.more) + '</span></details></span>';
 }
 
-// The row under the cards of a tab: the link to the folder on GitHub and, when the section has one, the zip file.
+// The row under the cards of a tab: "Download all files" (when the card has more than one file) and the link to the folder on GitHub.
 function filesActions(section, downloadAllButton) {
   return '<div class="method-files-actions">' + (downloadAllButton || '') +
     githubLink('small', t(isFilled(section.folder) ? 'labels.viewFolderOnGithub' : 'labels.viewOnGithub'), section.folder) +
-    (isFilled(section.zip) ? '<a class="ghost download-all" href="' + escapeHtml(section.zip) + '" download>' + escapeHtml(t('labels.downloadAll')) + '</a>' : '') +
     '</div>';
 }
 
@@ -244,11 +285,69 @@ async function downloadFile(link) {
     document.body.appendChild(a);
     a.click();
     a.remove();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 60000);   // not at once: the browser may still be reading the file
   } catch (error) {
     console.warn('Could not download ' + link.href + ': ' + error.message);
     window.open(link.href, '_blank', 'noopener');
   }
+}
+
+// "Download all files": fetches every file of the card from raw.githubusercontent.com and saves them as one ZIP, built here
+// with JSZip (script tag in index.html). The ZIP is named after the card id and keeps the folders: the part of the
+// path that all files share is left out. A file that cannot be fetched is skipped and named in a short message.
+async function downloadZip(button) {
+  const panel = button.closest('.use-case');
+  const id = panel.id.replace(/^use-case-/, '');
+  const label = button.querySelector('span');
+  const original = label.textContent;
+  let message = panel.querySelector('.download-message');
+  if (!message) {
+    message = document.createElement('div');
+    message.className = 'download-message small';
+    message.setAttribute('role', 'status');
+    button.parentNode.after(message);
+  }
+  message.textContent = '';
+  if (typeof JSZip === 'undefined') { message.textContent = t('labels.downloadZipFailed'); return; }
+  button.disabled = true;
+  label.textContent = t('labels.downloadPreparing');
+  try {
+    // the path of each file in the repository: raw.githubusercontent.com/owner/repo/branch/<path>
+    const files = [...panel.querySelectorAll('a.file-download')].map((link) => ({
+      url: link.href,
+      parts: decodeURIComponent(new URL(link.href).pathname).split('/').slice(4).filter(Boolean)
+    }));
+    let shared = 0;   // number of folders that all files have in common
+    while (files.every((f) => f.parts.length > shared + 1 && f.parts[shared] === files[0].parts[shared])) shared++;
+    const zip = new JSZip();
+    const missing = [];
+    await Promise.all(files.map(async (f) => {
+      try {
+        const response = await fetch(f.url);
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        zip.file(id + '/' + f.parts.slice(shared).join('/'), await response.arrayBuffer());
+      } catch (error) {
+        console.warn('Could not download ' + f.url + ': ' + error.message);
+        missing.push(f.parts[f.parts.length - 1]);
+      }
+    }));
+    if (missing.length < files.length) {
+      const url = URL.createObjectURL(await zip.generateAsync({ type: 'blob', mimeType: 'application/zip' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = id + '.zip';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);   // not at once: the browser may still be reading the file
+    }
+    if (missing.length) message.textContent = t(missing.length === files.length ? 'labels.downloadZipFailed' : 'labels.downloadMissing').replace('{files}', missing.join(', '));
+  } catch (error) {
+    console.warn('Could not make the ZIP: ' + error.message);
+    message.textContent = t('labels.downloadZipFailed');
+  }
+  label.textContent = original;
+  button.disabled = false;
 }
 
 function sectionById(id) {
@@ -289,6 +388,7 @@ function buildMethodPage() {
     '</div></div>';
 
   $('method').innerHTML = header + tabs + method.sections.map(methodSectionHtml).join('') + cite;
+  $('method').querySelector('.method-header').appendChild(buildCodeImage());   // the picture of code on the right of the band (helpers.js)
   if (!activeTab || !sectionById(activeTab)) activeTab = method.sections.length ? method.sections[0].id : null;
   selectMethodTab(activeTab);
 }
@@ -384,7 +484,7 @@ function renderUseCases() {
       const badges = (u.badges || []).filter(isFilled);
       // a card with "subCards" (Mangrove maps) is twice as wide and holds its options itself; it has no steps of its own
       if (Array.isArray(u.subCards)) {
-        const open = u.subCards.some((c) => c.id && c.id === openUseCase);
+        const open = u.subCards.some((c) => c.id && (c.id === openUseCase || c.id === openGroup));
         // left: the picture and title as on the other cards; right: what it is for and the options under each other
         return '<div class="example-card example-group' + (open ? ' selected' : '') + '" data-section="' + escapeHtml(section.id) + '">' +
           '<div class="example-group-left">' +
@@ -418,6 +518,16 @@ function renderUseCases() {
 // A sub-card with "comingSoon" is greyed out and does nothing.
 function subCardsHtml(group) {
   return '<div class="sub-cards">' + group.subCards.map((c) => {
+    // a sub-card with "maps" (Extent): a button that shows its maps (small buttons under it, each opening its own panel)
+    if (Array.isArray(c.maps) && c.id) {
+      const shown = c.id === openGroup;
+      const maps = c.maps.map((id) => findUseCase(id)).filter(Boolean).map((f) => f.useCase);
+      return '<button type="button" class="sub-card' + (shown ? ' selected' : '') + '" data-group="' + escapeHtml(c.id) + '" aria-expanded="' + shown + '">' +
+        '<span class="sub-title">' + escapeHtml(c.title) + '</span></button>' +
+        (shown ? '<div class="sub-maps">' + maps.map((m) =>
+          '<button type="button" class="sub-card sub-map' + (m.id === openUseCase ? ' selected' : '') + '" data-use-case="' + escapeHtml(m.id) + '" aria-expanded="' + (m.id === openUseCase) + '">' +
+          '<span class="sub-title">' + escapeHtml(m.tabLabel || m.title) + '</span></button>').join('') + '</div>' : '');
+    }
     if (c.comingSoon || !c.id) {
       return '<div class="sub-card coming-soon" aria-disabled="true"><span class="sub-title">' + escapeHtml(c.title) + '</span>' +
         '<span class="badge">' + escapeHtml(t('labels.comingSoon')) + '</span></div>';
@@ -464,9 +574,6 @@ function useCaseHtml(section, useCase) {
     '<div class="route-tabs" role="tablist">' + routes.map((r) =>
       '<button type="button" class="route-tab' + (r === route ? ' current' : '') + '" role="tab" aria-selected="' + (r === route) + '" data-use-case="' + escapeHtml(useCase.id) + '" data-route="' + escapeHtml(r.id) + '">' + escapeHtml(r.title) + '</button>').join('') + '</div>' +
     (isFilled(route.description) ? '<p class="method-text">' + escapeHtml(route.description) + '</p>' : '') + '</div>' : '';
-  const readmeHtml = isFilled(useCase.readmeLink) ?
-    '<a class="github-link small" href="' + escapeHtml(useCase.readmeLink) + '" target="_blank" rel="noopener">' + METHOD_ICONS.github + '<span>' + escapeHtml(useCase.readmeLabel || useCase.readmeLink) + '</span></a>' : '';
-
   const steps = ((route ? route.steps : useCase.steps) || []).filter(isFilled);
   const stepsHtml = steps.length ? '<ol class="use-case-steps">' + steps.map((s, i) =>
     '<li><span class="use-case-number">' + (i + 1) + '</span><span>' + escapeHtml(fillFacts(s)) + '</span></li>').join('') + '</ol>'
@@ -477,6 +584,12 @@ function useCaseHtml(section, useCase) {
   const filesHtml = files.length ? '<div class="file-list">' + files.map(fileRow).join('') + '</div>'
     : '<div class="method-files-empty small">' + escapeHtml(t('messages.filesWillBeAdded')) + '</div>';
 
+  // the README link: set on the card, or else the README in its file list
+  const readmeFile = files.find((f) => /(^|\/)README\.md$/.test(f.name) && isFilled(f.path));
+  const readmeLink = isFilled(useCase.readmeLink) ? useCase.readmeLink : (readmeFile ? readmeFile.path : '');
+  const readmeHtml = isFilled(readmeLink) ?
+    '<a class="github-link small" href="' + escapeHtml(readmeLink) + '" target="_blank" rel="noopener">' + METHOD_ICONS.github + '<span>' + escapeHtml(useCase.readmeLabel || t('labels.readmeOnGithub')) + '</span></a>' : '';
+
   // one button that downloads every available file of this example (only when there is more than one)
   const downloadable = files.filter((f) => isFilled(f.path));
   const downloadAllHtml = downloadable.length > 1 ?
@@ -485,8 +598,7 @@ function useCaseHtml(section, useCase) {
   return '<div class="use-case' + (arrived ? ' highlighted' : '') + '" id="use-case-' + escapeHtml(useCase.id) + '">' + bar +
     '<button type="button" class="use-case-close" aria-label="' + escapeHtml(t('labels.closePanel')) + '" title="' + escapeHtml(t('labels.closePanel')) + '">&times;</button>' +
     '<div class="use-case-body">' +
-      '<div class="use-case-instructions"><div><div class="use-case-title">' + textOrPlaceholder('method-placeholder', useCase.title) + '</div>' +
-      '<div class="use-case-name mono">#method/' + escapeHtml(useCase.id) + '</div></div>' + madeHtml + choicesHtml + usedHtml + needHtml + routesHtml + stepsHtml + readmeHtml + '</div>' +
+      '<div class="use-case-instructions"><div><div class="use-case-title" tabindex="-1">' + textOrPlaceholder('method-placeholder', useCase.title) + '</div></div>' + madeHtml + choicesHtml + usedHtml + needHtml + routesHtml + stepsHtml + readmeHtml + '</div>' +
       '<div class="use-case-files">' + filesHtml + (isFilled(section.folder) || downloadAllHtml ? filesActions(section, downloadAllHtml) : '') + '</div>' +   // "Download all files", the folder link (and zip) under the downloads
     '</div></div>';
 }
@@ -507,34 +619,39 @@ function openMethodTarget() {
     methodCameFrom = null;
     // #method/<section id> opens that tab
     const tab = parts[0] === 'method' && parts[1] ? sectionById(parts[1]) : null;
-    if (tab) { if (tab.id !== activeTab) openUseCase = null; selectMethodTab(tab.id); }
+    if (tab) { openUseCase = null; if (tab.id !== activeTab) openGroup = null; selectMethodTab(tab.id); }   // the address names a tab only: no panel
     else if (hadArrival) renderUseCases();
     return false;
   }
-  methodArrival = { useCase: found.useCase.id, from: methodCameFrom };
+  // an address made by this page (a click, or back and forward) is not an arrival: no highlight and no "came from" bar
+  const ownStep = !!(history.state && history.state.methodPanel);
+  methodArrival = ownStep ? null : { useCase: found.useCase.id, from: methodCameFrom };
   methodCameFrom = null;
   openUseCase = found.useCase.id;
+  openGroup = found.useCase.parent || null;              // a map of Extent: Extent opens in the card
   selectMethodTab(found.section.id);                      // shows the tab and opens the panel
   const el = $('use-case-' + found.useCase.id);
-  if (el && !$('method').hidden) {
+  if (el && !$('method').hidden && ownStep) {
+    showPanel(el);
+  } else if (el && !$('method').hidden) {
     // start at the top of the page so the visitor sees which page they landed on (the selected card is
     // visible there), then scroll slowly down to the steps after a short pause
     window.scrollTo(0, 0);
     const address = location.hash;
     setTimeout(() => {
-      if (location.hash === address) scrollSlowlyTo(el);   // not if the visitor already went elsewhere
+      if (location.hash === address) { scrollSlowlyTo(el); focusPanelTitle(el); }   // not if the visitor already went elsewhere
     }, 700);
   }
   return true;
 }
 
 // Scrolls down to an element in about 1.6 seconds (the browser's own smooth scroll is too fast and cannot be slowed down),
-// so the element ends up in the middle of the screen. With "reduce motion" switched on it jumps instead.
+// so the element ends up just below the sticky tabs. With "reduce motion" switched on it jumps instead.
 const SLOW_SCROLL_MS = 1600;
 function scrollSlowlyTo(el) {
   const start = window.scrollY;
   const rect = el.getBoundingClientRect();
-  const target = Math.max(0, start + rect.top - (window.innerHeight - rect.height) / 2);
+  const target = Math.max(0, start + rect.top - stickyOffset());
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { window.scrollTo(0, target); return; }
   const begin = performance.now();
   const address = location.hash;
