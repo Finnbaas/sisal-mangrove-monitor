@@ -1,4 +1,4 @@
-/* triangle.css: the triangle of the three sources (triangulation), its small version and the "This page answers" line.
+/* triangle.css: the triangle of the three sources (triangulation), and its small version.
    Built by js/triangle.js from content/triangulation.json (Figma Playground: "Triangle A - Refined report", "Triangle A mini").
    Every source has data-section="<page id>", so the colors of its page (css/base.css) apply to it; the other colors are the
    shared ones of base.css. Loaded after method.css. */
@@ -66,10 +66,4 @@
 .triangle-mini-shape { fill: color-mix(in srgb, var(--color-text-faint) 38%, var(--color-surface)); }
 .triangle-mini-shape.is-hot { fill: var(--color-accent); }
 
-/* ---------- the line under the intro of a research page ---------- */
-.triangle-answers { margin: 0; font-size: var(--font-size-body); line-height: 1.6; color: var(--color-text-body); }
-.research-grid > .triangle-answers { grid-column: 1 / -1; }
-.triangle-answers-link { font-weight: 500; color: var(--color-accent); text-decoration: none; }
-.triangle-answers-link:hover { text-decoration: underline; }
-.triangle-answers-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: var(--radius-control); }
 

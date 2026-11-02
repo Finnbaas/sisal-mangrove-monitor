@@ -417,13 +417,21 @@ def export_storm_counts():
         name = names[sid].title()
         storms.append({'id': f'{name.lower()}-{time.year}', 'hurdatId': sid, 'name': name, 'year': int(time.year),
                        'month': int(time.month), 'studied': sid in studied})
+    # studied storms that are not in the selection (Mitch, Stan) are counted too, in the month of their storm period
+    start_of = {storm_id(all_trk, p['name'], p['start'][:4]): pd.Timestamp(p['start']) for p in periods}
+    for sid, name in studied.items():
+        if sid not in set(first.index):
+            when = start_of[sid]
+            storms.append({'id': f'{name.lower()}-{when.year}', 'hurdatId': sid, 'name': name.title(), 'year': int(when.year),
+                           'month': int(when.month), 'studied': True})
     per_month = pd.Series([x['month'] for x in storms]).value_counts().reindex(range(1, 13), fill_value=0)
     months = [m for m in range(1, 13) if per_month[m]]
     body = {
         'record': {'start': COUNT_YEAR0, 'end': COUNT_YEAR1},
         'rule': (f'Tropical or subtropical systems (HURDAT2 status TS, HU or SS) of at least tropical-storm strength '
                  f'(34 kt) within {RADIUS_KM} km of Sisal, {COUNT_YEAR0} to {COUNT_YEAR1}. Track points are interpolated to '
-                 f'hourly; the month is that of the first hour inside the circle.'),
+                 f'hourly; the month is that of the first hour inside the circle. Studied storms that do not meet this rule are '
+                 f'counted too, in the month their storm period starts.'),
         # numbers for the text under the charts (the website only shows them)
         'summary': {'total': len(storms), 'firstMonth': months[0], 'lastMonth': months[-1],
                     'peakMonths': [m for m in months if per_month[m] == per_month.max()]},

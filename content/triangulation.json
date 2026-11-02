@@ -34,9 +34,7 @@
     "triangleAria": "The three sources of this study and how they relate",
     "sourceAria": "{name}: {question} Open the {name} page.",
     "relationAria": "{label}: {from} and {to}. Show what this relation means.",
-    "miniAria": "{name} is one of three sources. Show the triangle of the three sources on the landing page.",
-    "answersLead": "This page answers:",
-    "answersSee": "For {short}, see"
+    "miniAria": "{name} is one of three sources. Show the triangle of the three sources on the landing page."
   },
 
   "landing": {

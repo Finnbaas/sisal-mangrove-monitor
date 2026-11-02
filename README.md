@@ -121,7 +121,7 @@ Claude Code reads CLAUDE.md in every session, so the long descriptions live here
 - index.html: page structure (top bar, footer, the card library); loads the css and js files
 - css/: one shared file plus one per screen. Load order in index.html: base, points, charts, climatology, stakeholders, method.
   - css/base.css: design tokens (colors as CSS variables at the top, named like the Figma Tokens), section themes, page, top bar, navigation, cards, placeholders, research layout, card actions, footer
-  - css/points.css (Ecosystem: points map and chart), css/landing.css (landing page), css/triangle.css (the triangle, its mini version and the "This page answers" line), css/charts.css (stacked charts shared by storms and climate), css/climatology.css, css/stakeholders.css, css/method.css
+  - css/points.css (Ecosystem: points map and chart), css/landing.css (landing page), css/triangle.css (the triangle and its mini version), css/charts.css (stacked charts shared by storms and climate), css/climatology.css, css/stakeholders.css, css/method.css
 - js/: one file per screen plus shared helpers. All files share global names, so the script order in index.html matters (helpers.js first, main.js last); only main.js runs code, the others only define functions.
   - js/helpers.js: $, colors, number formatting (formatLike), escapeHtml, textOrPlaceholder, download, and the values every screen shares (year range, change classes, NO_DATA; filled by readSharedContent)
   - js/content.js: loads and checks content/pages.json, variables.json and texts.json, fills the texts, builds the pages, parts and simple cards, shows placeholder states

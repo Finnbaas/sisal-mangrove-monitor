@@ -757,9 +757,8 @@
       ],
       "limitations": [
         "Reanalysis data are model estimates over a grid cell (about 9 km on land, 31 km at sea), not measurements at one location.",
-        "Data before the satellite era (before about 1979) are less reliable.",
-        "Record periods differ per variable, so not every variable can be compared across the full period.",
-        "Hurricanes are rare events; the record is too short for a reliable trend test."
+        "Data before the satellite era (before about 1993) are less reliable.",
+        "Record periods differ per variable, so not every variable can be compared across the full period."
       ],
       "folder": "https://github.com/Finnbaas/sisal-mangrove-analyses/tree/main/climatology",
       "files": [
@@ -822,7 +821,7 @@
           "id": "storm-tracks-map",
           "title": "Storm tracks near a location",
           "image": "img/method/storm-map.png",
-          "howMade": "We study {storms.studied} storms in detail: all passed within 100 km of Sisal and have daily climate data (ERA5 starts in {record.windSpeed.start}; earlier storms are counted, not studied). {storms.notCounted} are studied but not counted: near Sisal they were weaker than tropical storm strength.",
+          "howMade": "We study {storms.studied} storms in detail: all passed within 100 km of Sisal and have daily climate data (ERA5 starts in {record.windSpeed.start}; earlier storms are counted, not studied). {storms.notCounted} were weaker than tropical storm strength near Sisal, but are counted and studied too.",
           "howWeUsed": "We used it to show the tracks of the storms that came within 100 km of Sisal, coloured by strength, and to see where they come from.",
           "howWeUsedLink": "#climatology",
           "whatYouNeed": [
