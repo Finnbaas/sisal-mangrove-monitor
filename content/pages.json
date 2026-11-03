@@ -5,7 +5,6 @@
       "label": "Ecosystem",
       "title": "Ecosystem",
       "band": "data/vegetation/basemap.png",
-      "hideAnswersLine": true,
       "intro": "Satellite analysis of the mangrove forest at Sisal, Yucatán, 1993–2025. Maps show where the forest has grown, thinned or been lost. An early-warning analysis at {total} sample locations tests whether parts of it are approaching a tipping point.",
       "parts": [
         {
@@ -35,6 +34,7 @@
       "label": "Climatology",
       "title": "Climatology",
       "band": "img/climatology-band-milton.jpg",
+      "intro": "Climate and storm data for Sisal. The storm charts show how strong each tropical storm was when it passed near Sisal. The climate charts show what a typical year looks like for each variable and how it has changed over the years.",
       "parts": [
         {
           "id": "storms",
@@ -69,6 +69,7 @@
       "label": "Stakeholders",
       "title": "Stakeholders",
       "band": "img/stakeholders-band-mangrove.png",
+      "intro": "Interviews with the people who live and work around the Sisal mangrove. The map shows where they work and which parts of the forest matter to them. The observations show what they have seen change over time.",
       "columns": [
         ["stakeholder-map", "stakeholder-time"],
         ["stakeholder-panel"]

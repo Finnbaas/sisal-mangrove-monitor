@@ -209,14 +209,10 @@ function buildBand(s) {
   return top;
 }
 
-// The image band of a page, and under it the line "This page answers ..." (js/triangle.js).
+// The image band of a page.
 function placeBand(section, s) {
   const band = buildBand(s);
-  if (!band) return;
-  section.appendChild(band);
-  if (s.hideAnswersLine) return;   // pages.json: this page shows no "This page answers ..." line
-  const answers = buildAnswersLine(s.id);
-  if (answers) section.appendChild(answers);
+  if (band) section.appendChild(band);
 }
 
 // Builds the page navigation in the top bar (one link per page, a divider, "Method") and one <section> per page from pages.json.

@@ -3,9 +3,9 @@
   "start": 1950,
   "end": 2025
  },
- "rule": "Tropical or subtropical systems (HURDAT2 status TS, HU or SS) of at least tropical-storm strength (34 kt) within 100 km of Sisal, 1950 to 2025. Track points are interpolated to hourly; the month is that of the first hour inside the circle.",
+ "rule": "Tropical or subtropical systems (HURDAT2 status TS, HU or SS) of at least tropical-storm strength (34 kt) within 100 km of Sisal, 1950 to 2025. Track points are interpolated to hourly; the month is that of the first hour inside the circle. Studied storms that do not meet this rule are counted too, in the month their storm period starts.",
  "summary": {
-  "total": 17,
+  "total": 19,
   "firstMonth": 6,
   "lastMonth": 10,
   "peakMonths": [
@@ -146,6 +146,22 @@
    "hurdatId": "AL142024",
    "name": "Milton",
    "year": 2024,
+   "month": 10,
+   "studied": true
+  },
+  {
+   "id": "mitch-1998",
+   "hurdatId": "AL131998",
+   "name": "Mitch",
+   "year": 1998,
+   "month": 10,
+   "studied": true
+  },
+  {
+   "id": "stan-2005",
+   "hurdatId": "AL202005",
+   "name": "Stan",
+   "year": 2005,
    "month": 10,
    "studied": true
   }

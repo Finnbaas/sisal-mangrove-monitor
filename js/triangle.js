@@ -1,10 +1,8 @@
-// triangle.js: the triangle of the three sources (triangulation), the small version of it and the
-//   "This page answers ..." line of the research pages.
+// triangle.js: the triangle of the three sources (triangulation), and the small version of it.
 //   - buildTriangle(): the big triangle as inline SVG (Figma Playground "Triangle A - Refined report"). Hover or keyboard
 //     focus on a source highlights it and its two relations (the rest goes to 30 %); a click opens that page. Hover, focus or a
 //     tap on a relation highlights it and shows its text in a tooltip. On a phone the relation names move below the triangle.
 //   - buildMiniTriangle(pageId): 48 px, shapes only, with the source of that page highlighted; it links to the landing page.
-//   - buildAnswersLine(pageId): the line under the intro of a research page.
 // Reads: content/triangulation.json and the page labels of content/pages.json (through content.js).
 // Uses: helpers.js (fillPlaceholders), content.js (CONTENT, pageSections). Used by: landing.js, method.js, content.js.
 // Colors come from the css variables (css/triangle.css): every source has data-section="<page id>", so it takes the colors of its page.
@@ -233,25 +231,4 @@ function buildMiniTriangle(pageId) {
   TRIANGLE_MINI.forEach((d, i) => svg.appendChild(svgEl('path', { class: i === index ? 'triangle-mini-shape is-hot' : 'triangle-mini-shape', d })));
   link.appendChild(svg);
   return link;
-}
-
-// ---------- the line under the intro of a research page ----------
-
-// "This page answers: where and how much? For when, see Climatology → For why, see Stakeholders →"
-function buildAnswersLine(pageId) {
-  const c = CONTENT.triangulation;
-  const own = c.sources.find((s) => s.page === pageId);
-  if (!own) return null;
-  const line = triHtml('p', 'triangle-answers');
-  const question = own.question.charAt(0).toLowerCase() + own.question.slice(1);
-  line.appendChild(document.createTextNode(c.texts.answersLead + ' ' + question + ' '));
-  c.sources.filter((s) => s.page !== pageId).forEach((s) => {
-    line.appendChild(document.createTextNode(fillPlaceholders(c.texts.answersSee, { short: s.short }) + ' '));
-    const link = triHtml('a', 'triangle-answers-link', pageLabelOf(s.page) + ' →');
-    link.href = '#' + s.page;
-    link.dataset.section = s.page;   // the link has the color of the page it goes to
-    line.appendChild(link);
-    line.appendChild(document.createTextNode(' '));
-  });
-  return line;
 }
